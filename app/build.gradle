@@ -1,0 +1,125 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+android {
+    namespace 'de.lemke.oneuisampleapp'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "de.lemke.oneuisampleapp"
+        minSdk 26
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        resConfigs "en"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+        release {
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+    }
+
+    buildTypes {
+        release {
+            // Enables code shrinking, obfuscation, and optimization for only your project's release build type.
+            minifyEnabled true
+            // Enables resource shrinking, which is performed by the Android Gradle plugin.
+            shrinkResources true
+            // Includes the default ProGuard rules files that are packaged with the Android Gradle plugin.
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+
+            ndk {
+                debugSymbolLevel 'FULL'
+            }
+        }
+        debug {
+            debuggable true
+            signingConfig signingConfigs.debug
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildFeatures {
+        viewBinding true
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+configurations.all {
+    exclude group: 'androidx.appcompat', module: 'appcompat'
+    exclude group: 'androidx.core', module: 'core'
+    exclude group: 'androidx.drawerlayout', module: 'drawerlayout'
+    exclude group: 'androidx.viewpager', module: 'viewpager'
+    exclude group: 'androidx.viewpager2', module: 'viewpager2'
+    exclude group: 'androidx.coordinatorlayout', module: 'coordinatorlayout'
+    exclude group: 'androidx.recyclerview', module: 'recyclerview'
+    exclude group: 'androidx.fragment', module: 'fragment'
+    exclude group: 'android.fragment', module: 'fragment'
+}
+
+dependencies {
+    implementation 'io.github.oneuiproject:design:1.2.1'
+
+    implementation 'io.github.oneuiproject.sesl:appcompat:1.3.0'
+    implementation 'io.github.oneuiproject.sesl:coordinatorlayout:1.0.0'
+    implementation 'io.github.oneuiproject.sesl:drawerlayout:1.0.0'
+    implementation 'io.github.oneuiproject.sesl:preference:1.1.0'
+    implementation 'io.github.oneuiproject.sesl:recyclerview:1.3.0'
+    implementation 'io.github.oneuiproject.sesl:swiperefreshlayout:1.0.0'
+    implementation 'io.github.oneuiproject.sesl:viewpager:1.0.0'
+    implementation 'io.github.oneuiproject.sesl:viewpager2:1.1.0'
+
+    implementation 'io.github.oneuiproject.sesl:material:1.4.0'
+
+    implementation 'io.github.oneuiproject.sesl:apppickerview:1.0.0'
+    implementation 'io.github.oneuiproject.sesl:indexscroll:1.0.3'
+    implementation 'io.github.oneuiproject.sesl:picker-basic:1.1.0'
+    implementation 'io.github.oneuiproject.sesl:picker-color:1.0.1'
+
+    implementation 'io.github.oneuiproject:icons:1.0.1'
+
+
+    implementation 'com.airbnb.android:lottie:5.2.0'
+
+    implementation 'androidx.core:core-ktx:1.9.0'
+
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+    def room_version = "2.4.3"
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    androidTestImplementation "androidx.room:room-testing:$room_version"
+
+    implementation 'com.google.dagger:hilt-android:2.42'
+    kapt 'com.google.dagger:hilt-compiler:2.42'
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+}

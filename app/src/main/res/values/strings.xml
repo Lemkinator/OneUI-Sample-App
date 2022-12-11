@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name" translatable="false">OneUI Sample App</string>
+    <string name="version">Version %1$s</string>
+    <string name="all_apps">All apps</string>
+</resources>
