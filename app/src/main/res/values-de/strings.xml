@@ -1,0 +1,46 @@
+<resources>
+    <string name="version">Version %1$s</string>
+    <string name="all_apps">Alle apps</string>
+    <string name="about_app">Über OneUI Sample</string>
+
+    <string name="sesl_cancel">Abbrechen</string>
+    <string name="sesl_navigate_up">Zurück</string>
+    <string name="settings">Einstellungen</string>
+
+    <!--Settings-->
+    <string name="design">Design</string>
+    <string name="system_default">Systemeinstellung</string>
+    <string name="general">Allgemein</string>
+    <string name="confirm_exit">Verlassen bestätigen</string>
+    <string name="press_again_to_exit">Zurück-Taste erneut drücken um zu Beenden.</string>
+    <string name="delete_appdata_and_exit">App-Daten löschen und Beenden</string>
+    <string name="delete_appdata_and_exit_warning">Achtung: Dadurch werden alle persönlichen Daten gelöscht. Fortfahren? </string>
+    <string name="dev_options">Developer options</string>
+    <string name="more_information">Mehr Informationen</string>
+
+    <!--OOBE-->
+    <string name="oobe_onboard_msg1_title">Schönes Design</string>
+    <string name="oobe_onboard_msg2_title">Kostenlos</string>
+    <string name="oobe_onboard_msg3_title">Keine Werbung</string>
+    <string name="oobe_onboard_msg1_summary">Eine schöne App im OneUI Design.</string>
+    <string name="oobe_onboard_msg2_summary">Keine Abos, keine In-App-Käufe, keinerlei Kosten.</string>
+    <string name="oobe_onboard_msg3_summary">Keine nervige Werbung.</string>
+    <string name="tos">Nutzungsbedingungen</string>
+    <string name="tos_content">Es ist nicht gestattet, diese App entgegen den guten Sitten oder den geltenden Gesetzen zu verwenden. \n\nSie verpflichten sich außerdem, diese App nicht für Zwecke zu verwenden, die nach dem Recht der Vereinigten Staaten verboten sind, insbesondere nicht für die Entwicklung, Konstruktion, Herstellung oder Produktion von Raketen, chemischen oder biologischen Waffen. \nDiese Einschränkung gilt jedoch nicht für den Fall, dass eine weit verbreitete Virusinfektion auftritt (die von den United States Centers for Disease Control oder einer Nachfolgeorganisation bestätigt wurde), die durch Bisse oder Kontakt mit Körperflüssigkeiten übertragen wird und dazu führt, dass menschliche Leichen wiederbelebt werden und versuchen, lebendes menschliches Fleisch, Blut, Gehirn oder Nervengewebe zu verzehren, und die wahrscheinlich zum Untergang der organisierten Zivilisation führen wird. </string>
+    <string name="oobe_tos_text">Durch die Nutzung der App stimmen Sie den %1$s zu.</string>
+    <string name="accept_tos">Weiter</string>
+    <string name="about_oneui_sample">About OneUI Sample</string>
+    <string name="custom_about_oneui_sample_screen">Custom About OneUI Sample Screen</string>
+    <string name="show_letters">Show letters</string>
+    <string name="hide_letters">Hide letters</string>
+    <string name="show_system_apps">Show system apps</string>
+    <string name="hide_system_apps">Hide system apps</string>
+    <string name="status">Status</string>
+    <string name="oneui_project_team">OneUI Project Team</string>
+    <string name="open_source_licenses">Open source licenses</string>
+    <string name="android_jetpack">Android Jetpack</string>
+    <string name="material_components">Material Components</string>
+    <string name="oneui_project">OneUI Project</string>
+
+
+</resources>

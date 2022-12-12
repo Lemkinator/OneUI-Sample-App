@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="?attr/actionBarSize"
+    tools:context=".ui.OOBEActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0.0dp"
+            android:layout_weight="1">
+
+            <FrameLayout
+                android:id="@+id/oobe_intro_header"
+                android:layout_width="match_parent"
+                android:layout_height="0.0dp"
+                app:layout_constraintHeight_percent="0.2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/OOBE.TextView.Title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/app_name" />
+
+            </FrameLayout>
+
+            <ScrollView
+                android:id="@+id/oobe_intro_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="0.0dp"
+                app:layout_constraintHeight_percent="0.8"
+                android:paddingTop="24.0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/oobe_intro_header">
+
+                <LinearLayout
+                    android:id="@+id/oobe_intro_tips_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+            </ScrollView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/oobe_intro_footer_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="24.0dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/oobe_intro_footer_tos_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8.0dp"
+                android:layout_marginBottom="24.0dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="34.0dp"
+                    android:layout_height="34.0dp"
+                    android:src="@drawable/ic_oui_privacy" />
+
+                <Space
+                    android:layout_width="8.0dp"
+                    android:layout_height="match_parent"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/oobe_intro_footer_tos_text"
+                    style="@style/OOBE.TextView.ToS"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="44.0dp">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/oobe_intro_footer_button"
+                    style="@style/OOBE.Button"
+                    android:layout_width="296.0dp"
+                    android:layout_height="44.0dp"
+                    android:text="@string/accept_tos"
+                    android:layout_gravity="center" />
+
+                <androidx.appcompat.widget.SeslProgressBar
+                    android:id="@+id/oobe_intro_footer_button_progress"
+                    style="@style/Widget.AppCompat.ProgressBar"
+                    android:layout_width="32.0dp"
+                    android:layout_height="32.0dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

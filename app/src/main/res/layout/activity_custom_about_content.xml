@@ -15,7 +15,7 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="OneUI Project Team" />
+            android:text="@string/oneui_project_team" />
 
         <dev.oneuiproject.oneui.widget.RoundLinearLayout
             android:layout_width="match_parent"
@@ -43,7 +43,7 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Open source licenses" />
+            android:text="@string/open_source_licenses" />
 
     <dev.oneuiproject.oneui.widget.RoundLinearLayout
         android:layout_width="match_parent"
@@ -78,17 +78,17 @@
             <TextView
                 android:id="@+id/about_bottom_relative_jetpack"
                 style="@style/OneUI.RelativeLinkTextViewStyle"
-                android:text="Android Jetpack" />
+                android:text="@string/android_jetpack" />
 
             <TextView
                 android:id="@+id/about_bottom_relative_material"
                 style="@style/OneUI.RelativeLinkTextViewStyle"
-                android:text="Material Components" />
+                android:text="@string/material_components" />
 
             <TextView
                 android:id="@+id/about_bottom_relative_ouip"
                 style="@style/OneUI.RelativeLinkTextViewStyle"
-                android:text="OneUI Project" />
+                android:text="@string/oneui_project" />
 
         </dev.oneuiproject.oneui.widget.RelatedCard>
 

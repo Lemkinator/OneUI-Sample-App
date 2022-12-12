@@ -2,36 +2,53 @@ package de.lemke.oneuisampleapp.ui.fragment
 
 import android.content.Context
 import android.content.res.Configuration
-import de.lemke.oneuisampleapp.ui.BaseFragment
-import androidx.recyclerview.widget.RecyclerView
-import androidx.indexscroll.widget.SeslIndexScrollView
-import dev.oneuiproject.oneui.utils.IndexScrollUtils
-import android.os.Bundle
-import de.lemke.oneuisampleapp.R
-import androidx.appcompat.view.menu.SeslMenuItem
-import androidx.recyclerview.widget.LinearLayoutManager
 import android.database.MatrixCursor
 import android.graphics.Canvas
-import androidx.indexscroll.widget.SeslCursorIndexer
-import androidx.indexscroll.widget.SeslIndexScrollView.OnIndexBarEventListener
-import android.widget.SectionIndexer
-import android.widget.TextView
 import android.graphics.drawable.Drawable
-import androidx.appcompat.util.SeslSubheaderRoundedCorner
+import android.os.Bundle
 import android.util.TypedValue
 import android.view.*
-import androidx.appcompat.util.SeslRoundedCorner
 import android.view.ViewGroup.MarginLayoutParams
-import android.widget.ImageView
+import android.widget.*
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.util.SeslRoundedCorner
+import androidx.appcompat.util.SeslSubheaderRoundedCorner
+import androidx.appcompat.view.menu.SeslMenuItem
+import androidx.indexscroll.widget.SeslCursorIndexer
+import androidx.indexscroll.widget.SeslIndexScrollView
+import androidx.indexscroll.widget.SeslIndexScrollView.OnIndexBarEventListener
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisampleapp.R
+import de.lemke.oneuisampleapp.domain.GetUserSettingsUseCase
+import de.lemke.oneuisampleapp.domain.UpdateUserSettingsUseCase
+import de.lemke.oneuisampleapp.ui.BaseFragment
+import dev.oneuiproject.oneui.layout.ToolbarLayout
 import dev.oneuiproject.oneui.widget.Separator
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class IndexScrollFragment : BaseFragment() {
-    private var currentSectionIndex = 0
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
+    private lateinit var toolbarLayout: ToolbarLayout
+    private lateinit var adapter: IndexAdapter
     private lateinit var listView: RecyclerView
+    private var selected = HashMap<Int, Boolean>()
+    private var selecting = false
+    private var checkAllListening = true
+    private var currentSectionIndex = 0
     private lateinit var indexScrollView: SeslIndexScrollView
     private var isTextModeEnabled = false
-    private var isIndexBarPressed = false
-    private val hideIndexBar = Runnable { IndexScrollUtils.animateVisibility(indexScrollView, false) }
+
+    @Inject
+    lateinit var getUserSettings: GetUserSettingsUseCase
+
+    @Inject
+    lateinit var updateUserSettings: UpdateUserSettingsUseCase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -40,31 +57,35 @@ class IndexScrollFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         indexScrollView = view.findViewById(R.id.indexscroll_view)
+        toolbarLayout = requireActivity().findViewById(R.id.drawerLayout)
+        listView = view.findViewById(R.id.indexscroll_list)
         initListView(view)
         initIndexScroll()
+        onBackPressedCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                if (selecting) setSelecting(false)
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         val textModeItem = menu.findItem(R.id.menu_indexscroll_text)
         textModeItem.isVisible = true
-        if (isTextModeEnabled) {
-            textModeItem.title = "Hide letters"
-        } else {
-            textModeItem.title = "Show letters"
-        }
         (textModeItem as SeslMenuItem).badgeText = getString(dev.oneuiproject.oneui.design.R.string.oui_new_badge_text)
+        lifecycleScope.launch {
+            isTextModeEnabled = getUserSettings().showLetters
+            textModeItem.title = if (isTextModeEnabled) getString(R.string.hide_letters) else getString(R.string.show_letters)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.menu_indexscroll_text) {
             (item as SeslMenuItem).badgeText = null
             isTextModeEnabled = !isTextModeEnabled
-            if (isTextModeEnabled) {
-                item.title = "Hide letters"
-            } else {
-                item.title = "Show letters"
-            }
+            lifecycleScope.launch { updateUserSettings { it.copy(showLetters = isTextModeEnabled) } }
+            item.title = if (isTextModeEnabled) getString(R.string.hide_letters) else getString(R.string.show_letters)
             indexScrollView.setIndexBarTextMode(isTextModeEnabled)
             indexScrollView.invalidate()
             return true
@@ -82,10 +103,13 @@ class IndexScrollFragment : BaseFragment() {
     override val iconResId: Int = dev.oneuiproject.oneui.R.drawable.ic_oui_edge_panels
     override val title: CharSequence = "IndexScroll"
 
+    @Suppress("unused_parameter")
     private fun initListView(view: View) {
-        listView = view.findViewById(R.id.indexscroll_list)
+        selected = HashMap()
+        listItems.indices.forEach { i -> selected[i] = false }
         listView.layoutManager = LinearLayoutManager(context)
-        listView.adapter = IndexAdapter()
+        adapter = IndexAdapter()
+        listView.adapter = adapter
         listView.addItemDecoration(ItemDecoration(requireContext()))
         listView.itemAnimator = null
         listView.seslSetFillBottomEnabled(true)
@@ -93,16 +117,60 @@ class IndexScrollFragment : BaseFragment() {
         listView.seslSetIndexTipEnabled(true)
         listView.seslSetGoToTopEnabled(true)
         listView.seslSetSmoothScrollEnabled(true)
+        listView.seslSetLongPressMultiSelectionListener(object : RecyclerView.SeslLongPressMultiSelectionListener {
+            override fun onItemSelected(view: RecyclerView, child: View, position: Int, id: Long) {
+                if (adapter.getItemViewType(position) == 0) toggleItemSelected(position)
+            }
+
+            override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {}
+            override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {}
+        })
+    }
+
+    fun setSelecting(enabled: Boolean) {
+        if (enabled) {
+            selecting = true
+            adapter.notifyItemRangeChanged(0, adapter.itemCount)
+            toolbarLayout.actionModeBottomMenu.clear()
+            toolbarLayout.setActionModeBottomMenu(R.menu.menu_select)
+            toolbarLayout.setActionModeBottomMenuListener { item: MenuItem ->
+                Toast.makeText(context, item.title, Toast.LENGTH_SHORT).show()
+                setSelecting(false)
+                true
+            }
+            toolbarLayout.showActionMode()
+            toolbarLayout.setActionModeCheckboxListener { _, isChecked ->
+                if (checkAllListening) {
+                    selected.replaceAll { _, _ -> isChecked }
+                    listItems.forEachIndexed { index, itemName -> if (itemName.length == 1) selected[index] = false }
+                    adapter.notifyItemRangeChanged(0, adapter.itemCount)
+                }
+                toolbarLayout.setActionModeCount(selected.values.count { it }, listItems.size - 28)
+            }
+            onBackPressedCallback.isEnabled = true
+        } else {
+            selecting = false
+            for (i in 0 until adapter.itemCount) selected[i] = false
+            adapter.notifyItemRangeChanged(0, adapter.itemCount)
+            toolbarLayout.setActionModeCount(0, listItems.size - 28)
+            toolbarLayout.dismissActionMode()
+            onBackPressedCallback.isEnabled = false
+        }
+    }
+
+    fun toggleItemSelected(position: Int) {
+        selected[position] = !selected[position]!!
+        adapter.notifyItemChanged(position)
+        checkAllListening = false
+        toolbarLayout.setActionModeCount(selected.values.count { it }, listItems.size - 28)
+        checkAllListening = true
     }
 
     private fun initIndexScroll() {
-        val isRtl = resources.configuration
-            .layoutDirection == View.LAYOUT_DIRECTION_RTL
+        val isRtl = resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
         indexScrollView.setIndexBarGravity(if (isRtl) SeslIndexScrollView.GRAVITY_INDEX_BAR_LEFT else SeslIndexScrollView.GRAVITY_INDEX_BAR_RIGHT)
         val cursor = MatrixCursor(arrayOf("item"))
-        for (item in listItems) {
-            cursor.addRow(arrayOf(item))
-        }
+        for (item in listItems) cursor.addRow(arrayOf(item))
         cursor.moveToFirst()
         val indexer = SeslCursorIndexer(
             cursor, 0,
@@ -111,44 +179,26 @@ class IndexScrollFragment : BaseFragment() {
         indexer.setGroupItemsCount(1)
         indexer.setMiscItemsCount(3)
         indexScrollView.setIndexer(indexer)
-        indexScrollView.setOnIndexBarEventListener(
-            object : OnIndexBarEventListener {
-                override fun onIndexChanged(sectionIndex: Int) {
-                    if (currentSectionIndex != sectionIndex) {
-                        currentSectionIndex = sectionIndex
-                        if (listView.scrollState != RecyclerView.SCROLL_STATE_IDLE) {
-                            listView.stopScroll()
-                        }
-                        (listView.layoutManager as LinearLayoutManager?)!!.scrollToPositionWithOffset(sectionIndex, 0)
+        indexScrollView.setOnIndexBarEventListener(object : OnIndexBarEventListener {
+            override fun onIndexChanged(sectionIndex: Int) {
+                if (currentSectionIndex != sectionIndex) {
+                    currentSectionIndex = sectionIndex
+                    if (listView.scrollState != RecyclerView.SCROLL_STATE_IDLE) {
+                        listView.stopScroll()
                     }
-                }
-
-                override fun onPressed(v: Float) {
-                    isIndexBarPressed = true
-                    listView.removeCallbacks(hideIndexBar)
-                }
-
-                override fun onReleased(v: Float) {
-                    isIndexBarPressed = false
-                    if (listView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
-                        listView.postDelayed(hideIndexBar, 1500)
-                    }
-                }
-            })
-        indexScrollView.attachToRecyclerView(listView)
-        listView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (newState == RecyclerView.SCROLL_STATE_IDLE
-                    && !isIndexBarPressed
-                ) {
-                    recyclerView.postDelayed(hideIndexBar, 1500)
-                } else {
-                    listView.removeCallbacks(hideIndexBar)
-                    IndexScrollUtils.animateVisibility(indexScrollView, true)
+                    (listView.layoutManager as LinearLayoutManager?)!!.scrollToPositionWithOffset(sectionIndex, 0)
                 }
             }
+
+            override fun onPressed(v: Float) {}
+            override fun onReleased(v: Float) {}
         })
+        indexScrollView.attachToRecyclerView(listView)
+        lifecycleScope.launch {
+            isTextModeEnabled = getUserSettings().showLetters
+            indexScrollView.setIndexBarTextMode(isTextModeEnabled)
+        }
+
     }
 
     inner class IndexAdapter internal constructor() : RecyclerView.Adapter<IndexAdapter.ViewHolder>(), SectionIndexer {
@@ -173,29 +223,38 @@ class IndexScrollFragment : BaseFragment() {
         override fun getItemCount(): Int = listItems.size
         override fun getItemViewType(position: Int): Int = if (listItems[position].length == 1) 1 else 0
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = if (viewType == 0) {
-                val inflater = LayoutInflater.from(context)
-                val view = inflater.inflate(
-                    R.layout.view_indexscroll_listview_item, parent, false
-                )
-                ViewHolder(view, false)
-            } else {
-                ViewHolder(
-                    Separator(
-                        context!!
-                    ), true
-                )
-            }
+            val inflater = LayoutInflater.from(context)
+            val view = inflater.inflate(R.layout.listview_item, parent, false)
+            ViewHolder(view, false)
+        } else ViewHolder(Separator(context!!), true)
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            holder.textView.text = listItems[position]
             if (holder.isSeparator) {
                 holder.textView.layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
                 )
             } else {
-                if (position == 0) holder.imageView.setImageResource(R.drawable.indexscroll_group_icon)
-                else holder.imageView.setImageResource(R.drawable.indexscroll_item_icon)
+                holder.imageView.setImageResource(
+                    when {
+                        selected[position]!! -> R.drawable.indexscroll_selected_icon
+                        position == 0 -> R.drawable.indexscroll_group_icon
+                        else -> R.drawable.indexscroll_item_icon
+                    }
+                )
+                holder.parentView.setOnClickListener {
+                    if (selecting) toggleItemSelected(position)
+                    else {
+                        Toast.makeText(context, holder.textView.text, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                holder.parentView.setOnLongClickListener {
+                    if (!selecting) setSelecting(true)
+                    toggleItemSelected(position)
+                    listView.seslStartLongPressMultiSelection()
+                    true
+                }
             }
-            holder.textView.text = listItems[position]
         }
 
         override fun getSections(): Array<Any> = sections.toTypedArray()
@@ -203,15 +262,16 @@ class IndexScrollFragment : BaseFragment() {
         override fun getSectionForPosition(position: Int): Int = sectionForPosition[position]
 
         inner class ViewHolder internal constructor(itemView: View, var isSeparator: Boolean) : RecyclerView.ViewHolder(itemView) {
-            lateinit var imageView: ImageView
             var textView: TextView
+            lateinit var parentView: LinearLayout
+            lateinit var imageView: ImageView
 
             init {
-                if (isSeparator) {
-                    textView = itemView as TextView
-                } else {
-                    imageView = itemView.findViewById(R.id.indexscroll_list_item_icon)
-                    textView = itemView.findViewById(R.id.indexscroll_list_item_text)
+                if (isSeparator) textView = itemView as TextView
+                else {
+                    parentView = itemView as LinearLayout
+                    imageView = itemView.findViewById(R.id.item_icon)
+                    textView = itemView.findViewById(R.id.item_text)
                 }
             }
         }
@@ -232,10 +292,7 @@ class IndexScrollFragment : BaseFragment() {
             roundedCorner.roundedCorners = SeslRoundedCorner.ROUNDED_CORNER_ALL
         }
 
-        override fun onDraw(
-            c: Canvas, parent: RecyclerView,
-            state: RecyclerView.State
-        ) {
+        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
             super.onDraw(c, parent, state)
             for (i in 0 until parent.childCount) {
                 val child = parent.getChildAt(i)

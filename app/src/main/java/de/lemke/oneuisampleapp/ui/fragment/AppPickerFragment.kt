@@ -17,9 +17,16 @@ import android.content.pm.PackageManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.lifecycle.lifecycleScope
+import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisampleapp.domain.GetUserSettingsUseCase
+import de.lemke.oneuisampleapp.domain.UpdateUserSettingsUseCase
 import dev.oneuiproject.oneui.widget.Toast
+import kotlinx.coroutines.launch
 import java.util.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AppPickerFragment : BaseFragment(), OnBindListener, AdapterView.OnItemSelectedListener {
     private var listInitialized = false
     private var listType = AppPickerView.TYPE_LIST
@@ -34,13 +41,22 @@ class AppPickerFragment : BaseFragment(), OnBindListener, AdapterView.OnItemSele
         setHasOptionsMenu(true)
     }
 
+    @Inject
+    lateinit var getUserSettings: GetUserSettingsUseCase
+
+    @Inject
+    lateinit var updateUserSettings: UpdateUserSettingsUseCase
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         progress = view.findViewById(R.id.apppicker_progress)
         appPickerView = view.findViewById(R.id.apppicker_list)
         appPickerView.itemAnimator = null
         appPickerView.seslSetSmoothScrollEnabled(true)
-        initSpinner(view)
+        lifecycleScope.launch {
+            showSystemApps = getUserSettings().showSystemApps
+            initSpinner(view)
+        }
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
@@ -55,15 +71,19 @@ class AppPickerFragment : BaseFragment(), OnBindListener, AdapterView.OnItemSele
         super.onCreateOptionsMenu(menu, inflater)
         val systemAppsItem = menu.findItem(R.id.menu_apppicker_system)
         systemAppsItem.isVisible = true
-        systemAppsItem.title = if (showSystemApps) "Hide system apps" else "Show system apps"
         (systemAppsItem as SeslMenuItem).badgeText = getString(dev.oneuiproject.oneui.design.R.string.oui_new_badge_text)
+        lifecycleScope.launch {
+            showSystemApps = getUserSettings().showSystemApps
+            systemAppsItem.title = getString(if (showSystemApps) R.string.hide_system_apps else R.string.show_system_apps)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.menu_apppicker_system) {
             (item as SeslMenuItem).badgeText = null
             showSystemApps = !showSystemApps
-            item.title = if (showSystemApps) "Hide system apps" else "Show system apps"
+            lifecycleScope.launch { updateUserSettings { it.copy(showSystemApps = showSystemApps) } }
+            item.title = getString(if (showSystemApps) R.string.hide_system_apps else R.string.show_system_apps)
             refreshListView()
             return true
         }
@@ -110,18 +130,13 @@ class AppPickerFragment : BaseFragment(), OnBindListener, AdapterView.OnItemSele
                     }
                 }
                 requireActivity().runOnUiThread {
-                    val installedAppSet = ArrayList(
-                        installedPackageNameUnmodifiableSet
-                    )
+                    val installedAppSet = ArrayList(installedPackageNameUnmodifiableSet)
                     if (appPickerView.itemDecorationCount > 0) {
                         for (i in 0 until appPickerView.itemDecorationCount) {
                             appPickerView.removeItemDecorationAt(i)
                         }
                     }
-                    appPickerView.setAppPickerView(
-                        listType,
-                        installedAppSet, AppPickerView.ORDER_ASCENDING_IGNORE_CASE
-                    )
+                    appPickerView.setAppPickerView(listType, installedAppSet, AppPickerView.ORDER_ASCENDING_IGNORE_CASE)
                     appPickerView.setOnBindListener(this@AppPickerFragment)
                     items.clear()
                     if (listType == AppPickerView.TYPE_LIST_CHECKBOX_WITH_ALL_APPS
@@ -143,9 +158,7 @@ class AppPickerFragment : BaseFragment(), OnBindListener, AdapterView.OnItemSele
         object : Thread() {
             override fun run() {
                 requireActivity().runOnUiThread {
-                    val installedAppSet = ArrayList(
-                        installedPackageNameUnmodifiableSet
-                    )
+                    val installedAppSet = ArrayList(installedPackageNameUnmodifiableSet)
                     appPickerView.resetPackages(installedAppSet)
                     items.clear()
                     if (listType == AppPickerView.TYPE_LIST_CHECKBOX_WITH_ALL_APPS

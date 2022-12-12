@@ -31,7 +31,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingEnd="@dimen/cardview_icon_margin_end"
-                android:gravity="start|center">
+                android:gravity="start|center"
+                tools:ignore="RtlSymmetry">
 
                 <ImageView
                     android:id="@+id/cardview_icon"
@@ -39,7 +40,8 @@
                     android:layout_height="@dimen/cardview_icon_size"
                     android:layout_marginVertical="@dimen/cardview_icon_margin_vertical"
                     android:layout_gravity="center"
-                    android:scaleType="centerInside" />
+                    android:scaleType="centerInside"
+                    tools:ignore="ContentDescription" />
 
             </FrameLayout>
 
@@ -58,7 +60,8 @@
                     android:textAppearance="?attr/textAppearanceListItem"
                     android:textAlignment="viewStart"
                     android:maxLines="5"
-                    android:ellipsize="end" />
+                    android:ellipsize="end"
+                    tools:ignore="RtlSymmetry" />
 
                 <TextView
                     android:id="@+id/cardview_summary"
@@ -70,7 +73,8 @@
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textAlignment="viewStart"
                     android:maxLines="10"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    tools:ignore="RtlSymmetry" />
 
             </RelativeLayout>
 

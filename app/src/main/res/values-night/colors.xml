@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="oui_secondary_text_color">@color/sesl_list_subheader_text_color_dark</color>
+    <color name="oui_secondary_text_color_not_themed">#ff999999</color>
+    <color name="oui_primary_text_color_not_themed">#fffafafa</color>
+    <color name="filled_background_color">@color/sesl_ripple_color_dark</color>
+
+</resources>

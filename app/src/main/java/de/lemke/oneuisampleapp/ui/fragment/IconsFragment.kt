@@ -2,33 +2,42 @@ package de.lemke.oneuisampleapp.ui.fragment
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.drawable.Drawable
+import android.os.Bundle
+import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
+import android.widget.*
+import androidx.activity.OnBackPressedCallback
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisampleapp.R
 import de.lemke.oneuisampleapp.ui.BaseFragment
 import dev.oneuiproject.oneui.R.drawable
-import android.os.Bundle
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.LinearLayoutManager
-import de.lemke.oneuisampleapp.R
-import android.widget.SectionIndexer
-import android.view.ViewGroup
-import android.view.LayoutInflater
-import android.widget.TextView
-import android.graphics.drawable.Drawable
-import android.util.TypedValue
-import android.view.View
-import android.view.ViewGroup.MarginLayoutParams
-import android.widget.ImageView
-import java.lang.RuntimeException
+import dev.oneuiproject.oneui.layout.ToolbarLayout
 import java.util.*
 
+@AndroidEntryPoint
 class IconsFragment : BaseFragment() {
     /*todo search*/
-    private val mIconsId: MutableList<Int> = ArrayList()
+    private val iconsId: MutableList<Int> = mutableListOf()
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
+    private lateinit var toolbarLayout: ToolbarLayout
+    private lateinit var imageAdapter: ImageAdapter
+    private lateinit var listView: RecyclerView
+    private var selected = HashMap<Int, Boolean>()
+    private var selecting = false
+    private var checkAllListening = true
 
     init {
         val rClass = drawable::class.java
         for (field in rClass.declaredFields) {
             try {
-                mIconsId.add(field.getInt(null))
+                iconsId.add(field.getInt(null))
             } catch (e: IllegalAccessException) {
                 throw RuntimeException(e)
             }
@@ -37,21 +46,80 @@ class IconsFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val iconListView = getView() as RecyclerView?
-        iconListView!!.layoutManager = LinearLayoutManager(context)
-        iconListView.adapter = ImageAdapter()
-        iconListView.addItemDecoration(ItemDecoration(requireContext()))
-        iconListView.itemAnimator = null
-        iconListView.seslSetFillBottomEnabled(true)
-        iconListView.seslSetLastRoundedCorner(true)
-        iconListView.seslSetFastScrollerEnabled(true)
-        iconListView.seslSetGoToTopEnabled(true)
-        iconListView.seslSetSmoothScrollEnabled(true)
+        listView = getView() as RecyclerView
+        toolbarLayout = requireActivity().findViewById(R.id.drawerLayout)
+        selected = HashMap()
+        iconsId.indices.forEach { i -> selected[i] = false }
+        listView.layoutManager = LinearLayoutManager(context)
+        imageAdapter = ImageAdapter()
+        listView.adapter = imageAdapter
+        listView.addItemDecoration(ItemDecoration(requireContext()))
+        listView.itemAnimator = null
+        listView.seslSetIndexTipEnabled(true)
+        listView.seslSetFillBottomEnabled(true)
+        listView.seslSetLastRoundedCorner(true)
+        listView.seslSetFastScrollerEnabled(true)
+        listView.seslSetGoToTopEnabled(true)
+        listView.seslSetSmoothScrollEnabled(true)
+        listView.seslSetLongPressMultiSelectionListener(object : RecyclerView.SeslLongPressMultiSelectionListener {
+            override fun onItemSelected(view: RecyclerView, child: View, position: Int, id: Long) {
+                if (imageAdapter.getItemViewType(position) == 0) toggleItemSelected(position)
+            }
+
+            override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {}
+            override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {}
+        })
+
+        onBackPressedCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                if (selecting) setSelecting(false)
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+
     }
 
     override val layoutResId: Int = R.layout.fragment_icons
     override val iconResId: Int = drawable.ic_oui_emoticon
     override val title: CharSequence = "Icons"
+
+    fun setSelecting(enabled: Boolean) {
+        if (enabled) {
+            selecting = true
+            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
+            toolbarLayout.actionModeBottomMenu.clear()
+            toolbarLayout.setActionModeBottomMenu(R.menu.menu_select)
+            toolbarLayout.setActionModeBottomMenuListener { item: MenuItem ->
+                Toast.makeText(context, item.title, Toast.LENGTH_SHORT).show()
+                setSelecting(false)
+                true
+            }
+            toolbarLayout.showActionMode()
+            toolbarLayout.setActionModeCheckboxListener { _, isChecked ->
+                if (checkAllListening) {
+                    selected.replaceAll { _, _ -> isChecked }
+                    imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
+                }
+                toolbarLayout.setActionModeCount(selected.values.count { it }, iconsId.size)
+            }
+            onBackPressedCallback.isEnabled = true
+        } else {
+            selecting = false
+            for (i in 0 until imageAdapter.itemCount) selected[i] = false
+            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
+            toolbarLayout.setActionModeCount(0, iconsId.size)
+            toolbarLayout.dismissActionMode()
+            onBackPressedCallback.isEnabled = false
+        }
+    }
+
+    fun toggleItemSelected(position: Int) {
+        selected[position] = !selected[position]!!
+        imageAdapter.notifyItemChanged(position)
+        checkAllListening = false
+        toolbarLayout.setActionModeCount(selected.values.count { it }, iconsId.size)
+        checkAllListening = true
+    }
 
     inner class ImageAdapter internal constructor() : RecyclerView.Adapter<ImageAdapter.ViewHolder>(), SectionIndexer {
         private var sections: MutableList<String> = ArrayList()
@@ -59,12 +127,10 @@ class IconsFragment : BaseFragment() {
         private var sectionForPosition: MutableList<Int> = ArrayList()
 
         init {
-            for (i in mIconsId.indices) {
-                var letter = resources.getResourceEntryName(mIconsId[i])
+            for (i in iconsId.indices) {
+                var letter = resources.getResourceEntryName(iconsId[i])
                     .replace("ic_oui_", "").substring(0, 1).uppercase(Locale.getDefault())
-                if (Character.isDigit(letter[0])) {
-                    letter = "#"
-                }
+                if (Character.isDigit(letter[0])) letter = "#"
                 if (i == 0 || sections[sections.size - 1] != letter) {
                     sections.add(letter)
                     positionForSection.add(i)
@@ -73,21 +139,27 @@ class IconsFragment : BaseFragment() {
             }
         }
 
-        override fun getItemCount(): Int = mIconsId.size
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val inflater = LayoutInflater.from(context)
-            val view = inflater.inflate(
-                R.layout.view_icon_listview_item, parent, false
-            )
-            return ViewHolder(view)
-        }
-
+        override fun getItemCount(): Int = iconsId.size
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
+            ViewHolder(LayoutInflater.from(context).inflate(R.layout.listview_item, parent, false))
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            holder.imageView.setImageResource(mIconsId[position])
-            holder.textView.text = resources.getResourceEntryName(mIconsId[position])
+            holder.checkBox.visibility = if (selecting) View.VISIBLE else View.GONE
+            holder.checkBox.isChecked = selected[position]!!
+            holder.imageView.setImageResource(iconsId[position])
+            holder.textView.text = resources.getResourceEntryName(iconsId[position])
+            holder.parentView.setOnClickListener {
+                if (selecting) toggleItemSelected(position)
+                else {
+                    Toast.makeText(context, holder.textView.text, Toast.LENGTH_SHORT).show()
+                }
+            }
+            holder.parentView.setOnLongClickListener {
+                if (!selecting) setSelecting(true)
+                toggleItemSelected(position)
+                listView.seslStartLongPressMultiSelection()
+                true
+            }
         }
-
         override fun getSections(): Array<Any> = sections.toTypedArray()
         override fun getPositionForSection(sectionIndex: Int): Int = positionForSection[sectionIndex]
         override fun getSectionForPosition(position: Int): Int = sectionForPosition[position]
@@ -95,10 +167,14 @@ class IconsFragment : BaseFragment() {
         inner class ViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
             var imageView: ImageView
             var textView: TextView
+            var parentView: LinearLayout
+            var checkBox: CheckBox
 
             init {
-                imageView = itemView.findViewById(R.id.icon_list_item_icon)
-                textView = itemView.findViewById(R.id.icon_list_item_text)
+                parentView = itemView as LinearLayout
+                imageView = itemView.findViewById(R.id.item_icon)
+                textView = itemView.findViewById(R.id.item_text)
+                checkBox = parentView.findViewById(R.id.checkbox)
             }
         }
     }
@@ -119,8 +195,7 @@ class IconsFragment : BaseFragment() {
             super.onDraw(c, parent, state)
             for (i in 0 until parent.childCount) {
                 val child = parent.getChildAt(i)
-                val top = (child.bottom
-                        + (child.layoutParams as MarginLayoutParams).bottomMargin)
+                val top = (child.bottom + (child.layoutParams as MarginLayoutParams).bottomMargin)
                 val bottom = divider.intrinsicHeight + top
                 divider.setBounds(parent.left, top, parent.right, bottom)
                 divider.draw(c)

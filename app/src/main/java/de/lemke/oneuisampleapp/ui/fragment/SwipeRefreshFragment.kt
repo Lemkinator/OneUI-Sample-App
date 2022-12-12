@@ -9,8 +9,10 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.util.TypedValue
 import android.view.View
+import dagger.hilt.android.AndroidEntryPoint
 import dev.oneuiproject.oneui.widget.Toast
 
+@AndroidEntryPoint
 class SwipeRefreshFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

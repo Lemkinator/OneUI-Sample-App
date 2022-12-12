@@ -6,23 +6,34 @@
 
     <item
         android:id="@+id/menu_apppicker_system"
-        android:title="Show system apps"
+        android:title="@string/show_system_apps"
         android:visible="false"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/menu_indexscroll_text"
-        android:title="Show letters"
+        android:title="@string/show_letters"
         android:visible="false"
         app:showAsAction="never" />
 
     <group android:id="@+id/menu_drawer">
-
+        <item
+            android:id="@+id/menu_settings"
+            android:title="@string/settings"
+            app:showAsAction="never" />
         <item
             android:id="@+id/menu_about_app"
-            android:title="About OneUI Sample"
+            android:title="@string/about_oneui_sample"
             app:showAsAction="never" />
-
+        <item
+            android:id="@+id/menu_custom_about_app"
+            android:title="@string/custom_about_oneui_sample_screen"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_oobe"
+            android:title="OOBE"
+            app:showAsAction="never"
+            tools:ignore="HardcodedText" />
     </group>
 
 </menu>

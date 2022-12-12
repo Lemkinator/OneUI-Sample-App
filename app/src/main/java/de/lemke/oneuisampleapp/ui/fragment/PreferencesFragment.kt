@@ -7,6 +7,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.util.SeslMisc
 import androidx.preference.*
+import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisampleapp.R
 import de.lemke.oneuisampleapp.ui.FragmentInfo
 import dev.oneuiproject.oneui.preference.HorizontalRadioPreference
@@ -15,6 +16,7 @@ import dev.oneuiproject.oneui.preference.internal.PreferenceRelatedCard
 import dev.oneuiproject.oneui.utils.PreferenceUtils
 import dev.oneuiproject.oneui.widget.Toast
 
+@AndroidEntryPoint
 class PreferencesFragment : PreferenceFragmentCompat(), FragmentInfo, Preference.OnPreferenceClickListener,
     Preference.OnPreferenceChangeListener {
     private lateinit var activityContext: Context

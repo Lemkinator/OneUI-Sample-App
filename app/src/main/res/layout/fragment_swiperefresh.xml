@@ -26,7 +26,8 @@
                 android:enabled="false"
                 android:text="Stop"
                 android:textSize="18sp"
-                android:textColor="#fffafafa" />
+                android:textColor="#fffafafa"
+                tools:ignore="HardcodedText" />
 
         </FrameLayout>
 

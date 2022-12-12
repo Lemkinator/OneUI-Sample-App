@@ -15,7 +15,8 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="BottomNavigationView" />
+            android:text="BottomNavigationView"
+            tools:ignore="HardcodedText" />
 
         <dev.oneuiproject.oneui.widget.RoundLinearLayout
             android:layout_width="match_parent"
@@ -34,7 +35,8 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="BNV Text Mode" />
+            android:text="BNV Text Mode"
+            tools:ignore="HardcodedText" />
 
         <dev.oneuiproject.oneui.widget.RoundLinearLayout
             android:layout_width="match_parent"
@@ -47,6 +49,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/oui_background_color"
+                style="@style/Widget.Design.BottomNavigationView.Text"
                 app:menu="@menu/tabs_bnv_text_menu" />
 
         </dev.oneuiproject.oneui.widget.RoundLinearLayout>
@@ -54,7 +57,8 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tabs" />
+            android:text="Tabs"
+            tools:ignore="HardcodedText" />
 
         <dev.oneuiproject.oneui.widget.RoundLinearLayout
             android:layout_width="match_parent"
@@ -73,7 +77,8 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sub Tabs" />
+            android:text="Sub Tabs"
+            tools:ignore="HardcodedText" />
 
         <dev.oneuiproject.oneui.widget.RoundLinearLayout
             android:layout_width="match_parent"

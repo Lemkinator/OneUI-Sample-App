@@ -11,6 +11,7 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.TooltipCompat
 import com.google.android.material.appbar.AppBarLayout
+import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisampleapp.BuildConfig
 import de.lemke.oneuisampleapp.R
 import de.lemke.oneuisampleapp.databinding.ActivityCustomAboutBinding
@@ -20,6 +21,7 @@ import dev.oneuiproject.oneui.utils.internal.ToolbarLayoutUtils
 import dev.oneuiproject.oneui.widget.Toast
 import kotlin.math.abs
 
+@AndroidEntryPoint
 class CustomAboutActivity : AppCompatActivity(), View.OnClickListener {
     private var enablebacktoheader = false
     private var lastClickTime: Long = 0
@@ -102,9 +104,9 @@ class CustomAboutActivity : AppCompatActivity(), View.OnClickListener {
         binding.aboutHeaderAppVersion.text = getString(R.string.version, BuildConfig.VERSION_NAME)
         binding.aboutBottomAppVersion.text = getString(R.string.version, BuildConfig.VERSION_NAME)
         binding.aboutHeaderGithub.setOnClickListener(this)
-        TooltipCompat.setTooltipText(binding.aboutHeaderGithub, "GitHub")
+        TooltipCompat.setTooltipText(binding.aboutHeaderGithub, getString(R.string.github))
         binding.aboutHeaderTelegram.setOnClickListener(this)
-        TooltipCompat.setTooltipText(binding.aboutHeaderTelegram, "Telegram")
+        TooltipCompat.setTooltipText(binding.aboutHeaderTelegram, getString(R.string.telegram))
         bottomContent.aboutBottomDevYann.setOnClickListener(this)
         bottomContent.aboutBottomDevMesa.setOnClickListener(this)
         bottomContent.aboutBottomOssApache.setOnClickListener(this)
@@ -131,15 +133,15 @@ class CustomAboutActivity : AppCompatActivity(), View.OnClickListener {
         if (uptimeMillis - lastClickTime > 600L) {
             var url: String? = null
             when (v.id) {
-                binding.aboutHeaderGithub.id -> url = "https://github.com/OneUIProject/oneui-design"
-                binding.aboutHeaderTelegram.id -> url = "https://t.me/oneuiproject"
-                bottomContent.aboutBottomDevYann.id -> url = "https://github.com/Yanndroid"
-                bottomContent.aboutBottomDevMesa.id -> url = "https://github.com/BlackMesa123"
-                bottomContent.aboutBottomOssApache.id -> url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                bottomContent.aboutBottomOssMit.id -> url = "https://github.com/OneUIProject/sesl/blob/main/LICENSE"
-                bottomContent.aboutBottomRelativeJetpack.id -> url = "https://developer.android.com/jetpack"
-                bottomContent.aboutBottomRelativeMaterial.id -> url = "https://material.io/develop/android"
-                bottomContent.aboutBottomRelativeOuip.id -> url = "https://github.com/OneUIProject"
+                binding.aboutHeaderGithub.id -> url = getString(R.string.link_github_oneui_design)
+                binding.aboutHeaderTelegram.id -> url = getString(R.string.link_telegram_oneui)
+                bottomContent.aboutBottomDevYann.id -> url = getString(R.string.link_github_yann)
+                bottomContent.aboutBottomDevMesa.id -> url = getString(R.string.link_github_salvo)
+                bottomContent.aboutBottomOssApache.id -> url = getString(R.string.link_apache_lic_v2)
+                bottomContent.aboutBottomOssMit.id -> url = getString(R.string.link_oneui_lic)
+                bottomContent.aboutBottomRelativeJetpack.id -> url = getString(R.string.link_jetpack)
+                bottomContent.aboutBottomRelativeMaterial.id -> url = getString(R.string.link_material)
+                bottomContent.aboutBottomRelativeOuip.id -> url = getString(R.string.link_github_oneui)
             }
             if (url != null) {
                 try {

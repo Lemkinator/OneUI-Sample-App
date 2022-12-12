@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.view.View
 import de.lemke.oneuisampleapp.R
 import androidx.appcompat.widget.SeslProgressBar
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ProgressBarFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

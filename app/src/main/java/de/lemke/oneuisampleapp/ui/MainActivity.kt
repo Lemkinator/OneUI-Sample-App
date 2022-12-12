@@ -7,15 +7,28 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisampleapp.R
 import de.lemke.oneuisampleapp.databinding.ActivityMainBinding
+import de.lemke.oneuisampleapp.domain.GetUserSettingsUseCase
+import de.lemke.oneuisampleapp.domain.UpdateUserSettingsUseCase
 import de.lemke.oneuisampleapp.ui.drawer.DrawerListAdapter
 import de.lemke.oneuisampleapp.ui.fragment.*
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
     private lateinit var binding: ActivityMainBinding
     private val fragments: MutableList<Fragment?> = mutableListOf()
+
+    @Inject
+    lateinit var getUserSettings: GetUserSettingsUseCase
+
+    @Inject
+    lateinit var updateUserSettings: UpdateUserSettingsUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +37,9 @@ class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
         initFragmentList()
         initDrawer()
         initFragments()
+        lifecycleScope.launch {
+            onDrawerItemSelected(getUserSettings().currentFragment)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -33,9 +49,23 @@ class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_about_app) {
-            startActivity(Intent(this, CustomAboutActivity::class.java))
-            return true
+        when (item.itemId) {
+            R.id.menu_settings -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
+                return true
+            }
+            R.id.menu_about_app -> {
+                startActivity(Intent(this, AboutActivity::class.java))
+                return true
+            }
+            R.id.menu_custom_about_app -> {
+                startActivity(Intent(this, CustomAboutActivity::class.java))
+                return true
+            }
+            R.id.menu_oobe -> {
+                startActivity(Intent(this, OOBEActivity::class.java))
+                return true
+            }
         }
         return false
     }
@@ -80,6 +110,9 @@ class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
     }
 
     override fun onDrawerItemSelected(position: Int): Boolean {
+        lifecycleScope.launch {
+            updateUserSettings { it.copy(currentFragment = position) }
+        }
         val newFragment = fragments[position]
         val transaction = supportFragmentManager.beginTransaction()
         for (fragment in supportFragmentManager.fragments) {

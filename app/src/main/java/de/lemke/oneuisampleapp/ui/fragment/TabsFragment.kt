@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.View
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayout
+import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisampleapp.R
 import de.lemke.oneuisampleapp.ui.BaseFragment
 import dev.oneuiproject.oneui.dialog.GridMenuDialog
 import dev.oneuiproject.oneui.utils.TabLayoutUtils
 
+@AndroidEntryPoint
 class TabsFragment : BaseFragment() {
     private lateinit var mSubTabs: TabLayout
     private lateinit var mBottomNavView: BottomNavigationView

@@ -20,7 +20,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:paddingEnd="16dp"
-            android:gravity="start|center">
+            android:gravity="start|center"
+            tools:ignore="RtlSymmetry">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/drawer_item_icon"

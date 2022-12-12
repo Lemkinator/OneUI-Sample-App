@@ -7,11 +7,11 @@
     <androidx.appcompat.widget.AppCompatButton
         style="@style/OneUI.AppInfoButton"
         android:onClick="changeStatus"
-        android:text="Status" />
+        android:text="@string/status" />
 
     <androidx.appcompat.widget.AppCompatButton
         style="@style/OneUI.AppInfoButton"
         android:onClick="openGitHubPage"
-        android:text="GitHub" />
+        android:text="@string/github" />
 
 </dev.oneuiproject.oneui.layout.AppInfoLayout>

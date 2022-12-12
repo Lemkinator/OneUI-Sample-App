@@ -7,7 +7,9 @@ import dev.oneuiproject.oneui.widget.HapticSeekBar
 import de.lemke.oneuisampleapp.R
 import dev.oneuiproject.oneui.utils.SeekBarUtils
 import androidx.appcompat.widget.SeslSeekBar
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SeekBarFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

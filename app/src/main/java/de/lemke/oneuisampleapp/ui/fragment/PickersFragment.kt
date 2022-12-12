@@ -22,9 +22,11 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.picker.app.SeslDatePickerDialog
 import androidx.picker.app.SeslTimePickerDialog
 import androidx.picker3.app.SeslColorPickerDialog
+import dagger.hilt.android.AndroidEntryPoint
 import dev.oneuiproject.oneui.widget.Toast
 import java.util.*
 
+@AndroidEntryPoint
 class PickersFragment : BaseFragment(), AdapterView.OnItemSelectedListener, SeslColorPickerDialog.OnColorSetListener {
     private var currentColor = 0
     private val recentColors: MutableList<Int> = ArrayList()
@@ -47,12 +49,9 @@ class PickersFragment : BaseFragment(), AdapterView.OnItemSelectedListener, Sesl
         initDialogBtns(view)
     }
 
-    override val layoutResId: Int
-        get() = R.layout.fragment_pickers
-    override val iconResId: Int
-        get() = dev.oneuiproject.oneui.R.drawable.ic_oui_calendar_next_shedules
-    override val title: CharSequence
-        get() = "Pickers"
+    override val layoutResId: Int = R.layout.fragment_pickers
+    override val iconResId: Int = dev.oneuiproject.oneui.R.drawable.ic_oui_calendar_next_shedules
+    override val title: CharSequence = "Pickers"
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
         when (position) {

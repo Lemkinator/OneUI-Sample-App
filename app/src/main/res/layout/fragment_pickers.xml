@@ -90,7 +90,8 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dialogs" />
+            android:text="Dialogs"
+            tools:ignore="HardcodedText" />
 
         <dev.oneuiproject.oneui.widget.RoundLinearLayout
             android:layout_width="match_parent"
@@ -106,7 +107,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="5dp"
-                android:text="Date" />
+                android:text="Date"
+                tools:ignore="HardcodedText" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/pickers_dialog_time"
@@ -114,7 +116,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="5dp"
-                android:text="Time" />
+                android:text="Time"
+                tools:ignore="HardcodedText" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/pickers_dialog_color"
@@ -122,7 +125,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="5dp"
-                android:text="Color" />
+                android:text="Color"
+                tools:ignore="HardcodedText" />
 
         </dev.oneuiproject.oneui.widget.RoundLinearLayout>
 

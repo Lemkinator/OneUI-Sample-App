@@ -9,10 +9,12 @@ import android.widget.ArrayAdapter
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.appcompat.widget.SearchView
+import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisampleapp.R
 import de.lemke.oneuisampleapp.ui.BaseFragment
 import de.lemke.oneuisampleapp.ui.MainActivity
 
+@AndroidEntryPoint
 class WidgetsFragment : BaseFragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
