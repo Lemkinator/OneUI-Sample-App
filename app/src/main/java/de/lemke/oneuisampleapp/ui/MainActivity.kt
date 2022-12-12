@@ -6,6 +6,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuCompat
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -38,7 +39,10 @@ class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
         initDrawer()
         initFragments()
         lifecycleScope.launch {
-            onDrawerItemSelected(getUserSettings().currentFragment)
+            val currentFragment = getUserSettings().currentFragment
+            onDrawerItemSelected(currentFragment)
+            binding.drawerListView[0].isSelected = false
+            binding.drawerListView[currentFragment].isSelected = true
         }
     }
 

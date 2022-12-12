@@ -22,9 +22,10 @@
 
     <ImageView
         android:id="@+id/item_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:tint="@color/oui_primary_icon_color"
+        android:layout_width="28.0dip"
+        android:layout_height="28.0dip"
+        android:gravity="center"
+        android:scaleType="fitXY"
         tools:ignore="ContentDescription" />
 
     <LinearLayout
@@ -41,9 +42,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
-            android:singleLine="true"
             android:paddingVertical="14.0dip"
             android:paddingEnd="12.0dip"
+            android:singleLine="true"
             android:textAlignment="viewStart"
             android:textSize="18sp" />
 

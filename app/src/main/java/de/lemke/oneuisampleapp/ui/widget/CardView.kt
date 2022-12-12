@@ -11,7 +11,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import de.lemke.oneuisampleapp.R
 
-class CardView(mContext: Context, attrs: AttributeSet) : LinearLayout(mContext, attrs) {
+class CardView(context: Context, attrs: AttributeSet) : LinearLayout(context, attrs) {
     private var isIconView = false
     private var isDividerViewVisible = false
     private val parentView: FrameLayout
@@ -26,7 +26,7 @@ class CardView(mContext: Context, attrs: AttributeSet) : LinearLayout(mContext, 
     private var summaryText1: String? = null
 
     init {
-        val styledAttr: TypedArray = mContext.obtainStyledAttributes(attrs, dev.oneuiproject.oneui.design.R.styleable.CardView)
+        val styledAttr: TypedArray = context.obtainStyledAttributes(attrs, dev.oneuiproject.oneui.design.R.styleable.CardView)
         iconDrawable = styledAttr.getDrawable(R.styleable.CardView_IconDrawable)
         iconColor = styledAttr.getColor(R.styleable.CardView_IconColor, -1)
         titleText1 = styledAttr.getString(R.styleable.CardView_TitleText)
@@ -37,14 +37,14 @@ class CardView(mContext: Context, attrs: AttributeSet) : LinearLayout(mContext, 
 
         removeAllViews()
         if (isIconView) {
-            View.inflate(mContext, R.layout.widget_cardview_icon, this)
+            View.inflate(context, R.layout.widget_cardview_icon, this)
             iconImageView = findViewById(R.id.cardview_icon)
             iconImageView.setImageDrawable(iconDrawable)
             if (iconColor != -1) {
                 iconImageView.drawable.setTint(iconColor)
             }
         } else {
-            View.inflate(mContext, R.layout.widget_cardview, this)
+            View.inflate(context, R.layout.widget_cardview, this)
         }
         parentView = findViewById(R.id.cardview_main_container)
         containerView = findViewById(R.id.cardview_container)

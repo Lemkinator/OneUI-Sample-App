@@ -10,37 +10,37 @@ import android.text.TextUtils
 import android.view.View
 
 class DrawerListViewHolder(itemView: View, val isSeparator: Boolean) : RecyclerView.ViewHolder(itemView) {
-    private var mNormalTypeface: Typeface? = null
-    private var mSelectedTypeface: Typeface? = null
-    private var mIconView: AppCompatImageView? = null
-    private var mTitleView: TextView? = null
+    private var normalTypeface: Typeface? = null
+    private var selectedTypeface: Typeface? = null
+    private var iconView: AppCompatImageView? = null
+    private var titleView: TextView? = null
 
     init {
         if (!isSeparator) {
-            mIconView = itemView.findViewById(R.id.drawer_item_icon)
-            mTitleView = itemView.findViewById(R.id.drawer_item_title)
-            mNormalTypeface = Typeface.create("sec-roboto-light", Typeface.NORMAL)
-            mSelectedTypeface = Typeface.create("sec-roboto-light", Typeface.BOLD)
+            iconView = itemView.findViewById(R.id.drawer_item_icon)
+            titleView = itemView.findViewById(R.id.drawer_item_title)
+            normalTypeface = Typeface.create("sec-roboto-light", Typeface.NORMAL)
+            selectedTypeface = Typeface.create("sec-roboto-light", Typeface.BOLD)
         }
     }
 
     fun setIcon(@DrawableRes resId: Int) {
         if (!isSeparator) {
-            mIconView!!.setImageResource(resId)
+            iconView!!.setImageResource(resId)
         }
     }
 
     fun setTitle(title: CharSequence?) {
         if (!isSeparator) {
-            mTitleView!!.text = title
+            titleView!!.text = title
         }
     }
 
     fun setSelected(selected: Boolean) {
         if (!isSeparator) {
             itemView.isSelected = selected
-            mTitleView!!.typeface = if (selected) mSelectedTypeface else mNormalTypeface
-            mTitleView!!.ellipsize = if (selected) TextUtils.TruncateAt.MARQUEE else TextUtils.TruncateAt.END
+            titleView!!.typeface = if (selected) selectedTypeface else normalTypeface
+            titleView!!.ellipsize = if (selected) TextUtils.TruncateAt.MARQUEE else TextUtils.TruncateAt.END
         }
     }
 }

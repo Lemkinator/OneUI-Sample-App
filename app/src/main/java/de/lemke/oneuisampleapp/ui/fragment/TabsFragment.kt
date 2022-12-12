@@ -12,10 +12,10 @@ import dev.oneuiproject.oneui.utils.TabLayoutUtils
 
 @AndroidEntryPoint
 class TabsFragment : BaseFragment() {
-    private lateinit var mSubTabs: TabLayout
-    private lateinit var mBottomNavView: BottomNavigationView
-    private lateinit var mBottomNavViewText: BottomNavigationView
-    private lateinit var mTabs: TabLayout
+    private lateinit var subTabs: TabLayout
+    private lateinit var bottomNavView: BottomNavigationView
+    private lateinit var bottomNavViewText: BottomNavigationView
+    private lateinit var tabs: TabLayout
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initSubTabs(view)
@@ -28,28 +28,28 @@ class TabsFragment : BaseFragment() {
     override val title: CharSequence = "Navigation"
 
     private fun initSubTabs(view: View) {
-        mSubTabs = view.findViewById(R.id.tabs_subtab)
-        mSubTabs.seslSetSubTabStyle()
-        mSubTabs.tabMode = TabLayout.SESL_MODE_WEIGHT_AUTO
-        mSubTabs.addTab(mSubTabs.newTab().setText("Tab 1"))
-        mSubTabs.addTab(mSubTabs.newTab().setText("Tab 2"))
-        mSubTabs.addTab(mSubTabs.newTab().setText("Tab 3"))
+        subTabs = view.findViewById(R.id.tabs_subtab)
+        subTabs.seslSetSubTabStyle()
+        subTabs.tabMode = TabLayout.SESL_MODE_WEIGHT_AUTO
+        subTabs.addTab(subTabs.newTab().setText("Tab 1"))
+        subTabs.addTab(subTabs.newTab().setText("Tab 2"))
+        subTabs.addTab(subTabs.newTab().setText("Tab 3"))
     }
 
     private fun initBNV(view: View) {
-        mBottomNavView = view.findViewById(R.id.tabs_bottomnav)
-        mBottomNavViewText = view.findViewById(R.id.tabs_bottomnav_text)
-        mBottomNavView.seslSetGroupDividerEnabled(true)
+        bottomNavView = view.findViewById(R.id.tabs_bottomnav)
+        bottomNavViewText = view.findViewById(R.id.tabs_bottomnav_text)
+        bottomNavView.seslSetGroupDividerEnabled(true)
     }
 
     private fun initMainTabs(view: View) {
-        mTabs = view.findViewById(R.id.tabs_tabs)
-        mTabs.addTab(mTabs.newTab().setText("Tab 1"))
-        mTabs.addTab(mTabs.newTab().setText("Tab 2"))
-        mTabs.addTab(mTabs.newTab().setText("Tab 3"))
+        tabs = view.findViewById(R.id.tabs_tabs)
+        tabs.addTab(tabs.newTab().setText("Tab 1"))
+        tabs.addTab(tabs.newTab().setText("Tab 2"))
+        tabs.addTab(tabs.newTab().setText("Tab 3"))
         val gridMenuDialog = GridMenuDialog(context!!)
         gridMenuDialog.inflateMenu(R.menu.tabs_grid_menu)
         gridMenuDialog.setOnItemClickListener { true }
-        TabLayoutUtils.addCustomButton(mTabs, dev.oneuiproject.oneui.R.drawable.ic_oui_drawer) { gridMenuDialog.show() }
+        TabLayoutUtils.addCustomButton(tabs, dev.oneuiproject.oneui.R.drawable.ic_oui_drawer) { gridMenuDialog.show() }
     }
 }

@@ -224,7 +224,7 @@ class IndexScrollFragment : BaseFragment() {
         override fun getItemViewType(position: Int): Int = if (listItems[position].length == 1) 1 else 0
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = if (viewType == 0) {
             val inflater = LayoutInflater.from(context)
-            val view = inflater.inflate(R.layout.listview_item, parent, false)
+            val view = inflater.inflate(R.layout.indexscroll_listview_item, parent, false)
             ViewHolder(view, false)
         } else ViewHolder(Separator(context!!), true)
 

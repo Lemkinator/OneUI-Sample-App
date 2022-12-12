@@ -11,7 +11,7 @@ import de.lemke.oneuisampleapp.ui.FragmentInfo
 
 class DrawerListAdapter(private val context: Context, private val fragments: List<Fragment?>, private val listener: DrawerListener?) :
     RecyclerView.Adapter<DrawerListViewHolder>() {
-    private var mSelectedPos = 0
+    private var selectedPos = 0
 
     interface DrawerListener {
         fun onDrawerItemSelected(position: Int): Boolean
@@ -32,7 +32,7 @@ class DrawerListAdapter(private val context: Context, private val fragments: Lis
                 holder.setIcon((fragment as FragmentInfo).iconResId)
                 holder.setTitle((fragment as FragmentInfo).title)
             }
-            holder.setSelected(position == mSelectedPos)
+            holder.setSelected(position == selectedPos)
             holder.itemView.setOnClickListener {
                 val itemPos = holder.bindingAdapterPosition
                 var result = false
@@ -47,7 +47,7 @@ class DrawerListAdapter(private val context: Context, private val fragments: Lis
     override fun getItemViewType(position: Int): Int = if (fragments[position] == null) 0 else 1
 
     private fun setSelectedItem(position: Int) {
-        mSelectedPos = position
+        selectedPos = position
         notifyItemRangeChanged(0, itemCount)
     }
 }

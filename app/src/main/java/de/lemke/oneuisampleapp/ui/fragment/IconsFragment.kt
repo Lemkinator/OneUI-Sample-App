@@ -141,7 +141,7 @@ class IconsFragment : BaseFragment() {
 
         override fun getItemCount(): Int = iconsId.size
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-            ViewHolder(LayoutInflater.from(context).inflate(R.layout.listview_item, parent, false))
+            ViewHolder(LayoutInflater.from(context).inflate(R.layout.icon_listview_item, parent, false))
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             holder.checkBox.visibility = if (selecting) View.VISIBLE else View.GONE
             holder.checkBox.isChecked = selected[position]!!
