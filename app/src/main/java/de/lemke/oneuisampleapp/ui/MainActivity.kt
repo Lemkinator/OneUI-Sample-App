@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuCompat
 import androidx.core.view.get
@@ -24,6 +26,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
     private lateinit var binding: ActivityMainBinding
     private val fragments: MutableList<Fragment?> = mutableListOf()
+    private var time: Long = 0
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
@@ -38,6 +41,7 @@ class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
         initFragmentList()
         initDrawer()
         initFragments()
+        initOnBackPressed()
         lifecycleScope.launch {
             val currentFragment = getUserSettings().currentFragment
             onDrawerItemSelected(currentFragment)
@@ -110,7 +114,22 @@ class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
         }
         transaction.commit()
         supportFragmentManager.executePendingTransactions()
-        onDrawerItemSelected(0)
+    }
+
+    private fun initOnBackPressed() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                lifecycleScope.launch {
+                    if (getUserSettings().confirmExit) {
+                        if (System.currentTimeMillis() - time < 3000) finishAffinity()
+                        else {
+                            Toast.makeText(this@MainActivity, resources.getString(R.string.press_again_to_exit), Toast.LENGTH_SHORT).show()
+                            time = System.currentTimeMillis()
+                        }
+                    } else finishAffinity()
+                }
+            }
+        })
     }
 
     override fun onDrawerItemSelected(position: Int): Boolean {
