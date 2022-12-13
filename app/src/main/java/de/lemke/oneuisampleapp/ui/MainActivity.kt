@@ -42,6 +42,10 @@ class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
         initDrawer()
         initFragments()
         initOnBackPressed()
+    }
+
+    override fun onResume() {
+        super.onResume()
         lifecycleScope.launch {
             val currentFragment = getUserSettings().currentFragment
             onDrawerItemSelected(currentFragment)

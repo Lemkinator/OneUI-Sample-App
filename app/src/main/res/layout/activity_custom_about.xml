@@ -10,8 +10,8 @@
         style="?attr/appBarLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:seslUseCustomHeight="true"
-        app:seslHeightProportion="0.5">
+        app:seslHeightProportion="0.5"
+        app:seslUseCustomHeight="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/about_ctl"
@@ -40,8 +40,8 @@
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:text="@string/app_name"
-                    android:textSize="30sp"
                     android:textColor="@color/oui_primary_text_color"
+                    android:textSize="30sp"
                     app:fontFamily="@font/samsungsharpsans_bold" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -50,8 +50,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
-                    android:textSize="14sp"
-                    android:textColor="@color/oui_secondary_text_color" />
+                    android:textColor="@color/oui_secondary_text_color"
+                    android:textSize="14sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -66,6 +66,7 @@
                         android:layout_height="48dp"
                         android:layout_marginEnd="8dp"
                         android:background="?attr/actionBarItemBackground"
+                        android:tint="@color/oui_secondary_text_color"
                         app:srcCompat="@drawable/about_page_github" />
 
                     <androidx.appcompat.widget.AppCompatImageButton
@@ -73,6 +74,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:background="?attr/actionBarItemBackground"
+                        android:tint="@color/oui_secondary_text_color"
                         app:srcCompat="@drawable/about_page_telegram" />
 
                 </LinearLayout>
@@ -106,38 +108,40 @@
                 android:id="@+id/about_bottom_app_icon"
                 android:layout_width="44dp"
                 android:layout_height="44dp"
-                android:layout_centerVertical="true"
                 android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
                 tools:ignore="ContentDescription" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
-                android:paddingTop="14dp"
-                android:paddingBottom="14dp"
                 android:layout_toEndOf="@id/about_bottom_app_icon"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/app_name"
-                    android:textSize="18sp"
-                    android:textAppearance="?android:attr/textAppearanceListItem" />
+                    android:textAppearance="?android:attr/textAppearanceListItem"
+                    android:textColor="@color/oui_primary_text_color"
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/about_bottom_app_version"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceListItemSecondary"
-                    android:textColor="?android:attr/textColorSecondary" />
+                    android:textColor="@color/oui_secondary_text_color" />
 
             </LinearLayout>
 
         </RelativeLayout>
 
-        <include android:id="@+id/about_bottom_content"
+        <include
+            android:id="@+id/about_bottom_content"
             layout="@layout/activity_custom_about_content" />
 
     </LinearLayout>
@@ -156,12 +160,12 @@
         <com.airbnb.lottie.LottieAnimationView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="100dp"
             android:paddingHorizontal="70dp"
-            app:lottie_rawRes="@raw/lottie_swipe_up_anim"
+            android:paddingTop="100dp"
             app:lottie_autoPlay="true"
+            app:lottie_colorFilter="@color/oui_primary_icon_color"
             app:lottie_loop="true"
-            app:lottie_colorFilter="?android:attr/textColorPrimary" />
+            app:lottie_rawRes="@raw/lottie_swipe_up_anim" />
 
     </FrameLayout>
 

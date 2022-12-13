@@ -26,7 +26,10 @@ import de.lemke.oneuisampleapp.domain.GetUserSettingsUseCase
 import de.lemke.oneuisampleapp.domain.UpdateUserSettingsUseCase
 import de.lemke.oneuisampleapp.ui.BaseFragment
 import dev.oneuiproject.oneui.layout.ToolbarLayout
+import dev.oneuiproject.oneui.utils.IndexScrollUtils
 import dev.oneuiproject.oneui.widget.Separator
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,6 +45,8 @@ class IndexScrollFragment : BaseFragment() {
     private var currentSectionIndex = 0
     private lateinit var indexScrollView: SeslIndexScrollView
     private var isTextModeEnabled = false
+    private var isIndexBarPressed = false
+    private var hideIndexBarJob: Job? = null
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
@@ -61,11 +66,16 @@ class IndexScrollFragment : BaseFragment() {
         listView = view.findViewById(R.id.indexscroll_list)
         initListView(view)
         initIndexScroll()
-        onBackPressedCallback = object : OnBackPressedCallback(false) {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (selecting) setSelecting(false)
             }
         }
+        onBackPressedCallback.remove()
+    }
+
+    override fun onResume() {
+        super.onResume()
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
@@ -190,15 +200,39 @@ class IndexScrollFragment : BaseFragment() {
                 }
             }
 
-            override fun onPressed(v: Float) {}
-            override fun onReleased(v: Float) {}
+            override fun onPressed(v: Float) {
+                isIndexBarPressed = true
+                hideIndexBarJob?.cancel()
+            }
+            override fun onReleased(v: Float) {
+                isIndexBarPressed = false
+                if (listView.scrollState == RecyclerView.SCROLL_STATE_IDLE) hideIndexBarAfterDelay()
+            }
         })
         indexScrollView.attachToRecyclerView(listView)
+        listView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_IDLE && !isIndexBarPressed) {
+                    hideIndexBarAfterDelay()
+                } else {
+                    hideIndexBarJob?.cancel()
+                    IndexScrollUtils.animateVisibility(indexScrollView, true)
+                }
+            }
+        })
         lifecycleScope.launch {
             isTextModeEnabled = getUserSettings().showLetters
             indexScrollView.setIndexBarTextMode(isTextModeEnabled)
         }
+    }
 
+    private fun hideIndexBarAfterDelay() {
+        hideIndexBarJob?.cancel()
+        hideIndexBarJob = lifecycleScope.launch {
+            delay(2000)
+            IndexScrollUtils.animateVisibility(indexScrollView, false)
+        }
     }
 
     inner class IndexAdapter internal constructor() : RecyclerView.Adapter<IndexAdapter.ViewHolder>(), SectionIndexer {
