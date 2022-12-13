@@ -20,5 +20,6 @@
 # hide the original source file name.
 -renamesourcefileattribute SourceFile
 
+-keep class dev.oneuiproject.oneui.** {*;}
 -keep class de.lemke.oneuisampleapp.** {*;}
 
