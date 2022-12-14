@@ -50,7 +50,7 @@ class OOBEActivity : AppCompatActivity() {
     }
 
     private fun initOnBackPressed() {
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
                 lifecycleScope.launch {
                     if (System.currentTimeMillis() - time < 3000) finishAffinity()

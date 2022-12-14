@@ -66,7 +66,7 @@ class IndexScrollFragment : BaseFragment() {
         listView = view.findViewById(R.id.indexscroll_list)
         initListView(view)
         initIndexScroll()
-        onBackPressedCallback = object : OnBackPressedCallback(true) {
+        onBackPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
                 if (selecting) setSelecting(false)
             }

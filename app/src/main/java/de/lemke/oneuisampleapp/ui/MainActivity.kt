@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -124,13 +125,23 @@ class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 lifecycleScope.launch {
-                    if (getUserSettings().confirmExit) {
-                        if (System.currentTimeMillis() - time < 3000) finishAffinity()
-                        else {
-                            Toast.makeText(this@MainActivity, resources.getString(R.string.press_again_to_exit), Toast.LENGTH_SHORT).show()
-                            time = System.currentTimeMillis()
+                    when {
+                        binding.drawerLayout.findViewById<androidx.drawerlayout.widget.DrawerLayout>(dev.oneuiproject.oneui.design.R.id.drawerlayout_drawer)
+                            .isDrawerOpen(
+                                binding.drawerLayout.findViewById<LinearLayout>(dev.oneuiproject.oneui.design.R.id.drawerlayout_drawer_content)
+                            ) -> {
+                            binding.drawerLayout.setDrawerOpen(false, true)
                         }
-                    } else finishAffinity()
+                        getUserSettings().confirmExit -> {
+                            if (System.currentTimeMillis() - time < 3000) finishAffinity()
+                            else {
+                                Toast.makeText(this@MainActivity, resources.getString(R.string.press_again_to_exit), Toast.LENGTH_SHORT)
+                                    .show()
+                                time = System.currentTimeMillis()
+                            }
+                        }
+                        else -> finishAffinity()
+                    }
                 }
             }
         })
