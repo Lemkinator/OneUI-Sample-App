@@ -1,6 +1,5 @@
 package de.lemke.oneuisampleapp.ui
 
-import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
 import android.content.DialogInterface
@@ -10,7 +9,6 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.util.SeslMisc
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.*
 import androidx.preference.Preference.OnPreferenceClickListener
@@ -23,9 +21,7 @@ import dev.oneuiproject.oneui.preference.HorizontalRadioPreference
 import dev.oneuiproject.oneui.preference.internal.PreferenceRelatedCard
 import dev.oneuiproject.oneui.utils.PreferenceUtils.createRelatedCard
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
-
 
 @AndroidEntryPoint
 class SettingsActivity : AppCompatActivity() {
@@ -72,23 +68,22 @@ class SettingsActivity : AppCompatActivity() {
             initPreferences()
         }
 
-        @SuppressLint("RestrictedApi", "UnspecifiedImmutableFlag")
         private fun initPreferences() {
-            val darkMode = AppCompatDelegate.getDefaultNightMode()
             darkModePref = findPreference("dark_mode_pref")!!
             autoDarkModePref = findPreference("dark_mode_auto_pref")!!
             confirmExitPref = findPreference("confirm_exit_pref")!!
             confirmExitPref.onPreferenceChangeListener = this
             autoDarkModePref.onPreferenceChangeListener = this
-            autoDarkModePref.isChecked = darkMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM ||
-                    darkMode == AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY ||
-                    darkMode == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED
-
             darkModePref.onPreferenceChangeListener = this
             darkModePref.setDividerEnabled(false)
             darkModePref.setTouchEffectEnabled(false)
-            darkModePref.isEnabled = !autoDarkModePref.isChecked
-            darkModePref.value = if (SeslMisc.isLightTheme(settingsActivity)) "0" else "1"
+            lifecycleScope.launch {
+                val userSettings = getUserSettings()
+                if (!userSettings.devModeEnabled) preferenceScreen.removePreference(findPreference("dev_options"))
+                autoDarkModePref.isChecked = userSettings.autoDarkMode
+                darkModePref.isEnabled = !autoDarkModePref.isChecked
+                darkModePref.value = if (userSettings.darkMode) "1" else "0"
+            }
             findPreference<PreferenceScreen>("tos_pref")!!.onPreferenceClickListener = OnPreferenceClickListener {
                 AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.tos))
@@ -97,9 +92,6 @@ class SettingsActivity : AppCompatActivity() {
                     .create()
                     .show()
                 true
-            }
-            lifecycleScope.launch {
-                if (!getUserSettings().devModeEnabled) preferenceScreen.removePreference(findPreference("dev_options"))
             }
             findPreference<PreferenceScreen>("delete_app_data_pref")?.setOnPreferenceClickListener {
                 AlertDialog.Builder(settingsActivity)
@@ -154,24 +146,28 @@ class SettingsActivity : AppCompatActivity() {
             setRelatedCardView()
         }
 
-        @SuppressLint("WrongConstant", "RestrictedApi")
-        @Suppress("UNCHECKED_CAST")
         override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
             when (preference.key) {
                 "dark_mode_pref" -> {
+                    val darkMode = newValue as String == "1"
                     AppCompatDelegate.setDefaultNightMode(
-                        if (newValue == "0") AppCompatDelegate.MODE_NIGHT_NO else AppCompatDelegate.MODE_NIGHT_YES
+                        if (darkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
                     )
+                    lifecycleScope.launch {
+                        updateUserSettings { it.copy(darkMode = darkMode) }
+                    }
                     return true
                 }
                 "dark_mode_auto_pref" -> {
-                    if (newValue as Boolean) {
-                        darkModePref.isEnabled = false
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                    } else {
-                        darkModePref.isEnabled = true
-                        if (SeslMisc.isLightTheme(settingsActivity)) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                        else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    val autoDarkMode = newValue as Boolean
+                    darkModePref.isEnabled = !autoDarkMode
+                    lifecycleScope.launch {
+                        if (autoDarkMode) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                        else {
+                            if (getUserSettings().darkMode) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                            else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                        }
+                        updateUserSettings { it.copy(autoDarkMode = newValue) }
                     }
                     return true
                 }

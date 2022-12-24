@@ -27,6 +27,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
     private lateinit var binding: ActivityMainBinding
     private val fragments: MutableList<Fragment?> = mutableListOf()
+    private var selectedPosition = 0
     private var time: Long = 0
 
     @Inject
@@ -43,15 +44,15 @@ class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
         initDrawer()
         initFragments()
         initOnBackPressed()
-    }
-
-    override fun onResume() {
-        super.onResume()
         lifecycleScope.launch {
-            val currentFragment = getUserSettings().currentFragment
-            onDrawerItemSelected(currentFragment)
-            binding.drawerListView[0].isSelected = false
-            binding.drawerListView[currentFragment].isSelected = true
+            selectedPosition = getUserSettings().currentFragment
+            onDrawerItemSelected(selectedPosition)
+            try {
+                binding.drawerListView[0].isSelected = false
+                binding.drawerListView[selectedPosition].isSelected = true
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -148,15 +149,15 @@ class MainActivity : AppCompatActivity(), DrawerListAdapter.DrawerListener {
     }
 
     override fun onDrawerItemSelected(position: Int): Boolean {
-        lifecycleScope.launch {
-            updateUserSettings { it.copy(currentFragment = position) }
-        }
         val newFragment = fragments[position]
-        val transaction = supportFragmentManager.beginTransaction()
-        for (fragment in supportFragmentManager.fragments) {
-            transaction.hide(fragment!!)
+        if (selectedPosition != position) {
+            selectedPosition = position
+            lifecycleScope.launch { updateUserSettings { it.copy(currentFragment = position) } }
+            val transaction = supportFragmentManager.beginTransaction()
+            for (fragment in supportFragmentManager.fragments) transaction.hide(fragment)
+            newFragment?.let { transaction.show(it).commit() }
+            supportFragmentManager.executePendingTransactions()
         }
-        transaction.show(newFragment!!).commit()
         if (newFragment is FragmentInfo) {
             if (!(newFragment as FragmentInfo).isAppBarEnabled) {
                 binding.drawerLayout.setExpanded(false, false)
