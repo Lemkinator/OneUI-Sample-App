@@ -2,21 +2,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
     <application
         android:name=".App"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
-        android:enableOnBackInvokedCallback="false"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:localeConfig="@xml/locale_config"
         android:resizeableActivity="true"
         android:supportsRtl="true"
-        android:theme="@style/OneUISampleAppTheme"
+        android:theme="@style/Theme.OneUISampleApp"
         tools:targetApi="33">
 
         <meta-data
@@ -40,12 +41,19 @@
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
+            android:exported="true"
             android:launchMode="singleTop"
-            android:exported="true">
+            android:theme="@style/Theme.OneUISampleApp.Splash">
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
+            <!--Launcher-->
+            <meta-data
+                android:name="com.sec.android.app.launcher.icon_theme"
+                android:value="themeColor" />
             <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
         </activity>
@@ -58,26 +66,16 @@
             android:name=".ui.OOBEActivity"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
-        <activity
-            android:name=".ui.SplashActivity"
-            android:exported="true"
-            android:noHistory="true">
-            <!--Launcher-->
-            <meta-data
-                android:name="com.sec.android.app.launcher.icon_theme"
-                android:value="themeColor" />
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <activity
             android:name=".ui.CustomAboutActivity"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize" />
 
-        <activity
-            android:name=".ui.AboutActivity" />
+        <activity android:name=".ui.AboutActivity" />
+        <activity android:name=".ui.SeekBarActivity" />
+        <activity android:name=".ui.PickersActivity" />
+        <activity android:name=".ui.AppPickerActivity" />
+        <activity android:name=".ui.IndexScrollActivity" />
     </application>
 
 </manifest>

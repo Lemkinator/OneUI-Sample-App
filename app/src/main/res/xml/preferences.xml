@@ -2,26 +2,53 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <dev.oneuiproject.oneui.preference.TipsCardPreference
-        android:key="tip"
-        android:title="TipsCardPreference"
-        android:summary="This is a test summary."/>
-
-    <PreferenceCategory>
-
+    <PreferenceCategory android:title="@string/design">
         <dev.oneuiproject.oneui.preference.HorizontalRadioPreference
-            android:key="dark_mode"
-            android:title="Dark mode settings"
+            android:key="dark_mode_pref"
             app:entries="@array/preferences_darkmode_entries"
             app:entriesImage="@array/preferences_darkmode_entries_image"
             app:entryValues="@array/preferences_darkmode_values"
             app:viewType="image" />
-
         <SwitchPreferenceCompat
-            android:key="dark_mode_auto"
-            android:title="System default" />
-
+            android:key="dark_mode_auto_pref"
+            android:title="@string/system_default" />
     </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/general">
+        <SwitchPreferenceCompat
+            android:key="confirm_exit_pref"
+            android:summary="@string/press_again_to_exit"
+            android:title="@string/confirm_exit" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="dev_options"
+        android:title="@string/dev_options">
+        <PreferenceScreen
+            android:key="delete_app_data_pref"
+            android:title="@string/delete_appdata_and_exit" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/more_information">
+        <PreferenceScreen
+            android:key="tos_pref"
+            android:title="@string/tos" />
+
+        <PreferenceScreen
+            android:key="about_app_pref"
+            android:title="@string/about_app">
+            <intent
+                android:targetClass="dev.oneuiproject.oneui.oneuisampleapp.ui.AboutActivity"
+                android:targetPackage="dev.oneuiproject.oneui.oneuisampleapp" />
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title=" " />
+
+    <dev.oneuiproject.oneui.preference.TipsCardPreference
+        android:key="tip"
+        android:title="TipsCardPreference"
+        android:summary="From here the preference dummies start."/>
 
     <PreferenceCategory>
 

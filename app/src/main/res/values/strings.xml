@@ -1,9 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">OneUI Sample App</string>
-    <string name="about_app">About OneUI Sample</string>
-    <string name="version">Version %1$s</string>
-    <string name="all_apps">All apps</string>
-
 
     <string name="github" translatable="false">GitHub</string>
     <string name="telegram" translatable="false">Telegram</string>
@@ -22,6 +18,17 @@
     <string name="sesl_navigate_up">Back</string>
     <string name="settings">Settings</string>
 
+    <!--About-->
+    <string name="about_app">About OneUI Sample</string>
+    <string name="version">Version %1$s</string>
+    <string name="custom_about_oneui_sample_screen">Custom About OneUI Sample Screen</string>
+    <string name="status">Status</string>
+    <string name="oneui_project_team">OneUI Project Team</string>
+    <string name="open_source_licenses">Open source licenses</string>
+    <string name="android_jetpack">Android Jetpack</string>
+    <string name="material_components">Material Components</string>
+    <string name="oneui_project">OneUI Project</string>
+
     <!--Settings-->
     <string name="design">Design</string>
     <string name="system_default">System default</string>
@@ -34,6 +41,7 @@
     <string name="more_information">More Information</string>
 
     <!--OOBE-->
+    <string name="oobe">OOBE</string>
     <string name="oobe_onboard_msg1_title">Beautiful design</string>.
     <string name="oobe_onboard_msg2_title">Free</string>
     <string name="oobe_onboard_msg3_title">No ads</string>
@@ -44,17 +52,24 @@
     <string name="tos_content">It is not permitted to use this app contrary to morality or the laws in force. \n\nYou also agree that you will not use this app for any purposes prohibited by United States law, including, without limitation, the development, design, manufacture, or production of missile, chemical or biological weapons. \nHowever, this restriction will not apply in the event of the occurrence (certified by the United States Centers for Disease Control or successor body) of a widespread viral infection transmitted via bites or contact with bodily fluids that causes human corpses to reanimate and seek to consume living human flesh, blood, brain or nerve tissue and is likely to result in the fall of organized civilization. </string>
     <string name="oobe_tos_text">By continuing, you agree to the %1$s.</string>
     <string name="accept_tos">Continue</string>
-    <string name="about_oneui_sample">About OneUI Sample</string>
-    <string name="custom_about_oneui_sample_screen">Custom About OneUI Sample Screen</string>
+
+    <string name="search">Search</string>
+    <string name="search_filter">Search Filter</string>
+    <string name="no_entry">No Entry</string>
+    <string name="icons">Icons</string>
+    <string name="pickers">Pickers</string>
+    <string name="widgets">Widgets</string>
+    <string name="progress_bar">ProgressBar</string>
+    <string name="seek_bar">SeekBar</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="color">Color</string>
+    <string name="app_picker">AppPicker</string>
+    <string name="index_scroll">IndexScroll</string>
+    <string name="all_apps">All apps</string>
     <string name="show_letters">Show letters</string>
     <string name="hide_letters">Hide letters</string>
     <string name="show_system_apps">Show system apps</string>
     <string name="hide_system_apps">Hide system apps</string>
-    <string name="status">Status</string>
-    <string name="oneui_project_team">OneUI Project Team</string>
-    <string name="open_source_licenses">Open source licenses</string>
-    <string name="android_jetpack">Android Jetpack</string>
-    <string name="material_components">Material Components</string>
-    <string name="oneui_project">OneUI Project</string>
 
 </resources>

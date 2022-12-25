@@ -1,40 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:icon="@drawable/ic_oui_accessibility"
-        android:title="Item 1"
-        tools:ignore="HardcodedText" />
+        android:id="@+id/grid_menu_seek_bar"
+        android:icon="@drawable/drawer_page_icon_seekbar"
+        android:title="@string/seek_bar" />
 
     <item
-        android:icon="@drawable/ic_oui_gif"
-        android:title="Item 2"
-        tools:ignore="HardcodedText" />
+        android:id="@+id/grid_menu_pickers"
+        android:icon="@drawable/ic_oui_calendar"
+        android:title="@string/pickers" />
 
     <item
-        android:icon="@drawable/ic_oui_import"
-        android:title="Item 3"
-        tools:ignore="HardcodedText" />
+        android:id="@+id/grid_menu_index_scroll"
+        android:icon="@drawable/ic_oui_edge_panels"
+        android:title="@string/index_scroll" />
 
     <item
-        android:icon="@drawable/ic_oui_location_outline"
-        android:title="Item 4"
-        tools:ignore="HardcodedText" />
-
-    <item
-        android:icon="@drawable/ic_oui_advanced_call_outline"
-        android:title="Item 5"
-        tools:ignore="HardcodedText" />
-
-    <item
-        android:icon="@drawable/ic_oui_brightness_outline"
-        android:title="Item 6"
-        tools:ignore="HardcodedText" />
-
-    <item
-        android:icon="@drawable/ic_oui_settings_outline"
-        android:title="Item 7"
-        tools:ignore="HardcodedText" />
+        android:id="@+id/grid_menu_app_picker_view"
+        android:icon="@drawable/ic_oui_all_apps"
+        android:title="@string/app_picker"/>
 
 </menu>

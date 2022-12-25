@@ -5,17 +5,16 @@ plugins {
     id 'dagger.hilt.android.plugin'
 }
 
-
 android {
-    namespace 'de.lemke.oneuisampleapp'
+    namespace 'dev.oneuiproject.oneui.oneuisampleapp'
     compileSdk 33
 
     defaultConfig {
-        applicationId "de.lemke.oneuisampleapp"
+        applicationId "dev.oneuiproject.oneui.oneuisampleapp"
         minSdk 26
         targetSdk 33
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
 
         resConfigs "en", "de"
 
@@ -87,9 +86,11 @@ dependencies {
 
     implementation 'com.airbnb.android:lottie:5.2.0'
 
+    implementation 'androidx.core:core-splashscreen:1.0.0'
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
     implementation "androidx.datastore:datastore-preferences:1.0.0"
+    //noinspection GradleDependency
     implementation 'com.google.dagger:hilt-android:2.42'
     kapt 'com.google.dagger:hilt-compiler:2.42'
 

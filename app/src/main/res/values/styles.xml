@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="OneUISampleAppTheme" parent="OneUITheme">
+
+    <style name="Theme.OneUISampleApp" parent="OneUITheme">
         <item name="colorPrimary">@color/primary_color</item>
         <item name="colorPrimaryDark">@color/primary_dark_color</item>
         <item name="colorSecondary">@color/secondary_color</item>
         <item name="colorAccent">@color/secondary_color</item>
+    </style>
+
+    <style name="Theme.OneUISampleApp.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.OneUISampleApp</item>
     </style>
 
     <style name="ButtonStyle.Colored" parent="OneUI.ButtonStyleColored">
