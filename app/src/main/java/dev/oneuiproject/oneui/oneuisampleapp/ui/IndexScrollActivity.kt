@@ -5,10 +5,12 @@ import android.content.res.Configuration
 import android.database.MatrixCursor
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.util.SeslRoundedCorner
@@ -35,7 +37,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class IndexScrollActivity : AppCompatActivity() {
     private lateinit var binding: ActivityIndexScrollBinding
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
     private lateinit var adapter: IndexAdapter
     private lateinit var listView: RecyclerView
     private var selected = HashMap<Int, Boolean>()
@@ -64,16 +65,16 @@ class IndexScrollActivity : AppCompatActivity() {
         listView = binding.indexscrollList
         initListView()
         initIndexScroll()
-        onBackPressedCallback = object : OnBackPressedCallback(false) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT) {
+                if (selecting) setSelecting(false)
+                else finish()
+            }
+        else onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (selecting) setSelecting(false)
+                else finish()
             }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -150,14 +151,12 @@ class IndexScrollActivity : AppCompatActivity() {
                 }
                 binding.toolbarLayout.setActionModeCount(selected.values.count { it }, listItems.size - 28)
             }
-            onBackPressedCallback.isEnabled = true
         } else {
             selecting = false
             for (i in 0 until adapter.itemCount) selected[i] = false
             adapter.notifyItemRangeChanged(0, adapter.itemCount)
             binding.toolbarLayout.setActionModeCount(0, listItems.size - 28)
             binding.toolbarLayout.dismissActionMode()
-            onBackPressedCallback.isEnabled = false
         }
     }
 

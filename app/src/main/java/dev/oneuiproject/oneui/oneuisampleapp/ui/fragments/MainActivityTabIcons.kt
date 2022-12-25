@@ -3,6 +3,7 @@ package dev.oneuiproject.oneui.oneuisampleapp.ui.fragments
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -10,6 +11,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,6 +29,7 @@ class MainActivityTabIcons : Fragment() {
     private lateinit var binding: FragmentTabIconsBinding
     private val iconsId: MutableList<Int> = mutableListOf()
     private lateinit var onBackPressedCallback: OnBackPressedCallback
+    private lateinit var onBackInvokedCallback: OnBackInvokedCallback
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var listView: RecyclerView
@@ -75,11 +79,15 @@ class MainActivityTabIcons : Fragment() {
             override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {}
             override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {}
         })
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) onBackInvokedCallback =
+            OnBackInvokedCallback { if (selecting) setSelecting(false) }
         onBackPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
                 if (selecting) setSelecting(false)
             }
         }
+
     }
 
     override fun onResume() {
@@ -106,6 +114,10 @@ class MainActivityTabIcons : Fragment() {
                 }
                 drawerLayout.setActionModeCount(selected.values.count { it }, iconsId.size)
             }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) requireActivity().onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                PRIORITY_DEFAULT,
+                onBackInvokedCallback
+            )
             onBackPressedCallback.isEnabled = true
         } else {
             selecting = false
@@ -113,6 +125,9 @@ class MainActivityTabIcons : Fragment() {
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
             drawerLayout.setActionModeCount(0, iconsId.size)
             drawerLayout.dismissActionMode()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) requireActivity().onBackInvokedDispatcher.unregisterOnBackInvokedCallback(
+                onBackInvokedCallback
+            )
             onBackPressedCallback.isEnabled = false
         }
     }
@@ -146,6 +161,7 @@ class MainActivityTabIcons : Fragment() {
         override fun getItemCount(): Int = iconsId.size
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             ViewHolder(LayoutInflater.from(context).inflate(R.layout.icon_listview_item, parent, false))
+
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             holder.checkBox.visibility = if (selecting) View.VISIBLE else View.GONE
             holder.checkBox.isChecked = selected[position]!!
@@ -164,6 +180,7 @@ class MainActivityTabIcons : Fragment() {
                 true
             }
         }
+
         override fun getSections(): Array<Any> = sections.toTypedArray()
         override fun getPositionForSection(sectionIndex: Int): Int = positionForSection[sectionIndex]
         override fun getSectionForPosition(position: Int): Int = sectionForPosition[position]
