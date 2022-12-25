@@ -88,7 +88,6 @@ fabric.properties
 .DS_Store
 
 /build
-/release
 
 mobile/google-services.json
 /captures
