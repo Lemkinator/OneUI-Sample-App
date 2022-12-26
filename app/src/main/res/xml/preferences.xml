@@ -23,7 +23,8 @@
 
     <PreferenceCategory
         android:key="dev_options"
-        android:title="@string/dev_options">
+        android:title="@string/dev_options"
+        app:isPreferenceVisible="false">
         <PreferenceScreen
             android:key="delete_app_data_pref"
             android:title="@string/delete_appdata_and_exit" />

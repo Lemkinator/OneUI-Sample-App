@@ -47,7 +47,7 @@ class AboutActivity : AppCompatActivity() {
             }
         })
         val version: TextView = binding.appInfoLayout.findViewById(dev.oneuiproject.oneui.design.R.id.app_info_version)
-        setVersionTextView(version)
+        lifecycleScope. launch { setVersionTextView(version, getUserSettings().devModeEnabled) }
         version.setOnClickListener {
             clicks++
             if (clicks > 5) {
@@ -55,18 +55,16 @@ class AboutActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     val newDevModeEnabled = !getUserSettings().devModeEnabled
                     updateUserSettings { it.copy(devModeEnabled = newDevModeEnabled) }
+                    setVersionTextView(version, newDevModeEnabled)
                 }
-                Toast.makeText(this, "Dev mode enabled", Toast.LENGTH_SHORT).show()
-                setVersionTextView(version)
             }
         }
     }
 
-    private fun setVersionTextView(version: TextView) {
+    private fun setVersionTextView(textView: TextView, devModeEnabled: Boolean) {
         lifecycleScope.launch {
-            version.text = getString(
-                dev.oneuiproject.oneui.design.R.string.version_info, BuildConfig.VERSION_NAME +
-                        if (getUserSettings().devModeEnabled) " (dev)" else ""
+            textView.text = getString(
+                dev.oneuiproject.oneui.design.R.string.version_info, BuildConfig.VERSION_NAME + if (devModeEnabled) " (dev)" else ""
             )
         }
     }

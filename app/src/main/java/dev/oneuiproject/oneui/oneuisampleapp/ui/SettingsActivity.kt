@@ -81,7 +81,6 @@ class SettingsActivity : AppCompatActivity() {
             darkModePref.setTouchEffectEnabled(false)
             lifecycleScope.launch {
                 val userSettings = getUserSettings()
-                if (!userSettings.devModeEnabled) preferenceScreen.removePreference(findPreference("dev_options"))
                 autoDarkModePref.isChecked = userSettings.autoDarkMode
                 darkModePref.isEnabled = !autoDarkModePref.isChecked
                 darkModePref.value = if (userSettings.darkMode) "1" else "0"
@@ -160,6 +159,13 @@ class SettingsActivity : AppCompatActivity() {
                 //tipCardSpacing?.isVisible = showTipCard
             }
             setRelatedCardView()
+        }
+
+        override fun onResume() {
+            super.onResume()
+            lifecycleScope.launch {
+                findPreference<PreferenceCategory>("dev_options")?.isVisible = getUserSettings().devModeEnabled
+            }
         }
 
         override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
