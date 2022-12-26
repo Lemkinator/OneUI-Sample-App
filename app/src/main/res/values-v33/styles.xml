@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.OneUISampleApp.Splash" parent="Theme.SplashScreen">
+        <item name="android:windowSplashScreenBackground">@color/oui_round_and_bgcolor</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_animated</item>
+        <!--item name="android:windowSplashScreenAnimationDuration">750</item-->
+        <!--item name="android:windowSplashScreenIconBackgroundColor">@color/oui_background_color</item-->
+        <item name="android:windowSplashScreenBrandingImage">@drawable/ic_branding</item>
+        <item name="android:windowSplashScreenBehavior">icon_preferred</item>
+
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="postSplashScreenTheme">@style/Theme.OneUISampleApp</item>
+    </style>
+</resources>

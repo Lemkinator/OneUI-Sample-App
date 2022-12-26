@@ -1,5 +1,6 @@
 package dev.oneuiproject.oneui.oneuisampleapp.ui
 
+import android.animation.ObjectAnimator
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Build
@@ -8,6 +9,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
 import android.widget.Toast
 import android.window.OnBackInvokedCallback
@@ -15,6 +17,7 @@ import android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -66,7 +69,31 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         You have to kill it and open the app from the launcher.
         */
         val splashScreen = installSplashScreen()
-        splashScreen.setKeepOnScreenCondition{ !isUIReady }
+        splashScreen.setKeepOnScreenCondition { !isUIReady }
+        splashScreen.setOnExitAnimationListener { splashScreenView ->
+            // Create your custom animation.
+            val slideUp = ObjectAnimator.ofFloat(
+                splashScreenView.view,
+                View.ALPHA,
+                0f,
+            )
+            slideUp.interpolator = AccelerateDecelerateInterpolator()
+            slideUp.duration = 400L
+            // Call SplashScreenView.remove at the end of your custom animation.
+            slideUp.doOnEnd { splashScreenView.remove() }
+            // Run your animation.
+            slideUp.start()
+
+            /*
+            // Get the duration of the animated vector drawable.
+            val animationDuration = splashScreenView.iconAnimationDurationMillis
+            // Get the start time of the animation.
+            val animationStart = splashScreenView.iconAnimationStartMillis
+            // Calculate the remaining duration of the animation.
+            val remainingDuration = animationDuration - (System.currentTimeMillis() - animationStart).coerceAtLeast(0L)
+            */
+        }
+
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
             when (checkAppStart()) {
@@ -257,7 +284,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val gridMenuDialog = GridMenuDialog(this)
         gridMenuDialog.inflateMenu(R.menu.tabs_grid_menu)
         gridMenuDialog.setOnItemClickListener {
-            when(it.itemId) {
+            when (it.itemId) {
                 R.id.grid_menu_seek_bar -> {
                     startActivity(Intent(this@MainActivity, SeekBarActivity::class.java))
                     return@setOnItemClickListener true

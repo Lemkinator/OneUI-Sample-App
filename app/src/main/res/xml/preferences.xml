@@ -48,86 +48,86 @@
 
     <dev.oneuiproject.oneui.preference.TipsCardPreference
         android:key="tip"
-        android:title="TipsCardPreference"
-        android:summary="From here the preference dummies start."/>
+        android:summary="From here the preference dummies start."
+        android:title="TipsCardPreference" />
 
     <PreferenceCategory>
 
         <SwitchPreferenceCompat
+            android:defaultValue="false"
             android:key="key1"
-            android:title="SwitchPreference"
-            android:defaultValue="false" />
+            android:title="SwitchPreference" />
 
         <SeslSwitchPreferenceScreen
+            android:defaultValue="true"
             android:key="key2"
-            android:title="SwitchPreferenceScreen"
-            android:defaultValue="true" />
+            android:title="SwitchPreferenceScreen" />
 
         <CheckBoxPreference
+            android:defaultValue="true"
             android:key="key3"
-            android:title="CheckBoxPreference"
             android:summary="Someone's still using this one?"
-            android:defaultValue="true" />
+            android:title="CheckBoxPreference" />
 
         <SeekBarPreference
-            android:title="SeekBarPreference"
-            android:summary="Summary"
-            app:min="0"
+            android:defaultValue="30"
             android:max="50"
-            android:defaultValue="30"/>
+            android:summary="Summary"
+            android:title="SeekBarPreference"
+            app:min="0" />
 
     </PreferenceCategory>
 
     <PreferenceCategory>
 
         <EditTextPreference
+            android:defaultValue="Default text"
             android:key="key4"
             android:title="EditTextPreference"
-            android:defaultValue="Default text"
             app:useSimpleSummaryProvider="true" />
 
         <DropDownPreference
-            android:key="key5"
-            android:title="DropDownPreference"
+            android:defaultValue="#00FFFF"
             android:entries="@array/preferences_test_entries"
             android:entryValues="@array/preferences_test_values"
-            android:defaultValue="#00FFFF"
+            android:key="key5"
+            android:title="DropDownPreference"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
-            android:key="key6"
-            android:title="ListPreference"
+            android:defaultValue="#F0FFFF"
             android:entries="@array/preferences_test_entries"
             android:entryValues="@array/preferences_test_values"
-            android:defaultValue="#F0FFFF"
+            android:key="key6"
+            android:title="ListPreference"
             app:useSimpleSummaryProvider="true" />
 
         <MultiSelectListPreference
-            android:key="key7"
-            android:title="MultiSelectListPreference"
-            android:summary="Summary"
             android:entries="@array/preferences_test_entries"
-            android:entryValues="@array/preferences_test_values" />
+            android:entryValues="@array/preferences_test_values"
+            android:key="key7"
+            android:summary="Summary"
+            android:title="MultiSelectListPreference" />
 
     </PreferenceCategory>
 
     <PreferenceCategory>
 
         <dev.oneuiproject.oneui.preference.ColorPickerPreference
-            android:key="key8"
-            android:title="ColorPickerPreference"
-            android:summary="Summary"
             android:defaultValue="#0381FE"
+            android:key="key8"
+            android:summary="Summary"
+            android:title="ColorPickerPreference"
             app:showAlphaSlider="true" />
 
         <dev.oneuiproject.oneui.preference.SeekBarPreferencePro
-            android:title="SeekBarPreferencePro"
-            android:summary="Summary"
-            app:min="0"
-            android:max="5"
             android:defaultValue="2"
-            app:showTickMark="true"
-            app:adjustable="true" />
+            android:max="5"
+            android:summary="Summary"
+            android:title="SeekBarPreferencePro"
+            app:adjustable="true"
+            app:min="0"
+            app:showTickMark="true" />
 
     </PreferenceCategory>
 
