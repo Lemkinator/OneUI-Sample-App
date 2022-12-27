@@ -1,6 +1,7 @@
 package dev.oneuiproject.oneui.oneuisampleapp.ui
 
 import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Build
@@ -68,25 +69,34 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         */
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition { !isUIReady }
-        splashScreen.setOnExitAnimationListener { splashScreenView ->
-            // Create your custom animation.
-            val slideUp = ObjectAnimator.ofFloat(
-                splashScreenView.view,
-                View.ALPHA,
-                0f,
+        splashScreen.setOnExitAnimationListener { splash ->
+            val splashAnimator: ObjectAnimator = ObjectAnimator.ofPropertyValuesHolder(
+                splash.view,
+                PropertyValuesHolder.ofFloat(View.ALPHA, 0f),
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 1.2f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.2f)
             )
-            slideUp.interpolator = AccelerateDecelerateInterpolator()
-            slideUp.duration = 400L
-            // Call SplashScreenView.remove at the end of your custom animation.
-            slideUp.doOnEnd { splashScreenView.remove() }
-            // Run your animation.
-            slideUp.start()
+            splashAnimator.interpolator = AccelerateDecelerateInterpolator()
+            splashAnimator.duration = 400L
+            splashAnimator.doOnEnd { splash.remove() }
+            val contentAnimator: ObjectAnimator = ObjectAnimator.ofPropertyValuesHolder(
+                binding.root,
+                PropertyValuesHolder.ofFloat(View.ALPHA, 0f, 1f),
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 1.2f, 1f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.2f, 1f)
+            )
+            contentAnimator.interpolator = AccelerateDecelerateInterpolator()
+            contentAnimator.duration = 400L
+            contentAnimator.doOnEnd { splash.remove() }
+            splashAnimator.start()
+            contentAnimator.start()
+
 
             /*
             // Get the duration of the animated vector drawable.
-            val animationDuration = splashScreenView.iconAnimationDurationMillis
+            val animationDuration = splash.iconAnimationDurationMillis
             // Get the start time of the animation.
-            val animationStart = splashScreenView.iconAnimationStartMillis
+            val animationStart = splash.iconAnimationStartMillis
             // Calculate the remaining duration of the animation.
             val remainingDuration = animationDuration - (System.currentTimeMillis() - animationStart).coerceAtLeast(0L)
             */
@@ -114,9 +124,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun openMain() {
-        isUIReady = true
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        isUIReady = true
         initOnBackPressed()
         initDrawer()
         initTabLayout()

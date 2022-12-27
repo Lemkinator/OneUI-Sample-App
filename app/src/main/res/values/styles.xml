@@ -10,6 +10,7 @@
     <style name="Theme.OneUISampleApp.Splash" parent="Theme.SplashScreen">
         <item name="android:windowSplashScreenBrandingImage" tools:targetApi="s">@drawable/ic_branding</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="windowSplashScreenAnimationDuration">700</item>
         <item name="postSplashScreenTheme">@style/Theme.OneUISampleApp</item>
     </style>
 
