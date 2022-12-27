@@ -42,7 +42,6 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var settingsActivity: SettingsActivity
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
-        private lateinit var confirmExitPref: SwitchPreferenceCompat
 
         //private var tipCard: TipsCardViewPreference? = null
         //private var tipCardSpacing: PreferenceCategory? = null
@@ -73,8 +72,6 @@ class SettingsActivity : AppCompatActivity() {
         private fun initPreferences() {
             darkModePref = findPreference("dark_mode_pref")!!
             autoDarkModePref = findPreference("dark_mode_auto_pref")!!
-            confirmExitPref = findPreference("confirm_exit_pref")!!
-            confirmExitPref.onPreferenceChangeListener = this
             autoDarkModePref.onPreferenceChangeListener = this
             darkModePref.onPreferenceChangeListener = this
             darkModePref.setDividerEnabled(false)
@@ -154,7 +151,6 @@ class SettingsActivity : AppCompatActivity() {
             super.onStart()
             lifecycleScope.launch {
                 val userSettings = getUserSettings()
-                confirmExitPref.isChecked = userSettings.confirmExit
                 //tipCard?.isVisible = showTipCard
                 //tipCardSpacing?.isVisible = showTipCard
             }
@@ -191,10 +187,6 @@ class SettingsActivity : AppCompatActivity() {
                         }
                         updateUserSettings { it.copy(autoDarkMode = newValue) }
                     }
-                    return true
-                }
-                "confirm_exit_pref" -> {
-                    lifecycleScope.launch { updateUserSettings { it.copy(confirmExit = newValue as Boolean) } }
                     return true
                 }
                 "key2" -> {

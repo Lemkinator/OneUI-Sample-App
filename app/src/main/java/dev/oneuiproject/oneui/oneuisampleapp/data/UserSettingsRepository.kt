@@ -27,7 +27,6 @@ class UserSettingsRepository @Inject constructor(
             it[KEY_AUTO_DARK_MODE] = newSettings.autoDarkMode
             it[KEY_TOS_ACCEPTED] = newSettings.tosAccepted
             it[KEY_DEV_MODE_ENABLED] = newSettings.devModeEnabled
-            it[KEY_CONFIRM_EXIT] = newSettings.confirmExit
             it[KEY_SEARCH] = newSettings.search
             it[KEY_CURRENT_FRAGMENT] = newSettings.currentFragment
             it[KEY_SHOW_LETTERS] = newSettings.showLetters
@@ -44,7 +43,6 @@ class UserSettingsRepository @Inject constructor(
         autoDarkMode = prefs[KEY_AUTO_DARK_MODE] ?: true,
         tosAccepted = prefs[KEY_TOS_ACCEPTED] ?: false,
         devModeEnabled = prefs[KEY_DEV_MODE_ENABLED] ?: false,
-        confirmExit = prefs[KEY_CONFIRM_EXIT] ?: true,
         search = prefs[KEY_SEARCH] ?: "",
         currentFragment = prefs[KEY_CURRENT_FRAGMENT] ?: 0,
         showLetters = prefs[KEY_SHOW_LETTERS] ?: true,
@@ -59,7 +57,6 @@ class UserSettingsRepository @Inject constructor(
         private val KEY_AUTO_DARK_MODE = booleanPreferencesKey("autoDarkMode")
         private val KEY_TOS_ACCEPTED = booleanPreferencesKey("tosAccepted")
         private val KEY_DEV_MODE_ENABLED = booleanPreferencesKey("devModeEnabled")
-        private val KEY_CONFIRM_EXIT = booleanPreferencesKey("confirmExit")
         private val KEY_SEARCH = stringPreferencesKey("search")
         private val KEY_CURRENT_FRAGMENT = intPreferencesKey("currentFragment")
         private val KEY_SHOW_LETTERS = booleanPreferencesKey("showLetters")
@@ -81,8 +78,6 @@ data class UserSettings(
     val tosAccepted: Boolean,
     /** devMode enabled */
     val devModeEnabled: Boolean,
-    /** confirm Exit*/
-    val confirmExit: Boolean,
     /** current search */
     val search: String,
     /** current Fragment*/

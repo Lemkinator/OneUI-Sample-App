@@ -11,7 +11,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
-import android.widget.Toast
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT
 import androidx.activity.OnBackPressedCallback
@@ -51,7 +50,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private var selectedPosition = -1
     private var isSearchFragmentVisible = false
     private var isSearchUserInputEnabled = false
-    private var time: Long = 0
     private var isUIReady = false
 
     @Inject
@@ -221,18 +219,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         binding.drawerLayoutMain.setDrawerButtonIcon(getDrawable(dev.oneuiproject.oneui.R.drawable.ic_oui_info_outline))
         binding.drawerLayoutMain.setDrawerButtonOnClickListener {
             startActivity(
-                Intent().setClass(
-                    this@MainActivity,
-                    AboutActivity::class.java
-                )
+                Intent().setClass(this@MainActivity, AboutActivity::class.java)
             )
         }
         binding.drawerLayoutMain.setDrawerButtonTooltip(getText(R.string.about_app))
         binding.drawerLayoutMain.setSearchModeListener(SearchModeListener())
         binding.drawerLayoutMain.searchView.setSearchableInfo(
-            (getSystemService(SEARCH_SERVICE) as SearchManager).getSearchableInfo(
-                componentName
-            )
+            (getSystemService(SEARCH_SERVICE) as SearchManager).getSearchableInfo(componentName)
         )
         binding.drawerLayoutMain.searchView.seslSetOverflowMenuButtonIcon(getDrawable(dev.oneuiproject.oneui.R.drawable.ic_oui_list_filter))
         binding.drawerLayoutMain.searchView.seslSetOverflowMenuButtonVisibility(View.VISIBLE)
@@ -336,25 +329,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private fun initOnBackPressed() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                lifecycleScope.launch {
-                    when {
-                        binding.drawerLayoutMain.isSearchMode -> {
-                            isSearchUserInputEnabled = false
-                            binding.drawerLayoutMain.dismissSearchMode()
-                        }
-                        !getUserSettings().confirmExit -> finishAffinity()
-                        System.currentTimeMillis() - time < 3000 -> finishAffinity()
-                        else -> {
-                            Toast.makeText(this@MainActivity, resources.getString(R.string.press_again_to_exit), Toast.LENGTH_SHORT).show()
-                            time = System.currentTimeMillis()
-                        }
-                    }
-                }
+                checkBackPressed()
             }
         })
         //set custom onBackInvoked callback to prevent app from exiting on back press when in search mode
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            onBackInvokedCallback = OnBackInvokedCallback { onBackPressedDispatcher.onBackPressed() }
+            onBackInvokedCallback = OnBackInvokedCallback {
+                checkBackPressed()
+            }
         }
+    }
+
+    private fun checkBackPressed() {
+        if (binding.drawerLayoutMain.isSearchMode) {
+            isSearchUserInputEnabled = false
+            binding.drawerLayoutMain.dismissSearchMode()
+        }
+        else finishAffinity()
     }
 }

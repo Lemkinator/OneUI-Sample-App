@@ -14,13 +14,6 @@
             android:title="@string/system_default" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/general">
-        <SwitchPreferenceCompat
-            android:key="confirm_exit_pref"
-            android:summary="@string/press_again_to_exit"
-            android:title="@string/confirm_exit" />
-    </PreferenceCategory>
-
     <PreferenceCategory
         android:key="dev_options"
         android:title="@string/dev_options"

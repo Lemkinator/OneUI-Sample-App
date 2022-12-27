@@ -53,22 +53,18 @@ class OOBEActivity : AppCompatActivity() {
     private fun initOnBackPressed() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
             onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT) {
-                lifecycleScope.launch {
-                    if (System.currentTimeMillis() - time < 3000) finishAffinity()
-                    else {
-                        Toast.makeText(this@OOBEActivity, resources.getString(R.string.press_again_to_exit), Toast.LENGTH_SHORT).show()
-                        time = System.currentTimeMillis()
-                    }
+                if (System.currentTimeMillis() - time < 3000) finishAffinity()
+                else {
+                    Toast.makeText(this@OOBEActivity, resources.getString(R.string.press_again_to_exit), Toast.LENGTH_SHORT).show()
+                    time = System.currentTimeMillis()
                 }
             }
         else onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                lifecycleScope.launch {
-                    if (System.currentTimeMillis() - time < 3000) finishAffinity()
-                    else {
-                        Toast.makeText(this@OOBEActivity, resources.getString(R.string.press_again_to_exit), Toast.LENGTH_SHORT).show()
-                        time = System.currentTimeMillis()
-                    }
+                if (System.currentTimeMillis() - time < 3000) finishAffinity()
+                else {
+                    Toast.makeText(this@OOBEActivity, resources.getString(R.string.press_again_to_exit), Toast.LENGTH_SHORT).show()
+                    time = System.currentTimeMillis()
                 }
             }
         })

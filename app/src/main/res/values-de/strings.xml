@@ -17,7 +17,6 @@
     <!--Settings-->
     <string name="design">Design</string>
     <string name="system_default">Systemeinstellung</string>
-    <string name="general">Allgemein</string>
     <string name="confirm_exit">Verlassen bestätigen</string>
     <string name="press_again_to_exit">Zurück-Taste erneut drücken um zu Beenden.</string>
     <string name="delete_appdata_and_exit">App-Daten löschen und Beenden</string>
