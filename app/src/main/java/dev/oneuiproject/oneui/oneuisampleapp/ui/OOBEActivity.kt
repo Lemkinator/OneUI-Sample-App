@@ -2,6 +2,7 @@ package dev.oneuiproject.oneui.oneuisampleapp.ui
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
@@ -130,6 +131,8 @@ class OOBEActivity : AppCompatActivity() {
             binding.oobeIntroFooterButtonProgress.visibility = View.VISIBLE
             lifecycleScope.launch {
                 updateUserSettings { it.copy(tosAccepted = true) }
+                startActivity(Intent(this@OOBEActivity, MainActivity::class.java))
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                 finish()
             }
         }

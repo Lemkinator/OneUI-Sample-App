@@ -1,7 +1,5 @@
 package dev.oneuiproject.oneui.oneuisampleapp.ui
 
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Build
@@ -10,14 +8,12 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -38,6 +34,7 @@ import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.MainActivitySearchFrag
 import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.MainActivityTabDesign
 import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.MainActivityTabIcons
 import dev.oneuiproject.oneui.utils.TabLayoutUtils
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -51,6 +48,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private var selectedPosition = -1
     private var isSearchFragmentVisible = false
     private var isSearchUserInputEnabled = false
+    private var time: Long = 0
     private var isUIReady = false
 
     @Inject
@@ -68,7 +66,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         You have to kill it and open the app from the launcher.
         */
         val splashScreen = installSplashScreen()
+        time = System.currentTimeMillis()
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         splashScreen.setKeepOnScreenCondition { !isUIReady }
+        /*
+        there is a bug in the new splash screen api, when using the onExitAnimationListener -> splash icon flickers
+        therefore setting a manual delay in openMain()
         splashScreen.setOnExitAnimationListener { splash ->
             val splashAnimator: ObjectAnimator = ObjectAnimator.ofPropertyValuesHolder(
                 splash.view,
@@ -87,22 +92,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             )
             contentAnimator.interpolator = AccelerateDecelerateInterpolator()
             contentAnimator.duration = 400L
-            contentAnimator.doOnEnd { splash.remove() }
-            splashAnimator.start()
-            contentAnimator.start()
 
+            val remainingDuration = splash.iconAnimationDurationMillis - (System.currentTimeMillis() - splash.iconAnimationStartMillis)
+                .coerceAtLeast(0L)
+            lifecycleScope.launch {
+                delay(remainingDuration)
+                splashAnimator.start()
+                contentAnimator.start()
+            }
+        }*/
 
-            /*
-            // Get the duration of the animated vector drawable.
-            val animationDuration = splash.iconAnimationDurationMillis
-            // Get the start time of the animation.
-            val animationStart = splash.iconAnimationStartMillis
-            // Calculate the remaining duration of the animation.
-            val remainingDuration = animationDuration - (System.currentTimeMillis() - animationStart).coerceAtLeast(0L)
-            */
-        }
-
-        super.onCreate(savedInstanceState)
         lifecycleScope.launch {
             when (checkAppStart()) {
                 AppStart.FIRST_TIME -> openOOBE()
@@ -112,10 +111,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    private fun openOOBE() {
+    private suspend fun openOOBE() {
+        //manually waiting for the animation to finish :/
+        delay(800 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
         startActivity(Intent(applicationContext, OOBEActivity::class.java))
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-        openMain()
+        finish()
     }
 
     private suspend fun checkTOS() {
@@ -124,13 +125,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun openMain() {
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        isUIReady = true
         initOnBackPressed()
         initDrawer()
         initTabLayout()
         initFragments()
+        lifecycleScope.launch {
+            //manually waiting for the animation to finish :/
+            delay(800 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
+            isUIReady = true
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -354,7 +357,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         if (binding.drawerLayoutMain.isSearchMode) {
             isSearchUserInputEnabled = false
             binding.drawerLayoutMain.dismissSearchMode()
-        }
-        else finishAffinity()
+        } else finishAffinity()
     }
 }

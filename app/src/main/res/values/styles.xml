@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <style name="Theme.OneUISampleApp" parent="OneUITheme">
         <item name="colorPrimary">@color/primary_color</item>
         <item name="colorPrimaryDark">@color/primary_dark_color</item>
@@ -8,9 +8,10 @@
     </style>
 
     <style name="Theme.OneUISampleApp.Splash" parent="Theme.SplashScreen">
-        <item name="android:windowSplashScreenBrandingImage" tools:targetApi="s">@drawable/ic_branding</item>
+        <item name="windowSplashScreenBackground">@color/oui_round_and_bgcolor</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
-        <item name="windowSplashScreenAnimationDuration">700</item>
+        <item name="windowSplashScreenAnimationDuration">800</item>
+        <!--item name="windowSplashScreenIconBackgroundColor">@color/oui_background_color</item-->
         <item name="postSplashScreenTheme">@style/Theme.OneUISampleApp</item>
     </style>
 

@@ -55,7 +55,7 @@
         <aapt:attr name="android:animation">
             <objectAnimator
                 android:duration="600"
-                android:startOffset="150"
+                android:startOffset="200"
                 android:propertyName="translateY"
                 android:valueFrom="7.3"
                 android:valueTo="0" />
