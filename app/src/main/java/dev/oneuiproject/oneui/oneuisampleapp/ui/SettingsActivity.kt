@@ -46,7 +46,6 @@ class SettingsActivity : AppCompatActivity() {
         //private var tipCard: TipsCardViewPreference? = null
         //private var tipCardSpacing: PreferenceCategory? = null
         private var relatedCard: PreferenceRelatedCard? = null
-        private var lastTimeVersionClicked: Long = 0
 
         @Inject
         lateinit var getUserSettings: GetUserSettingsUseCase
@@ -65,7 +64,6 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onCreate(bundle: Bundle?) {
             super.onCreate(bundle)
-            lastTimeVersionClicked = System.currentTimeMillis()
             initPreferences()
         }
 
