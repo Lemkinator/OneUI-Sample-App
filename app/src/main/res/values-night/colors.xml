@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="oui_primary_icon_color">#fffafafa</color>
-    <color name="oui_secondary_text_color">@color/sesl_list_subheader_text_color_dark</color>
-    <color name="oui_secondary_text_color_not_themed">#ff999999</color>
-    <color name="oui_primary_text_color_not_themed">#fffafafa</color>
+    <color name="primary_text_icon_color">#fffafafa</color>
+    <color name="secondary_text_icon_color">#ff999999</color>
+    <color name="round_and_bg_color">@color/oui_round_and_bgcolor</color>
+    <color name="background_color">#ff171717</color>
     <color name="filled_background_color">#373737</color>
+    <color name="ripple_color">#0d000000</color>
+
+    <color name="oui_primary_icon_color">@color/primary_text_icon_color</color>
+    <color name="oui_primary_text_color">@color/primary_text_icon_color</color>
+    <color name="oui_relative_link_title_text_color">@color/primary_text_icon_color</color>
+    <color name="oui_appinfolayout_info_text_color">@color/secondary_text_icon_color</color>
+    <color name="oui_btn_app_info">@color/filled_background_color</color>
+    <color name="oui_appinfolayout_button_default_text">@color/primary_text_icon_color</color>
+    <color name="oui_tipscardpref_bg_color">@color/background_color</color>
+    <color name="oui_grid_menu_dialog_item_bg">@color/background_color</color>
+    <color name="oui_grid_menu_dialog_item_icon_text_color">@color/primary_text_icon_color</color>
 
 </resources>

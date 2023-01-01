@@ -111,7 +111,6 @@
         android:id="@+id/pickers_bnv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/oui_background_color"
         app:layout_location="footer"
         app:menu="@menu/pickers_dialog_bnv" />
 

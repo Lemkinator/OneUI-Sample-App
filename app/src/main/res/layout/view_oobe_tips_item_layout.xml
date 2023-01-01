@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20.0sp"
-            android:textColor="@color/oui_primary_text_color_not_themed"
+            android:textColor="@color/oui_primary_text_color"
             android:textAlignment="viewStart"
             android:maxLines="2"
             android:ellipsize="end" />
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2.0dp"
             android:textSize="14.0sp"
-            android:textColor="@color/oui_secondary_text_color_not_themed"
+            android:textColor="@color/secondary_text_icon_color"
             android:textAlignment="viewStart"
             android:visibility="gone" />
 

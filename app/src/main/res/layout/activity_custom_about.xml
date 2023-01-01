@@ -50,7 +50,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
-                    android:textColor="@color/oui_secondary_text_color"
+                    android:textColor="@color/secondary_text_icon_color"
                     android:textSize="14sp" />
 
                 <LinearLayout
@@ -66,7 +66,7 @@
                         android:layout_height="48dp"
                         android:layout_marginEnd="8dp"
                         android:background="?attr/actionBarItemBackground"
-                        android:tint="@color/oui_secondary_text_color"
+                        android:tint="@color/secondary_text_icon_color"
                         app:srcCompat="@drawable/about_page_github" />
 
                     <androidx.appcompat.widget.AppCompatImageButton
@@ -74,7 +74,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:background="?attr/actionBarItemBackground"
-                        android:tint="@color/oui_secondary_text_color"
+                        android:tint="@color/secondary_text_icon_color"
                         app:srcCompat="@drawable/about_page_telegram" />
 
                 </LinearLayout>
@@ -134,7 +134,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceListItemSecondary"
-                    android:textColor="@color/oui_secondary_text_color" />
+                    android:textColor="@color/secondary_text_icon_color" />
 
             </LinearLayout>
 

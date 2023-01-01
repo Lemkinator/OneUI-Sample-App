@@ -58,8 +58,8 @@
 
     <style name="OOBE.TextView.ToS" parent="TextAppearance.AppCompat">
         <item name="android:textSize">14.0sp</item>
-        <item name="android:textColor">@color/oui_primary_text_color_not_themed</item>
-        <item name="android:textColorLink">@color/oui_relative_link_title_text_color</item>
+        <item name="android:textColor">@color/oui_primary_text_color</item>
+        <item name="android:textColorLink">@color/primary_color</item>
         <item name="android:lineSpacingExtra">3.0dp</item>
         <item name="android:maxLines">3</item>
         <item name="android:ellipsize">end</item>
@@ -71,7 +71,7 @@
         <item name="android:background">@drawable/oobe_button_background</item>
         <item name="android:backgroundTint">@color/primary_color</item>
         <item name="android:textSize">18.0sp</item>
-        <item name="android:textColor">@color/oui_primary_text_color_not_themed</item>
+        <item name="android:textColor">@color/round_and_bg_color</item>
     </style>
 
 </resources>
