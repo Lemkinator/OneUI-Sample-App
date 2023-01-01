@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="primary_color">#0090FF</color>
-    <color name="primary_dark_color">#4F0090FF</color>
+    <color name="primary_color_not_themed">#0090FF</color>
     <color name="secondary_color">#FF5722</color>
+    <color name="secondary_color_not_themed">#FF5722</color>
 
+    <color name="oui_primary_icon_color">#ff010101</color>
     <color name="oui_primary_text_color_not_themed">#ff010101</color>
     <color name="oui_secondary_text_color">@color/sesl_list_subheader_text_color</color>
     <color name="oui_secondary_text_color_not_themed">#ff8c8c8c</color>
-    <color name="filled_background_color">@color/sesl_ripple_color_light</color>
+    <color name="filled_background_color">#e2e2e2</color>
 
 </resources>

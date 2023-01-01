@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_color">@android:color/system_accent1_400</color>
+    <color name="primary_dark_color">@android:color/system_accent1_500</color>
+    <color name="secondary_color">@android:color/system_accent2_400</color>
+
+    <color name="primary_text_icon_color">@android:color/system_accent1_100</color>
+    <color name="secondary_text_icon_color">@android:color/system_accent1_200</color>
+    <color name="round_and_bg_color">@color/oui_round_and_bgcolor</color>
+    <color name="background_color">@android:color/system_neutral1_900</color>
+    <color name="filled_background_color">@android:color/system_neutral1_800</color>
+    <color name="ripple_color">@android:color/system_neutral1_700</color>
+
+
+    <color name="oui_primary_icon_color">@color/primary_text_icon_color</color>
+    <color name="oui_primary_text_color">@color/primary_text_icon_color</color>
+    <color name="oui_relative_link_title_text_color">@color/primary_text_icon_color</color>
+    <color name="oui_appinfolayout_info_text_color">@color/secondary_text_icon_color</color>
+    <color name="oui_btn_app_info">@color/filled_background_color</color>
+    <color name="oui_appinfolayout_button_default_text">@color/primary_text_icon_color</color>
+    <color name="oui_tipscardpref_bg_color">@color/background_color</color>
+    <color name="oui_grid_menu_dialog_item_bg">@color/background_color</color>
+    <color name="oui_grid_menu_dialog_item_icon_text_color">@color/primary_text_icon_color</color>
+
+</resources>

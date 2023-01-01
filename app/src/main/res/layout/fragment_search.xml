@@ -43,7 +43,7 @@
                     android:layout_gravity="center"
                     android:translationZ="7.0dp"
                     app:lottie_autoPlay="false"
-                    app:lottie_colorFilter="@color/primary_color"
+                    app:lottie_colorFilter="@color/primary_text_icon_color"
                     app:lottie_fileName="sad_face.json"
                     app:lottie_loop="false" />
 

@@ -72,6 +72,26 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="Spinner"
+            tools:ignore="HardcodedText" />
+
+        <dev.oneuiproject.oneui.widget.RoundFrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/oui_background_color"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp">
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/fragment_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </dev.oneuiproject.oneui.widget.RoundFrameLayout>
+
+        <dev.oneuiproject.oneui.widget.Separator
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="Buttons"
             tools:ignore="HardcodedText" />
 
@@ -120,26 +140,6 @@
                 tools:ignore="HardcodedText" />
 
         </dev.oneuiproject.oneui.widget.RoundLinearLayout>
-
-        <dev.oneuiproject.oneui.widget.Separator
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Spinner"
-            tools:ignore="HardcodedText" />
-
-        <dev.oneuiproject.oneui.widget.RoundFrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/oui_background_color"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp">
-
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/fragment_spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </dev.oneuiproject.oneui.widget.RoundFrameLayout>
 
     </LinearLayout>
 
