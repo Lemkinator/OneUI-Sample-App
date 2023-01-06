@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="primary_color">#ff0381fe</color>
-    <color name="primary_color_not_themed">#ff0381fe</color>
     <color name="primary_dark_color">#0B68C5</color>
     <color name="secondary_color">#ff00d694</color>
-    <color name="secondary_color_not_themed">#07AA5E</color>
 
     <color name="primary_text_icon_color">#010101</color>
     <color name="secondary_text_icon_color">#ff8c8c8c</color>
@@ -13,7 +11,10 @@
     <color name="filled_background_color">#e2e2e2</color>
     <color name="ripple_color">#0d000000</color>
 
-    <color name="oui_primary_icon_color">@color/primary_text_icon_color</color>
+    <!--
+    material you theming
+
+    color name="oui_primary_icon_color">@color/primary_text_icon_color</color>
     <color name="oui_primary_text_color">@color/primary_text_icon_color</color>
     <color name="oui_relative_link_title_text_color">@color/primary_text_icon_color</color>
     <color name="oui_appinfolayout_info_text_color">@color/secondary_text_icon_color</color>
@@ -32,12 +33,12 @@
     <color name="sesl_primary_text_color_dark">@color/primary_text_icon_color</color>
     <color name="sesl_primary_text_color_light">@color/primary_text_icon_color</color>
     <color name="sesl_secondary_text_color_dark">@color/secondary_text_icon_color</color>
-    <color name="sesl_secondary_text_color_light">@color/secondary_text_icon_color</color>
+    <color name="sesl_secondary_text_color_light">@color/secondary_text_icon_color</color-->
 
     <!--color name="sesl_black">#ff252525</color>
     <color name="sesl_white">#fffafafa</color-->
 
-    <color name="sesl_ripple_color_dark">@color/ripple_color</color>
+    <!--color name="sesl_ripple_color_dark">@color/ripple_color</color>
     <color name="sesl_ripple_color_light">@color/ripple_color</color>
 
     <color name="sesl_background_color_dark">@color/background_color</color>
@@ -79,9 +80,9 @@
     <color name="sesl_dialog_list_text_color_dark">@color/primary_text_icon_color</color>
     <color name="sesl_dialog_list_text_color_light">@color/primary_text_icon_color</color>
     <color name="sesl_dialog_scrollbar_handle_tint_color_mtrl_dark">@color/primary_color</color>
-    <color name="sesl_dialog_scrollbar_handle_tint_color_mtrl_light">@color/primary_color</color>
+    <color name="sesl_dialog_scrollbar_handle_tint_color_mtrl_light">@color/primary_color</color-->
     <!--color name="sesl_dialog_show_button_background_color">@color/system_neutral1_400</color-->
-    <color name="sesl_dialog_text_body_color">@color/primary_text_icon_color</color>
+    <!--color name="sesl_dialog_text_body_color">@color/primary_text_icon_color</color>
     <color name="sesl_dialog_title_text_color_dark">@color/primary_text_icon_color</color>
     <color name="sesl_dialog_title_text_color_light">@color/primary_text_icon_color</color>
 
@@ -224,7 +225,7 @@
     <color name="sesl_tooltip_background_dark">@color/filled_background_color</color>
     <color name="sesl_tooltip_background_light">@color/filled_background_color</color>
     <color name="sesl_tooltip_foreground_dark">@color/primary_text_icon_color</color>
-    <color name="sesl_tooltip_foreground_light">@color/primary_text_icon_color</color>
+    <color name="sesl_tooltip_foreground_light">@color/primary_text_icon_color</color-->
 
 
     <!-- ???

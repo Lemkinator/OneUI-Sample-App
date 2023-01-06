@@ -17,7 +17,7 @@
                 android:scaleY="0.12">
 
             <path
-                android:fillColor="@color/primary_color_not_themed"
+                android:fillColor="@color/primary_color"
                 android:pathData="M99,50C99,6.935,77.063,1,50,1 C22.935,1,1,6.935,1,50c0,43.063,21.935,49,49,49C77.063,99,99,93.063,99,50z" />
 
             </group>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.OneUISampleApp" parent="OneUITheme">
-        <item name="colorPrimary">@color/primary_color</item>
-        <item name="colorPrimaryDark">@color/primary_color</item>
+        <!--item name="colorPrimary">@color/primary_color</item>
+        <item name="colorPrimaryDark">@color/primary_dark_color</item>
         <item name="colorSecondary">@color/secondary_color</item>
-        <item name="colorAccent">@color/secondary_color</item>
+        <item name="colorAccent">@color/secondary_color</item-->
     </style>
 
     <style name="Theme.OneUISampleApp.Splash" parent="Theme.SplashScreen">
@@ -16,7 +16,7 @@
     </style>
 
     <style name="ButtonStyle.Colored" parent="OneUI.ButtonStyleColored">
-        <item name="android:backgroundTint">@color/primary_color</item>
+        <item name="android:backgroundTint">?attr/colorPrimary</item>
         <item name="android:textColor">@color/oui_round_and_bgcolor</item>
         <item name="android:drawableTint">@color/oui_round_and_bgcolor</item>
         <item name="tint">@color/oui_round_and_bgcolor</item>
@@ -59,7 +59,7 @@
     <style name="OOBE.TextView.ToS" parent="TextAppearance.AppCompat">
         <item name="android:textSize">14.0sp</item>
         <item name="android:textColor">@color/oui_primary_text_color</item>
-        <item name="android:textColorLink">@color/primary_color</item>
+        <item name="android:textColorLink">?attr/colorPrimary</item>
         <item name="android:lineSpacingExtra">3.0dp</item>
         <item name="android:maxLines">3</item>
         <item name="android:ellipsize">end</item>
@@ -69,7 +69,7 @@
         <item name="android:paddingStart">16.0dp</item>
         <item name="android:paddingEnd">16.0dp</item>
         <item name="android:background">@drawable/oobe_button_background</item>
-        <item name="android:backgroundTint">@color/primary_color</item>
+        <item name="android:backgroundTint">?attr/colorPrimary</item>
         <item name="android:textSize">18.0sp</item>
         <item name="android:textColor">@color/round_and_bg_color</item>
     </style>

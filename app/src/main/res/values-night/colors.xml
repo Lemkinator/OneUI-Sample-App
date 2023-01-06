@@ -7,7 +7,9 @@
     <color name="filled_background_color">#373737</color>
     <color name="ripple_color">#0d000000</color>
 
-    <color name="oui_primary_icon_color">@color/primary_text_icon_color</color>
+    <!--
+    material you theming
+    color name="oui_primary_icon_color">@color/primary_text_icon_color</color>
     <color name="oui_primary_text_color">@color/primary_text_icon_color</color>
     <color name="oui_relative_link_title_text_color">@color/primary_text_icon_color</color>
     <color name="oui_appinfolayout_info_text_color">@color/secondary_text_icon_color</color>
@@ -15,6 +17,6 @@
     <color name="oui_appinfolayout_button_default_text">@color/primary_text_icon_color</color>
     <color name="oui_tipscardpref_bg_color">@color/background_color</color>
     <color name="oui_grid_menu_dialog_item_bg">@color/background_color</color>
-    <color name="oui_grid_menu_dialog_item_icon_text_color">@color/primary_text_icon_color</color>
+    <color name="oui_grid_menu_dialog_item_icon_text_color">@color/primary_text_icon_color</color-->
 
 </resources>
