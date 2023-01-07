@@ -59,6 +59,7 @@
     <string name="pickers">Pickers</string>
     <string name="widgets">Widgets</string>
     <string name="progress_bar">ProgressBar</string>
+    <string name="qr">QR</string>
     <string name="seek_bar">SeekBar</string>
     <string name="date">Date</string>
     <string name="time">Time</string>
