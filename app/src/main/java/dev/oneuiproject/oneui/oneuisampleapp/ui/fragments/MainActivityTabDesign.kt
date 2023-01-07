@@ -32,17 +32,18 @@ class MainActivityTabDesign : Fragment() {
             override fun onPageScrollStateChanged(state: Int) {}
         })
         TabLayoutMediator(binding.fragmentDesignSubTabs, binding.viewPager2Design) { tab, position ->
-            tab.text = arrayOf(getString(R.string.widgets), getString(R.string.progress_bar))[position]
+            tab.text = arrayOf(getString(R.string.widgets), getString(R.string.progress_bar), getString(R.string.qr))[position]
         }.attach()
     }
 }
 
 
 class ViewPager2AdapterTabDesignSubtabs(fragment: Fragment) : FragmentStateAdapter(fragment) {
-    override fun getItemCount(): Int = 2
+    override fun getItemCount(): Int = 3
     override fun createFragment(position: Int): Fragment = when (position) {
         0 -> TabDesignSubtabWidgets()
         1 -> TabDesignSubtabProgressBar()
+        2 -> TabDesignSubtabQR()
         else -> TabDesignSubtabWidgets()
     }
 }
