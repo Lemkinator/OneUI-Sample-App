@@ -110,6 +110,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
     }
+    override fun onPause() {
+        super.onPause()
+        binding.drawerLayoutMain.setDrawerOpen(false, true)
+    }
 
     private suspend fun openOOBE() {
         //manually waiting for the animation to finish :/
