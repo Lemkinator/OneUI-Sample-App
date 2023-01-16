@@ -15,9 +15,9 @@
 
     <style name="ButtonStyle.Colored" parent="OneUI.ButtonStyleColored">
         <item name="android:backgroundTint">@color/primary_color_themed</item>
-        <item name="android:textColor">@color/oui_round_and_bgcolor</item>
-        <item name="android:drawableTint">@color/oui_round_and_bgcolor</item>
-        <item name="tint">@color/oui_round_and_bgcolor</item>
+        <item name="android:textColor">@color/primary_text_icon_color</item>
+        <item name="android:drawableTint">@color/primary_text_icon_color</item>
+        <item name="tint">@color/primary_text_icon_color</item>
     </style>
 
     <style name="ButtonStyle.Transparent" parent="OneUI.ButtonStyleTransparent">
@@ -69,7 +69,7 @@
         <item name="android:background">@drawable/oobe_button_background</item>
         <item name="android:backgroundTint">@color/primary_color_themed</item>
         <item name="android:textSize">18.0sp</item>
-        <item name="android:textColor">@color/round_and_bg_color</item>
+        <item name="android:textColor">@color/primary_text_icon_color</item>
     </style>
 
 </resources>
