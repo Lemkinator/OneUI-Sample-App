@@ -41,6 +41,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
     private lateinit var onBackInvokedCallback: OnBackInvokedCallback
     private val fragmentsInstance: List<Fragment> =
         listOf(MainActivityTabDesign(), MainActivityTabIcons(), MainActivitySearchFragment())
@@ -110,6 +111,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
     }
+
     override fun onPause() {
         super.onPause()
         binding.drawerLayoutMain.setDrawerOpen(false, true)
@@ -178,7 +180,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun setFragment(position: Int, tab: TabLayout.Tab? = null) {
-        //enable onBackInvoked gesture
+        onBackPressedCallback.isEnabled = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             onBackInvokedDispatcher.unregisterOnBackInvokedCallback(onBackInvokedCallback)
         }
@@ -196,7 +198,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun setSearchFragment() {
-        //disable the new onBackInvoke gesture on search fragment by setting a custom -> (otherwise would exit on backpressed cause we are in main activity)
+        //disable back pressing on search fragment by setting a custom to quit search -> (otherwise would exit on backpressed)
+        onBackPressedCallback.isEnabled = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             onBackInvokedDispatcher.registerOnBackInvokedCallback(PRIORITY_DEFAULT, onBackInvokedCallback)
         }
@@ -344,16 +347,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun initOnBackPressed() {
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+        //set custom callback to prevent app from exiting on back press when in search mode
+        onBackPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
                 checkBackPressed()
             }
-        })
-        //set custom onBackInvoked callback to prevent app from exiting on back press when in search mode
+        }
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            onBackInvokedCallback = OnBackInvokedCallback {
-                checkBackPressed()
-            }
+            onBackInvokedCallback = OnBackInvokedCallback { checkBackPressed() }
         }
     }
 
@@ -361,6 +363,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         if (binding.drawerLayoutMain.isSearchMode) {
             isSearchUserInputEnabled = false
             binding.drawerLayoutMain.dismissSearchMode()
-        } else finishAffinity()
+        } else finishAffinity() //should not get here bc callbacks are only enabled in search mode
     }
 }
