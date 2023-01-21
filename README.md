@@ -9,7 +9,7 @@
 [![](https://img.shields.io/tokei/lines/github/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App)
   
 
-  <img loading="lazy" src="img/OneUI_Sample_App_squircle.png" height="200"/>
+  <img src="img/OneUI_Sample_App_squircle.png" height="150"/>
   
   # OneUI Sample App
   This is a sample app for the <a href="https://github.com/OneUIProject">OneUI libraries</a>.
