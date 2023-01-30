@@ -71,5 +71,7 @@
     <string name="hide_letters">Hide letters</string>
     <string name="show_system_apps">Show system apps</string>
     <string name="hide_system_apps">Hide system apps</string>
+    <string name="qs_detail_view_text">This is the QS Detail View.</string>
+    <string name="qs_tile_subtitle">Subtitle</string>
 
 </resources>

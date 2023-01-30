@@ -56,5 +56,7 @@
     <string name="hide_letters">Buchstaben ausblenden</string>
     <string name="show_system_apps">System Apps anzeigen</string>
     <string name="hide_system_apps">System Apps ausblenden</string>
+    <string name="qs_detail_view_text">Das ist der QS Detail View.</string>
+    <string name="qs_tile_subtitle">Subtitle</string>
 
 </resources>
