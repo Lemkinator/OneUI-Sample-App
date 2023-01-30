@@ -1,0 +1,6 @@
+{
+  "facewidget": {
+    "labelResNameInSetting": "face_widget_title",
+    "actionDetailSetting": "dev.oneuiproject.oneui.oneuisampleapp.WIDGETACTION"
+  }
+}

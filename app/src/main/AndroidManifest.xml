@@ -5,6 +5,7 @@
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="com.samsung.systemui.permission.FACE_WIDGET" />
 
     <application
         android:name=".App"
@@ -54,6 +55,8 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <action android:name="android.intent.action.SEARCH" />
+                <action android:name="dev.oneuiproject.oneui.oneuisampleapp.WIDGETACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -86,6 +89,18 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
+
+        <meta-data
+            android:name="com.samsung.systemui.facewidget.executable"
+            android:resource="@raw/facewidgets" />
+
+        <receiver
+            android:name=".ui.FaceWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.samsung.android.intent.action.REQUEST_SERVICEBOX_REMOTEVIEWS" />
+            </intent-filter>
+        </receiver>
 
     </application>
 
