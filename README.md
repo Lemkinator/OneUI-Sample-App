@@ -1,7 +1,7 @@
 <div align="center">
   
 [![](https://img.shields.io/website?down_color=red&down_message=offline&up_color=blue&up_message=online&url=https%3A%2F%2Fwww.leonard-lemke.com)](https://www.leonard-lemke.com/rr)
-[![](https://img.shields.io/github/last-commit/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App/commits/master)
+[![](https://img.shields.io/github/last-commit/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App/commits/)
 [![](https://img.shields.io/github/issues-raw/Lemkinator/OneUI-Sample-App?color=%23ff4400)](https://github.com/Lemkinator/OneUI-Sample-App/issues)
 [![](https://img.shields.io/github/issues-pr-raw/Lemkinator/OneUI-Sample-App?color=%23bb00bb)](https://github.com/Lemkinator/OneUI-Sample-App/pulls)
 [![](https://img.shields.io/github/contributors/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App/graphs/contributors)
