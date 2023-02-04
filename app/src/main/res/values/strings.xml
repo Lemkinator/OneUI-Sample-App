@@ -32,7 +32,9 @@
     <!--Settings-->
     <string name="design">Design</string>
     <string name="system_default">System default</string>
-    <string name="confirm_exit">Confirm exit</string>
+    <string name="language">Language</string>
+    <string name="change_language">Change app language</string>
+    <string name="change_language_not_supportet_by_device">Change language is not supported by your device.</string>
     <string name="press_again_to_exit">Press again to exit.</string>
     <string name="delete_appdata_and_exit">Delete App-Data and exit</string>
     <string name="delete_appdata_and_exit_warning">Attention: This will delete all personal data. Continue? </string>
