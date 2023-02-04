@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private suspend fun openOOBE() {
         //manually waiting for the animation to finish :/
-        delay(650 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
+        delay(500 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
         startActivity(Intent(applicationContext, OOBEActivity::class.java))
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()
@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         initFragments()
         lifecycleScope.launch {
             //manually waiting for the animation to finish :/
-            delay(650 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
+            delay(500 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
             isUIReady = true
         }
     }
