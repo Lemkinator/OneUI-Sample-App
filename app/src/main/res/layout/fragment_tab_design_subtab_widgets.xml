@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -72,26 +73,6 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Spinner"
-            tools:ignore="HardcodedText" />
-
-        <dev.oneuiproject.oneui.widget.RoundFrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/oui_background_color"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp">
-
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/fragment_spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </dev.oneuiproject.oneui.widget.RoundFrameLayout>
-
-        <dev.oneuiproject.oneui.widget.Separator
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:text="Buttons"
             tools:ignore="HardcodedText" />
 
@@ -138,6 +119,49 @@
                 android:focusable="true"
                 android:text="Button"
                 tools:ignore="HardcodedText" />
+
+        </dev.oneuiproject.oneui.widget.RoundLinearLayout>
+
+        <dev.oneuiproject.oneui.widget.Separator
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Spinner"
+            tools:ignore="HardcodedText" />
+
+        <dev.oneuiproject.oneui.widget.RoundLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/oui_background_color"
+            android:paddingHorizontal="16dp"
+            android:orientation="vertical"
+            android:paddingVertical="8dp">
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/fragment_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <FrameLayout
+                android:layout_width="102.0dp"
+                android:layout_height="102.0dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="82.0dp"
+                    android:layout_height="82.0dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/icon_face_background"
+                    android:elevation="6.0dp" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/face_icon_lottie"
+                    android:layout_width="74.0dp"
+                    android:layout_height="74.0dp"
+                    android:layout_gravity="center"
+                    android:translationZ="7.0dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_loop="true" />
+
+            </FrameLayout>
 
         </dev.oneuiproject.oneui.widget.RoundLinearLayout>
 

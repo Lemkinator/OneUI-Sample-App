@@ -33,7 +33,7 @@
                     android:layout_width="82.0dp"
                     android:layout_height="82.0dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/sad_face_background"
+                    android:background="@drawable/icon_face_background"
                     android:elevation="6.0dp" />
 
                 <com.airbnb.lottie.LottieAnimationView
@@ -43,8 +43,7 @@
                     android:layout_gravity="center"
                     android:translationZ="7.0dp"
                     app:lottie_autoPlay="false"
-                    app:lottie_colorFilter="@color/primary_color_themed"
-                    app:lottie_fileName="sad_face.json"
+                    app:lottie_fileName="Issues_found_Face_Icon.json"
                     app:lottie_loop="false" />
 
             </FrameLayout>

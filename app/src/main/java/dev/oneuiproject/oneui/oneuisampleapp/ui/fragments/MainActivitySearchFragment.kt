@@ -15,6 +15,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.airbnb.lottie.LottieProperty
+import com.airbnb.lottie.SimpleColorFilter
+import com.airbnb.lottie.model.KeyPath
+import com.airbnb.lottie.value.LottieValueCallback
 import com.google.android.material.appbar.AppBarLayout
 import dagger.hilt.android.AndroidEntryPoint
 import dev.oneuiproject.oneui.layout.DrawerLayout
@@ -69,6 +73,11 @@ class MainActivitySearchFragment : Fragment() {
             binding.noEntryLottie.cancelAnimation()
             binding.noEntryLottie.progress = 0f
             binding.noEntryScrollView.visibility = View.VISIBLE
+            binding.noEntryLottie.addValueCallback(
+                KeyPath("**"),
+                LottieProperty.COLOR_FILTER,
+                LottieValueCallback(SimpleColorFilter(requireContext().getColor(R.color.primary_color_themed)))
+            )
             binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, 400)
         } else {
             binding.noEntryScrollView.visibility = View.GONE
