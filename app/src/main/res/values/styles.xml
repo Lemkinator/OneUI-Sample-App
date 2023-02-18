@@ -45,15 +45,6 @@
     </style>
 
     <!-- OOBE -->
-    <style name="OOBE.TextView.Title" parent="TextAppearance.AppCompat">
-        <item name="android:layout_marginStart">24.0dp</item>
-        <item name="android:layout_marginEnd">24.0dp</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textSize">36.0sp</item>
-        <item name="android:textColor">@color/oui_primary_text_color</item>
-        <item name="android:includeFontPadding">false</item>
-    </style>
-
     <style name="OOBE.TextView.ToS" parent="TextAppearance.AppCompat">
         <item name="android:textSize">14.0sp</item>
         <item name="android:textColor">@color/oui_primary_text_color</item>

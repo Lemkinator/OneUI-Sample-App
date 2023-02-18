@@ -60,7 +60,6 @@
     <string name="hide_system_apps">System Apps ausblenden</string>
     <string name="qs_detail_view_text">Das ist der QS Detail View.</string>
     <string name="qs_tile_subtitle">Subtitle</string>
-    <string name="face_widget_title">OneUI Sample App Face Widget</string>
     <string name="face_widget_text">OneUI Sample App Face Widget</string>
     <string name="face_widget_text_aod">OneUI Sample App AOD Face Widget</string>
 
