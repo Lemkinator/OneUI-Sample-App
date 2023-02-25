@@ -22,11 +22,9 @@
 
   <h3 align="center"><a href="https://github.com/Lemkinator/OneUI-Sample-App/raw/master/app/release/app-release.apk">Download Sample APK</a></h3>
 
-  <br>  
+  <br><hr>
   
-  ### Stargazers over time
-
-  [![Stargazers over time](https://starchart.cc/Lemkinator/OneUI-Sample-App.svg)](https://starchart.cc/Lemkinator/OneUI-Sample-App)
+  [![Star History Chart](https://api.star-history.com/svg?repos=Lemkinator/OneUI-Sample-App&type=Date)](https://star-history.com/#Lemkinator/OneUI-Sample-App&Date)
   
 </div>
 
