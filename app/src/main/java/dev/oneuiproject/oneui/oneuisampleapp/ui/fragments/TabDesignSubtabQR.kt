@@ -22,7 +22,7 @@ class TabDesignSubtabQR : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        /*binding.qrImage1.setImageBitmap(
+        binding.qrImage1.setImageBitmap(
             QREncoder(
                 context,
                 "The One UI Sample app has been made to showcase the components from both our oneui-core libraries and oneui-design module."
@@ -51,6 +51,6 @@ class TabDesignSubtabQR : Fragment() {
             QREncoder(context, "without frame and icon")
                 .setFrame(false)
                 .generate()
-        )*/
+        )
     }
 }

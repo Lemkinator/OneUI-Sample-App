@@ -8,6 +8,7 @@ import android.widget.RemoteViews
 import android.widget.Toast
 import dev.oneuiproject.oneui.oneuisampleapp.R
 
+@Suppress("redundantOverride","unused")
 class QSTile : TileService() {
 
     override fun onCreate() {

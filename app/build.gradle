@@ -15,7 +15,7 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0.0"
-        resConfigs 'en', 'de'
+        resourceConfigurations += ['en', 'de']
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -62,7 +62,7 @@ configurations.all {
 }
 
 dependencies {
-    implementation 'io.github.oneuiproject:design:1.2.2'
+    implementation 'io.github.oneuiproject:design:1.2.3'
 
     implementation 'io.github.oneuiproject.sesl:appcompat:1.3.0'
     implementation 'io.github.oneuiproject.sesl:coordinatorlayout:1.0.0'
@@ -80,7 +80,7 @@ dependencies {
     implementation 'io.github.oneuiproject.sesl:picker-basic:1.1.0'
     implementation 'io.github.oneuiproject.sesl:picker-color:1.0.1'
 
-    implementation 'io.github.oneuiproject:icons:1.0.1'
+    implementation 'io.github.oneuiproject:icons:1.1.0'
 
     implementation 'com.airbnb.android:lottie:6.0.0'
     implementation 'androidx.core:core-splashscreen:1.0.0'

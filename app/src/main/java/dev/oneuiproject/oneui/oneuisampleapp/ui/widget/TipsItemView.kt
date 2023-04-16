@@ -61,7 +61,7 @@ class TipsItemView @JvmOverloads constructor(
     fun setTitleColor(@ColorInt color: Int) = titleTextView.setTextColor(color)
 
     fun setSummaryText(summaryText: CharSequence?) {
-        summaryTextView.visibility = if ((summaryText == null || summaryText.isEmpty())) GONE else VISIBLE
+        summaryTextView.visibility = if (summaryText.isNullOrEmpty()) GONE else VISIBLE
         summaryTextView.text = summaryText
     }
 

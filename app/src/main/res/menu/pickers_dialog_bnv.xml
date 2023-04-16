@@ -12,8 +12,15 @@
 
     <item
         android:id="@+id/pickers_bnv_time"
-        android:icon="@drawable/ic_oui_time"
+        android:icon="@drawable/ic_oui_time_outline"
         android:title="@string/time"
+        app:showAsAction="always"
+        tools:ignore="AppCompatResource" />
+
+    <item
+        android:id="@+id/pickers_bnv_start_end_time"
+        android:icon="@drawable/ic_oui_calendar_period_time"
+        android:title="@string/start_end_time"
         app:showAsAction="always"
         tools:ignore="AppCompatResource" />
 

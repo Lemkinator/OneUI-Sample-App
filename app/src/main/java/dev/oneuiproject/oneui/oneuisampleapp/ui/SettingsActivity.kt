@@ -193,6 +193,7 @@ class SettingsActivity : AppCompatActivity() {
                     }
                     return true
                 }
+
                 "dark_mode_auto_pref" -> {
                     val autoDarkMode = newValue as Boolean
                     darkModePref.isEnabled = !autoDarkMode
@@ -206,11 +207,13 @@ class SettingsActivity : AppCompatActivity() {
                     }
                     return true
                 }
+
                 "key2" -> {
                     val enabled = newValue as Boolean
                     preference.summary = if (enabled) "Enabled" else "Disabled"
                     return true
                 }
+
                 "key4" -> {
                     val text = newValue as String
                     return true

@@ -107,7 +107,6 @@ class IndexScrollActivity : AppCompatActivity() {
         indexScrollView.setIndexBarGravity(if (isRtl) SeslIndexScrollView.GRAVITY_INDEX_BAR_LEFT else SeslIndexScrollView.GRAVITY_INDEX_BAR_RIGHT)
     }
 
-    @Suppress("unused_parameter")
     private fun initListView() {
         selected = HashMap()
         listItems.indices.forEach { i -> selected[i] = false }

@@ -20,10 +20,12 @@ import androidx.picker.widget.SeslSpinningDatePicker
 import androidx.picker.widget.SeslTimePicker
 import androidx.picker3.app.SeslColorPickerDialog
 import dagger.hilt.android.AndroidEntryPoint
+import dev.oneuiproject.oneui.dialog.StartEndTimePickerDialog
 import dev.oneuiproject.oneui.oneuisampleapp.R
 import dev.oneuiproject.oneui.oneuisampleapp.databinding.ActivityPickersBinding
 import dev.oneuiproject.oneui.widget.Toast
 import java.util.*
+
 
 @AndroidEntryPoint
 class PickersActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, SeslColorPickerDialog.OnColorSetListener {
@@ -57,6 +59,7 @@ class PickersActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
                 datePicker.visibility = View.GONE
                 spinningDatePicker.visibility = View.GONE
             }
+
             1 -> {
                 numberPickers.visibility = View.GONE
                 timePicker.visibility = View.VISIBLE
@@ -64,12 +67,14 @@ class PickersActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
                 datePicker.visibility = View.GONE
                 spinningDatePicker.visibility = View.GONE
             }
+
             2 -> {
                 numberPickers.visibility = View.GONE
                 timePicker.visibility = View.GONE
                 datePicker.visibility = View.VISIBLE
                 spinningDatePicker.visibility = View.GONE
             }
+
             3 -> {
                 numberPickers.visibility = View.GONE
                 timePicker.visibility = View.GONE
@@ -164,20 +169,28 @@ class PickersActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     }
 
     private fun initBNV() {
-        binding.pickersBnv.setOnItemSelectedListener{
+        binding.pickersBnv.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.pickers_bnv_date -> {
                     openDatePickerDialog()
                     return@setOnItemSelectedListener true
                 }
+
                 R.id.pickers_bnv_time -> {
                     openTimePickerDialog()
                     return@setOnItemSelectedListener true
                 }
+
+                R.id.pickers_bnv_start_end_time -> {
+                    openStartEndTimePickerDialog()
+                    return@setOnItemSelectedListener true
+                }
+
                 R.id.pickers_bnv_color -> {
                     openColorPickerDialog()
                     return@setOnItemSelectedListener true
                 }
+
                 else -> return@setOnItemSelectedListener false
             }
         }
@@ -208,6 +221,30 @@ class PickersActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
             calendar[Calendar.MINUTE],
             DateFormat.is24HourFormat(this)
         )
+        dialog.show()
+    }
+
+    private fun openStartEndTimePickerDialog() {
+        val dialog = StartEndTimePickerDialog(
+            this,
+            0, 600,
+            DateFormat.is24HourFormat(this)
+        ) { startTime: Int, endTime: Int ->
+            //print start time and end time in HH:MM format
+            android.widget.Toast.makeText(
+                this,
+                "Start time: " + String.format(
+                    "%02d:%02d",
+                    startTime / 60,
+                    startTime % 60
+                ) + "\nEnd time: " + String.format(
+                    "%02d:%02d",
+                    endTime / 60,
+                    endTime % 60
+                ),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
         dialog.show()
     }
 

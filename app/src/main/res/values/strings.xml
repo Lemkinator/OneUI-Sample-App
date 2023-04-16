@@ -65,6 +65,7 @@
     <string name="seek_bar">SeekBar</string>
     <string name="date">Date</string>
     <string name="time">Time</string>
+    <string name="start_end_time">Start End Time</string>
     <string name="color">Color</string>
     <string name="app_picker">AppPicker</string>
     <string name="index_scroll">IndexScroll</string>
