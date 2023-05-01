@@ -54,8 +54,10 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+
                 <action android:name="android.intent.action.SEARCH" />
                 <action android:name="dev.oneuiproject.oneui.oneuisampleapp.WIDGETACTION" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -65,14 +67,10 @@
             android:parentActivityName=".ui.MainActivity" />
 
         <activity
-            android:name=".ui.OOBEActivity"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
-
-        <activity
             android:name=".ui.CustomAboutActivity"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize" />
 
+        <activity android:name=".ui.OOBEActivity" />
         <activity android:name=".ui.AboutActivity" />
         <activity android:name=".ui.SeekBarActivity" />
         <activity android:name=".ui.PickersActivity" />

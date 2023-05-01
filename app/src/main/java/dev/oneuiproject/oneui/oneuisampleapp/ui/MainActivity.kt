@@ -210,6 +210,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             transaction.show(newFragment).commitAllowingStateLoss()
             supportFragmentManager.executePendingTransactions()
         }
+        (newFragment as OnDataChangedListener).onDataChanged()
         isSearchFragmentVisible = true
     }
 
@@ -365,4 +366,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             binding.drawerLayoutMain.dismissSearchMode()
         } else finishAffinity() //should not get here bc callbacks are only enabled in search mode
     }
+}
+
+interface OnDataChangedListener {
+    fun onDataChanged()
 }

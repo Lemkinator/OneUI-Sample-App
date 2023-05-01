@@ -10,6 +10,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.SectionIndexer
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -20,26 +24,35 @@ import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
 import dev.oneuiproject.oneui.layout.DrawerLayout
 import dev.oneuiproject.oneui.oneuisampleapp.R
 import dev.oneuiproject.oneui.oneuisampleapp.databinding.FragmentSearchBinding
 import dev.oneuiproject.oneui.oneuisampleapp.domain.GetUserSettingsUseCase
+import dev.oneuiproject.oneui.oneuisampleapp.domain.MakeSectionOfTextBoldUseCase
+import dev.oneuiproject.oneui.oneuisampleapp.ui.OnDataChangedListener
 import dev.oneuiproject.oneui.utils.internal.ReflectUtils
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.abs
 
 @AndroidEntryPoint
-class MainActivitySearchFragment : Fragment() {
+class MainActivitySearchFragment : Fragment(), OnDataChangedListener {
     private lateinit var binding: FragmentSearchBinding
-    private lateinit var searchList: MutableList<Any>
+    private val iconsId: MutableList<Int> = mutableListOf()
+    private lateinit var searchIconList: MutableList<Int>
     private lateinit var search: String
+    private lateinit var searchKeyWords: Set<String>
     private var initListJob: Job? = null
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
+
+    @Inject
+    lateinit var makeSectionOfTextBold: MakeSectionOfTextBoldUseCase
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
@@ -49,11 +62,8 @@ class MainActivitySearchFragment : Fragment() {
     @SuppressLint("RestrictedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initListJob?.cancel()
-        initListJob = lifecycleScope.launch {
-            search = getUserSettings().search
-            initList()
-        }
+        initIcons()
+        onDataChanged()
         requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout_main).appBarLayout.addOnOffsetChangedListener { layout: AppBarLayout, verticalOffset: Int ->
             val totalScrollRange = layout.totalScrollRange
             val inputMethodWindowVisibleHeight = ReflectUtils.genericInvokeMethod(
@@ -66,9 +76,40 @@ class MainActivitySearchFragment : Fragment() {
         }
     }
 
+    private fun initIcons() {
+        val rClass = dev.oneuiproject.oneui.R.drawable::class.java
+        for (field in rClass.declaredFields) {
+            try {
+                iconsId.add(field.getInt(null))
+            } catch (e: IllegalAccessException) {
+                throw RuntimeException(e)
+            }
+        }
+    }
+
+    override fun onDataChanged() {
+        initListJob?.cancel()
+        initListJob = lifecycleScope.launch {
+            search = getUserSettings().search
+            searchKeyWords = search.trim().split(" ").toSet()
+            initList()
+        }
+    }
+
+    private fun iconContainsKeywords(iconId: Int): Boolean {
+        val name = resources.getResourceEntryName(iconId)
+        for (keyword in searchKeyWords) {
+            if (!name.contains(keyword, true)) return false
+        }
+        return true
+    }
+
     private fun initList() {
-        searchList = mutableListOf() //empty list, apply logic here
-        if (searchList.isEmpty()) {
+        searchIconList = mutableListOf()
+        if (search.isNotBlank()) {
+            searchIconList = iconsId.filter { iconContainsKeywords(it) }.toMutableList()
+        }
+        if (searchIconList.isEmpty()) {
             binding.searchList.visibility = View.GONE
             binding.noEntryLottie.cancelAnimation()
             binding.noEntryLottie.progress = 0f
@@ -87,14 +128,36 @@ class MainActivitySearchFragment : Fragment() {
         binding.searchList.layoutManager = LinearLayoutManager(context)
         binding.searchList.addItemDecoration(ItemDecoration(requireContext()))
         binding.searchList.itemAnimator = null
+        binding.searchList.seslSetIndexTipEnabled(true)
         binding.searchList.seslSetFastScrollerEnabled(true)
         binding.searchList.seslSetFillBottomEnabled(true)
         binding.searchList.seslSetGoToTopEnabled(true)
         binding.searchList.seslSetLastRoundedCorner(true)
+        binding.searchList.seslSetSmoothScrollEnabled(true)
     }
 
-    inner class SearchAdapter : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
-        override fun getItemCount(): Int = searchList.size
+    inner class SearchAdapter : RecyclerView.Adapter<SearchAdapter.ViewHolder>(), SectionIndexer {
+        private var sections: MutableList<String> = ArrayList()
+        private var positionForSection: MutableList<Int> = ArrayList()
+        private var sectionForPosition: MutableList<Int> = ArrayList()
+
+        init {
+            for (i in searchIconList.indices) {
+                var letter = resources.getResourceEntryName(searchIconList[i])
+                    .replace("ic_oui_", "").substring(0, 1).uppercase(Locale.getDefault())
+                if (Character.isDigit(letter[0])) letter = "#"
+                if (i == 0 || sections[sections.size - 1] != letter) {
+                    sections.add(letter)
+                    positionForSection.add(i)
+                }
+                sectionForPosition.add(sections.size - 1)
+            }
+        }
+
+        override fun getSections(): Array<Any> = sections.toTypedArray()
+        override fun getPositionForSection(sectionIndex: Int): Int = positionForSection.getOrNull(sectionIndex) ?: 0
+        override fun getSectionForPosition(position: Int): Int = sectionForPosition.getOrNull(position) ?: 0
+        override fun getItemCount(): Int = searchIconList.size
 
         override fun getItemId(position: Int): Long = position.toLong()
 
@@ -104,16 +167,24 @@ class MainActivitySearchFragment : Fragment() {
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.icon_listview_item, parent, false), viewType)
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            //apply logic here
+            holder.imageView.setImageResource(searchIconList[position])
+            val color = MaterialColors.getColor(
+                requireContext(),
+                androidx.appcompat.R.attr.colorPrimary,
+                requireContext().getColor(R.color.primary_color_themed)
+            )
+            holder.textView.text = makeSectionOfTextBold(resources.getResourceEntryName(searchIconList[position]), search, color)
         }
 
         inner class ViewHolder internal constructor(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
-            var isItem: Boolean = viewType == 0
+            var imageView: ImageView
+            var textView: TextView
+            var parentView: LinearLayout
 
             init {
-                if (isItem) {
-                    //apply logic here
-                }
+                parentView = itemView as LinearLayout
+                imageView = itemView.findViewById(R.id.item_icon)
+                textView = itemView.findViewById(R.id.item_text)
             }
         }
     }

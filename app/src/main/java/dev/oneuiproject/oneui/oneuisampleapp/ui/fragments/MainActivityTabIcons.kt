@@ -25,7 +25,6 @@ import java.util.*
 
 @AndroidEntryPoint
 class MainActivityTabIcons : Fragment() {
-    /*todo search*/
     private lateinit var binding: FragmentTabIconsBinding
     private val iconsId: MutableList<Int> = mutableListOf()
     private lateinit var onBackPressedCallback: OnBackPressedCallback
