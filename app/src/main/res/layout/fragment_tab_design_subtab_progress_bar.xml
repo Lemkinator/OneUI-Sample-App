@@ -120,13 +120,13 @@
             </LinearLayout>
 
             <androidx.appcompat.widget.SeslProgressBar
+                android:id="@+id/fragment_progressbar_5"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:indeterminate="false"
-                android:paddingHorizontal="24dp"
-                android:progress="40" />
+                android:paddingHorizontal="24dp"/>
 
         </dev.oneuiproject.oneui.widget.RoundLinearLayout>
 
