@@ -29,9 +29,9 @@
 
     <style name="ButtonStyle.Filled" parent="Widget.AppCompat.Button">
         <item name="android:backgroundTint">@color/filled_background_color</item>
-        <item name="android:textColor">@color/oui_primary_text_color</item>
-        <item name="android:drawableTint">@color/oui_primary_text_color</item>
-        <item name="tint">@color/oui_primary_text_color</item>
+        <item name="android:textColor">@color/primary_text_icon_color_themed</item>
+        <item name="android:drawableTint">@color/primary_text_icon_color_themed</item>
+        <item name="tint">@color/primary_text_icon_color_themed</item>
     </style>
 
     <style name="DrawerDividerStyle">
@@ -47,7 +47,7 @@
     <!-- OOBE -->
     <style name="OOBE.TextView.ToS" parent="TextAppearance.AppCompat">
         <item name="android:textSize">14.0sp</item>
-        <item name="android:textColor">@color/oui_primary_text_color</item>
+        <item name="android:textColor">@color/primary_text_icon_color_themed</item>
         <item name="android:textColorLink">@color/primary_color_themed</item>
         <item name="android:lineSpacingExtra">3.0dp</item>
         <item name="android:maxLines">3</item>

@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20.0sp"
-            android:textColor="@color/oui_primary_text_color"
+            android:textColor="@color/primary_text_icon_color_themed"
             android:textAlignment="viewStart"
             android:maxLines="2"
             android:ellipsize="end" />
