@@ -60,6 +60,13 @@ configurations.all {
     exclude group: 'androidx.fragment', module: 'fragment'
     exclude group: 'android.fragment', module: 'fragment'
 }
+/*
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+*/
 
 dependencies {
     implementation 'io.github.oneuiproject:design:1.2.3'
