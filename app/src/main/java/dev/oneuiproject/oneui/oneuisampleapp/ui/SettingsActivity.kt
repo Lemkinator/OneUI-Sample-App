@@ -46,9 +46,6 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var settingsActivity: SettingsActivity
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
-
-        //private var tipCard: TipsCardViewPreference? = null
-        //private var tipCardSpacing: PreferenceCategory? = null
         private var relatedCard: PreferenceRelatedCard? = null
 
         @Inject
@@ -134,27 +131,6 @@ class SettingsActivity : AppCompatActivity() {
             findPreference<EditTextPreference>("key4")?.onPreferenceChangeListener = this
             val key5 = findPreference<DropDownPreference>("key5")
             val key6 = findPreference<ListPreference>("key6")
-
-            /*
-            tipCard = findPreference("tip_card_preference")
-            tipCardSpacing = findPreference("spacing_tip_card")
-            tipCard?.setTipsCardListener(object : TipsCardViewPreference.TipsCardListener {
-                override fun onCancelClicked(view: View) {
-                    tipCard!!.isVisible = false
-                    tipCardSpacing?.isVisible = false
-                    lifecycleScope.launch {
-                        val hints: MutableSet<String> = getHints().toMutableSet()
-                        hints.remove("tipcard")
-                        hintsPref.values = hints
-                        setHints(hints)
-                    }
-                }
-
-                override fun onViewClicked(view: View) {
-                    startActivity(Intent(settingsActivity, HelpActivity::class.java))
-                }
-            })
-            */
         }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -166,11 +142,6 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onStart() {
             super.onStart()
-            lifecycleScope.launch {
-                val userSettings = getUserSettings()
-                //tipCard?.isVisible = showTipCard
-                //tipCardSpacing?.isVisible = showTipCard
-            }
             setRelatedCardView()
         }
 

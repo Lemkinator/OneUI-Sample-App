@@ -69,7 +69,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEac
 */
 
 dependencies {
-    implementation 'io.github.oneuiproject:design:1.2.3'
+    implementation 'io.github.oneuiproject:design:1.2.4'
 
     implementation 'io.github.oneuiproject.sesl:appcompat:1.4.0'
     implementation 'io.github.oneuiproject.sesl:coordinatorlayout:1.0.0'
@@ -89,7 +89,7 @@ dependencies {
 
     implementation 'io.github.oneuiproject:icons:1.1.0'
 
-    implementation 'com.airbnb.android:lottie:6.0.0'
+    implementation 'com.airbnb.android:lottie:6.0.1'
     implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation 'androidx.core:core-animation:1.0.0-beta01'
     implementation "androidx.datastore:datastore-preferences:1.0.0"

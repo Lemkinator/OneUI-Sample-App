@@ -135,8 +135,8 @@ class IndexScrollActivity : AppCompatActivity() {
             selecting = true
             adapter.notifyItemRangeChanged(0, adapter.itemCount)
             binding.toolbarLayout.actionModeBottomMenu.clear()
-            binding.toolbarLayout.setActionModeBottomMenu(R.menu.menu_select)
-            binding.toolbarLayout.setActionModeBottomMenuListener { item: MenuItem ->
+            binding.toolbarLayout.setActionModeMenu(R.menu.menu_select)
+            binding.toolbarLayout.setActionModeMenuListener { item: MenuItem ->
                 Toast.makeText(this, item.title, Toast.LENGTH_SHORT).show()
                 setSelecting(false)
                 true

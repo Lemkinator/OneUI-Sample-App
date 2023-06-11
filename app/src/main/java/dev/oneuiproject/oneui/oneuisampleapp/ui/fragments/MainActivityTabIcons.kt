@@ -99,8 +99,8 @@ class MainActivityTabIcons : Fragment() {
             selecting = true
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
             drawerLayout.actionModeBottomMenu.clear()
-            drawerLayout.setActionModeBottomMenu(R.menu.menu_select)
-            drawerLayout.setActionModeBottomMenuListener { item: MenuItem ->
+            drawerLayout.setActionModeMenu(R.menu.menu_select)
+            drawerLayout.setActionModeMenuListener { item: MenuItem ->
                 Toast.makeText(context, item.title, Toast.LENGTH_SHORT).show()
                 setSelecting(false)
                 true
