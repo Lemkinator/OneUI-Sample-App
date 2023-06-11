@@ -114,7 +114,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onPause() {
         super.onPause()
-        binding.drawerLayoutMain.setDrawerOpen(false, true)
+        lifecycleScope.launch {
+            delay(500) //delay, so closing the drawer is not visible for the user
+            binding.drawerLayoutMain.setDrawerOpen(false, false)
+        }
     }
 
     private suspend fun openOOBE() {
@@ -163,6 +166,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 setSearchFragment()
                 return true
             }
+
             R.id.menu_custom_about_app -> {
                 startActivity(Intent(this, CustomAboutActivity::class.java))
                 return true
@@ -221,27 +225,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val customAboutAppOption = findViewById<LinearLayout>(R.id.draweritem_custom_about_app)
         val settingsOption = findViewById<LinearLayout>(R.id.draweritem_settings)
 
-        oobeOption.setOnClickListener {
-            startActivity(Intent(this@MainActivity, OOBEActivity::class.java))
-            binding.drawerLayoutMain.setDrawerOpen(false, true)
-        }
-        aboutAppOption.setOnClickListener {
-            startActivity(Intent(this@MainActivity, AboutActivity::class.java))
-            binding.drawerLayoutMain.setDrawerOpen(false, true)
-        }
-        customAboutAppOption.setOnClickListener {
-            startActivity(Intent(this@MainActivity, CustomAboutActivity::class.java))
-            binding.drawerLayoutMain.setDrawerOpen(false, true)
-        }
-        settingsOption.setOnClickListener {
-            startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
-            binding.drawerLayoutMain.setDrawerOpen(false, true)
-        }
+        oobeOption.setOnClickListener { startActivity(Intent(this@MainActivity, OOBEActivity::class.java)) }
+        aboutAppOption.setOnClickListener { startActivity(Intent(this@MainActivity, AboutActivity::class.java)) }
+        customAboutAppOption.setOnClickListener { startActivity(Intent(this@MainActivity, CustomAboutActivity::class.java)) }
+        settingsOption.setOnClickListener { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)) }
         binding.drawerLayoutMain.setDrawerButtonIcon(getDrawable(dev.oneuiproject.oneui.R.drawable.ic_oui_info_outline))
         binding.drawerLayoutMain.setDrawerButtonOnClickListener {
-            startActivity(
-                Intent().setClass(this@MainActivity, AboutActivity::class.java)
-            )
+            startActivity(Intent().setClass(this@MainActivity, AboutActivity::class.java))
         }
         binding.drawerLayoutMain.setDrawerButtonTooltip(getText(R.string.about_app))
         binding.drawerLayoutMain.setSearchModeListener(SearchModeListener())
@@ -303,18 +293,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     startActivity(Intent(this@MainActivity, SeekBarActivity::class.java))
                     return@setOnItemClickListener true
                 }
+
                 R.id.grid_menu_pickers -> {
                     startActivity(Intent(this@MainActivity, PickersActivity::class.java))
                     return@setOnItemClickListener true
                 }
+
                 R.id.grid_menu_index_scroll -> {
                     startActivity(Intent(this@MainActivity, IndexScrollActivity::class.java))
                     return@setOnItemClickListener true
                 }
+
                 R.id.grid_menu_app_picker_view -> {
                     startActivity(Intent(this@MainActivity, AppPickerActivity::class.java))
                     return@setOnItemClickListener true
                 }
+
                 else -> return@setOnItemClickListener false
             }
         }
@@ -334,6 +328,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                             if (newTabIndex < subTabs.tabCount) subTabs.getTabAt(newTabIndex)?.select()
                             else subTabs.getTabAt(0)?.select()
                         }
+
                         getString(R.string.icons) -> {
                             val iconsRecyclerView: RecyclerView = findViewById(R.id.icons_recycler_view)
                             if (iconsRecyclerView.canScrollVertically(-1)) iconsRecyclerView.smoothScrollToPosition(0)
