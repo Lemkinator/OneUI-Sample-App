@@ -8,13 +8,16 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.window.OnBackInvokedCallback
-import android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
@@ -184,10 +187,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun setFragment(position: Int, tab: TabLayout.Tab? = null) {
-        onBackPressedCallback.isEnabled = false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            onBackInvokedDispatcher.unregisterOnBackInvokedCallback(onBackInvokedCallback)
-        }
+        setBackPressedEnabled(false)
         val newFragment: Fragment = fragmentsInstance[position]
         if (selectedPosition != position || isSearchFragmentVisible) {
             selectedPosition = position
@@ -202,11 +202,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun setSearchFragment() {
-        //disable back pressing on search fragment by setting a custom to quit search -> (otherwise would exit on backpressed)
-        onBackPressedCallback.isEnabled = true
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            onBackInvokedDispatcher.registerOnBackInvokedCallback(PRIORITY_DEFAULT, onBackInvokedCallback)
-        }
+        setBackPressedEnabled(true)
         val newFragment: Fragment = fragmentsInstance[searchFragmentIndex]
         if (!isSearchFragmentVisible) {
             val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
@@ -225,7 +221,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val customAboutAppOption = findViewById<LinearLayout>(R.id.draweritem_custom_about_app)
         val settingsOption = findViewById<LinearLayout>(R.id.draweritem_settings)
 
-        oobeOption.setOnClickListener { startActivity(Intent(this@MainActivity, OOBEActivity::class.java)) }
+        oobeOption.setOnClickListener {
+            startActivity(Intent(this@MainActivity, OOBEActivity::class.java))
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            finish()
+        }
         aboutAppOption.setOnClickListener { startActivity(Intent(this@MainActivity, AboutActivity::class.java)) }
         customAboutAppOption.setOnClickListener { startActivity(Intent(this@MainActivity, CustomAboutActivity::class.java)) }
         settingsOption.setOnClickListener { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)) }
@@ -243,6 +243,18 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         binding.drawerLayoutMain.searchView.seslSetOnOverflowMenuButtonClickListener {
             SearchFilterDialog { setSearchFragment() }.show(supportFragmentManager, "")
         }
+        binding.drawerLayoutMain.findViewById<androidx.drawerlayout.widget.DrawerLayout>(dev.oneuiproject.oneui.design.R.id.drawerlayout_drawer).addDrawerListener(
+            object : androidx.drawerlayout.widget.DrawerLayout.DrawerListener {
+                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+                override fun onDrawerOpened(drawerView: View) {
+                    setBackPressedEnabled(true)
+                }
+                override fun onDrawerClosed(drawerView: View) {
+                    setBackPressedEnabled(false)
+                }
+                override fun onDrawerStateChanged(newState: Int) {}
+            }
+        )
     }
 
     inner class SearchModeListener : ToolbarLayout.SearchModeListener {
@@ -355,11 +367,44 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    private fun setBackPressedEnabled(enabled: Boolean) {
+        if (!::onBackPressedCallback.isInitialized || !::onBackInvokedCallback.isInitialized) return
+        onBackPressedCallback.isEnabled = enabled
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (enabled) onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                onBackInvokedCallback
+            )
+            else onBackInvokedDispatcher.unregisterOnBackInvokedCallback(onBackInvokedCallback)
+        }
+    }
+
     private fun checkBackPressed() {
-        if (binding.drawerLayoutMain.isSearchMode) {
-            isSearchUserInputEnabled = false
-            binding.drawerLayoutMain.dismissSearchMode()
-        } else finishAffinity() //should not get here bc callbacks are only enabled in search mode
+        when {
+            binding.drawerLayoutMain.isSearchMode -> {
+                if (ViewCompat.getRootWindowInsets(binding.root)!!.isVisible(WindowInsetsCompat.Type.ime())) {
+                    (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
+                        currentFocus!!.windowToken,
+                        InputMethodManager.HIDE_NOT_ALWAYS
+                    )
+                } else {
+                    isSearchUserInputEnabled = false
+                    binding.drawerLayoutMain.dismissSearchMode()
+                }
+            }
+
+            binding.drawerLayoutMain.findViewById<androidx.drawerlayout.widget.DrawerLayout>(dev.oneuiproject.oneui.design.R.id.drawerlayout_drawer)
+                .isDrawerOpen(
+                    binding.drawerLayoutMain.findViewById<LinearLayout>(dev.oneuiproject.oneui.design.R.id.drawerlayout_drawer_content)
+                ) -> {
+                binding.drawerLayoutMain.setDrawerOpen(false, true)
+            }
+
+            else -> {
+                //should not get here, callback should be disabled/unregistered
+                finishAffinity()
+            }
+        }
     }
 }
 
