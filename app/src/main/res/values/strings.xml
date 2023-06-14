@@ -78,5 +78,6 @@
     <string name="qs_tile_subtitle">Subtitle</string>
     <string name="face_widget_text">OneUI Sample App Face Widget</string>
     <string name="face_widget_text_aod">OneUI Sample App AOD Face Widget</string>
+    <string name="switchbar_example">This is a SwitchBar example.</string>
 
 </resources>

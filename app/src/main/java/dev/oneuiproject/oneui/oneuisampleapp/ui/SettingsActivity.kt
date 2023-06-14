@@ -75,12 +75,6 @@ class SettingsActivity : AppCompatActivity() {
             darkModePref.onPreferenceChangeListener = this
             darkModePref.setDividerEnabled(false)
             darkModePref.setTouchEffectEnabled(false)
-            lifecycleScope.launch {
-                val userSettings = getUserSettings()
-                autoDarkModePref.isChecked = userSettings.autoDarkMode
-                darkModePref.isEnabled = !autoDarkModePref.isChecked
-                darkModePref.value = if (userSettings.darkMode) "1" else "0"
-            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 findPreference<PreferenceCategory>("language_pref_cat")!!.isVisible = true
@@ -120,14 +114,6 @@ class SettingsActivity : AppCompatActivity() {
 
             val tips = findPreference<TipsCardPreference>("tip")
             tips?.addButton("Button") { Toast.makeText(settingsActivity, "onClick", Toast.LENGTH_SHORT).show() }
-
-            val key2 = findPreference<SeslSwitchPreferenceScreen>("key2")
-            key2?.summary = if (key2?.isChecked == true) "Enabled" else "Disabled"
-            key2?.onPreferenceClickListener = OnPreferenceClickListener {
-                Toast.makeText(settingsActivity, "onPreferenceClick", Toast.LENGTH_SHORT).show()
-                true
-            }
-            key2?.onPreferenceChangeListener = this
             findPreference<EditTextPreference>("key4")?.onPreferenceChangeListener = this
             val key5 = findPreference<DropDownPreference>("key5")
             val key6 = findPreference<ListPreference>("key6")
@@ -148,7 +134,15 @@ class SettingsActivity : AppCompatActivity() {
         override fun onResume() {
             super.onResume()
             lifecycleScope.launch {
-                findPreference<PreferenceCategory>("dev_options")?.isVisible = getUserSettings().devModeEnabled
+                val userSettings = getUserSettings()
+                findPreference<PreferenceCategory>("dev_options")?.isVisible = userSettings.devModeEnabled
+                autoDarkModePref.isChecked = userSettings.autoDarkMode
+                darkModePref.isEnabled = !autoDarkModePref.isChecked
+                darkModePref.value = if (userSettings.darkMode) "1" else "0"
+                val sampleSwitchbar = findPreference<SeslSwitchPreferenceScreen>("sample_switchbar")
+                sampleSwitchbar?.isChecked = userSettings.sampleSwitchbar
+                sampleSwitchbar?.summary = if (sampleSwitchbar?.isChecked == true) "Enabled" else "Disabled"
+                sampleSwitchbar?.onPreferenceChangeListener = this@SettingsFragment
             }
         }
 
@@ -179,9 +173,12 @@ class SettingsActivity : AppCompatActivity() {
                     return true
                 }
 
-                "key2" -> {
+                "sample_switchbar" -> {
                     val enabled = newValue as Boolean
                     preference.summary = if (enabled) "Enabled" else "Disabled"
+                    lifecycleScope.launch {
+                        updateUserSettings { it.copy(sampleSwitchbar = enabled) }
+                    }
                     return true
                 }
 

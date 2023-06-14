@@ -76,6 +76,7 @@
         <activity android:name=".ui.PickersActivity" />
         <activity android:name=".ui.AppPickerActivity" />
         <activity android:name=".ui.IndexScrollActivity" />
+        <activity android:name=".ui.SwitchBarActivity" />
 
         <service
             android:name=".ui.QSTile"

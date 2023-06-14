@@ -31,6 +31,7 @@ class UserSettingsRepository @Inject constructor(
             it[KEY_CURRENT_FRAGMENT] = newSettings.currentFragment
             it[KEY_SHOW_LETTERS] = newSettings.showLetters
             it[KEY_SHOW_SYSTEM_APPS] = newSettings.showSystemApps
+            it[KEY_SAMPLE_SWITCHBAR] = newSettings.sampleSwitchbar
         }
         return settingsFromPreferences(prefs)
     }
@@ -47,6 +48,7 @@ class UserSettingsRepository @Inject constructor(
         currentFragment = prefs[KEY_CURRENT_FRAGMENT] ?: 0,
         showLetters = prefs[KEY_SHOW_LETTERS] ?: true,
         showSystemApps = prefs[KEY_SHOW_SYSTEM_APPS] ?: false,
+        sampleSwitchbar = prefs[KEY_SAMPLE_SWITCHBAR] ?: false,
     )
 
 
@@ -61,6 +63,7 @@ class UserSettingsRepository @Inject constructor(
         private val KEY_CURRENT_FRAGMENT = intPreferencesKey("currentFragment")
         private val KEY_SHOW_LETTERS = booleanPreferencesKey("showLetters")
         private val KEY_SHOW_SYSTEM_APPS = booleanPreferencesKey("showSystemApps")
+        private val KEY_SAMPLE_SWITCHBAR = booleanPreferencesKey("sampleSwitchbar")
     }
 }
 
@@ -86,4 +89,6 @@ data class UserSettings(
     val showLetters: Boolean,
     /** show system apps*/
     val showSystemApps: Boolean,
+    /** sample switchbar*/
+    val sampleSwitchbar: Boolean,
 )

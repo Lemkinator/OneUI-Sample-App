@@ -63,9 +63,12 @@
             android:title="SwitchPreference" />
 
         <SeslSwitchPreferenceScreen
-            android:defaultValue="true"
-            android:key="key2"
-            android:title="SwitchPreferenceScreen" />
+            android:key="sample_switchbar"
+            android:title="SwitchPreferenceScreen">
+            <intent
+                android:targetClass="dev.oneuiproject.oneui.oneuisampleapp.ui.SwitchBarActivity"
+                android:targetPackage="dev.oneuiproject.oneui.oneuisampleapp" />
+        </SeslSwitchPreferenceScreen>
 
         <CheckBoxPreference
             android:defaultValue="true"
