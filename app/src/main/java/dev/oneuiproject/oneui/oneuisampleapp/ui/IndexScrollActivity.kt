@@ -148,13 +148,14 @@ class IndexScrollActivity : AppCompatActivity() {
                     listItems.forEachIndexed { index, itemName -> if (itemName.length == 1) selected[index] = false }
                     adapter.notifyItemRangeChanged(0, adapter.itemCount)
                 }
-                binding.toolbarLayout.setActionModeCount(selected.values.count { it }, listItems.size - 28)
+                val count = selected.values.count { it }
+                binding.toolbarLayout.setActionModeAllSelector(count, true,count == listItems.size - 28)
             }
         } else {
             selecting = false
             for (i in 0 until adapter.itemCount) selected[i] = false
             adapter.notifyItemRangeChanged(0, adapter.itemCount)
-            binding.toolbarLayout.setActionModeCount(0, listItems.size - 28)
+            binding.toolbarLayout.setActionModeAllSelector(0, true, false)
             binding.toolbarLayout.dismissActionMode()
         }
     }
@@ -163,7 +164,8 @@ class IndexScrollActivity : AppCompatActivity() {
         selected[position] = !selected[position]!!
         adapter.notifyItemChanged(position)
         checkAllListening = false
-        binding.toolbarLayout.setActionModeCount(selected.values.count { it }, listItems.size - 28)
+        val count = selected.values.count { it }
+        binding.toolbarLayout.setActionModeAllSelector(count, true, count == listItems.size - 28)
         checkAllListening = true
     }
 

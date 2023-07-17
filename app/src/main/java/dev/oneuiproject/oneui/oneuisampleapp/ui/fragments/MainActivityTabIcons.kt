@@ -111,7 +111,8 @@ class MainActivityTabIcons : Fragment() {
                     selected.replaceAll { _, _ -> isChecked }
                     imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
                 }
-                drawerLayout.setActionModeCount(selected.values.count { it }, iconsId.size)
+                val count = selected.values.count { it }
+                drawerLayout.setActionModeAllSelector(count, true, count == iconsId.size)
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) requireActivity().onBackInvokedDispatcher.registerOnBackInvokedCallback(
                 PRIORITY_DEFAULT,
@@ -122,7 +123,7 @@ class MainActivityTabIcons : Fragment() {
             selecting = false
             for (i in 0 until imageAdapter.itemCount) selected[i] = false
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
-            drawerLayout.setActionModeCount(0, iconsId.size)
+            drawerLayout.setActionModeAllSelector(0, true, false)
             drawerLayout.dismissActionMode()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) requireActivity().onBackInvokedDispatcher.unregisterOnBackInvokedCallback(
                 onBackInvokedCallback
@@ -135,7 +136,8 @@ class MainActivityTabIcons : Fragment() {
         selected[position] = !selected[position]!!
         imageAdapter.notifyItemChanged(position)
         checkAllListening = false
-        drawerLayout.setActionModeCount(selected.values.count { it }, iconsId.size)
+        val count = selected.values.count { it }
+        drawerLayout.setActionModeAllSelector(count, true, count == iconsId.size)
         checkAllListening = true
     }
 

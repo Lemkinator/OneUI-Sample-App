@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class TabDesignSubtabProgressBar : Fragment() {
     private lateinit var binding: FragmentTabDesignSubtabProgressBarBinding
-    var animateProgressJob: Job? = null
+    private var animateProgressJob: Job? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabDesignSubtabProgressBarBinding.inflate(inflater, container, false)
