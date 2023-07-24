@@ -47,6 +47,7 @@ class MainActivitySearchFragment : Fragment(), OnDataChangedListener {
     private lateinit var search: String
     private lateinit var searchKeyWords: Set<String>
     private var initListJob: Job? = null
+    private var onOffsetChangedListener: AppBarLayout.OnOffsetChangedListener? = null
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
@@ -64,7 +65,7 @@ class MainActivitySearchFragment : Fragment(), OnDataChangedListener {
         super.onViewCreated(view, savedInstanceState)
         initIcons()
         onDataChanged()
-        requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout_main).appBarLayout.addOnOffsetChangedListener { layout: AppBarLayout, verticalOffset: Int ->
+        onOffsetChangedListener = AppBarLayout.OnOffsetChangedListener { layout: AppBarLayout, verticalOffset: Int ->
             val totalScrollRange = layout.totalScrollRange
             val inputMethodWindowVisibleHeight = ReflectUtils.genericInvokeMethod(
                 InputMethodManager::class.java,
@@ -74,6 +75,14 @@ class MainActivitySearchFragment : Fragment(), OnDataChangedListener {
             if (totalScrollRange != 0) binding.noEntryView.translationY = (abs(verticalOffset) - totalScrollRange).toFloat() / 2.0f
             else binding.noEntryView.translationY = (abs(verticalOffset) - inputMethodWindowVisibleHeight).toFloat() / 2.0f
         }
+        requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout_main).appBarLayout
+            .addOnOffsetChangedListener(onOffsetChangedListener)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout_main).appBarLayout
+            .removeOnOffsetChangedListener(onOffsetChangedListener)
     }
 
     private fun initIcons() {
