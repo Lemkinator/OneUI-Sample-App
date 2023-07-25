@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace 'dev.oneuiproject.oneui.oneuisampleapp'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "dev.oneuiproject.oneui.oneuisampleapp"
         minSdk 26
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0.0"
         resourceConfigurations += ['en', 'de']
@@ -69,7 +69,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEac
 */
 
 dependencies {
-    implementation 'io.github.oneuiproject:design:1.2.5'
+    implementation 'io.github.oneuiproject:design:1.2.6'
 
     implementation 'io.github.oneuiproject.sesl:appcompat:1.4.0'
     implementation 'io.github.oneuiproject.sesl:coordinatorlayout:1.0.0'
