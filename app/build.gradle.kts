@@ -6,6 +6,11 @@ plugins {
     id("dagger.hilt.android.plugin")
 }
 
+val releaseStoreFile: String? by rootProject
+val releaseStorePassword: String? by rootProject
+val releaseKeyAlias: String? by rootProject
+val releaseKeyPassword: String? by rootProject
+
 android {
     namespace = "dev.oneuiproject.oneui.oneuisampleapp"
     compileSdk = 34
@@ -21,7 +26,27 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            releaseStoreFile?.also {
+                storeFile = rootProject.file(it)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
+        all {
+            signingConfig =
+                if (releaseStoreFile.isNullOrEmpty()) {
+                    signingConfigs.getByName("debug")
+                } else {
+                    signingConfigs.getByName("release")
+                }
+        }
+
         release {
             isDebuggable = false
             isMinifyEnabled = true
@@ -45,10 +70,6 @@ android {
             )
         }
     }
-    
-    buildFeatures {
-        viewBinding = true
-    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -57,6 +78,10 @@ android {
     
     kotlinOptions {
         jvmTarget = "17"
+    }
+
+    buildFeatures {
+        viewBinding = true
     }
 }
 
