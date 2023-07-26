@@ -43,6 +43,9 @@ class OOBEActivity : AppCompatActivity() {
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= 34) {
+            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, android.R.anim.fade_in, android.R.anim.fade_out)
+        }
         binding = ActivityOobeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initOnBackPressed()
@@ -132,7 +135,10 @@ class OOBEActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 updateUserSettings { it.copy(tosAccepted = true) }
                 startActivity(Intent(this@OOBEActivity, MainActivity::class.java))
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                if (Build.VERSION.SDK_INT < 34) {
+                    @Suppress("DEPRECATION")
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                }
                 finish()
             }
         }

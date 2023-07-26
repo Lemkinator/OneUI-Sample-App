@@ -115,7 +115,9 @@ class SettingsActivity : AppCompatActivity() {
             val tips = findPreference<TipsCardPreference>("tip")
             tips?.addButton("Button") { Toast.makeText(settingsActivity, "onClick", Toast.LENGTH_SHORT).show() }
             findPreference<EditTextPreference>("key4")?.onPreferenceChangeListener = this
+            @Suppress("UNUSED_VARIABLE")
             val key5 = findPreference<DropDownPreference>("key5")
+            @Suppress("UNUSED_VARIABLE")
             val key6 = findPreference<ListPreference>("key6")
         }
 
@@ -183,6 +185,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
 
                 "key4" -> {
+                    @Suppress("UNUSED_VARIABLE")
                     val text = newValue as String
                     return true
                 }

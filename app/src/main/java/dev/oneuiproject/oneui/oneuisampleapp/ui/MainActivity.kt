@@ -72,6 +72,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val splashScreen = installSplashScreen()
         time = System.currentTimeMillis()
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= 34) {
+            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, android.R.anim.fade_in, android.R.anim.fade_out)
+        }
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         splashScreen.setKeepOnScreenCondition { !isUIReady }
@@ -127,7 +130,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         //manually waiting for the animation to finish :/
         delay(500 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
         startActivity(Intent(applicationContext, OOBEActivity::class.java))
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        if (Build.VERSION.SDK_INT < 34) {
+            @Suppress("DEPRECATION")
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        }
         finish()
     }
 
@@ -223,7 +229,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         oobeOption.setOnClickListener {
             startActivity(Intent(this@MainActivity, OOBEActivity::class.java))
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            if (Build.VERSION.SDK_INT < 34) {
+                @Suppress("DEPRECATION")
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            }
             finish()
         }
         aboutAppOption.setOnClickListener { startActivity(Intent(this@MainActivity, AboutActivity::class.java)) }
