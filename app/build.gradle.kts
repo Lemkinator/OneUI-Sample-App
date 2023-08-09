@@ -86,14 +86,14 @@ android {
 }
 
 configurations.configureEach {
-    exclude(group = "androidx.appcompat", module = "appcompat")
-    exclude(group = "androidx.fragment", module = "fragment")
-    exclude(group = "androidx.core", module = "core")
-    exclude(group = "androidx.drawerlayout", module = "drawerlayout")
-    exclude(group = "androidx.viewpager", module = "viewpager")
-    exclude(group = "androidx.viewpager2", module = "viewpager2")
-    exclude(group = "androidx.coordinatorlayout", module = "coordinatorlayout")
-    exclude(group = "androidx.recyclerview", module = "recyclerview")
+    exclude("androidx.appcompat", "appcompat")
+    exclude("androidx.fragment", "fragment")
+    exclude("androidx.core", "core")
+    exclude("androidx.drawerlayout", "drawerlayout")
+    exclude("androidx.viewpager", "viewpager")
+    exclude("androidx.viewpager2", "viewpager2")
+    exclude("androidx.coordinatorlayout", "coordinatorlayout")
+    exclude("androidx.recyclerview", "recyclerview")
 }
 
 dependencies {
