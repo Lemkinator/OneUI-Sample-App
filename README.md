@@ -23,7 +23,7 @@ library, this app rather shows the implementation from the user's point of view.
 <img loading="lazy" src="img/mobile4.png" height="350"/>
 
 <h3 align="center">
-<a href="https://github.com/Lemkinator/OneUI-Sample-App/raw/master/app/release/app-release.apk">Download SampleAPK</a>
+<a href="https://github.com/Lemkinator/OneUI-Sample-App/raw/main/app/release/app-release.apk">Download SampleAPK</a>
 </h3>
 
 <br><hr>
