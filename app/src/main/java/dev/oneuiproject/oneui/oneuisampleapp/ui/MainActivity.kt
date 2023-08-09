@@ -10,9 +10,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
-import android.window.OnBackInvokedCallback
-import android.window.OnBackInvokedDispatcher
-import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -32,20 +29,21 @@ import dev.oneuiproject.oneui.oneuisampleapp.domain.AppStart
 import dev.oneuiproject.oneui.oneuisampleapp.domain.CheckAppStartUseCase
 import dev.oneuiproject.oneui.oneuisampleapp.domain.GetUserSettingsUseCase
 import dev.oneuiproject.oneui.oneuisampleapp.domain.UpdateUserSettingsUseCase
+import dev.oneuiproject.oneui.oneuisampleapp.domain.setCustomOnBackPressedLogic
 import dev.oneuiproject.oneui.oneuisampleapp.ui.dialog.SearchFilterDialog
 import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.MainActivitySearchFragment
 import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.MainActivityTabDesign
 import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.MainActivityTabIcons
 import dev.oneuiproject.oneui.utils.TabLayoutUtils
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
-    private lateinit var onBackInvokedCallback: OnBackInvokedCallback
+    private val backPressEnabled = MutableStateFlow(false)
     private val fragmentsInstance: List<Fragment> =
         listOf(MainActivityTabDesign(), MainActivityTabIcons(), MainActivitySearchFragment())
     private val searchFragmentIndex = 2
@@ -143,7 +141,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun openMain() {
-        initOnBackPressed()
+        setCustomOnBackPressedLogic(triggerStateFlow = backPressEnabled, onBackPressedLogic = { checkBackPressed() })
         initDrawer()
         initTabLayout()
         initFragments()
@@ -193,7 +191,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun setFragment(position: Int, tab: TabLayout.Tab? = null) {
-        setBackPressedEnabled(false)
+        backPressEnabled.value = false
         val newFragment: Fragment = fragmentsInstance[position]
         if (selectedPosition != position || isSearchFragmentVisible) {
             selectedPosition = position
@@ -208,7 +206,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun setSearchFragment() {
-        setBackPressedEnabled(true)
+        backPressEnabled.value = true
         val newFragment: Fragment = fragmentsInstance[searchFragmentIndex]
         if (!isSearchFragmentVisible) {
             val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
@@ -252,18 +250,21 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         binding.drawerLayoutMain.searchView.seslSetOnOverflowMenuButtonClickListener {
             SearchFilterDialog { setSearchFragment() }.show(supportFragmentManager, "")
         }
-        binding.drawerLayoutMain.findViewById<androidx.drawerlayout.widget.DrawerLayout>(dev.oneuiproject.oneui.design.R.id.drawerlayout_drawer).addDrawerListener(
-            object : androidx.drawerlayout.widget.DrawerLayout.DrawerListener {
-                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
-                override fun onDrawerOpened(drawerView: View) {
-                    setBackPressedEnabled(true)
+        binding.drawerLayoutMain.findViewById<androidx.drawerlayout.widget.DrawerLayout>(dev.oneuiproject.oneui.design.R.id.drawerlayout_drawer)
+            .addDrawerListener(
+                object : androidx.drawerlayout.widget.DrawerLayout.DrawerListener {
+                    override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+                    override fun onDrawerOpened(drawerView: View) {
+                        backPressEnabled.value = true
+                    }
+
+                    override fun onDrawerClosed(drawerView: View) {
+                        backPressEnabled.value = false
+                    }
+
+                    override fun onDrawerStateChanged(newState: Int) {}
                 }
-                override fun onDrawerClosed(drawerView: View) {
-                    setBackPressedEnabled(false)
-                }
-                override fun onDrawerStateChanged(newState: Int) {}
-            }
-        )
+            )
     }
 
     inner class SearchModeListener : ToolbarLayout.SearchModeListener {
@@ -361,31 +362,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
             }
         })
-    }
-
-    private fun initOnBackPressed() {
-        //set custom callback to prevent app from exiting on back press when in search mode
-        onBackPressedCallback = object : OnBackPressedCallback(false) {
-            override fun handleOnBackPressed() {
-                checkBackPressed()
-            }
-        }
-        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            onBackInvokedCallback = OnBackInvokedCallback { checkBackPressed() }
-        }
-    }
-
-    private fun setBackPressedEnabled(enabled: Boolean) {
-        if (!::onBackPressedCallback.isInitialized || !::onBackInvokedCallback.isInitialized) return
-        onBackPressedCallback.isEnabled = enabled
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (enabled) onBackInvokedDispatcher.registerOnBackInvokedCallback(
-                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
-                onBackInvokedCallback
-            )
-            else onBackInvokedDispatcher.unregisterOnBackInvokedCallback(onBackInvokedCallback)
-        }
     }
 
     private fun checkBackPressed() {

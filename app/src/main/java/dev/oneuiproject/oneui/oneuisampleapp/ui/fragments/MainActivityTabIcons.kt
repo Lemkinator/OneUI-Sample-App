@@ -3,17 +3,18 @@ package dev.oneuiproject.oneui.oneuisampleapp.ui.fragments
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import android.window.OnBackInvokedCallback
-import android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT
-import androidx.activity.OnBackPressedCallback
+import android.widget.CheckBox
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.SectionIndexer
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,17 +22,18 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.oneuiproject.oneui.layout.DrawerLayout
 import dev.oneuiproject.oneui.oneuisampleapp.R
 import dev.oneuiproject.oneui.oneuisampleapp.databinding.FragmentTabIconsBinding
-import java.util.*
+import dev.oneuiproject.oneui.oneuisampleapp.domain.setCustomOnBackPressedLogic
+import kotlinx.coroutines.flow.MutableStateFlow
+import java.util.Locale
 
 @AndroidEntryPoint
 class MainActivityTabIcons : Fragment() {
     private lateinit var binding: FragmentTabIconsBinding
     private val iconsId: MutableList<Int> = mutableListOf()
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
-    private lateinit var onBackInvokedCallback: OnBackInvokedCallback
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var listView: RecyclerView
+    private val backPressEnabled = MutableStateFlow(false)
     private var selected = HashMap<Int, Boolean>()
     private var selecting = false
     private var checkAllListening = true
@@ -78,20 +80,7 @@ class MainActivityTabIcons : Fragment() {
             override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {}
             override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {}
         })
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) onBackInvokedCallback =
-            OnBackInvokedCallback { if (selecting) setSelecting(false) }
-        onBackPressedCallback = object : OnBackPressedCallback(false) {
-            override fun handleOnBackPressed() {
-                if (selecting) setSelecting(false)
-            }
-        }
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+        setCustomOnBackPressedLogic(triggerStateFlow = backPressEnabled, onBackPressedLogic = { if (selecting) setSelecting(false) })
     }
 
     fun setSelecting(enabled: Boolean) {
@@ -114,21 +103,14 @@ class MainActivityTabIcons : Fragment() {
                 val count = selected.values.count { it }
                 drawerLayout.setActionModeAllSelector(count, true, count == iconsId.size)
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) requireActivity().onBackInvokedDispatcher.registerOnBackInvokedCallback(
-                PRIORITY_DEFAULT,
-                onBackInvokedCallback
-            )
-            onBackPressedCallback.isEnabled = true
+            backPressEnabled.value = true
         } else {
             selecting = false
             for (i in 0 until imageAdapter.itemCount) selected[i] = false
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
             drawerLayout.setActionModeAllSelector(0, true, false)
             drawerLayout.dismissActionMode()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) requireActivity().onBackInvokedDispatcher.unregisterOnBackInvokedCallback(
-                onBackInvokedCallback
-            )
-            onBackPressedCallback.isEnabled = false
+            backPressEnabled.value = false
         }
     }
 

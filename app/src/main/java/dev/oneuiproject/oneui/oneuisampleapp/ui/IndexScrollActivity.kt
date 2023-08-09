@@ -5,13 +5,18 @@ import android.content.res.Configuration
 import android.database.MatrixCursor
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
-import android.view.*
-import android.widget.*
-import android.window.OnBackInvokedDispatcher
-import androidx.activity.OnBackPressedCallback
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.SectionIndexer
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.util.SeslRoundedCorner
 import androidx.appcompat.util.SeslSubheaderRoundedCorner
@@ -26,12 +31,12 @@ import dev.oneuiproject.oneui.oneuisampleapp.R
 import dev.oneuiproject.oneui.oneuisampleapp.databinding.ActivityIndexScrollBinding
 import dev.oneuiproject.oneui.oneuisampleapp.domain.GetUserSettingsUseCase
 import dev.oneuiproject.oneui.oneuisampleapp.domain.UpdateUserSettingsUseCase
+import dev.oneuiproject.oneui.oneuisampleapp.domain.setCustomOnBackPressedLogic
 import dev.oneuiproject.oneui.utils.IndexScrollUtils
 import dev.oneuiproject.oneui.widget.Separator
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -65,16 +70,10 @@ class IndexScrollActivity : AppCompatActivity() {
         listView = binding.indexscrollList
         initListView()
         initIndexScroll()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT) {
-                if (selecting) setSelecting(false)
-                else finish()
-            }
-        else onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (selecting) setSelecting(false)
-                else finish()
-            }
-        })
+        setCustomOnBackPressedLogic {
+            if (selecting) setSelecting(false)
+            else finish()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
