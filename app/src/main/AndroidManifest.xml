@@ -19,7 +19,7 @@
         android:resizeableActivity="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.OneUISampleApp"
-        tools:targetApi="33">
+        tools:targetApi="34">
 
         <meta-data
             android:name="SamsungBasicInteraction"
