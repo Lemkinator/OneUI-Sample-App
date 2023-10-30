@@ -1,6 +1,5 @@
 package dev.oneuiproject.oneui.oneuisampleapp.ui
 
-import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
@@ -38,8 +37,6 @@ class OOBEActivity : AppCompatActivity() {
     @Inject
     lateinit var updateUserSettings: UpdateUserSettingsUseCase
 
-
-    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= 34) {

@@ -23,7 +23,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.oneuiproject.oneui.dialog.StartEndTimePickerDialog
 import dev.oneuiproject.oneui.oneuisampleapp.R
 import dev.oneuiproject.oneui.oneuisampleapp.databinding.ActivityPickersBinding
-import dev.oneuiproject.oneui.widget.Toast
+import android.widget.Toast
 import java.util.*
 
 
@@ -231,7 +231,7 @@ class PickersActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
             DateFormat.is24HourFormat(this)
         ) { startTime: Int, endTime: Int ->
             //print start time and end time in HH:MM format
-            android.widget.Toast.makeText(
+            Toast.makeText(
                 this,
                 "Start time: " + String.format(
                     "%02d:%02d",

@@ -83,7 +83,7 @@ class SettingsActivity : AppCompatActivity() {
                     try {
                         startActivity(intent)
                     } catch (e: ActivityNotFoundException) {
-                        Toast.makeText(settingsActivity, getString(R.string.change_language_not_supportet_by_device), Toast.LENGTH_SHORT)
+                        Toast.makeText(settingsActivity, getString(R.string.change_language_not_supported_by_device), Toast.LENGTH_SHORT)
                             .show()
                     }
                     true

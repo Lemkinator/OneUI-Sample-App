@@ -16,7 +16,7 @@ import dev.oneuiproject.oneui.oneuisampleapp.domain.GetUserSettingsUseCase
 import dev.oneuiproject.oneui.oneuisampleapp.domain.UpdateUserSettingsUseCase
 import dev.oneuiproject.oneui.layout.AppInfoLayout
 import dev.oneuiproject.oneui.oneuisampleapp.BuildConfig
-import dev.oneuiproject.oneui.widget.Toast
+import android.widget.Toast
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

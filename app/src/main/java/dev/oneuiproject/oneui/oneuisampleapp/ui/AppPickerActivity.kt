@@ -19,7 +19,7 @@ import dev.oneuiproject.oneui.oneuisampleapp.R
 import dev.oneuiproject.oneui.oneuisampleapp.databinding.ActivityAppPickerBinding
 import dev.oneuiproject.oneui.oneuisampleapp.domain.GetUserSettingsUseCase
 import dev.oneuiproject.oneui.oneuisampleapp.domain.UpdateUserSettingsUseCase
-import dev.oneuiproject.oneui.widget.Toast
+import android.widget.Toast
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject

@@ -18,7 +18,7 @@ import dev.oneuiproject.oneui.oneuisampleapp.databinding.ActivityCustomAboutBind
 import dev.oneuiproject.oneui.oneuisampleapp.databinding.ActivityCustomAboutContentBinding
 import dev.oneuiproject.oneui.utils.ViewUtils
 import dev.oneuiproject.oneui.utils.internal.ToolbarLayoutUtils
-import dev.oneuiproject.oneui.widget.Toast
+import android.widget.Toast
 import kotlin.math.abs
 
 @AndroidEntryPoint
