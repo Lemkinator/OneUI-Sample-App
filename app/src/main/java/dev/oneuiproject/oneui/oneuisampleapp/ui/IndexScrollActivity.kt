@@ -36,6 +36,7 @@ import dev.oneuiproject.oneui.utils.IndexScrollUtils
 import dev.oneuiproject.oneui.widget.Separator
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,8 +45,8 @@ class IndexScrollActivity : AppCompatActivity() {
     private lateinit var binding: ActivityIndexScrollBinding
     private lateinit var adapter: IndexAdapter
     private lateinit var listView: RecyclerView
+    private val selecting = MutableStateFlow(false)
     private var selected = HashMap<Int, Boolean>()
-    private var selecting = false
     private var checkAllListening = true
     private var currentSectionIndex = 0
     private lateinit var indexScrollView: SeslIndexScrollView
@@ -70,10 +71,7 @@ class IndexScrollActivity : AppCompatActivity() {
         listView = binding.indexscrollList
         initListView()
         initIndexScroll()
-        setCustomOnBackPressedLogic {
-            if (selecting) setSelecting(false)
-            else finish()
-        }
+        setCustomOnBackPressedLogic(selecting) { setSelecting(false) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -131,7 +129,7 @@ class IndexScrollActivity : AppCompatActivity() {
 
     fun setSelecting(enabled: Boolean) {
         if (enabled) {
-            selecting = true
+            selecting.value = true
             adapter.notifyItemRangeChanged(0, adapter.itemCount)
             binding.toolbarLayout.actionModeBottomMenu.clear()
             binding.toolbarLayout.setActionModeMenu(R.menu.menu_select)
@@ -151,7 +149,7 @@ class IndexScrollActivity : AppCompatActivity() {
                 binding.toolbarLayout.setActionModeAllSelector(count, true,count == listItems.size - 28)
             }
         } else {
-            selecting = false
+            selecting.value = false
             for (i in 0 until adapter.itemCount) selected[i] = false
             adapter.notifyItemRangeChanged(0, adapter.itemCount)
             binding.toolbarLayout.setActionModeAllSelector(0, true, false)
@@ -273,13 +271,13 @@ class IndexScrollActivity : AppCompatActivity() {
                     }
                 )
                 holder.parentView.setOnClickListener {
-                    if (selecting) toggleItemSelected(position)
+                    if (selecting.value) toggleItemSelected(position)
                     else {
                         Toast.makeText(this@IndexScrollActivity, holder.textView.text, Toast.LENGTH_SHORT).show()
                     }
                 }
                 holder.parentView.setOnLongClickListener {
-                    if (!selecting) setSelecting(true)
+                    if (!selecting.value) setSelecting(true)
                     toggleItemSelected(position)
                     listView.seslStartLongPressMultiSelection()
                     true
