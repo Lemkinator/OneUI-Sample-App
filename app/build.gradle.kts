@@ -118,7 +118,7 @@ dependencies {
 
     implementation("io.github.oneuiproject:icons:1.1.0")
 
-    implementation("com.airbnb.android:lottie:6.1.0")
+    implementation("com.airbnb.android:lottie:6.3.0")
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.core:core-animation:1.0.0-rc01")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
