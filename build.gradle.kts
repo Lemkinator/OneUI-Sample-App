@@ -3,11 +3,12 @@ buildscript {
         google()
         mavenCentral()
         maven(url = "https://jitpack.io")
+        mavenLocal()
     }
 
     dependencies {
         classpath("com.android.tools.build:gradle:8.2.1")
-        //classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.9.0-1.0.11")
+        //classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.9.22-1.0.16")
     }
 }
 
@@ -16,6 +17,7 @@ allprojects {
         google()
         mavenCentral()
         maven(url = "https://jitpack.io")
+        mavenLocal()
     }
 }
 

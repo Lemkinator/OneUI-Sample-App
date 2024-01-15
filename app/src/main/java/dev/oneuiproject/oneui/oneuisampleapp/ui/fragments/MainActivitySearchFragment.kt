@@ -173,7 +173,7 @@ class MainActivitySearchFragment : Fragment(), OnDataChangedListener {
         override fun getItemViewType(position: Int): Int = 0
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.icon_listview_item, parent, false), viewType)
+            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.icon_listview_item, parent, false))
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             holder.imageView.setImageResource(searchIconList[position])
@@ -185,10 +185,10 @@ class MainActivitySearchFragment : Fragment(), OnDataChangedListener {
             holder.textView.text = makeSectionOfTextBold(resources.getResourceEntryName(searchIconList[position]), search, color)
         }
 
-        inner class ViewHolder internal constructor(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
+        inner class ViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
             var imageView: ImageView
             var textView: TextView
-            var parentView: LinearLayout
+            private var parentView: LinearLayout
 
             init {
                 parentView = itemView as LinearLayout
