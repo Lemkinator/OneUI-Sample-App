@@ -88,21 +88,22 @@ android {
 
 configurations.configureEach {
     exclude("androidx.appcompat", "appcompat")
-    exclude("androidx.fragment", "fragment")
-    exclude("androidx.core", "core")
-    exclude("androidx.drawerlayout", "drawerlayout")
-    exclude("androidx.viewpager", "viewpager")
-    exclude("androidx.viewpager2", "viewpager2")
-    exclude("androidx.coordinatorlayout", "coordinatorlayout")
-    exclude("androidx.recyclerview", "recyclerview")
+    exclude("androidx.core",  "core")
+    exclude("androidx.core",  "core-ktx")
+    exclude("androidx.customview",  "customview")
+    exclude("androidx.viewpager",  "viewpager")
+    exclude("androidx.drawerlayout",  "drawerlayout")
+    exclude("androidx.viewpager",  "viewpager")
+    exclude("androidx.viewpager2",  "viewpager2")
+    exclude("androidx.coordinatorlayout",  "coordinatorlayout")
+    exclude("androidx.recyclerview",  "recyclerview")
+    exclude("io.github.oneuiproject.sesl", "fragment")
 }
 
 dependencies {
     implementation("io.github.oneuiproject:design:1.2.6")
 
     implementation("io.github.oneuiproject.sesl:appcompat:1.4.0")
-    implementation("io.github.oneuiproject.sesl:coordinatorlayout:1.0.0")
-    implementation("io.github.oneuiproject.sesl:drawerlayout:1.0.0")
     implementation("io.github.oneuiproject.sesl:preference:1.1.0")
     implementation("io.github.oneuiproject.sesl:recyclerview:1.4.1")
     implementation("io.github.oneuiproject.sesl:swiperefreshlayout:1.0.0")
@@ -118,21 +119,22 @@ dependencies {
 
     implementation("io.github.oneuiproject:icons:1.1.0")
 
+    implementation("io.github.oneuiproject.sesl:core:2.0.0-beta01") //sesl5 mavenLocal
+    implementation("io.github.oneuiproject.sesl:core-ktx:2.0.0-beta01") //sesl5 mavenLocal
+    implementation("io.github.oneuiproject.sesl:coordinatorlayout:2.0.0") //sesl5 mavenLocal
+    implementation("io.github.oneuiproject.sesl:drawerlayout:2.0.0") //sesl5 mavenLocal
+    implementation("io.github.oneuiproject.sesl:customview:2.0.0") //sesl5 mavenLocal
+
+    implementation ("androidx.activity:activity-ktx:1.8.2")
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+
     implementation("com.airbnb.android:lottie:6.3.0")
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("androidx.core:core-splashscreen:1.1.0-alpha02")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
-    //noinspection GradleDependency
-    implementation("androidx.core:core-ktx:1.9.0")
-    //noinspection GradleDependency
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
 
-    //noinspection GradleDependency
-    implementation("com.google.dagger:hilt-android:2.42")
-    //noinspection GradleDependency
-    kapt("com.google.dagger:hilt-compiler:2.42")
-
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    implementation("com.google.dagger:hilt-android:2.50")
+    kapt("com.google.dagger:hilt-compiler:2.50")
 }
