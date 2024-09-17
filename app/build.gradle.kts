@@ -12,12 +12,12 @@ val releaseKeyPassword: String? by rootProject
 
 android {
     namespace = "dev.oneuiproject.oneui.oneuisampleapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "dev.oneuiproject.oneui.oneuisampleapp"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
         resourceConfigurations += listOf("en", "de")
