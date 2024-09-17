@@ -15,8 +15,8 @@ class SeekBarActivity : AppCompatActivity() {
         binding.toolbarLayout.setNavigationButtonOnClickListener { finish() }
         setContentView(binding.root)
 
-        SeekBarUtils.showTickMark(binding.fragmentSeekbar1, true)
-        binding.fragmentSeekbar2.setOverlapPointForDualColor(70)
-        SeekBarUtils.showOverlapPreview(binding.fragmentSeekbar2, true)
+        binding.seekbarOverlap.setOverlapPointForDualColor(70)
+        SeekBarUtils.showOverlapPreview(binding.seekbarOverlap, true)
+        binding.seekbarLevelSeamless.setSeamless(true)
     }
 }
