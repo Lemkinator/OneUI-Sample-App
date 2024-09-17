@@ -234,10 +234,12 @@ class PickersActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
             Toast.makeText(
                 this,
                 "Start time: " + String.format(
+                    Locale.getDefault(),
                     "%02d:%02d",
                     startTime / 60,
                     startTime % 60
                 ) + "\nEnd time: " + String.format(
+                    Locale.getDefault(),
                     "%02d:%02d",
                     endTime / 60,
                     endTime % 60

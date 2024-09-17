@@ -1,5 +1,6 @@
 package dev.oneuiproject.oneui.oneuisampleapp.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.database.MatrixCursor
@@ -18,6 +19,7 @@ import android.widget.SectionIndexer
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.util.SeslRoundedCorner
 import androidx.appcompat.util.SeslSubheaderRoundedCorner
 import androidx.appcompat.view.menu.SeslMenuItem
@@ -305,6 +307,7 @@ class IndexScrollActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("PrivateResource")
     private inner class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
         private val divider: Drawable?
         private val roundedCorner: SeslSubheaderRoundedCorner
@@ -312,7 +315,7 @@ class IndexScrollActivity : AppCompatActivity() {
         init {
             val outValue = TypedValue()
             context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
-            divider = context.getDrawable(
+            divider = AppCompatResources.getDrawable(context,
                 if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
                 else androidx.appcompat.R.drawable.sesl_list_divider_light
             )!!

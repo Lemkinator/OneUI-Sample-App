@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import android.widget.SectionIndexer
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -186,18 +187,13 @@ class MainActivitySearchFragment : Fragment(), OnDataChangedListener {
         }
 
         inner class ViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            var imageView: ImageView
-            var textView: TextView
-            private var parentView: LinearLayout
-
-            init {
-                parentView = itemView as LinearLayout
-                imageView = itemView.findViewById(R.id.item_icon)
-                textView = itemView.findViewById(R.id.item_text)
-            }
+            var imageView: ImageView = itemView.findViewById(R.id.item_icon)
+            var textView: TextView = itemView.findViewById(R.id.item_text)
+            var parentView: LinearLayout = itemView as LinearLayout
         }
     }
 
+    @SuppressLint("PrivateResource")
     private class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
         private val divider: Drawable
         override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
@@ -214,7 +210,7 @@ class MainActivitySearchFragment : Fragment(), OnDataChangedListener {
         init {
             val outValue = TypedValue()
             context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
-            divider = context.getDrawable(
+            divider = AppCompatResources.getDrawable(context,
                 if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
                 else androidx.appcompat.R.drawable.sesl_list_divider_light
             )!!

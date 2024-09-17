@@ -11,6 +11,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
@@ -232,7 +233,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         aboutAppOption.setOnClickListener { startActivity(Intent(this@MainActivity, AboutActivity::class.java)) }
         customAboutAppOption.setOnClickListener { startActivity(Intent(this@MainActivity, CustomAboutActivity::class.java)) }
         settingsOption.setOnClickListener { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)) }
-        binding.drawerLayoutMain.setDrawerButtonIcon(getDrawable(dev.oneuiproject.oneui.R.drawable.ic_oui_info_outline))
+        binding.drawerLayoutMain.setDrawerButtonIcon(
+            AppCompatResources.getDrawable(this, dev.oneuiproject.oneui.R.drawable.ic_oui_info_outline)
+        )
         binding.drawerLayoutMain.setDrawerButtonOnClickListener {
             startActivity(Intent().setClass(this@MainActivity, AboutActivity::class.java))
         }
@@ -241,7 +244,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         binding.drawerLayoutMain.searchView.setSearchableInfo(
             (getSystemService(SEARCH_SERVICE) as SearchManager).getSearchableInfo(componentName)
         )
-        binding.drawerLayoutMain.searchView.seslSetOverflowMenuButtonIcon(getDrawable(dev.oneuiproject.oneui.R.drawable.ic_oui_list_filter))
+        binding.drawerLayoutMain.searchView.seslSetOverflowMenuButtonIcon(
+            AppCompatResources.getDrawable(this, dev.oneuiproject.oneui.R.drawable.ic_oui_list_filter)
+        )
         binding.drawerLayoutMain.searchView.seslSetOverflowMenuButtonVisibility(View.VISIBLE)
         binding.drawerLayoutMain.searchView.seslSetOnOverflowMenuButtonClickListener {
             SearchFilterDialog { setSearchFragment() }.show(supportFragmentManager, "")

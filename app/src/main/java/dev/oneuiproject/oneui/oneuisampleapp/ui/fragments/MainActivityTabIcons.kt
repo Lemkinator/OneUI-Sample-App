@@ -1,5 +1,6 @@
 package dev.oneuiproject.oneui.oneuisampleapp.ui.fragments
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -15,6 +16,7 @@ import android.widget.LinearLayout
 import android.widget.SectionIndexer
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -169,27 +171,21 @@ class MainActivityTabIcons : Fragment() {
         override fun getSectionForPosition(position: Int): Int = sectionForPosition[position]
 
         inner class ViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            var imageView: ImageView
-            var textView: TextView
-            var parentView: LinearLayout
-            var checkBox: CheckBox
-
-            init {
-                parentView = itemView as LinearLayout
-                imageView = itemView.findViewById(R.id.item_icon)
-                textView = itemView.findViewById(R.id.item_text)
-                checkBox = parentView.findViewById(R.id.checkbox)
-            }
+            var imageView: ImageView = itemView.findViewById(R.id.item_icon)
+            var textView: TextView = itemView.findViewById(R.id.item_text)
+            var checkBox: CheckBox = itemView.findViewById(R.id.checkbox)
+            var parentView: LinearLayout = itemView as LinearLayout
         }
     }
 
+    @SuppressLint("PrivateResource")
     private inner class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
         private val divider: Drawable
 
         init {
             val outValue = TypedValue()
             context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
-            divider = context.getDrawable(
+            divider = AppCompatResources.getDrawable(context,
                 if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
                 else androidx.appcompat.R.drawable.sesl_list_divider_light
             )!!

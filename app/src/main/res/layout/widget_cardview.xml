@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <FrameLayout
         android:id="@+id/cardview_main_container"
@@ -13,7 +14,8 @@
             android:layout_marginStart="@dimen/sesl_list_divider_inset"
             android:layout_marginEnd="@dimen/sesl_list_divider_inset"
             android:background="?attr/listDividerColor"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:ignore="PrivateResource" />
 
         <LinearLayout
             android:id="@+id/cardview_container"

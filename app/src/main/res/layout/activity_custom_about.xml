@@ -26,7 +26,8 @@
                 android:layout_marginTop="@dimen/sesl_action_bar_height_with_padding"
                 android:gravity="center"
                 android:orientation="vertical"
-                app:isCustomTitle="true">
+                app:isCustomTitle="true"
+                tools:ignore="PrivateResource">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/about_header_app_icon"
