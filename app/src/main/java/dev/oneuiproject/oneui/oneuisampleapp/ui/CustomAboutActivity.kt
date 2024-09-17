@@ -19,6 +19,7 @@ import dev.oneuiproject.oneui.oneuisampleapp.databinding.ActivityCustomAboutCont
 import dev.oneuiproject.oneui.utils.ViewUtils
 import dev.oneuiproject.oneui.utils.internal.ToolbarLayoutUtils
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import kotlin.math.abs
 
 @AndroidEntryPoint
@@ -98,7 +99,7 @@ class CustomAboutActivity : AppCompatActivity(), View.OnClickListener {
             ViewUtils.SEM_ROUNDED_CORNER_TOP_LEFT or ViewUtils.SEM_ROUNDED_CORNER_TOP_RIGHT,
             getColor(dev.oneuiproject.oneui.design.R.color.oui_round_and_bgcolor)
         )
-        val appIcon = getDrawable(R.drawable.ic_launcher)
+        val appIcon = AppCompatResources.getDrawable(this, R.drawable.ic_launcher)
         binding.aboutHeaderAppIcon.setImageDrawable(appIcon)
         binding.aboutBottomAppIcon.setImageDrawable(appIcon)
         binding.aboutHeaderAppVersion.text = getString(R.string.version, BuildConfig.VERSION_NAME)

@@ -164,18 +164,16 @@ class AppPickerActivity : AppCompatActivity(), AppPickerView.OnBindListener, Ada
         when (listType) {
             AppPickerView.TYPE_LIST -> holder.item.setOnClickListener { }
             AppPickerView.TYPE_LIST_ACTION_BUTTON ->
-                holder.actionButton.setOnClickListener { Toast.makeText(this, "onClick", Toast.LENGTH_SHORT).show() }
+                holder.actionButton?.setOnClickListener { Toast.makeText(this, "onClick", Toast.LENGTH_SHORT).show() }
             AppPickerView.TYPE_LIST_CHECKBOX -> {
-                val checkBox = holder.checkBox
-                checkBox.isChecked = items[position]
-                checkBox.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean -> items[position] = isChecked }
+                holder.checkBox?.isChecked = items[position]
+                holder.checkBox?.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean -> items[position] = isChecked }
             }
             AppPickerView.TYPE_LIST_CHECKBOX_WITH_ALL_APPS -> {
-                val checkBox = holder.checkBox
                 if (position == 0) {
                     holder.appLabel.text = getString(R.string.all_apps)
-                    checkBox.isChecked = isAllAppsSelected
-                    checkBox.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
+                    holder.checkBox?.isChecked = isAllAppsSelected
+                    holder.checkBox?.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
                         if (isAllAppsSelected != isChecked) {
                             isAllAppsSelected = isChecked
                             var i = 0
@@ -187,17 +185,16 @@ class AppPickerActivity : AppCompatActivity(), AppPickerView.OnBindListener, Ada
                         }
                     }
                 } else {
-                    checkBox.isChecked = items[position]
-                    checkBox.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
+                    holder.checkBox?.isChecked = items[position]
+                    holder.checkBox?.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
                         items[position] = isChecked
                         checkAllAppsToggle()
                     }
                 }
             }
             AppPickerView.TYPE_LIST_RADIOBUTTON -> {
-                val radioButton = holder.radioButton
-                radioButton.isChecked = items[position]
-                holder.radioButton.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
+                holder.radioButton?.isChecked = items[position]
+                holder.radioButton?.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
                     if (isChecked) {
                         if (checkedPosition != position) {
                             items[checkedPosition] = false
@@ -209,16 +206,14 @@ class AppPickerActivity : AppCompatActivity(), AppPickerView.OnBindListener, Ada
                 }
             }
             AppPickerView.TYPE_LIST_SWITCH -> {
-                val switchWidget = holder.switch
-                switchWidget.isChecked = items[position]
-                switchWidget.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean -> items[position] = isChecked }
+                holder.switch?.isChecked = items[position]
+                holder.switch?.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean -> items[position] = isChecked }
             }
             AppPickerView.TYPE_LIST_SWITCH_WITH_ALL_APPS -> {
-                val switchWidget = holder.switch
                 if (position == 0) {
                     holder.appLabel.text = getString(R.string.all_apps)
-                    switchWidget.isChecked = isAllAppsSelected
-                    switchWidget.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
+                    holder.switch?.isChecked = isAllAppsSelected
+                    holder.switch?.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
                         if (isAllAppsSelected != isChecked) {
                             isAllAppsSelected = isChecked
                             var i = 0
@@ -230,8 +225,8 @@ class AppPickerActivity : AppCompatActivity(), AppPickerView.OnBindListener, Ada
                         }
                     }
                 } else {
-                    switchWidget.isChecked = items[position]
-                    switchWidget.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
+                    holder.switch?.isChecked = items[position]
+                    holder.switch?.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
                         items[position] = isChecked
                         checkAllAppsToggle()
                     }
@@ -239,10 +234,9 @@ class AppPickerActivity : AppCompatActivity(), AppPickerView.OnBindListener, Ada
             }
             AppPickerView.TYPE_GRID -> holder.item.setOnClickListener { }
             AppPickerView.TYPE_GRID_CHECKBOX -> {
-                val checkBox = holder.checkBox
-                checkBox.isChecked = items[position]
-                checkBox.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean -> items[position] = isChecked }
-                holder.item.setOnClickListener { checkBox.isChecked = !checkBox.isChecked }
+                holder.checkBox?.isChecked = items[position]
+                holder.checkBox?.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean -> items[position] = isChecked }
+                holder.item.setOnClickListener { holder.checkBox?.isChecked = holder.checkBox?.isChecked?.not() == true }
             }
         }
     }
