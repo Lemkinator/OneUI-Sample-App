@@ -7,6 +7,7 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/**/deploymentTargetSelector.xml
 
 # AWS User-specific
 .idea/**/aws.xml
@@ -85,9 +86,14 @@ fabric.properties
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 /.idea/deploymentTargetDropDown.xml
+/.idea/runConfigurations.xml
 .DS_Store
+.kotlin/
 
 /build
+/release
+app/release
+!app/release/app-release.apk
 
 mobile/google-services.json
 /captures
