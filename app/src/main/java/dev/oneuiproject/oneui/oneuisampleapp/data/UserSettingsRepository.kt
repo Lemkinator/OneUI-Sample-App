@@ -40,15 +40,15 @@ class UserSettingsRepository @Inject constructor(
     private fun settingsFromPreferences(prefs: Preferences) = UserSettings(
         lastVersionCode = prefs[KEY_LAST_VERSION_CODE] ?: -1,
         lastVersionName = prefs[KEY_LAST_VERSION_NAME] ?: "0.0",
-        darkMode = prefs[KEY_DARK_MODE] ?: false,
-        autoDarkMode = prefs[KEY_AUTO_DARK_MODE] ?: true,
-        tosAccepted = prefs[KEY_TOS_ACCEPTED] ?: false,
-        devModeEnabled = prefs[KEY_DEV_MODE_ENABLED] ?: false,
+        darkMode = prefs[KEY_DARK_MODE] == true,
+        autoDarkMode = prefs[KEY_AUTO_DARK_MODE] != false,
+        tosAccepted = prefs[KEY_TOS_ACCEPTED] == true,
+        devModeEnabled = prefs[KEY_DEV_MODE_ENABLED] == true,
         search = prefs[KEY_SEARCH] ?: "",
         currentFragment = prefs[KEY_CURRENT_FRAGMENT] ?: 0,
-        showLetters = prefs[KEY_SHOW_LETTERS] ?: true,
-        showSystemApps = prefs[KEY_SHOW_SYSTEM_APPS] ?: false,
-        sampleSwitchbar = prefs[KEY_SAMPLE_SWITCHBAR] ?: false,
+        showLetters = prefs[KEY_SHOW_LETTERS] != false,
+        showSystemApps = prefs[KEY_SHOW_SYSTEM_APPS] == true,
+        sampleSwitchbar = prefs[KEY_SAMPLE_SWITCHBAR] == true,
     )
 
 
