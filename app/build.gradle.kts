@@ -74,12 +74,12 @@ android {
 
 dependencies {
     //sesl6 modules
-    implementation("sesl.androidx.core:core:1.13.1+1.0.11-sesl6+rev1")
-    implementation("sesl.androidx.core:core-ktx:1.13.1+1.0.0-sesl6+rev0")
+    implementation("sesl.androidx.core:core:1.15.0-rc01+1.0.11-sesl6+rev0")
+    implementation("sesl.androidx.core:core-ktx:1.15.0-rc01+1.0.0-sesl6+rev0")
     implementation("sesl.androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01+1.0.0-sesl6+rev0")
-    implementation("sesl.androidx.fragment:fragment:1.8.3+1.0.0-sesl6+rev0")
+    implementation("sesl.androidx.fragment:fragment:1.8.4+1.0.0-sesl6+rev1")
     implementation("sesl.androidx.recyclerview:recyclerview:1.4.0-rc01+1.0.21-sesl6+rev0")
-    implementation("sesl.androidx.appcompat:appcompat:1.7.0+1.0.34-sesl6+rev4")
+    implementation("sesl.androidx.appcompat:appcompat:1.7.0+1.0.34-sesl6+rev5")
     implementation("sesl.androidx.viewpager2:viewpager2:1.1.0+1.0.0-sesl6+rev0")
     implementation("sesl.androidx.preference:preference:1.2.1+1.0.4-sesl6+rev3")
     implementation("sesl.androidx.indexscroll:indexscroll:1.0.3+1.0.3-sesl6+rev2")
