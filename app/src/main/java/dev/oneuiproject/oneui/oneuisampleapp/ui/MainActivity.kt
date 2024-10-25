@@ -251,21 +251,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         binding.drawerLayoutMain.searchView.seslSetOnOverflowMenuButtonClickListener {
             SearchFilterDialog { setSearchFragment() }.show(supportFragmentManager, "")
         }
-        binding.drawerLayoutMain.findViewById<androidx.drawerlayout.widget.DrawerLayout>(dev.oneuiproject.oneui.design.R.id.drawerlayout_drawer)
-            .addDrawerListener(
-                object : androidx.drawerlayout.widget.DrawerLayout.DrawerListener {
-                    override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
-                    override fun onDrawerOpened(drawerView: View) {
-                        backPressEnabled.value = true
-                    }
-
-                    override fun onDrawerClosed(drawerView: View) {
-                        backPressEnabled.value = false
-                    }
-
-                    override fun onDrawerStateChanged(newState: Int) {}
-                }
-            )
     }
 
     inner class SearchModeListener : ToolbarLayout.SearchModeListener {
@@ -377,13 +362,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     isSearchUserInputEnabled = false
                     binding.drawerLayoutMain.dismissSearchMode()
                 }
-            }
-
-            binding.drawerLayoutMain.findViewById<androidx.drawerlayout.widget.DrawerLayout>(dev.oneuiproject.oneui.design.R.id.drawerlayout_drawer)
-                .isDrawerOpen(
-                    binding.drawerLayoutMain.findViewById<LinearLayout>(dev.oneuiproject.oneui.design.R.id.drawerlayout_drawer_content)
-                ) -> {
-                binding.drawerLayoutMain.setDrawerOpen(false, true)
             }
 
             else -> {
