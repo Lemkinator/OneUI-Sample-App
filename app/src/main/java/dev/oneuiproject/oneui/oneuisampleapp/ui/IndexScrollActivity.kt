@@ -29,16 +29,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
+import dev.oneuiproject.oneui.layout.ToolbarLayout
 import dev.oneuiproject.oneui.oneuisampleapp.R
 import dev.oneuiproject.oneui.oneuisampleapp.databinding.ActivityIndexScrollBinding
 import dev.oneuiproject.oneui.oneuisampleapp.domain.GetUserSettingsUseCase
 import dev.oneuiproject.oneui.oneuisampleapp.domain.UpdateUserSettingsUseCase
-import dev.oneuiproject.oneui.oneuisampleapp.domain.setCustomOnBackPressedLogic
 import dev.oneuiproject.oneui.utils.IndexScrollUtils
 import dev.oneuiproject.oneui.widget.Separator
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,7 +46,6 @@ class IndexScrollActivity : AppCompatActivity() {
     private lateinit var binding: ActivityIndexScrollBinding
     private lateinit var adapter: IndexAdapter
     private lateinit var listView: RecyclerView
-    private val selecting = MutableStateFlow(false)
     private var selected = HashMap<Int, Boolean>()
     private var checkAllListening = true
     private var currentSectionIndex = 0
@@ -73,7 +71,6 @@ class IndexScrollActivity : AppCompatActivity() {
         listView = binding.indexscrollList
         initListView()
         initIndexScroll()
-        setCustomOnBackPressedLogic(selecting) { setSelecting(false) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -127,35 +124,31 @@ class IndexScrollActivity : AppCompatActivity() {
             override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {}
             override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {}
         })
-    }
+        binding.toolbarLayout.setOnActionModeListener(object : ToolbarLayout.ActionModeCallback {
+            override fun onShow(toolbarLayout: ToolbarLayout?) {
+                adapter.notifyItemRangeChanged(0, adapter.itemCount)
+            }
 
-    fun setSelecting(enabled: Boolean) {
-        if (enabled) {
-            selecting.value = true
-            adapter.notifyItemRangeChanged(0, adapter.itemCount)
-            binding.toolbarLayout.actionModeBottomMenu.clear()
-            binding.toolbarLayout.setActionModeMenu(R.menu.menu_select)
-            binding.toolbarLayout.setActionModeMenuListener { item: MenuItem ->
-                Toast.makeText(this, item.title, Toast.LENGTH_SHORT).show()
-                setSelecting(false)
-                true
+            override fun onDismiss(toolbarLayout: ToolbarLayout?) {
+                selected.replaceAll { _, _ -> false }
+                adapter.notifyItemRangeChanged(0, adapter.itemCount)
             }
-            binding.toolbarLayout.showActionMode()
-            binding.toolbarLayout.setActionModeCheckboxListener { _, isChecked ->
-                if (checkAllListening) {
-                    selected.replaceAll { _, _ -> isChecked }
-                    listItems.forEachIndexed { index, itemName -> if (itemName.length == 1) selected[index] = false }
-                    adapter.notifyItemRangeChanged(0, adapter.itemCount)
-                }
-                val count = selected.values.count { it }
-                binding.toolbarLayout.setActionModeAllSelector(count, true,count == listItems.size - 28)
-            }
-        } else {
-            selecting.value = false
-            for (i in 0 until adapter.itemCount) selected[i] = false
-            adapter.notifyItemRangeChanged(0, adapter.itemCount)
-            binding.toolbarLayout.setActionModeAllSelector(0, true, false)
+        })
+        binding.toolbarLayout.actionModeBottomMenu.clear()
+        binding.toolbarLayout.setActionModeMenu(R.menu.menu_select)
+        binding.toolbarLayout.setActionModeMenuListener { item: MenuItem ->
+            Toast.makeText(this, item.title, Toast.LENGTH_SHORT).show()
             binding.toolbarLayout.dismissActionMode()
+            true
+        }
+        binding.toolbarLayout.setActionModeCheckboxListener { _, isChecked ->
+            if (checkAllListening) {
+                selected.replaceAll { _, _ -> isChecked }
+                listItems.forEachIndexed { index, itemName -> if (itemName.length == 1) selected[index] = false }
+                adapter.notifyItemRangeChanged(0, adapter.itemCount)
+            }
+            val count = selected.values.count { it }
+            binding.toolbarLayout.setActionModeAllSelector(count, true, count == listItems.size - 28)
         }
     }
 
@@ -273,13 +266,13 @@ class IndexScrollActivity : AppCompatActivity() {
                     }
                 )
                 holder.parentView.setOnClickListener {
-                    if (selecting.value) toggleItemSelected(position)
+                    if (binding.toolbarLayout.isActionMode) toggleItemSelected(position)
                     else {
                         Toast.makeText(this@IndexScrollActivity, holder.textView.text, Toast.LENGTH_SHORT).show()
                     }
                 }
                 holder.parentView.setOnLongClickListener {
-                    if (!selecting.value) setSelecting(true)
+                    if (!binding.toolbarLayout.isActionMode) binding.toolbarLayout.showActionMode()
                     toggleItemSelected(position)
                     listView.seslStartLongPressMultiSelection()
                     true
@@ -315,7 +308,8 @@ class IndexScrollActivity : AppCompatActivity() {
         init {
             val outValue = TypedValue()
             context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
-            divider = AppCompatResources.getDrawable(context,
+            divider = AppCompatResources.getDrawable(
+                context,
                 if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
                 else androidx.appcompat.R.drawable.sesl_list_divider_light
             )!!

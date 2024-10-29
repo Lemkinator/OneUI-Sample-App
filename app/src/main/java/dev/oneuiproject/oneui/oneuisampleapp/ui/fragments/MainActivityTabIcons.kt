@@ -22,10 +22,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import dev.oneuiproject.oneui.layout.DrawerLayout
+import dev.oneuiproject.oneui.layout.ToolbarLayout
 import dev.oneuiproject.oneui.oneuisampleapp.R
 import dev.oneuiproject.oneui.oneuisampleapp.databinding.FragmentTabIconsBinding
-import dev.oneuiproject.oneui.oneuisampleapp.domain.setCustomOnBackPressedLogic
-import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -33,11 +32,9 @@ class MainActivityTabIcons : Fragment() {
     private lateinit var binding: FragmentTabIconsBinding
     private val iconsId: MutableList<Int> = mutableListOf()
     private lateinit var drawerLayout: DrawerLayout
-    private lateinit var imageAdapter: ImageAdapter
+    private lateinit var iconAdapter: IconAdapter
     private lateinit var listView: RecyclerView
-    private val backPressEnabled = MutableStateFlow(false)
     private var selected = HashMap<Int, Boolean>()
-    private var selecting = false
     private var checkAllListening = true
 
     init {
@@ -64,8 +61,8 @@ class MainActivityTabIcons : Fragment() {
         selected = HashMap()
         iconsId.indices.forEach { i -> selected[i] = false }
         listView.layoutManager = LinearLayoutManager(context)
-        imageAdapter = ImageAdapter()
-        listView.adapter = imageAdapter
+        iconAdapter = IconAdapter()
+        listView.adapter = iconAdapter
         listView.addItemDecoration(ItemDecoration(requireContext()))
         listView.itemAnimator = null
         listView.seslSetIndexTipEnabled(true)
@@ -76,56 +73,50 @@ class MainActivityTabIcons : Fragment() {
         listView.seslSetSmoothScrollEnabled(true)
         listView.seslSetLongPressMultiSelectionListener(object : RecyclerView.SeslLongPressMultiSelectionListener {
             override fun onItemSelected(view: RecyclerView, child: View, position: Int, id: Long) {
-                if (imageAdapter.getItemViewType(position) == 0) toggleItemSelected(position)
+                if (iconAdapter.getItemViewType(position) == 0) toggleItemSelected(position)
             }
 
             override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {}
             override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {}
         })
-        setCustomOnBackPressedLogic(triggerStateFlow = backPressEnabled, onBackPressedLogic = { if (selecting) setSelecting(false) })
-    }
+        drawerLayout.setOnActionModeListener(object : ToolbarLayout.ActionModeCallback {
+            override fun onShow(toolbarLayout: ToolbarLayout?) {
+                iconAdapter.notifyItemRangeChanged(0, iconAdapter.itemCount)
+            }
 
-    fun setSelecting(enabled: Boolean) {
-        if (enabled) {
-            selecting = true
-            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
-            drawerLayout.actionModeBottomMenu.clear()
-            drawerLayout.setActionModeMenu(R.menu.menu_select)
-            drawerLayout.setActionModeMenuListener { item: MenuItem ->
-                Toast.makeText(context, item.title, Toast.LENGTH_SHORT).show()
-                setSelecting(false)
-                true
+            override fun onDismiss(toolbarLayout: ToolbarLayout?) {
+                selected.replaceAll { _, _ -> false }
+                iconAdapter.notifyItemRangeChanged(0, iconAdapter.itemCount)
             }
-            drawerLayout.showActionMode()
-            drawerLayout.setActionModeCheckboxListener { _, isChecked ->
-                if (checkAllListening) {
-                    selected.replaceAll { _, _ -> isChecked }
-                    imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
-                }
-                val count = selected.values.count { it }
-                drawerLayout.setActionModeAllSelector(count, true, count == iconsId.size)
-            }
-            backPressEnabled.value = true
-        } else {
-            selecting = false
-            for (i in 0 until imageAdapter.itemCount) selected[i] = false
-            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
-            drawerLayout.setActionModeAllSelector(0, true, false)
+        })
+        drawerLayout.actionModeBottomMenu.clear()
+        drawerLayout.setActionModeMenu(R.menu.menu_select)
+        drawerLayout.setActionModeMenuListener { item: MenuItem ->
+            Toast.makeText(context, item.title, Toast.LENGTH_SHORT).show()
             drawerLayout.dismissActionMode()
-            backPressEnabled.value = false
+            true
         }
+        drawerLayout.setActionModeCheckboxListener { _, isChecked ->
+            if (checkAllListening) {
+                selected.replaceAll { _, _ -> isChecked }
+                iconAdapter.notifyItemRangeChanged(0, iconAdapter.itemCount)
+            }
+            val count = selected.values.count { it }
+            drawerLayout.setActionModeAllSelector(count, true, count == iconsId.size)
+        }
+
     }
 
     fun toggleItemSelected(position: Int) {
         selected[position] = !selected[position]!!
-        imageAdapter.notifyItemChanged(position)
+        iconAdapter.notifyItemChanged(position)
         checkAllListening = false
         val count = selected.values.count { it }
         drawerLayout.setActionModeAllSelector(count, true, count == iconsId.size)
         checkAllListening = true
     }
 
-    inner class ImageAdapter internal constructor() : RecyclerView.Adapter<ImageAdapter.ViewHolder>(), SectionIndexer {
+    inner class IconAdapter internal constructor() : RecyclerView.Adapter<IconAdapter.ViewHolder>(), SectionIndexer {
         private var sections: MutableList<String> = ArrayList()
         private var positionForSection: MutableList<Int> = ArrayList()
         private var sectionForPosition: MutableList<Int> = ArrayList()
@@ -148,18 +139,18 @@ class MainActivityTabIcons : Fragment() {
             ViewHolder(LayoutInflater.from(context).inflate(R.layout.icon_listview_item, parent, false))
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            holder.checkBox.visibility = if (selecting) View.VISIBLE else View.GONE
+            holder.checkBox.visibility = if (drawerLayout.isActionMode) View.VISIBLE else View.GONE
             holder.checkBox.isChecked = selected[position]!!
             holder.imageView.setImageResource(iconsId[position])
             holder.textView.text = resources.getResourceEntryName(iconsId[position])
             holder.parentView.setOnClickListener {
-                if (selecting) toggleItemSelected(position)
+                if (drawerLayout.isActionMode) toggleItemSelected(position)
                 else {
                     Toast.makeText(context, holder.textView.text, Toast.LENGTH_SHORT).show()
                 }
             }
             holder.parentView.setOnLongClickListener {
-                if (!selecting) setSelecting(true)
+                if (!drawerLayout.isActionMode) drawerLayout.showActionMode()
                 toggleItemSelected(position)
                 listView.seslStartLongPressMultiSelection()
                 true
@@ -185,7 +176,8 @@ class MainActivityTabIcons : Fragment() {
         init {
             val outValue = TypedValue()
             context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
-            divider = AppCompatResources.getDrawable(context,
+            divider = AppCompatResources.getDrawable(
+                context,
                 if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
                 else androidx.appcompat.R.drawable.sesl_list_divider_light
             )!!

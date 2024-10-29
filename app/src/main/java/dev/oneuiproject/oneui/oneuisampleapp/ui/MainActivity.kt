@@ -8,14 +8,11 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
@@ -30,21 +27,18 @@ import dev.oneuiproject.oneui.oneuisampleapp.domain.AppStart
 import dev.oneuiproject.oneui.oneuisampleapp.domain.CheckAppStartUseCase
 import dev.oneuiproject.oneui.oneuisampleapp.domain.GetUserSettingsUseCase
 import dev.oneuiproject.oneui.oneuisampleapp.domain.UpdateUserSettingsUseCase
-import dev.oneuiproject.oneui.oneuisampleapp.domain.setCustomOnBackPressedLogic
 import dev.oneuiproject.oneui.oneuisampleapp.ui.dialog.SearchFilterDialog
 import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.MainActivitySearchFragment
 import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.MainActivityTabDesign
 import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.MainActivityTabIcons
 import dev.oneuiproject.oneui.utils.TabLayoutUtils
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var binding: ActivityMainBinding
-    private val backPressEnabled = MutableStateFlow(false)
     private val fragmentsInstance: List<Fragment> =
         listOf(MainActivityTabDesign(), MainActivityTabIcons(), MainActivitySearchFragment())
     private val searchFragmentIndex = 2
@@ -138,7 +132,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun openMain() {
-        setCustomOnBackPressedLogic(triggerStateFlow = backPressEnabled, onBackPressedLogic = { checkBackPressed() })
         initDrawer()
         initTabLayout()
         initFragments()
@@ -188,7 +181,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun setFragment(position: Int, tab: TabLayout.Tab? = null) {
-        backPressEnabled.value = false
         val newFragment: Fragment = fragmentsInstance[position]
         if (selectedPosition != position || isSearchFragmentVisible) {
             selectedPosition = position
@@ -203,7 +195,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     fun setSearchFragment() {
-        backPressEnabled.value = true
         val newFragment: Fragment = fragmentsInstance[searchFragmentIndex]
         if (!isSearchFragmentVisible) {
             val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
@@ -348,27 +339,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
             }
         })
-    }
-
-    private fun checkBackPressed() {
-        when {
-            binding.drawerLayoutMain.isSearchMode -> {
-                if (ViewCompat.getRootWindowInsets(binding.root)!!.isVisible(WindowInsetsCompat.Type.ime())) {
-                    (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
-                        currentFocus!!.windowToken,
-                        InputMethodManager.HIDE_NOT_ALWAYS
-                    )
-                } else {
-                    isSearchUserInputEnabled = false
-                    binding.drawerLayoutMain.dismissSearchMode()
-                }
-            }
-
-            else -> {
-                //should not get here, callback should be disabled/unregistered
-                finishAffinity()
-            }
-        }
     }
 }
 
