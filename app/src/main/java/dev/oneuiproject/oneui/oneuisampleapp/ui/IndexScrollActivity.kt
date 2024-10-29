@@ -64,7 +64,7 @@ class IndexScrollActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityIndexScrollBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.toolbarLayout.setNavigationButtonOnClickListener { finish() }
+        binding.toolbarLayout.setNavigationButtonOnClickListener { finishAfterTransition() }
         binding.toolbarLayout.tooltipText = getString(R.string.sesl_navigate_up)
         binding.swipeRefreshLayout.seslSetRefreshOnce(true)
         indexScrollView = binding.indexscrollView

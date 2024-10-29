@@ -39,7 +39,7 @@ class PickersActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPickersBinding.inflate(layoutInflater)
-        binding.toolbarLayout.setNavigationButtonOnClickListener { finish() }
+        binding.toolbarLayout.setNavigationButtonOnClickListener { finishAfterTransition() }
         binding.toolbarLayout.tooltipText = getString(R.string.sesl_navigate_up)
         setContentView(binding.root)
         currentColor = -16547330 // #0381fe

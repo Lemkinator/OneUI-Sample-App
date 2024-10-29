@@ -12,7 +12,7 @@ class SeekBarActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySeekBarBinding.inflate(layoutInflater)
-        binding.toolbarLayout.setNavigationButtonOnClickListener { finish() }
+        binding.toolbarLayout.setNavigationButtonOnClickListener { finishAfterTransition() }
         setContentView(binding.root)
 
         binding.seekbarOverlap.setOverlapPointForDualColor(70)

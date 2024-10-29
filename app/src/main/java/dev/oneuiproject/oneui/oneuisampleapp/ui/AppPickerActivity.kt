@@ -45,7 +45,7 @@ class AppPickerActivity : AppCompatActivity(), AppPickerView.OnBindListener, Ada
         super.onCreate(savedInstanceState)
         binding = ActivityAppPickerBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.toolbarLayout.setNavigationButtonOnClickListener { finish() }
+        binding.toolbarLayout.setNavigationButtonOnClickListener { finishAfterTransition() }
         binding.toolbarLayout.tooltipText = getString(R.string.sesl_navigate_up)
 
         progress = binding.apppickerProgress

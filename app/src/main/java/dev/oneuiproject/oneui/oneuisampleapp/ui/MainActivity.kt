@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             @Suppress("DEPRECATION")
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         }
-        finish()
+        finishAfterTransition()
     }
 
     private suspend fun checkTOS() {
@@ -219,7 +219,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 @Suppress("DEPRECATION")
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             }
-            finish()
+            finishAfterTransition()
         }
         aboutAppOption.setOnClickListener { startActivity(Intent(this@MainActivity, AboutActivity::class.java)) }
         customAboutAppOption.setOnClickListener { startActivity(Intent(this@MainActivity, CustomAboutActivity::class.java)) }

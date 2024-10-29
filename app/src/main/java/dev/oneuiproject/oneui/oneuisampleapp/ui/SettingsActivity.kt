@@ -37,7 +37,7 @@ class SettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.toolbarLayout.setNavigationButtonTooltip(getString(R.string.sesl_navigate_up))
-        binding.toolbarLayout.setNavigationButtonOnClickListener { finish() }
+        binding.toolbarLayout.setNavigationButtonOnClickListener { finishAfterTransition() }
         if (savedInstanceState == null) supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment()).commit()
     }
 
@@ -83,8 +83,8 @@ class SettingsActivity : AppCompatActivity() {
                     try {
                         startActivity(intent)
                     } catch (e: ActivityNotFoundException) {
-                        Toast.makeText(settingsActivity, getString(R.string.change_language_not_supported_by_device), Toast.LENGTH_SHORT)
-                            .show()
+                        e.printStackTrace()
+                        Toast.makeText(settingsActivity, getString(R.string.change_language_not_supported_by_device), Toast.LENGTH_SHORT).show()
                     }
                     true
                 }
@@ -143,7 +143,7 @@ class SettingsActivity : AppCompatActivity() {
                 darkModePref.value = if (userSettings.darkMode) "1" else "0"
                 val sampleSwitchbar = findPreference<SeslSwitchPreferenceScreen>("sample_switchbar")
                 sampleSwitchbar?.isChecked = userSettings.sampleSwitchbar
-                sampleSwitchbar?.summary = if (sampleSwitchbar?.isChecked == true) "Enabled" else "Disabled"
+                sampleSwitchbar?.summary = if (sampleSwitchbar.isChecked == true) "Enabled" else "Disabled"
                 sampleSwitchbar?.onPreferenceChangeListener = this@SettingsFragment
             }
         }
@@ -185,7 +185,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
 
                 "key4" -> {
-                    @Suppress("UNUSED_VARIABLE")
+                    @Suppress("unused", "UnusedVariable")
                     val text = newValue as String
                     return true
                 }

@@ -37,7 +37,7 @@ class CustomAboutActivity : AppCompatActivity(), View.OnClickListener {
         setSupportActionBar(binding.aboutToolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        binding.aboutToolbar.setNavigationOnClickListener { finish() }
+        binding.aboutToolbar.setNavigationOnClickListener { finishAfterTransition() }
         resetAppBar(resources.configuration)
         initContent()
     }
@@ -150,6 +150,7 @@ class CustomAboutActivity : AppCompatActivity(), View.OnClickListener {
                     intent.data = Uri.parse(url)
                     startActivity(intent)
                 } catch (e: ActivityNotFoundException) {
+                    e.printStackTrace()
                     Toast.makeText(this, "No suitable activity found", Toast.LENGTH_SHORT).show()
                 }
             }

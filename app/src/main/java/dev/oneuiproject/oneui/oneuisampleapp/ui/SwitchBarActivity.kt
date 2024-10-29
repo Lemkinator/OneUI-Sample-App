@@ -40,7 +40,7 @@ class SwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchChangeListe
         setContentView(binding.root)
         binding.root.switchBar.addOnSwitchChangeListener(this)
         binding.root.setNavigationButtonTooltip(getString(R.string.sesl_navigate_up))
-        binding.root.setNavigationButtonOnClickListener { finish() }
+        binding.root.setNavigationButtonOnClickListener { finishAfterTransition() }
         lifecycleScope.launch {
             val enabled = getUserSettings().sampleSwitchbar
             binding.root.switchBar.isChecked = enabled
