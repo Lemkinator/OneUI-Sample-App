@@ -35,9 +35,10 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.20")
-        classpath("com.android.tools.build:gradle:8.7.1")
-        classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.0.21-1.0.25")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21")
+        classpath("com.android.tools.build:gradle:8.10.0")
+        classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.1.21-2.0.1")
+        classpath("com.google.android.gms:oss-licenses-plugin:0.10.6")
     }
 }
 
@@ -68,10 +69,6 @@ allprojects {
 }
 
 plugins {
-    id("org.jetbrains.kotlin.android") version "2.0.21" apply false
-    id("com.google.dagger.hilt.android") version "2.52" apply false
-}
-
-tasks.register<Delete>("clean") {
-    delete(layout.buildDirectory)
+    id("org.jetbrains.kotlin.android") version "2.1.21" apply false
+    id("com.google.dagger.hilt.android") version "2.56" apply false
 }

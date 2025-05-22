@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/aboutBottomScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:overScrollMode="always"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:overScrollMode="always">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,80 +18,70 @@
             android:layout_height="wrap_content"
             android:text="@string/oneui_project_team" />
 
-        <dev.oneuiproject.oneui.widget.RoundLinearLayout
+        <dev.oneuiproject.oneui.widget.RoundedLinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/oui_background_color"
+            android:background="?android:colorBackground"
             android:orientation="vertical">
 
-            <dev.oneuiproject.oneui.oneuisampleapp.ui.widget.CardView
-                android:id="@+id/about_bottom_dev_yann"
+            <dev.oneuiproject.oneui.widget.CardItemView
+                android:id="@+id/aboutBottomDevYann"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:IconDrawable="@drawable/about_page_avatar_yann"
-                app:TitleText="Yanndroid" />
+                app:icon="@drawable/about_page_avatar_yann"
+                app:showTopDivider="false"
+                app:title="Yanndroid" />
 
-            <dev.oneuiproject.oneui.oneuisampleapp.ui.widget.CardView
-                android:id="@+id/about_bottom_dev_mesa"
+            <dev.oneuiproject.oneui.widget.CardItemView
+                android:id="@+id/aboutBottomDevMesa"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:IconDrawable="@drawable/about_page_avatar_mesa"
-                app:TitleText="BlackMesa123"
-                app:isDividerViewVisible="true" />
+                app:icon="@drawable/about_page_avatar_salvo"
+                app:showTopDivider="true"
+                app:title="Salvo Giangreco" />
 
-        </dev.oneuiproject.oneui.widget.RoundLinearLayout>
+            <dev.oneuiproject.oneui.widget.CardItemView
+                android:id="@+id/aboutBottomDevTribalfs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/about_page_avatar_tribalfs"
+                app:showTopDivider="true"
+                app:title="Tribalfs" />
 
-        <dev.oneuiproject.oneui.widget.Separator
+        </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
+
+        <dev.oneuiproject.oneui.widget.RelativeLinksCard
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/open_source_licenses" />
-
-    <dev.oneuiproject.oneui.widget.RoundLinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/oui_background_color"
-        android:layout_marginBottom="20dp"
-        android:orientation="vertical">
-
-        <dev.oneuiproject.oneui.oneuisampleapp.ui.widget.CardView
-            android:id="@+id/about_bottom_oss_apache"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:TitleText="Apache License 2.0"
-            app:SummaryText="androidx  •  material-components  •  lottie" />
-
-        <dev.oneuiproject.oneui.oneuisampleapp.ui.widget.CardView
-            android:id="@+id/about_bottom_oss_mit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:TitleText="MIT License"
-            app:SummaryText="oneui-core  •  oneui-design"
-            app:isDividerViewVisible="true" />
-
-    </dev.oneuiproject.oneui.widget.RoundLinearLayout>
-
-        <dev.oneuiproject.oneui.widget.RelatedCard
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:title="Useful links">
+            android:layout_marginVertical="20dp"
+            app:title="@string/oui_des_relative_description">
 
             <TextView
-                android:id="@+id/about_bottom_relative_jetpack"
+                android:id="@+id/aboutBottomRelativeJetpack"
                 style="@style/OneUI.RelativeLinkTextViewStyle"
                 android:text="@string/android_jetpack" />
 
             <TextView
-                android:id="@+id/about_bottom_relative_material"
+                android:id="@+id/aboutBottomRelativeMaterial"
                 style="@style/OneUI.RelativeLinkTextViewStyle"
                 android:text="@string/material_components" />
 
             <TextView
-                android:id="@+id/about_bottom_relative_ouip"
+                android:id="@+id/aboutBottomRelativeSeslAndroidx"
                 style="@style/OneUI.RelativeLinkTextViewStyle"
-                android:text="@string/oneui_project" />
+                android:text="@string/sesl_android_jetpack_unofficial" />
 
-        </dev.oneuiproject.oneui.widget.RelatedCard>
+            <TextView
+                android:id="@+id/aboutBottomRelativeSeslMaterial"
+                style="@style/OneUI.RelativeLinkTextViewStyle"
+                android:text="@string/sesl_material_components_for_android_unofficial" />
+
+            <TextView
+                android:id="@+id/aboutBottomRelativeDesign"
+                style="@style/OneUI.RelativeLinkTextViewStyle"
+                android:text="@string/oneui_design_lib" />
+
+        </dev.oneuiproject.oneui.widget.RelativeLinksCard>
 
     </LinearLayout>
 

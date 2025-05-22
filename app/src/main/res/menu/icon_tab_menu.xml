@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <item
+        android:id="@+id/menu_item_search"
+        android:icon="@drawable/ic_oui_search"
+        android:title="@string/search"
+        app:iconTint="?actionMenuTextColor"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction,AppCompatResource" />
+
+    <item
+        android:id="@+id/menu_item_show_index_scroll"
+        android:title="@string/show_fast_scroller"
+        app:showAsAction="never"
+        tools:ignore="AppCompatResource" />
+
+    <item
+        android:id="@+id/menu_item_index_scroll_letters"
+        android:title="@string/show_letters"
+        app:showAsAction="never"
+        tools:ignore="AppCompatResource" />
+
+    <item
+        android:id="@+id/menu_item_index_scroll_auto_hide"
+        android:title="@string/disable_auto_hide"
+        app:showAsAction="never"
+        tools:ignore="AppCompatResource" />
+
+    <item
+        android:id="@+id/menu_item_show_cancel"
+        android:title="@string/show_cancel_button"
+        app:showAsAction="never"
+        tools:ignore="AppCompatResource" />
+
+    <item
+        android:id="@+id/menu_item_search_on_action_mode"
+        android:title=""
+        app:showAsAction="never"
+        tools:ignore="AppCompatResource" />
+
+</menu>

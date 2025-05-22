@@ -1,18 +1,12 @@
 <resources>
-    <string name="sesl_cancel">Abbrechen</string>
-    <string name="sesl_navigate_up">Zurück</string>
     <string name="settings">Einstellungen</string>
 
     <!--About-->
     <string name="version">Version %1$s</string>
     <string name="about_app">Über OneUI Sample</string>
-    <string name="custom_about_oneui_sample_screen">Custom About OneUI Sample Screen</string>
-    <string name="status">Status</string>
-    <string name="oneui_project_team">OneUI Project Team</string>
-    <string name="open_source_licenses">Open source licenses</string>
-    <string name="android_jetpack">Android Jetpack</string>
-    <string name="material_components">Material Components</string>
-    <string name="oneui_project">OneUI Project</string>
+    <string name="open_source_licenses">Open-Source-Lizenzen</string>
+    <string name="no_browser_app_installed">Keine Browser-App installiert…</string>
+    <string name="error_cant_open_url">Fehler: URL konnte nicht geöffnet werden.</string>
 
     <!--Settings-->
     <string name="design">Design</string>
@@ -20,7 +14,6 @@
     <string name="language">Sprache</string>
     <string name="change_language">App Sprache ändern</string>
     <string name="change_language_not_supported_by_device">Das Ändern der Sprache wird von diesem Gerät nicht unterstützt.</string>
-    <string name="press_again_to_exit">Zurück-Taste erneut drücken um zu Beenden.</string>
     <string name="delete_appdata_and_exit">App-Daten löschen und Beenden</string>
     <string name="delete_appdata_and_exit_warning">Achtung: Dadurch werden alle persönlichen Daten gelöscht. Fortfahren? </string>
     <string name="dev_options">Developer options</string>
@@ -37,32 +30,41 @@
     <string name="tos">Nutzungsbedingungen</string>
     <string name="tos_content">Es ist nicht gestattet, diese App entgegen den guten Sitten oder den geltenden Gesetzen zu verwenden. \n\nSie verpflichten sich außerdem, diese App nicht für Zwecke zu verwenden, die nach dem Recht der Vereinigten Staaten verboten sind, insbesondere nicht für die Entwicklung, Konstruktion, Herstellung oder Produktion von Raketen, chemischen oder biologischen Waffen. \nDiese Einschränkung gilt jedoch nicht für den Fall, dass eine weit verbreitete Virusinfektion auftritt (die von den United States Centers for Disease Control oder einer Nachfolgeorganisation bestätigt wurde), die durch Bisse oder Kontakt mit Körperflüssigkeiten übertragen wird und dazu führt, dass menschliche Leichen wiederbelebt werden und versuchen, lebendes menschliches Fleisch, Blut, Gehirn oder Nervengewebe zu verzehren, und die wahrscheinlich zum Untergang der organisierten Zivilisation führen wird. </string>
     <string name="oobe_tos_text">Durch die Nutzung der App stimmen Sie den %1$s zu.</string>
-    <string name="accept_tos">Weiter</string>
 
     <string name="search">Suche</string>
     <string name="no_entry">Kein Eintrag</string>
     <string name="search_filter">Such-Filter</string>
+
     <string name="icons">Icons</string>
-    <string name="pickers">Pickers</string>
+    <string name="picker">Picker</string>
+    <string name="seek_bar">SeekBar</string>
+    <string name="app_picker">AppPicker</string>
     <string name="widgets">Widgets</string>
     <string name="progress_bar">ProgressBar</string>
     <string name="qr">QR</string>
-    <string name="seek_bar">SeekBar</string>
+
     <string name="date">Date</string>
     <string name="time">Time</string>
     <string name="start_end_time">Start End Time</string>
     <string name="color">Color</string>
-    <string name="app_picker">AppPicker</string>
-    <string name="index_scroll">IndexScroll</string>
-    <string name="all_apps">Alle Apps</string>
-    <string name="show_letters">Buchstaben anzeigen</string>
-    <string name="hide_letters">Buchstaben ausblenden</string>
+
+    <string name="show_fast_scroller">Fast Scroller anzeigen</string>
+    <string name="show_index_scroll">IndexScroll anzeigen</string>
+    <string name="show_letters">Buchstaben anzeigen (IndexScroll)</string>
+    <string name="hide_letters">Buchstaben ausblenden (IndexScroll)</string>
+    <string name="enable_auto_hide">Auto hide aktivieren (IndexScroll)</string>
+    <string name="disable_auto_hide">Auto hide deaktivieren (IndexScroll)</string>
+    <string name="show_cancel_button">Abbrechen-Button anzeigen</string>
+    <string name="hide_cancel_button">Abbrechen-Button ausblenden</string>
     <string name="show_system_apps">System Apps anzeigen</string>
     <string name="hide_system_apps">System Apps ausblenden</string>
+    <string name="search_apps">Apps suchen</string>
+
     <string name="qs_detail_view_text">Das ist der QS Detail View.</string>
     <string name="qs_tile_subtitle">Subtitle</string>
     <string name="face_widget_text">OneUI Sample App Face Widget</string>
     <string name="face_widget_text_aod">OneUI Sample App AOD Face Widget</string>
-    <string name="switchbar_example">Das ist ein SwitchBar Beispiel.</string>
+
+    <string name="switch_bar_example">Das ist ein SwitchBar Beispiel.</string>
 
 </resources>

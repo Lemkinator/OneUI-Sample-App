@@ -5,10 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:expanded="false"
-    app:navigationIcon="@drawable/ic_oui_back"
-    app:title="@string/settings"
-    app:subtitle="@string/app_name"
-    >
+    app:showNavButtonAsBack="true"
+    app:title="@string/settings">
 
     <FrameLayout
         android:id="@+id/settings"

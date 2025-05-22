@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
     <PreferenceCategory android:title="@string/design">
         <dev.oneuiproject.oneui.preference.HorizontalRadioPreference
             android:key="dark_mode_pref"
@@ -18,11 +17,9 @@
         android:key="language_pref_cat"
         android:title="@string/language"
         app:isPreferenceVisible="false">
-
         <PreferenceScreen
             android:key="language_pref"
             android:title="@string/change_language" />
-
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -38,58 +35,54 @@
         <PreferenceScreen
             android:key="tos_pref"
             android:title="@string/tos" />
-
-        <PreferenceScreen
-            android:key="about_app_pref"
-            android:title="@string/about_app">
-            <intent
-                android:targetClass="dev.oneuiproject.oneui.oneuisampleapp.ui.AboutActivity"
-                android:targetPackage="dev.oneuiproject.oneui.oneuisampleapp" />
-        </PreferenceScreen>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title=" " />
+    <dev.oneuiproject.oneui.preference.InsetPreferenceCategory />
 
     <dev.oneuiproject.oneui.preference.TipsCardPreference
         android:key="tip"
         android:summary="From here the preference dummies start."
         android:title="TipsCardPreference" />
 
+    <dev.oneuiproject.oneui.preference.InsetPreferenceCategory />
+
+    <dev.oneuiproject.oneui.preference.SuggestionCardPreference
+        android:key="suggestion"
+        android:summary="Just a suggestion: you can turn me on anytime."
+        android:title="Suggestion"
+        app:actionButtonText="Turn on" />
+
+    <dev.oneuiproject.oneui.preference.InsetPreferenceCategory android:key="suggestion_inset" />
+
+    <dev.oneuiproject.oneui.preference.SwitchBarPreference />
+
     <PreferenceCategory>
+        <dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
+            android:key="updatable"
+            android:title="Updatable widget"
+            android:widgetLayout="@layout/sample_pref_widget_check"
+            app:summary="Click me" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="key1"
+            android:key="switch"
             android:title="SwitchPreference" />
 
         <SeslSwitchPreferenceScreen
-            android:key="sample_switchbar"
-            android:title="SwitchPreferenceScreen">
-            <intent
-                android:targetClass="dev.oneuiproject.oneui.oneuisampleapp.ui.SwitchBarActivity"
-                android:targetPackage="dev.oneuiproject.oneui.oneuisampleapp" />
-        </SeslSwitchPreferenceScreen>
+            android:key="switch_screen"
+            android:title="SwitchPreferenceScreen" />
 
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="key3"
+            android:key="checkbox"
             android:summary="Someone's still using this one?"
             android:title="CheckBoxPreference" />
-
-        <SeekBarPreference
-            android:defaultValue="30"
-            android:max="50"
-            android:summary="Summary"
-            android:title="SeekBarPreference"
-            app:min="0" />
-
     </PreferenceCategory>
 
     <PreferenceCategory>
-
         <EditTextPreference
             android:defaultValue="Default text"
-            android:key="key4"
+            android:key="edit_text"
             android:title="EditTextPreference"
             app:useSimpleSummaryProvider="true" />
 
@@ -97,7 +90,7 @@
             android:defaultValue="#00FFFF"
             android:entries="@array/preferences_test_entries"
             android:entryValues="@array/preferences_test_values"
-            android:key="key5"
+            android:key="dropdown"
             android:title="DropDownPreference"
             app:useSimpleSummaryProvider="true" />
 
@@ -105,37 +98,68 @@
             android:defaultValue="#F0FFFF"
             android:entries="@array/preferences_test_entries"
             android:entryValues="@array/preferences_test_values"
-            android:key="key6"
+            android:key="list"
             android:title="ListPreference"
             app:useSimpleSummaryProvider="true" />
 
         <MultiSelectListPreference
             android:entries="@array/preferences_test_entries"
             android:entryValues="@array/preferences_test_values"
-            android:key="key7"
+            android:key="multiselect_list"
             android:summary="Summary"
             android:title="MultiSelectListPreference" />
-
     </PreferenceCategory>
 
     <PreferenceCategory>
-
         <dev.oneuiproject.oneui.preference.ColorPickerPreference
             android:defaultValue="#0381FE"
-            android:key="key8"
+            android:key="color_picker"
             android:summary="Summary"
             android:title="ColorPickerPreference"
             app:showAlphaSlider="true" />
 
-        <dev.oneuiproject.oneui.preference.SeekBarPreferencePro
-            android:defaultValue="2"
-            android:max="5"
+        <SeekBarPreference
+            android:defaultValue="30"
+            android:key="seekbar"
+            android:max="50"
             android:summary="Summary"
-            android:title="SeekBarPreferencePro"
+            android:title="SeekBarPreference"
+            app:min="0" />
+
+
+        <dev.oneuiproject.oneui.preference.SeekBarPreferencePro
+            android:key="seekbar_pro"
+            android:max="100"
+            android:summary="Expanded"
+            android:title="SeekBarPreference"
+            app:adjustable="false"
+            app:seekBarMode="expand"
+            app:showSeekBarValue="false"
+            app:showTickMark="false" />
+
+        <dev.oneuiproject.oneui.preference.SeekBarPreferencePro
+            android:key="seekbar_pro_level"
+            android:max="10"
+            android:summary="LevelBar"
+            android:title="SeekBarPreference"
             app:adjustable="true"
-            app:min="0"
+            app:centerBasedSeekBar="false"
+            app:min="2"
+            app:seamlessSeekBar="false"
+            app:seekBarMode="level_bar"
             app:showTickMark="true" />
 
+        <dev.oneuiproject.oneui.preference.SeekBarPreferencePro
+            android:key="seekbar_pro_center_based"
+            android:summary="CenterBasedBar"
+            android:title="SeekBarPreference"
+            app:adjustable="false"
+            app:centerBasedSeekBar="true"
+            app:leftLabelName="Left"
+            app:rightLabelName="Right"
+            app:seamlessSeekBar="true"
+            app:showSeekBarValue="false"
+            app:showTickMark="false"
+            app:updatesContinuously="true" />
     </PreferenceCategory>
-
 </PreferenceScreen>

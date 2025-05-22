@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_item_design"
+        android:icon="@drawable/ic_design_tab"
+        android:title="@string/design" />
+
+    <item
+        android:id="@+id/menu_item_picker"
+        android:icon="@drawable/ic_picker_tab"
+        android:title="@string/picker" />
+
+    <item
+        android:id="@+id/menu_item_icons"
+        android:icon="@drawable/ic_icons_tab"
+        android:title="@string/icons" />
+
+    <item
+        android:id="@+id/menu_item_seek_bar"
+        android:icon="@drawable/drawer_page_icon_seekbar"
+        android:title="@string/seek_bar" />
+
+    <item
+        android:id="@+id/menu_item_app_picker"
+        android:icon="@drawable/ic_oui_all_apps"
+        android:title="@string/app_picker" />
+
+</menu>

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<dev.oneuiproject.oneui.widget.AdaptiveCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?roundedCornerColor">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/about_app_bar"
+        android:id="@+id/aboutAppBar"
         style="?attr/appBarLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,7 +15,7 @@
         app:seslUseCustomHeight="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/about_ctl"
+            android:id="@+id/aboutCTL"
             style="?attr/collapsingToolbarLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -26,11 +27,12 @@
                 android:layout_marginTop="@dimen/sesl_action_bar_height_with_padding"
                 android:gravity="center"
                 android:orientation="vertical"
+                android:paddingHorizontal="10dp"
                 app:isCustomTitle="true"
                 tools:ignore="PrivateResource">
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/about_header_app_icon"
+                    android:id="@+id/aboutHeaderIcon"
                     android:layout_width="72dp"
                     android:layout_height="72dp"
                     android:antialias="true" />
@@ -38,20 +40,20 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_margin="8dp"
                     android:gravity="center"
                     android:text="@string/app_name"
-                    android:textColor="@color/primary_text_icon_color_themed"
+                    android:textColor="@color/oui_des_appinfolayout_app_label_text_color"
                     android:textSize="30sp"
                     app:fontFamily="@font/samsungsharpsans_bold" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/about_header_app_version"
+                    android:id="@+id/aboutHeaderAppVersion"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
-                    android:textColor="@color/secondary_text_icon_color_themed"
+                    android:textColor="@color/oui_des_appinfolayout_sub_text_color"
                     android:textSize="14sp" />
 
                 <LinearLayout
@@ -62,20 +64,20 @@
                     android:orientation="horizontal">
 
                     <androidx.appcompat.widget.AppCompatImageButton
-                        android:id="@+id/about_header_github"
+                        android:id="@+id/aboutHeaderGithub"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:layout_marginEnd="8dp"
                         android:background="?attr/actionBarItemBackground"
-                        android:tint="@color/secondary_text_icon_color_themed"
+                        android:tint="?actionMenuTextColor"
                         app:srcCompat="@drawable/about_page_github" />
 
                     <androidx.appcompat.widget.AppCompatImageButton
-                        android:id="@+id/about_header_telegram"
+                        android:id="@+id/aboutHeaderTelegram"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:background="?attr/actionBarItemBackground"
-                        android:tint="@color/secondary_text_icon_color_themed"
+                        android:tint="?actionMenuTextColor"
                         app:srcCompat="@drawable/about_page_telegram" />
 
                 </LinearLayout>
@@ -83,7 +85,7 @@
             </LinearLayout>
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/about_toolbar"
+                android:id="@+id/aboutToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:background="@android:color/transparent"
@@ -94,80 +96,81 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
-        android:id="@+id/about_bottom_container"
+        android:id="@+id/aboutBottomContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:paddingHorizontal="10dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <RelativeLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="24dp">
+            android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/about_bottom_app_icon"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                tools:ignore="ContentDescription" />
-
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_toEndOf="@id/about_bottom_app_icon"
-                android:orientation="vertical"
-                android:paddingTop="14dp"
-                android:paddingBottom="14dp">
+                android:paddingHorizontal="24dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <ImageView
+                    android:id="@+id/aboutBottomIcon"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    tools:ignore="ContentDescription" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/app_name"
-                    android:textAppearance="?android:attr/textAppearanceListItem"
-                    android:textColor="@color/primary_text_icon_color_themed"
-                    android:textSize="18sp" />
+                    android:layout_marginStart="20dp"
+                    android:layout_toEndOf="@id/aboutBottomIcon"
+                    android:orientation="vertical"
+                    android:paddingTop="14dp"
+                    android:paddingBottom="14dp">
 
-                <TextView
-                    android:id="@+id/about_bottom_app_version"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceListItemSecondary"
-                    android:textColor="@color/secondary_text_icon_color" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/app_name"
+                        android:textColor="@color/oui_des_appinfolayout_app_label_text_color"
+                        android:textSize="18sp" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/aboutBottomAppVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/oui_des_appinfolayout_sub_text_color" />
 
-        </RelativeLayout>
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
         <include
-            android:id="@+id/about_bottom_content"
+            android:id="@+id/aboutBottomContent"
             layout="@layout/activity_custom_about_content" />
 
     </LinearLayout>
 
     <FrameLayout
-        android:id="@+id/about_swipe_up_container"
+        android:id="@+id/aboutSwipeUpContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
         android:focusable="false">
 
-        <!--
-            Kang from:
-            https://lottiefiles.com/24773-swipe-up-white-text
-        -->
         <com.airbnb.lottie.LottieAnimationView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingHorizontal="70dp"
-            android:paddingTop="100dp"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_gravity="center"
+            android:alpha=".50"
             app:lottie_autoPlay="true"
-            app:lottie_colorFilter="@color/secondary_text_icon_color_themed"
+            app:lottie_colorFilter="@color/oui_des_appinfolayout_sub_text_color"
             app:lottie_loop="true"
             app:lottie_rawRes="@raw/lottie_swipe_up_anim" />
 
     </FrameLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</dev.oneuiproject.oneui.widget.AdaptiveCoordinatorLayout>

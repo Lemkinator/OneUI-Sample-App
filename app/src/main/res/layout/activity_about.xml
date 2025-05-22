@@ -2,16 +2,31 @@
 <dev.oneuiproject.oneui.layout.AppInfoLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/appInfoLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?roundedCornerColor">
 
     <androidx.appcompat.widget.AppCompatButton
-        style="@style/OneUI.AppInfoButton"
-        android:onClick="changeStatus"
-        android:text="@string/status" />
+        android:id="@+id/aboutButtonStatus"
+        style="@style/OneUI.ContainedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/status"
+        android:theme="@style/OneUI.ContainedButtonTheme" />
 
     <androidx.appcompat.widget.AppCompatButton
-        style="@style/OneUI.AppInfoButton"
-        android:onClick="openGitHubPage"
-        android:text="@string/github" />
+        android:id="@+id/aboutButtonGithub"
+        style="@style/OneUI.ContainedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/github"
+        android:theme="@style/OneUI.ContainedButtonTheme" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/aboutButtonOpenSourceLicenses"
+        style="@style/OneUI.ContainedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/open_source_licenses"
+        android:theme="@style/OneUI.ContainedButtonTheme" />
 
 </dev.oneuiproject.oneui.layout.AppInfoLayout>

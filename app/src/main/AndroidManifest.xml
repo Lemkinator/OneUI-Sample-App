@@ -18,7 +18,7 @@
         android:localeConfig="@xml/locale_config"
         android:resizeableActivity="true"
         android:supportsRtl="true"
-        android:theme="@style/Theme.OneUISampleApp"
+        android:theme="@style/AppTheme"
         tools:targetApi="34">
 
         <meta-data
@@ -30,53 +30,53 @@
         <meta-data
             android:name="com.samsung.android.icon_container.feature_appicon"
             android:value="ADAPTIVEICON_SHADOW" />
-
         <meta-data
             android:name="theming-meta"
-            android:value="meta_998_sesl_app" />
+            android:value="meta_sample_app" />
         <meta-data
             android:name="theming-meta-xml"
-            android:value="@xml/meta_998_sesl_app" />
-
-        <activity
-            android:name=".ui.MainActivity"
-            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:theme="@style/Theme.OneUISampleApp.Splash">
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable" />
-            <!--Launcher-->
-            <meta-data
-                android:name="com.sec.android.app.launcher.icon_theme"
-                android:value="themeColor" />
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-
-                <action android:name="android.intent.action.SEARCH" />
-                <action android:name="dev.oneuiproject.oneui.oneuisampleapp.WIDGETACTION" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".ui.SettingsActivity"
-            android:parentActivityName=".ui.MainActivity" />
-
-        <activity
-            android:name=".ui.CustomAboutActivity"
-            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize" />
+            android:value="@xml/meta_sample_app" />
 
         <activity android:name=".ui.OOBEActivity" />
         <activity android:name=".ui.AboutActivity" />
         <activity android:name=".ui.SeekBarActivity" />
-        <activity android:name=".ui.PickersActivity" />
         <activity android:name=".ui.AppPickerActivity" />
-        <activity android:name=".ui.IndexScrollActivity" />
         <activity android:name=".ui.SwitchBarActivity" />
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:configChanges="orientation|screenLayout|screenSize" />
+        <activity
+            android:name=".ui.CustomAboutActivity"
+            android:configChanges="orientation|screenLayout|screenSize" />
+        <activity
+            android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
+            android:label="@string/oss_license_title"
+            android:theme="@style/AppTheme.OSL" />
+        <activity
+            android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
+            android:theme="@style/AppTheme.OSL" />
+        <activity
+            android:name=".ui.MainActivity"
+            android:configChanges="orientation|screenLayout|screenSize"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.Starting">
+            <meta-data
+                android:name="com.sec.android.app.launcher.icon_theme"
+                android:value="themeColor" />
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.SEARCH" />
+                <action android:name="dev.oneuiproject.oneui.oneuisampleapp.WIDGETACTION" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <service
             android:name=".ui.QSTile"
@@ -88,19 +88,16 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
-
         <meta-data
             android:name="com.samsung.systemui.facewidget.executable"
             android:resource="@raw/facewidgets" />
-
         <receiver
             android:name=".ui.FaceWidgetReceiver"
-            android:exported="true">
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
             <intent-filter>
                 <action android:name="com.samsung.android.intent.action.REQUEST_SERVICEBOX_REMOTEVIEWS" />
             </intent-filter>
         </receiver>
-
     </application>
-
 </manifest>

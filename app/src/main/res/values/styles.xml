@@ -1,39 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.OneUISampleApp" parent="OneUITheme">
-        <item name="colorPrimary">@color/primary_color_themed</item>
-        <item name="colorPrimaryDark">@color/primary_dark_color_themed</item>
-        <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:ignore="NewApi">true</item>
+<resources>
+
+    <style name="ButtonStyle" parent="">
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:minWidth">140dp</item>
+        <item name="android:maxLines">2</item>
     </style>
 
-    <style name="Theme.OneUISampleApp.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/round_and_bg_color</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
-        <item name="windowSplashScreenAnimationDuration">800</item>
-        <!--item name="windowSplashScreenIconBackgroundColor">@color/oui_background_color</item-->
-        <item name="postSplashScreenTheme">@style/Theme.OneUISampleApp</item>
+    <style name="ButtonStyle.Colored" parent="ButtonStyle">
+        <item name="android:theme">@style/OneUI.ContainedPrimaryColorButtonTheme</item>
     </style>
 
-    <style name="ButtonStyle.Colored" parent="OneUI.ButtonStyleColored">
-        <item name="android:backgroundTint">@color/primary_color_themed</item>
-        <item name="android:textColor">@color/primary_text_icon_color</item>
-        <item name="android:drawableTint">@color/primary_text_icon_color</item>
-        <item name="tint">@color/primary_text_icon_color</item>
+    <style name="ButtonStyle.Filled" parent="ButtonStyle">
+        <item name="android:theme">@style/OneUI.ContainedButtonTheme</item>
     </style>
 
-    <style name="ButtonStyle.Transparent" parent="OneUI.ButtonStyleTransparent">
-        <item name="android:backgroundTint">@android:color/transparent</item>
-        <item name="android:textColor">@color/primary_color_themed</item>
-        <item name="android:drawableTint">@color/primary_color_themed</item>
-        <item name="tint">@color/primary_color_themed</item>
+    <style name="ButtonStyle.Transparent" parent="ButtonStyle">
+        <item name="android:background">@drawable/oui_des_btn_transparent_bg</item>
+        <item name="android:theme">@style/OneUI.ContainedButtonTheme</item>
     </style>
 
-    <style name="ButtonStyle.Filled" parent="Widget.AppCompat.Button">
-        <item name="android:backgroundTint">@color/filled_background_color</item>
+    <style name="ButtonStyle.Transparent.Themed" parent="ButtonStyle.Transparent">
         <item name="android:textColor">@color/primary_text_icon_color_themed</item>
         <item name="android:drawableTint">@color/primary_text_icon_color_themed</item>
         <item name="tint">@color/primary_text_icon_color_themed</item>
+    </style>
+
+    <style name="ButtonStyle.Transparent.Colored" parent="ButtonStyle.Transparent">
+        <item name="android:textColor">@color/primary_color_themed</item>
+        <item name="android:drawableTint">@color/primary_color_themed</item>
+        <item name="tint">@color/primary_color_themed</item>
     </style>
 
     <style name="DrawerDividerStyle">
@@ -41,28 +42,16 @@
         <item name="android:layout_marginBottom">6dp</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">3dp</item>
-        <item name="android:layout_marginStart">24dp</item>
-        <item name="android:layout_marginEnd">24dp</item>
+        <item name="android:layout_marginStart">14dp</item>
+        <item name="android:layout_marginEnd">14dp</item>
         <item name="android:foreground">@drawable/drawer_item_separator_bg</item>
     </style>
 
     <!-- OOBE -->
     <style name="OOBE.TextView.ToS" parent="TextAppearance.AppCompat">
-        <item name="android:textSize">14.0sp</item>
-        <item name="android:textColor">@color/primary_text_icon_color_themed</item>
-        <item name="android:textColorLink">@color/primary_color_themed</item>
-        <item name="android:lineSpacingExtra">3.0dp</item>
-        <item name="android:maxLines">3</item>
-        <item name="android:ellipsize">end</item>
-    </style>
-
-    <style name="OOBE.Button" parent="Widget.AppCompat.Button">
-        <item name="android:paddingStart">16.0dp</item>
-        <item name="android:paddingEnd">16.0dp</item>
-        <item name="android:background">@drawable/oobe_button_background</item>
-        <item name="android:backgroundTint">@color/primary_color_themed</item>
-        <item name="android:textSize">18.0sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/primary_text_icon_color</item>
+        <item name="android:textColorLink">@color/primary_color_themed</item>
     </style>
 
 </resources>

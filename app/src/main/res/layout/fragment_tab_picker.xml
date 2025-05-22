@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:overScrollMode="always"
+    android:scrollbars="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="10dp">
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/pickerSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp" />
+
+        <LinearLayout
+            android:id="@+id/numberPicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <androidx.picker.widget.SeslNumberPicker
+                android:id="@+id/numberPicker1"
+                android:layout_width="wrap_content"
+                android:layout_height="230dp" />
+
+            <androidx.picker.widget.SeslNumberPicker
+                android:id="@+id/numberPicker2"
+                android:layout_width="wrap_content"
+                android:layout_height="230dp" />
+
+            <androidx.picker.widget.SeslNumberPicker
+                android:id="@+id/numberPicker3"
+                android:layout_width="wrap_content"
+                android:layout_height="230dp" />
+
+        </LinearLayout>
+
+        <androidx.picker.widget.SeslTimePicker
+            android:id="@+id/timePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <androidx.picker.widget.SeslDatePicker
+            android:id="@+id/datePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:theme="@style/DatePickerTheme"
+            android:visibility="gone" />
+
+        <androidx.picker.widget.SeslSpinningDatePicker
+            android:id="@+id/spinningDatePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:theme="@style/DatePickerTheme"
+            android:visibility="gone"
+            app:pickerLayoutMode="defaultMode" />
+
+
+        <androidx.picker.widget.SeslSleepTimePicker
+            android:id="@+id/sleepPicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/dateButton"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="5dp"
+                android:minWidth="250dp"
+                android:text="@string/date" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/timeButton"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="5dp"
+                android:minWidth="250dp"
+                android:text="@string/time" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/startEndTimeButton"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="5dp"
+                android:minWidth="250dp"
+                android:text="@string/start_end_time" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/colorButton"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="5dp"
+                android:minWidth="250dp"
+                android:text="@string/color" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

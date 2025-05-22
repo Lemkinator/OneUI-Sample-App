@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="AppCompatResource">
+
+    <item
+        android:id="@+id/menu_item_1"
+        android:icon="@drawable/ic_oui_delete_outline"
+        android:title="Item 1"
+        app:iconTint="?actionMenuTextColor"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction,HardcodedText" />
+
+    <item
+        android:id="@+id/menu_item_2"
+        android:icon="@drawable/ic_oui_add"
+        android:title="Item 2"
+        app:iconTint="?actionMenuTextColor"
+        app:showAsAction="always"
+        tools:ignore="HardcodedText" />
+
+    <item
+        android:id="@+id/menu_item_3"
+        android:icon="@drawable/ic_oui_samsung_one"
+        android:title="Item 3"
+        app:iconTint="?actionMenuTextColor"
+        app:showAsAction="never"
+        tools:ignore="HardcodedText" />
+</menu>

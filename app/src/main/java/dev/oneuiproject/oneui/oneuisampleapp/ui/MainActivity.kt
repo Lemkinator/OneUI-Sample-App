@@ -1,52 +1,62 @@
 package dev.oneuiproject.oneui.oneuisampleapp.ui
 
-import android.app.SearchManager
+import android.R.anim.fade_in
+import android.R.anim.fade_out
 import android.content.Intent
-import android.os.Build
+import android.content.Intent.ACTION_SEARCH
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.widget.SearchView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.children
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Lifecycle.State.RESUMED
+import androidx.lifecycle.Lifecycle.State.STARTED
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
-import dev.oneuiproject.oneui.dialog.GridMenuDialog
-import dev.oneuiproject.oneui.layout.ToolbarLayout
+import dev.oneuiproject.oneui.ktx.dpToPx
+import dev.oneuiproject.oneui.ktx.onSingleClick
+import dev.oneuiproject.oneui.layout.DrawerLayout.DrawerState.CLOSE
+import dev.oneuiproject.oneui.layout.DrawerLayout.DrawerState.CLOSING
+import dev.oneuiproject.oneui.layout.DrawerLayout.DrawerState.OPEN
+import dev.oneuiproject.oneui.layout.DrawerLayout.DrawerState.OPENING
+import dev.oneuiproject.oneui.layout.NavDrawerLayout
 import dev.oneuiproject.oneui.oneuisampleapp.R
 import dev.oneuiproject.oneui.oneuisampleapp.databinding.ActivityMainBinding
 import dev.oneuiproject.oneui.oneuisampleapp.domain.AppStart
 import dev.oneuiproject.oneui.oneuisampleapp.domain.CheckAppStartUseCase
 import dev.oneuiproject.oneui.oneuisampleapp.domain.GetUserSettingsUseCase
 import dev.oneuiproject.oneui.oneuisampleapp.domain.UpdateUserSettingsUseCase
-import dev.oneuiproject.oneui.oneuisampleapp.ui.dialog.SearchFilterDialog
-import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.MainActivitySearchFragment
-import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.MainActivityTabDesign
-import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.MainActivityTabIcons
-import dev.oneuiproject.oneui.utils.TabLayoutUtils
+import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.TabDesign
+import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.TabIcons
+import dev.oneuiproject.oneui.oneuisampleapp.ui.fragments.TabPicker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import dev.oneuiproject.oneui.R as iconsR
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var binding: ActivityMainBinding
-    private val fragmentsInstance: List<Fragment> =
-        listOf(MainActivityTabDesign(), MainActivityTabIcons(), MainActivitySearchFragment())
-    private val searchFragmentIndex = 2
+    private lateinit var drawerListView: LinearLayout
     private var selectedPosition = -1
-    private var isSearchFragmentVisible = false
-    private var isSearchUserInputEnabled = false
     private var time: Long = 0
     private var isUIReady = false
+    private val drawerItemTitles: MutableList<TextView> = mutableListOf()
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
@@ -61,9 +71,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val splashScreen = installSplashScreen()
         time = System.currentTimeMillis()
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= 34) {
-            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, android.R.anim.fade_in, android.R.anim.fade_out)
-        }
+        if (SDK_INT >= 34) overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, fade_in, fade_out)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         splashScreen.setKeepOnScreenCondition { !isUIReady }
@@ -107,22 +115,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        lifecycleScope.launch {
-            delay(500) //delay, so closing the drawer is not visible for the user
-            binding.drawerLayoutMain.setDrawerOpen(false, false)
-        }
-    }
-
     private suspend fun openOOBE() {
         //manually waiting for the animation to finish :/
-        delay(500 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
+        delay(700 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
         startActivity(Intent(applicationContext, OOBEActivity::class.java))
-        if (Build.VERSION.SDK_INT < 34) {
-            @Suppress("DEPRECATION")
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-        }
+        @Suppress("DEPRECATION") if (SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
         finishAfterTransition()
     }
 
@@ -137,211 +134,142 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         initFragments()
         lifecycleScope.launch {
             //manually waiting for the animation to finish :/
-            delay(500 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
+            delay(700 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
             isUIReady = true
         }
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        setIntent(intent)
-        if (intent?.action == Intent.ACTION_SEARCH) binding.drawerLayoutMain.searchView.setQuery(
-            intent.getStringExtra(SearchManager.QUERY),
-            true
-        )
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.search -> {
-                binding.drawerLayoutMain.showSearchMode()
-                setSearchFragment()
-                return true
-            }
-
-            R.id.menu_custom_about_app -> {
-                startActivity(Intent(this, CustomAboutActivity::class.java))
-                return true
-            }
-        }
-        return false
+        if (intent?.action == ACTION_SEARCH) binding.drawerLayout.setSearchQueryFromIntent(intent)
     }
 
     private fun initFragments() {
         val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-        for (fragment in fragmentsInstance) transaction.add(R.id.fragment_container, fragment)
-        transaction.commitAllowingStateLoss()
-        supportFragmentManager.executePendingTransactions()
+        listOf(TabDesign(), TabPicker(), TabIcons()).forEach {
+            transaction.add(R.id.fragmentContainer, it)
+        }
+        transaction.commitNowAllowingStateLoss()
         setFragment(0)
     }
 
-    fun setFragment(position: Int, tab: TabLayout.Tab? = null) {
-        val newFragment: Fragment = fragmentsInstance[position]
-        if (selectedPosition != position || isSearchFragmentVisible) {
+    fun setFragment(position: Int) {
+        if (selectedPosition != position) {
+            val newFragment: Fragment = supportFragmentManager.fragments[position]
             selectedPosition = position
             val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-            for (fragment in supportFragmentManager.fragments) transaction.hide(fragment)
-            transaction.show(newFragment).commitAllowingStateLoss()
-            supportFragmentManager.executePendingTransactions()
-            val newTab = tab ?: binding.mainTabs.getTabAt(position)
-            if (newTab?.isSelected == false) newTab.select()
+            for (fragment in supportFragmentManager.fragments) transaction.hide(fragment).setMaxLifecycle(fragment, STARTED)
+            transaction.show(newFragment).setMaxLifecycle(newFragment, RESUMED).commitNowAllowingStateLoss()
         }
-        isSearchFragmentVisible = false
     }
-
-    fun setSearchFragment() {
-        val newFragment: Fragment = fragmentsInstance[searchFragmentIndex]
-        if (!isSearchFragmentVisible) {
-            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-            for (fragment in supportFragmentManager.fragments) transaction.hide(fragment)
-            transaction.show(newFragment).commitAllowingStateLoss()
-            supportFragmentManager.executePendingTransactions()
-        }
-        (newFragment as OnDataChangedListener).onDataChanged()
-        isSearchFragmentVisible = true
-    }
-
 
     private fun initDrawer() {
-        val oobeOption = findViewById<LinearLayout>(R.id.draweritem_oobe)
-        val aboutAppOption = findViewById<LinearLayout>(R.id.draweritem_about_app)
-        val customAboutAppOption = findViewById<LinearLayout>(R.id.draweritem_custom_about_app)
-        val settingsOption = findViewById<LinearLayout>(R.id.draweritem_settings)
-
-        oobeOption.setOnClickListener {
+        drawerListView = findViewById(R.id.drawerListView)
+        drawerItemTitles.apply {
+            clear()
+            add(findViewById(R.id.drawerItemOOBETitle))
+            add(findViewById(R.id.drawerItemAboutAppTitle))
+            add(findViewById(R.id.drawerItemCustomAboutAppTitle))
+            add(findViewById(R.id.drawerItemSettingsTitle))
+        }
+        findViewById<LinearLayout>(R.id.drawerItemOOBE).onSingleClick {
             startActivity(Intent(this@MainActivity, OOBEActivity::class.java))
-            if (Build.VERSION.SDK_INT < 34) {
-                @Suppress("DEPRECATION")
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-            }
+            @Suppress("DEPRECATION") if (SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
             finishAfterTransition()
         }
-        aboutAppOption.setOnClickListener { startActivity(Intent(this@MainActivity, AboutActivity::class.java)) }
-        customAboutAppOption.setOnClickListener { startActivity(Intent(this@MainActivity, CustomAboutActivity::class.java)) }
-        settingsOption.setOnClickListener { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)) }
-        binding.drawerLayoutMain.setDrawerButtonIcon(
-            AppCompatResources.getDrawable(this, dev.oneuiproject.oneui.R.drawable.ic_oui_info_outline)
-        )
-        binding.drawerLayoutMain.setDrawerButtonOnClickListener {
-            startActivity(Intent().setClass(this@MainActivity, AboutActivity::class.java))
+        findViewById<LinearLayout>(R.id.drawerItemAboutApp).onSingleClick { startActivity(Intent(this, AboutActivity::class.java)) }
+        findViewById<LinearLayout>(R.id.drawerItemCustomAboutApp).onSingleClick {
+            startActivity(Intent(this, CustomAboutActivity::class.java))
         }
-        binding.drawerLayoutMain.setDrawerButtonTooltip(getText(R.string.about_app))
-        binding.drawerLayoutMain.setSearchModeListener(SearchModeListener())
-        binding.drawerLayoutMain.searchView.setSearchableInfo(
-            (getSystemService(SEARCH_SERVICE) as SearchManager).getSearchableInfo(componentName)
-        )
-        binding.drawerLayoutMain.searchView.seslSetOverflowMenuButtonIcon(
-            AppCompatResources.getDrawable(this, dev.oneuiproject.oneui.R.drawable.ic_oui_list_filter)
-        )
-        binding.drawerLayoutMain.searchView.seslSetOverflowMenuButtonVisibility(View.VISIBLE)
-        binding.drawerLayoutMain.searchView.seslSetOnOverflowMenuButtonClickListener {
-            SearchFilterDialog { setSearchFragment() }.show(supportFragmentManager, "")
+        findViewById<LinearLayout>(R.id.drawerItemSettings).onSingleClick { startActivity(Intent(this, SettingsActivity::class.java)) }
+        binding.drawerLayout.apply {
+            setHeaderButtonIcon(AppCompatResources.getDrawable(context, iconsR.drawable.ic_oui_info_outline))
+            setHeaderButtonTooltip(getString(R.string.about_app))
+            setHeaderButtonOnClickListener { startActivity(Intent(this@MainActivity, AboutActivity::class.java)) }
+            setNavRailContentMinSideMargin(14)
+            closeNavRailOnBack = true
+            //isImmersiveScroll = true
+            //setupNavRailFadeEffect
+            if (isLargeScreenMode) {
+                setDrawerStateListener {
+                    when (it) {
+                        OPEN -> offsetUpdaterJob?.cancel().also { updateOffset(1f) }
+                        CLOSE -> offsetUpdaterJob?.cancel().also { updateOffset(0f) }
+                        CLOSING, OPENING -> startOffsetUpdater()
+                    }
+                }
+                //Set initial offset
+                post { updateOffset(drawerOffset) }
+            }
         }
     }
 
-    inner class SearchModeListener : ToolbarLayout.SearchModeListener {
-        override fun onQueryTextSubmit(query: String?): Boolean {
-            if (!isSearchUserInputEnabled) return false
-            lifecycleScope.launch {
-                updateUserSettings { it.copy(search = query ?: "") }
-                setSearchFragment()
+    private var offsetUpdaterJob: Job? = null
+    private fun NavDrawerLayout.startOffsetUpdater() {
+        //Ensure no duplicate job is running
+        if (offsetUpdaterJob?.isActive == true) return
+        offsetUpdaterJob = CoroutineScope(Dispatchers.Main).launch {
+            while (isActive) {
+                updateOffset(drawerOffset)
+                delay(50)
             }
-            return true
         }
+    }
 
-        override fun onQueryTextChange(query: String?): Boolean {
-            if (!isSearchUserInputEnabled) return false
-            lifecycleScope.launch {
-                updateUserSettings { it.copy(search = query ?: "") }
-                setSearchFragment()
-            }
-            return true
-        }
-
-        override fun onSearchModeToggle(searchView: SearchView, visible: Boolean) {
-            if (visible) {
-                isSearchUserInputEnabled = true
-                lifecycleScope.launch {
-                    val search = getUserSettings().search
-                    searchView.setQuery(search, false)
-                    val autoCompleteTextView = searchView.seslGetAutoCompleteView()
-                    autoCompleteTextView.setText(search)
-                    autoCompleteTextView.setSelection(autoCompleteTextView.text.length)
+    fun updateOffset(offset: Float) {
+        drawerItemTitles.forEach { it.alpha = offset }
+        drawerListView.children.forEach {
+            it.post {
+                if (offset == 0f) {
+                    it.updateLayoutParams<MarginLayoutParams> {
+                        width = if (it is LinearLayout) 52f.dpToPx(it.context.resources) //drawer item
+                        else 25f.dpToPx(it.context.resources) //divider item
+                    }
+                } else if (it.width != MATCH_PARENT) {
+                    it.updateLayoutParams<MarginLayoutParams> { width = MATCH_PARENT }
                 }
-            } else {
-                isSearchUserInputEnabled = false
-                setFragment(selectedPosition)
             }
         }
     }
 
     private fun initTabLayout() {
-        binding.mainTabs.tabMode = TabLayout.SESL_MODE_FIXED_AUTO
-        binding.mainTabs.addTab(binding.mainTabs.newTab().setText(getString(R.string.design)))
-        binding.mainTabs.addTab(binding.mainTabs.newTab().setText(getString(R.string.icons)))
-        val gridMenuDialog = GridMenuDialog(this)
-        gridMenuDialog.inflateMenu(R.menu.tabs_grid_menu)
-        gridMenuDialog.setOnItemClickListener {
-            when (it.itemId) {
-                R.id.grid_menu_seek_bar -> {
-                    startActivity(Intent(this@MainActivity, SeekBarActivity::class.java))
-                    return@setOnItemClickListener true
+        binding.bottomTab.apply {
+            setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.menu_item_seek_bar -> startActivity(Intent(this@MainActivity, SeekBarActivity::class.java)).let { true }
+                    R.id.menu_item_app_picker -> startActivity(Intent(this@MainActivity, AppPickerActivity::class.java)).let { true }
+                    else -> false
                 }
-
-                R.id.grid_menu_pickers -> {
-                    startActivity(Intent(this@MainActivity, PickersActivity::class.java))
-                    return@setOnItemClickListener true
-                }
-
-                R.id.grid_menu_index_scroll -> {
-                    startActivity(Intent(this@MainActivity, IndexScrollActivity::class.java))
-                    return@setOnItemClickListener true
-                }
-
-                R.id.grid_menu_app_picker_view -> {
-                    startActivity(Intent(this@MainActivity, AppPickerActivity::class.java))
-                    return@setOnItemClickListener true
-                }
-
-                else -> return@setOnItemClickListener false
             }
-        }
-        TabLayoutUtils.addCustomButton(binding.mainTabs, dev.oneuiproject.oneui.R.drawable.ic_oui_drawer) { gridMenuDialog.show() }
-        binding.mainTabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                setFragment(tab.position)
-            }
+            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    setFragment(tab.position)
+                }
 
-            override fun onTabUnselected(tab: TabLayout.Tab) {}
-            override fun onTabReselected(tab: TabLayout.Tab) {
-                try {
-                    when (tab.text) {
-                        getString(R.string.design) -> {
-                            val subTabs: TabLayout = findViewById(R.id.fragment_design_sub_tabs)
-                            val newTabIndex = subTabs.selectedTabPosition + 1
-                            if (newTabIndex < subTabs.tabCount) subTabs.getTabAt(newTabIndex)?.select()
-                            else subTabs.getTabAt(0)?.select()
-                        }
+                override fun onTabUnselected(tab: TabLayout.Tab) {}
+                override fun onTabReselected(tab: TabLayout.Tab) {
+                    try {
+                        when (tab.text) {
+                            getString(R.string.design) -> {
+                                val subTabs: TabLayout = findViewById(R.id.fragmentDesignSubTabs)
+                                val newTabIndex = subTabs.selectedTabPosition + 1
+                                if (newTabIndex < subTabs.tabCount) subTabs.getTabAt(newTabIndex)?.select()
+                                else subTabs.getTabAt(0)?.select()
+                            }
 
-                        getString(R.string.icons) -> {
-                            val iconsRecyclerView: RecyclerView = findViewById(R.id.icons_recycler_view)
-                            if (iconsRecyclerView.canScrollVertically(-1)) iconsRecyclerView.smoothScrollToPosition(0)
-                            else binding.drawerLayoutMain.setExpanded(!binding.drawerLayoutMain.isExpanded, true)
+                            getString(R.string.picker) -> binding.drawerLayout.setExpanded(!binding.drawerLayout.isExpanded, true)
+
+                            getString(R.string.icons) -> {
+                                val iconsRecyclerView: RecyclerView = findViewById(R.id.iconList)
+                                if (iconsRecyclerView.canScrollVertically(-1)) iconsRecyclerView.smoothScrollToPosition(0)
+                                else binding.drawerLayout.setExpanded(!binding.drawerLayout.isExpanded, true)
+                            }
                         }
+                    } catch (e: Exception) { //no required functionality -> ignore errors
+                        Log.e("MainActivity", "Error while reselecting tab", e)
                     }
-                } catch (e: Exception) { //no required functionality -> ignore errors
-                    Log.e("MainActivity", "Error while reselecting tab", e)
                 }
-            }
-        })
+            })
+        }
     }
-}
-
-interface OnDataChangedListener {
-    fun onDataChanged()
 }

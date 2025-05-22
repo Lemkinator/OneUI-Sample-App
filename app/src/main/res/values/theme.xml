@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="OneUITheme">
+        <item name="colorPrimary">@color/primary_color_themed</item>
+    </style>
+
+    <style name="AppTheme.OSL" parent="Theme.AppCompat.DayNight">
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/oui_des_round_and_bgcolor</item>
+        <item name="android:windowBackground">@color/oui_des_round_and_bgcolor</item>
+        <item name="android:navigationBarColor">@color/oui_des_round_and_bgcolor</item>
+    </style>
+
+    <style name="AppTheme.Starting" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+        <item name="windowSplashScreenBackground">@color/oui_des_round_and_bgcolor</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="windowSplashScreenAnimationDuration">800</item>
+    </style>
+
+    <style name="DatePickerTheme" parent="@style/Widget.AppCompat.Light.DatePicker" />
+
+</resources>

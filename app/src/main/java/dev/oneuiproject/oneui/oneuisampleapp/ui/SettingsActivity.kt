@@ -5,29 +5,44 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.*
+import androidx.preference.EditTextPreference
+import androidx.preference.Preference
+import androidx.preference.Preference.OnPreferenceChangeListener
 import androidx.preference.Preference.OnPreferenceClickListener
+import androidx.preference.PreferenceCategory
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceScreen
+import androidx.preference.SeslSwitchPreferenceScreen
+import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
+import dev.oneuiproject.oneui.ktx.addRelativeLinksCard
+import dev.oneuiproject.oneui.ktx.onClick
 import dev.oneuiproject.oneui.oneuisampleapp.R
 import dev.oneuiproject.oneui.oneuisampleapp.databinding.ActivitySettingsBinding
 import dev.oneuiproject.oneui.oneuisampleapp.domain.GetUserSettingsUseCase
 import dev.oneuiproject.oneui.oneuisampleapp.domain.UpdateUserSettingsUseCase
+import dev.oneuiproject.oneui.oneuisampleapp.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.preference.HorizontalRadioPreference
+import dev.oneuiproject.oneui.preference.InsetPreferenceCategory
+import dev.oneuiproject.oneui.preference.SuggestionCardPreference
 import dev.oneuiproject.oneui.preference.TipsCardPreference
-import dev.oneuiproject.oneui.preference.internal.PreferenceRelatedCard
-import dev.oneuiproject.oneui.utils.PreferenceUtils.createRelatedCard
+import dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
+import dev.oneuiproject.oneui.widget.RelativeLink
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint
 class SettingsActivity : AppCompatActivity() {
@@ -36,17 +51,14 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.toolbarLayout.setNavigationButtonTooltip(getString(R.string.sesl_navigate_up))
-        binding.toolbarLayout.setNavigationButtonOnClickListener { finishAfterTransition() }
         if (savedInstanceState == null) supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment()).commit()
     }
 
     @AndroidEntryPoint
-    class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
+    class SettingsFragment : PreferenceFragmentCompat(), OnPreferenceChangeListener {
         private lateinit var settingsActivity: SettingsActivity
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
-        private var relatedCard: PreferenceRelatedCard? = null
 
         @Inject
         lateinit var getUserSettings: GetUserSettingsUseCase
@@ -79,12 +91,12 @@ class SettingsActivity : AppCompatActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 findPreference<PreferenceCategory>("language_pref_cat")!!.isVisible = true
                 findPreference<PreferenceScreen>("language_pref")!!.onPreferenceClickListener = OnPreferenceClickListener {
-                    val intent = Intent(Settings.ACTION_APP_LOCALE_SETTINGS, Uri.parse("package:${settingsActivity.packageName}"))
+                    val intent = Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri())
                     try {
                         startActivity(intent)
                     } catch (e: ActivityNotFoundException) {
                         e.printStackTrace()
-                        Toast.makeText(settingsActivity, getString(R.string.change_language_not_supported_by_device), Toast.LENGTH_SHORT).show()
+                        suggestiveSnackBar(getString(R.string.change_language_not_supported_by_device))
                     }
                     true
                 }
@@ -95,7 +107,6 @@ class SettingsActivity : AppCompatActivity() {
                     .setTitle(getString(R.string.tos))
                     .setMessage(getString(R.string.tos_content))
                     .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                    .create()
                     .show()
                 true
             }
@@ -103,34 +114,43 @@ class SettingsActivity : AppCompatActivity() {
                 AlertDialog.Builder(settingsActivity)
                     .setTitle(R.string.delete_appdata_and_exit)
                     .setMessage(R.string.delete_appdata_and_exit_warning)
-                    .setNegativeButton(R.string.sesl_cancel, null)
-                    .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
+                    .setNegativeButton(designR.string.oui_des_common_cancel, null)
+                    .setPositiveButton(designR.string.oui_des_common_button_yes) { _: DialogInterface, _: Int ->
                         (settingsActivity.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
                     }
-                    .create()
                     .show()
                 true
             }
 
+            val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
+            val suggestionInset = findPreference<InsetPreferenceCategory>("suggestion_inset")!!
+            suggestion.setOnClosedClickedListener { preferenceScreen.removePreference(suggestionInset) }
+            suggestion.setActionButtonOnClickListener {
+                suggestion.startTurnOnAnimation("Turned on")
+                it.postDelayed(Runnable {
+                    preferenceScreen.removePreference(suggestion)
+                    preferenceScreen.removePreference(suggestionInset)
+                }, 1500)
+            }
+            findPreference<UpdatableWidgetPreference>("updatable")?.onClick {
+                it.widgetLayoutResource = R.layout.sample_pref_widget_progress
+                view?.postDelayed(Runnable {
+                    it.widgetLayoutResource = R.layout.sample_pref_widget_check
+                }, 2000)
+            }
             val tips = findPreference<TipsCardPreference>("tip")
-            tips?.addButton("Button") { Toast.makeText(settingsActivity, "onClick", Toast.LENGTH_SHORT).show() }
-            findPreference<EditTextPreference>("key4")?.onPreferenceChangeListener = this
-            @Suppress("UNUSED_VARIABLE")
-            val key5 = findPreference<DropDownPreference>("key5")
-            @Suppress("UNUSED_VARIABLE")
-            val key6 = findPreference<ListPreference>("key6")
+            tips?.addButton("Button") { suggestiveSnackBar("onClick") }
+            findPreference<EditTextPreference>("edit_text")?.onPreferenceChangeListener = this
         }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            requireView().setBackgroundColor(
-                resources.getColor(dev.oneuiproject.oneui.design.R.color.oui_background_color, settingsActivity.theme)
+            requireView().setBackgroundColor(resources.getColor(designR.color.oui_des_background_color, settingsActivity.theme))
+            addRelativeLinksCard(
+                RelativeLink(getString(R.string.custom_about_oneui_sample_screen)) {
+                    startActivity(Intent(settingsActivity, CustomAboutActivity::class.java))
+                }
             )
-        }
-
-        override fun onStart() {
-            super.onStart()
-            setRelatedCardView()
         }
 
         override fun onResume() {
@@ -141,10 +161,12 @@ class SettingsActivity : AppCompatActivity() {
                 autoDarkModePref.isChecked = userSettings.autoDarkMode
                 darkModePref.isEnabled = !autoDarkModePref.isChecked
                 darkModePref.value = if (userSettings.darkMode) "1" else "0"
-                val sampleSwitchbar = findPreference<SeslSwitchPreferenceScreen>("sample_switchbar")
-                sampleSwitchbar?.isChecked = userSettings.sampleSwitchbar
-                sampleSwitchbar?.summary = if (sampleSwitchbar.isChecked == true) "Enabled" else "Disabled"
-                sampleSwitchbar?.onPreferenceChangeListener = this@SettingsFragment
+                findPreference<SeslSwitchPreferenceScreen>("switch_screen")?.apply {
+                    onClick { startActivity(Intent(settingsActivity, SwitchBarActivity::class.java)) }
+                    isChecked = userSettings.sampleSwitchBar
+                    summary = if (isChecked == true) "Enabled" else "Disabled"
+                    onPreferenceChangeListener = this@SettingsFragment
+                }
             }
         }
 
@@ -152,12 +174,8 @@ class SettingsActivity : AppCompatActivity() {
             when (preference.key) {
                 "dark_mode_pref" -> {
                     val darkMode = newValue as String == "1"
-                    AppCompatDelegate.setDefaultNightMode(
-                        if (darkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-                    )
-                    lifecycleScope.launch {
-                        updateUserSettings { it.copy(darkMode = darkMode) }
-                    }
+                    AppCompatDelegate.setDefaultNightMode(if (darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
+                    lifecycleScope.launch { updateUserSettings { it.copy(darkMode = darkMode) } }
                     return true
                 }
 
@@ -165,42 +183,27 @@ class SettingsActivity : AppCompatActivity() {
                     val autoDarkMode = newValue as Boolean
                     darkModePref.isEnabled = !autoDarkMode
                     lifecycleScope.launch {
-                        if (autoDarkMode) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                        else {
-                            if (getUserSettings().darkMode) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                            else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                        }
+                        if (autoDarkMode) AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+                        else AppCompatDelegate.setDefaultNightMode(if (getUserSettings().darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
                         updateUserSettings { it.copy(autoDarkMode = newValue) }
                     }
                     return true
                 }
 
-                "sample_switchbar" -> {
+                "switch_screen" -> {
                     val enabled = newValue as Boolean
                     preference.summary = if (enabled) "Enabled" else "Disabled"
-                    lifecycleScope.launch {
-                        updateUserSettings { it.copy(sampleSwitchbar = enabled) }
-                    }
+                    lifecycleScope.launch { updateUserSettings { it.copy(sampleSwitchBar = enabled) } }
                     return true
                 }
 
-                "key4" -> {
+                "edit_text" -> {
                     @Suppress("unused", "UnusedVariable")
                     val text = newValue as String
                     return true
                 }
             }
             return false
-        }
-
-        private fun setRelatedCardView() {
-            if (relatedCard == null) {
-                relatedCard = createRelatedCard(settingsActivity)
-                relatedCard?.setTitleText(getString(dev.oneuiproject.oneui.design.R.string.oui_relative_description))
-                relatedCard?.addButton(getString(R.string.custom_about_oneui_sample_screen)) {
-                    startActivity(Intent(settingsActivity, CustomAboutActivity::class.java))
-                }?.show(this)
-            }
         }
     }
 }

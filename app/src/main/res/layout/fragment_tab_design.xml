@@ -3,23 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingHorizontal="10dp"
     android:orientation="vertical">
 
     <dev.oneuiproject.oneui.widget.MarginsTabLayout
-        android:id="@+id/fragment_design_sub_tabs"
+        android:id="@+id/fragmentDesignSubTabs"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        app:seslTabStyle="Sub" />
 
-    <dev.oneuiproject.oneui.widget.RoundFrameLayout
+    <dev.oneuiproject.oneui.widget.RoundedFrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:roundedCorners="top_left|top_right">
+        android:orientation="vertical">
 
         <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/view_pager2_design"
+            android:id="@+id/viewPager2Design"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </dev.oneuiproject.oneui.widget.RoundFrameLayout>
+    </dev.oneuiproject.oneui.widget.RoundedFrameLayout>
 </LinearLayout>

@@ -5,8 +5,8 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.RemoteViews
-import android.widget.Toast
 import dev.oneuiproject.oneui.oneuisampleapp.R
+import dev.oneuiproject.oneui.oneuisampleapp.ui.util.toast
 
 @Suppress("redundantOverride","unused")
 class QSTile : TileService() {
@@ -37,10 +37,10 @@ class QSTile : TileService() {
         super.onClick()
         if (qsTile.state == Tile.STATE_ACTIVE) {
             qsTile.state = Tile.STATE_INACTIVE
-            Toast.makeText(this, "Tile clicked: inactive", Toast.LENGTH_SHORT).show()
+            toast("Tile clicked: inactive")
         } else {
             qsTile.state = Tile.STATE_ACTIVE
-            Toast.makeText(this, "Tile clicked: active", Toast.LENGTH_SHORT).show()
+            toast("Tile clicked: active")
         }
         qsTile.updateTile()
     }
@@ -54,7 +54,7 @@ class QSTile : TileService() {
     fun semGetDetailViewTitle(): CharSequence = this.getString(R.string.app_name)
     fun semGetDetailView(): RemoteViews = RemoteViews(packageName, R.layout.qs_detail_view)
     fun semSetToggleButtonChecked(checked: Boolean) {
-        Toast.makeText(this, "Toggle Button: $checked", Toast.LENGTH_SHORT).show()
+        toast("Toggle Button: $checked")
         qsTile.state = if (checked) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
         qsTile.updateTile()
     }

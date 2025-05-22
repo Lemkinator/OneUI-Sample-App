@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
+    id("com.google.android.gms.oss-licenses-plugin")
 }
 
 val releaseStoreFile: String? by rootProject
@@ -12,16 +13,18 @@ val releaseKeyPassword: String? by rootProject
 
 android {
     namespace = "dev.oneuiproject.oneui.oneuisampleapp"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "dev.oneuiproject.oneui.oneuisampleapp"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
-        resourceConfigurations += listOf("en", "de")
     }
+
+    @Suppress("UnstableApiUsage")
+    androidResources.localeFilters += listOf("en", "de")
 
     signingConfigs {
         create("release") {
@@ -50,6 +53,8 @@ android {
             }
         }
         debug {
+            applicationIdSuffix = ".debug"
+            resValue("string", "app_name", "OneUI Sample App (Debug)")
             isDebuggable = true
             isMinifyEnabled = false
             isShrinkResources = false
@@ -58,47 +63,53 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "21"
     }
 
     buildFeatures {
         viewBinding = true
         buildConfig = true
     }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
 }
 
 dependencies {
-    //SESL6(OneUI 6) Android Jetpack
-    implementation("sesl.androidx.core:core:1.15.0-rc01+1.0.11-sesl6+rev0")
-    implementation("sesl.androidx.core:core-ktx:1.15.0-rc01+1.0.0-sesl6+rev0")
-    implementation("sesl.androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01+1.0.0-sesl6+rev0")
-    implementation("sesl.androidx.fragment:fragment:1.8.4+1.0.0-sesl6+rev1")
-    implementation("sesl.androidx.recyclerview:recyclerview:1.4.0-rc01+1.0.21-sesl6+rev0")
-    implementation("sesl.androidx.appcompat:appcompat:1.7.0+1.0.34-sesl6+rev5")
-    implementation("sesl.androidx.viewpager2:viewpager2:1.1.0+1.0.0-sesl6+rev0")
-    implementation("sesl.androidx.preference:preference:1.2.1+1.0.4-sesl6+rev3")
-    //SESL6(OneUI 6) Samsung
-    implementation("sesl.androidx.indexscroll:indexscroll:1.0.3+1.0.3-sesl6+rev2")
-    implementation("sesl.androidx.picker:picker-basic:1.0.17+1.0.17-sesl6+rev2")
-    implementation("sesl.androidx.picker:picker-color:1.0.6+1.0.6-sesl6+rev3")
-    implementation("sesl.androidx.apppickerview:apppickerview:1.0.1+1.0.1-sesl6+rev2")
-    //SESL6(OneUI 6) Material Components + Design Lib + Icons
-    implementation("sesl.com.google.android.material:material:1.12.0+1.0.23-sesl6+rev1")
-    implementation("io.github.tribalfs:oneui-design:0.1.0+oneui6")
+    //SESL Android Jetpack
+    implementation("sesl.androidx.core:core:1.16.0+1.0.15-sesl7+rev0")
+    implementation("sesl.androidx.core:core-ktx:1.16.0+1.0.0-sesl7+rev0")
+    implementation("sesl.androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01+1.0.1-sesl7+rev0")
+    implementation("sesl.androidx.fragment:fragment:1.8.7+1.0.9-sesl7+rev0")
+    implementation("sesl.androidx.recyclerview:recyclerview:1.4.0+1.0.33-sesl7+rev1")
+    implementation("sesl.androidx.appcompat:appcompat:1.7.0+1.0.47000-sesl7+rev1")
+    implementation("sesl.androidx.viewpager2:viewpager2:1.1.0+1.0.4-sesl7+rev0")
+    implementation("sesl.androidx.preference:preference:1.2.1+1.0.12-sesl7+rev0")
+    implementation("sesl.androidx.indexscroll:indexscroll:1.0.6+1.0.6-sesl7+rev3")
+    implementation("sesl.androidx.picker:picker-basic:1.0.11+1.0.11-sesl7+rev0")
+    implementation("sesl.androidx.picker:picker-color:1.0.6+1.0.6-sesl7+rev0")
+    implementation("sesl.androidx.apppickerview:apppickerview:1.0.1+1.0.1-sesl7+rev0")
+    //SESL Material Components + Design Lib + Icons
+    implementation("sesl.com.google.android.material:material:1.12.0+1.0.39-sesl7+rev4")
+    implementation("io.github.tribalfs:oneui-design:0.5.16+oneui7")
     implementation("io.github.oneuiproject:icons:1.1.0")
 
-    implementation("com.airbnb.android:lottie:6.5.2")
+    implementation("com.airbnb.android:lottie:6.6.6")
+    implementation("com.google.android.gms:play-services-oss-licenses:17.1.0")
     implementation("androidx.core:core-splashscreen:1.0.1")
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.0")
 
-    implementation("com.google.dagger:hilt-android:2.52")
-    ksp("com.google.dagger:hilt-compiler:2.52")
+    implementation("com.google.dagger:hilt-android:2.56.2")
+    ksp("com.google.dagger:hilt-compiler:2.56.2")
 }
 
 configurations.implementation {

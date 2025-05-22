@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -12,33 +13,39 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <ImageView
+        <dev.oneuiproject.oneui.widget.QRImageView
             android:id="@+id/qr_image_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:contentDescription="@string/qr" />
+            app:qrContent="https://github.com/tribalfs/sesl-androidx"
+            app:qrIcon="@drawable/ic_launcher" />
 
-        <ImageView
+        <dev.oneuiproject.oneui.widget.QRImageView
             android:id="@+id/qr_image_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:contentDescription="@string/qr" />
+            app:qrContent="https://github.com/tribalfs/sesl-material-components-android"
+            app:qrRoundedFrame="false" />
 
-        <ImageView
+        <dev.oneuiproject.oneui.widget.QRImageView
             android:id="@+id/qr_image_3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:contentDescription="@string/qr" />
+            app:qrContent="https://github.com/tribalfs/oneui-design"
+            app:qrForegroundColor="#666999"
+            app:qrIcon="@drawable/ic_launcher"
+            app:qrRoundedFrame="true"
+            app:qrTintAnchor="true"
+            app:qrTintFrame="true" />
 
-        <ImageView
+        <dev.oneuiproject.oneui.widget.QRImageView
             android:id="@+id/qr_image_4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:contentDescription="@string/qr" />
+            android:layout_margin="10dp" />
 
     </LinearLayout>
 
