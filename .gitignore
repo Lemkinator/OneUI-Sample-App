@@ -91,11 +91,8 @@ fabric.properties
 .kotlin/
 
 /build
-/release
-app/release
-!app/release/app-release.apk
+*.aab
 
-mobile/google-services.json
 /captures
 .externalNativeBuild
 .cxx
