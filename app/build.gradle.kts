@@ -6,10 +6,8 @@ plugins {
     id("com.google.android.gms.oss-licenses-plugin")
 }
 
-val releaseStoreFile: String? by rootProject
-val releaseStorePassword: String? by rootProject
-val releaseKeyAlias: String? by rootProject
-val releaseKeyPassword: String? by rootProject
+fun String.toEnvVarStyle(): String = replace(Regex("([a-z])([A-Z])"), "$1_$2").uppercase()
+fun getProperty(key: String): String? = rootProject.findProperty(key)?.toString() ?: System.getenv(key.toEnvVarStyle())
 
 android {
     namespace = "dev.oneuiproject.oneui.oneuisampleapp"
@@ -28,18 +26,23 @@ android {
 
     signingConfigs {
         create("release") {
-            releaseStoreFile?.also {
-                storeFile = rootProject.file(it)
-                storePassword = releaseStorePassword
-                keyAlias = releaseKeyAlias
-                keyPassword = releaseKeyPassword
+            getProperty("releaseStoreFile").apply {
+                if (isNullOrEmpty()) {
+                    logger.warn("Release signing configuration not found. Using debug signing config.")
+                } else {
+                    logger.lifecycle("Using release signing configuration from: $this")
+                    storeFile = rootProject.file(this)
+                    storePassword = getProperty("releaseStorePassword")
+                    keyAlias = getProperty("releaseKeyAlias")
+                    keyPassword = getProperty("releaseKeyPassword")
+                }
             }
         }
     }
 
     buildTypes {
         all {
-            signingConfig = signingConfigs.getByName(if (releaseStoreFile.isNullOrEmpty()) "debug" else "release")
+            signingConfig = signingConfigs.getByName(if (getProperty("releaseStoreFile").isNullOrEmpty()) "debug" else "release")
         }
 
         release {
@@ -47,17 +50,14 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-
-            ndk {
-                debugSymbolLevel = "FULL"
-            }
+            ndk { debugSymbolLevel = "FULL" }
         }
         debug {
-            applicationIdSuffix = ".debug"
-            resValue("string", "app_name", "OneUI Sample App (Debug)")
             isDebuggable = true
             isMinifyEnabled = false
             isShrinkResources = false
+            applicationIdSuffix = ".debug"
+            resValue("string", "app_name", "OneUI Sample App (Debug)")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
