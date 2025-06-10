@@ -90,7 +90,7 @@ dependencies {
     implementation("sesl.androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01+1.0.1-sesl7+rev0")
     implementation("sesl.androidx.fragment:fragment:1.8.7+1.0.9-sesl7+rev0")
     implementation("sesl.androidx.recyclerview:recyclerview:1.4.0+1.0.33-sesl7+rev1")
-    implementation("sesl.androidx.appcompat:appcompat:1.7.0+1.0.47000-sesl7+rev1")
+    implementation("sesl.androidx.appcompat:appcompat:1.7.1+1.0.47000-sesl7+rev0")
     implementation("sesl.androidx.viewpager2:viewpager2:1.1.0+1.0.4-sesl7+rev0")
     implementation("sesl.androidx.preference:preference:1.2.1+1.0.12-sesl7+rev0")
     implementation("sesl.androidx.indexscroll:indexscroll:1.0.6+1.0.6-sesl7+rev3")
