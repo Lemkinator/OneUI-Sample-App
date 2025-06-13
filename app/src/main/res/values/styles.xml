@@ -21,8 +21,7 @@
     </style>
 
     <style name="ButtonStyle.Transparent" parent="ButtonStyle">
-        <item name="android:background">@drawable/oui_des_btn_transparent_bg</item>
-        <item name="android:theme">@style/OneUI.ContainedButtonTheme</item>
+        <item name="android:theme">@style/OneUI.ContainedTransparentButtonTheme</item>
     </style>
 
     <style name="ButtonStyle.Transparent.Themed" parent="ButtonStyle.Transparent">
