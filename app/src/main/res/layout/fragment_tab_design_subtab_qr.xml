@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingHorizontal="10dp">
 
         <dev.oneuiproject.oneui.widget.QRImageView
             android:id="@+id/qr_image_1"
