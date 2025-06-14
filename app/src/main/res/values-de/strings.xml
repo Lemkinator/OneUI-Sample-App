@@ -48,14 +48,11 @@
     <string name="start_end_time">Start End Time</string>
     <string name="color">Color</string>
 
-    <string name="show_fast_scroller">Fast Scroller anzeigen</string>
-    <string name="show_index_scroll">IndexScroll anzeigen</string>
-    <string name="show_letters">Buchstaben anzeigen (IndexScroll)</string>
-    <string name="hide_letters">Buchstaben ausblenden (IndexScroll)</string>
-    <string name="enable_auto_hide">Auto hide aktivieren (IndexScroll)</string>
-    <string name="disable_auto_hide">Auto hide deaktivieren (IndexScroll)</string>
     <string name="show_cancel_button">Abbrechen-Button anzeigen</string>
-    <string name="hide_cancel_button">Abbrechen-Button ausblenden</string>
+    <string name="show_index_scroll">IndexScroll anzeigen</string>
+    <string name="show_letters">Buchstaben anzeigen</string>
+    <string name="auto_hide">Auto hide</string>
+    <string name="action_mode_search_options">ActionModeSearch options</string>
     <string name="show_system_apps">System Apps anzeigen</string>
     <string name="hide_system_apps">System Apps ausblenden</string>
     <string name="search_apps">Apps suchen</string>

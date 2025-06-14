@@ -72,14 +72,12 @@
     <string name="start_end_time">Start End Time</string>
     <string name="color">Color</string>
 
-    <string name="show_fast_scroller">Show fast scroller</string>
-    <string name="show_index_scroll">Show IndexScroll</string>
-    <string name="show_letters">Show letters (IndexScroll)</string>
-    <string name="hide_letters">Hide letters (IndexScroll)</string>
-    <string name="enable_auto_hide">Enable auto hide (IndexScroll)</string>
-    <string name="disable_auto_hide">Disable auto hide (IndexScroll)</string>
     <string name="show_cancel_button">Show cancel button</string>
-    <string name="hide_cancel_button">Hide cancel button</string>
+    <string name="index_scroll" translatable="false">IndexScroll</string>
+    <string name="show_index_scroll">Show IndexScroll</string>
+    <string name="show_letters">Show letters</string>
+    <string name="auto_hide">Auto hide</string>
+    <string name="action_mode_search_options">ActionModeSearch options</string>
     <string name="show_system_apps">Show system apps</string>
     <string name="hide_system_apps">Hide system apps</string>
     <string name="search_apps">Search apps</string>

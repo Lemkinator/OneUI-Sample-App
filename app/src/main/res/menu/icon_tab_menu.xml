@@ -12,32 +12,8 @@
         tools:ignore="AlwaysShowAction,AppCompatResource" />
 
     <item
-        android:id="@+id/menu_item_show_index_scroll"
-        android:title="@string/show_fast_scroller"
-        app:showAsAction="never"
-        tools:ignore="AppCompatResource" />
-
-    <item
-        android:id="@+id/menu_item_index_scroll_letters"
-        android:title="@string/show_letters"
-        app:showAsAction="never"
-        tools:ignore="AppCompatResource" />
-
-    <item
-        android:id="@+id/menu_item_index_scroll_auto_hide"
-        android:title="@string/disable_auto_hide"
-        app:showAsAction="never"
-        tools:ignore="AppCompatResource" />
-
-    <item
-        android:id="@+id/menu_item_show_cancel"
-        android:title="@string/show_cancel_button"
-        app:showAsAction="never"
-        tools:ignore="AppCompatResource" />
-
-    <item
-        android:id="@+id/menu_item_search_on_action_mode"
-        android:title=""
+        android:id="@+id/menu_item_settings"
+        android:title="@string/settings"
         app:showAsAction="never"
         tools:ignore="AppCompatResource" />
 
