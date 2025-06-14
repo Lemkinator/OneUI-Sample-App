@@ -21,4 +21,4 @@
 -renamesourcefileattribute SourceFile
 
 -keep class dev.oneuiproject.oneui.** {*;}
--keep class dev.oneuiproject.oneui.oneuisampleapp.** {*;}
+-keep class de.lemke.oneuisample.** {*;}

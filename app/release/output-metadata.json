@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "dev.oneuiproject.oneui.oneuisampleapp",
+  "applicationId": "de.lemke.oneuisample",
   "variantName": "release",
   "elements": [
     {

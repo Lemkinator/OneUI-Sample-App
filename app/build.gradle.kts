@@ -10,11 +10,11 @@ fun String.toEnvVarStyle(): String = replace(Regex("([a-z])([A-Z])"), "$1_$2").u
 fun getProperty(key: String): String? = rootProject.findProperty(key)?.toString() ?: System.getenv(key.toEnvVarStyle())
 
 android {
-    namespace = "dev.oneuiproject.oneui.oneuisampleapp"
+    namespace = "de.lemke.oneuisample"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "dev.oneuiproject.oneui.oneuisampleapp"
+        applicationId = "de.lemke.oneuisample"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

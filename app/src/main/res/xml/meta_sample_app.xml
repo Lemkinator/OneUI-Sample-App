@@ -5,7 +5,7 @@
     <AppMetaData
         Name="OneUI Sample App"
         TargetApi="21"
-        TargetPackageName="dev.oneuiproject.oneui.oneuisampleapp"
+        TargetPackageName="de.lemke.oneuisample"
         VersionCode="1"
         VersionName="">
         <Include RefName="SESL" />
