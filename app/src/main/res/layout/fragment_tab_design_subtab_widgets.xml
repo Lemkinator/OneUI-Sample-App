@@ -138,12 +138,34 @@
                 app:showTopDivider="false"
                 app:title="CardItemView" />
 
+            <dev.oneuiproject.oneui.widget.CardItemView
+                android:id="@+id/cardItemViewEndDrawable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:drawableEnd="@drawable/ic_oui_keyboard_arrow_right"
+                app:title="CardItemView" />
+
             <dev.oneuiproject.oneui.widget.SwitchItemView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:separateSwitch="true"
                 app:title="SwitchItemView" />
 
-            <View style="@style/OneUI.ListDividerStyle" />
+            <dev.oneuiproject.oneui.widget.CardItemView
+                android:id="@+id/cardItemViewIcon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:fullWidthDivider="true"
+                app:icon="@drawable/ic_oui_category_security"
+                app:title="CardItemView" />
+
+            <dev.oneuiproject.oneui.widget.SwitchItemView
+                android:id="@+id/switchItemViewIcon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_oui_category_advanced_options"
+                app:showBottomDivider="true"
+                app:title="SwitchItemView" />
 
             <dev.oneuiproject.oneui.widget.RadioItemViewGroup
                 android:layout_width="match_parent"
