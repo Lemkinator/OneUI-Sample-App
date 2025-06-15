@@ -8,7 +8,6 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -30,11 +29,12 @@ import de.lemke.oneuisample.ui.fragments.FragmentBottomSheet
 import de.lemke.oneuisample.ui.fragments.TabDesign
 import de.lemke.oneuisample.ui.fragments.TabIcons
 import de.lemke.oneuisample.ui.fragments.TabPicker
+import de.lemke.oneuisample.ui.util.onNavigationSingleClick
+import de.lemke.oneuisample.ui.util.setupHeaderAndNavRail
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import dev.oneuiproject.oneui.R as iconsR
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -128,9 +128,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun initFragments() {
         val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-        listOf(TabDesign(), TabPicker(), TabIcons()).forEach {
-            transaction.add(R.id.fragmentContainer, it)
-        }
+        listOf(TabDesign(), TabPicker(), TabIcons()).forEach { transaction.add(R.id.fragmentContainer, it) }
         transaction.commitNowAllowingStateLoss()
         setFragment(0)
     }
@@ -146,7 +144,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun initDrawer() {
-        binding.navigationView.setNavigationItemSelectedListener { item ->
+        binding.navigationView.onNavigationSingleClick { item ->
             when (item.itemId) {
                 R.id.oobe_dest -> {
                     startActivity(Intent(this@MainActivity, OOBEActivity::class.java))
@@ -158,21 +156,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 R.id.about_custom_dest -> startActivity(Intent(this, CustomAboutActivity::class.java))
                 R.id.settings_dest -> startActivity(Intent(this, SettingsActivity::class.java))
                 R.id.bottom_sheet_dest -> FragmentBottomSheet().show(supportFragmentManager, null)
-                else -> return@setNavigationItemSelectedListener false
+                else -> return@onNavigationSingleClick false
             }
             true
         }
-        binding.drawerLayout.apply {
-            setupHeaderButton(
-                icon = AppCompatResources.getDrawable(context, iconsR.drawable.ic_oui_info_outline)!!,
-                tooltipText = getString(R.string.about_app),
-                listener = { startActivity(Intent(this@MainActivity, AboutActivity::class.java)) }
-            )
-            setNavRailContentMinSideMargin(14)
-            setAppBarSuggestView(createSuggestAppBarModel())
-            closeNavRailOnBack = true
-            //isImmersiveScroll = true
-        }
+        binding.drawerLayout.setupHeaderAndNavRail(getString(R.string.about_app))
+        binding.drawerLayout.setAppBarSuggestView(createSuggestAppBarModel())
+        //binding.drawerLayout.isImmersiveScroll = true
     }
 
     private fun createSuggestAppBarModel(): SuggestAppBarModel<SuggestAppBarView> =
@@ -194,26 +184,20 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
             }
             addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                override fun onTabSelected(tab: TabLayout.Tab) {
-                    setFragment(tab.position)
-                }
-
+                override fun onTabSelected(tab: TabLayout.Tab) = setFragment(tab.position)
                 override fun onTabUnselected(tab: TabLayout.Tab) {}
                 override fun onTabReselected(tab: TabLayout.Tab) {
                     try {
                         when (tab.text) {
-                            getString(R.string.design) -> {
-                                val subTabs: TabLayout = findViewById(R.id.fragmentDesignSubTabs)
-                                val newTabIndex = subTabs.selectedTabPosition + 1
-                                if (newTabIndex < subTabs.tabCount) subTabs.getTabAt(newTabIndex)?.select()
-                                else subTabs.getTabAt(0)?.select()
+                            getString(R.string.design) -> findViewById<TabLayout>(R.id.fragmentDesignSubTabs).apply {
+                                val newTabIndex = selectedTabPosition + 1
+                                if (newTabIndex < tabCount) getTabAt(newTabIndex)?.select() else getTabAt(0)?.select()
                             }
 
                             getString(R.string.picker) -> binding.drawerLayout.setExpanded(!binding.drawerLayout.isExpanded, true)
 
-                            getString(R.string.icons) -> {
-                                val iconsRecyclerView: RecyclerView = findViewById(R.id.iconList)
-                                if (iconsRecyclerView.canScrollVertically(-1)) iconsRecyclerView.smoothScrollToPosition(0)
+                            getString(R.string.icons) -> findViewById<RecyclerView>(R.id.iconList).apply {
+                                if (canScrollVertically(-1)) smoothScrollToPosition(0)
                                 else binding.drawerLayout.setExpanded(!binding.drawerLayout.isExpanded, true)
                             }
                         }
