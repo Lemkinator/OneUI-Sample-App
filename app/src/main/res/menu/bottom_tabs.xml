@@ -22,11 +22,6 @@
         android:title="@string/seek_bar" />
 
     <item
-        android:id="@+id/menu_item_bottom_sheet"
-        android:icon="@drawable/ic_oui_navigationbar"
-        android:title="@string/bottom_sheet" />
-
-    <item
         android:id="@+id/menu_item_app_picker"
         android:icon="@drawable/ic_oui_all_apps"
         android:title="@string/app_picker" />

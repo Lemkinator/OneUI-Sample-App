@@ -36,16 +36,6 @@
         <item name="tint">@color/primary_color_themed</item>
     </style>
 
-    <style name="DrawerDividerStyle">
-        <item name="android:layout_marginTop">6dp</item>
-        <item name="android:layout_marginBottom">6dp</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">3dp</item>
-        <item name="android:layout_marginStart">14dp</item>
-        <item name="android:layout_marginEnd">14dp</item>
-        <item name="android:foreground">@drawable/drawer_item_separator_bg</item>
-    </style>
-
     <!-- OOBE -->
     <style name="OOBE.TextView.ToS" parent="TextAppearance.AppCompat">
         <item name="android:textSize">14sp</item>

@@ -23,7 +23,7 @@
     <!--About-->
     <string name="about_app">About OneUI Sample</string>
     <string name="version">Version %1$s</string>
-    <string name="custom_about_oneui_sample_screen" translatable="false">Custom About OneUI Sample Screen</string>
+    <string name="about_custom" translatable="false">Custom About OneUI Sample</string>
     <string name="status" translatable="false">Status</string>
     <string name="oneui_project_team" translatable="false">OneUI Project Team</string>
     <string name="open_source_licenses">Open source licenses</string>

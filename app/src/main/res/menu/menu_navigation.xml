@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="AppCompatResource,HardcodedText,AlwaysShowAction">
+
+    <item
+        android:id="@+id/bottom_sheet_dest"
+        android:icon="@drawable/ic_oui_category_advanced_options"
+        android:title="@string/bottom_sheet"
+        app:actionViewClass="dev.oneuiproject.oneui.navigation.widget.DrawerCategoryItemView" />
+
+    <group android:id="@+id/navigation_oobe_group">
+
+        <item
+            android:id="@+id/oobe_dest"
+            android:icon="@drawable/ic_oui_device_outline"
+            android:title="@string/oobe"
+            app:showAsAction="always" />
+
+    </group>
+
+    <group android:id="@+id/navigation_about_group">
+
+        <item
+            android:id="@+id/about_app_dest"
+            android:icon="@drawable/ic_oui_info_outline"
+            android:title="@string/about_app"
+            app:showAsAction="always" />
+
+        <item
+            android:id="@+id/about_custom_dest"
+            android:icon="@drawable/ic_oui_labs_outline"
+            android:title="@string/about_custom"
+            app:showAsAction="always" />
+
+    </group>
+
+    <item
+        android:id="@+id/settings_dest"
+        android:icon="@drawable/ic_oui_settings_outline"
+        android:title="@string/settings"
+        app:showAsAction="always" />
+
+</menu>

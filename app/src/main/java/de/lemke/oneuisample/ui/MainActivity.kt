@@ -7,15 +7,9 @@ import android.content.Intent.ACTION_SEARCH
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.util.Log
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.MarginLayoutParams
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.children
-import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle.State.RESUMED
@@ -32,24 +26,12 @@ import de.lemke.oneuisample.databinding.ActivityMainBinding
 import de.lemke.oneuisample.domain.AppStart
 import de.lemke.oneuisample.domain.CheckAppStartUseCase
 import de.lemke.oneuisample.domain.GetUserSettingsUseCase
-import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
 import de.lemke.oneuisample.ui.fragments.FragmentBottomSheet
 import de.lemke.oneuisample.ui.fragments.TabDesign
 import de.lemke.oneuisample.ui.fragments.TabIcons
 import de.lemke.oneuisample.ui.fragments.TabPicker
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
-import dev.oneuiproject.oneui.ktx.dpToPx
-import dev.oneuiproject.oneui.ktx.onSingleClick
-import dev.oneuiproject.oneui.layout.DrawerLayout.DrawerState.CLOSE
-import dev.oneuiproject.oneui.layout.DrawerLayout.DrawerState.CLOSING
-import dev.oneuiproject.oneui.layout.DrawerLayout.DrawerState.OPEN
-import dev.oneuiproject.oneui.layout.DrawerLayout.DrawerState.OPENING
-import dev.oneuiproject.oneui.layout.NavDrawerLayout
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import dev.oneuiproject.oneui.R as iconsR
@@ -57,17 +39,12 @@ import dev.oneuiproject.oneui.R as iconsR
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var drawerListView: LinearLayout
     private var selectedPosition = -1
     private var time: Long = 0
     private var isUIReady = false
-    private val drawerItemTitles: MutableList<TextView> = mutableListOf()
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
-
-    @Inject
-    lateinit var updateUserSettings: UpdateUserSettingsUseCase
 
     @Inject
     lateinit var checkAppStart: CheckAppStartUseCase
@@ -169,24 +146,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun initDrawer() {
-        drawerListView = findViewById(R.id.drawerListView)
-        drawerItemTitles.apply {
-            clear()
-            add(findViewById(R.id.drawerItemOOBETitle))
-            add(findViewById(R.id.drawerItemAboutAppTitle))
-            add(findViewById(R.id.drawerItemCustomAboutAppTitle))
-            add(findViewById(R.id.drawerItemSettingsTitle))
+        binding.navigationView.setNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.oobe_dest -> {
+                    startActivity(Intent(this@MainActivity, OOBEActivity::class.java))
+                    @Suppress("DEPRECATION") if (SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
+                    finishAfterTransition()
+                }
+
+                R.id.about_app_dest -> startActivity(Intent(this, AboutActivity::class.java))
+                R.id.about_custom_dest -> startActivity(Intent(this, CustomAboutActivity::class.java))
+                R.id.settings_dest -> startActivity(Intent(this, SettingsActivity::class.java))
+                R.id.bottom_sheet_dest -> FragmentBottomSheet().show(supportFragmentManager, null)
+                else -> return@setNavigationItemSelectedListener false
+            }
+            true
         }
-        findViewById<LinearLayout>(R.id.drawerItemOOBE).onSingleClick {
-            startActivity(Intent(this@MainActivity, OOBEActivity::class.java))
-            @Suppress("DEPRECATION") if (SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
-            finishAfterTransition()
-        }
-        findViewById<LinearLayout>(R.id.drawerItemAboutApp).onSingleClick { startActivity(Intent(this, AboutActivity::class.java)) }
-        findViewById<LinearLayout>(R.id.drawerItemCustomAboutApp).onSingleClick {
-            startActivity(Intent(this, CustomAboutActivity::class.java))
-        }
-        findViewById<LinearLayout>(R.id.drawerItemSettings).onSingleClick { startActivity(Intent(this, SettingsActivity::class.java)) }
         binding.drawerLayout.apply {
             setupHeaderButton(
                 icon = AppCompatResources.getDrawable(context, iconsR.drawable.ic_oui_info_outline)!!,
@@ -197,46 +172,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             setAppBarSuggestView(createSuggestAppBarModel())
             closeNavRailOnBack = true
             //isImmersiveScroll = true
-            //setupNavRailFadeEffect
-            if (isLargeScreenMode) {
-                setDrawerStateListener {
-                    when (it) {
-                        OPEN -> offsetUpdaterJob?.cancel().also { updateOffset(1f) }
-                        CLOSE -> offsetUpdaterJob?.cancel().also { updateOffset(0f) }
-                        CLOSING, OPENING -> startOffsetUpdater()
-                    }
-                }
-                //Set initial offset
-                post { updateOffset(drawerOffset) }
-            }
-        }
-    }
-
-    private var offsetUpdaterJob: Job? = null
-    private fun NavDrawerLayout.startOffsetUpdater() {
-        //Ensure no duplicate job is running
-        if (offsetUpdaterJob?.isActive == true) return
-        offsetUpdaterJob = CoroutineScope(Dispatchers.Main).launch {
-            while (isActive) {
-                updateOffset(drawerOffset)
-                delay(50)
-            }
-        }
-    }
-
-    fun updateOffset(offset: Float) {
-        drawerItemTitles.forEach { it.alpha = offset }
-        drawerListView.children.forEach {
-            it.post {
-                if (offset == 0f) {
-                    it.updateLayoutParams<MarginLayoutParams> {
-                        width = if (it is LinearLayout) 52f.dpToPx(it.context.resources) //drawer item
-                        else 25f.dpToPx(it.context.resources) //divider item
-                    }
-                } else if (it.width != MATCH_PARENT) {
-                    it.updateLayoutParams<MarginLayoutParams> { width = MATCH_PARENT }
-                }
-            }
         }
     }
 
@@ -254,7 +189,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.menu_item_seek_bar -> startActivity(Intent(this@MainActivity, SeekBarActivity::class.java)).let { true }
-                    R.id.menu_item_bottom_sheet -> FragmentBottomSheet().show(supportFragmentManager, null).let { true }
                     R.id.menu_item_app_picker -> startActivity(Intent(this@MainActivity, AppPickerActivity::class.java)).let { true }
                     else -> false
                 }

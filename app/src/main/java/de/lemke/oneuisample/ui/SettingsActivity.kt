@@ -134,9 +134,7 @@ class SettingsActivity : AppCompatActivity() {
             }
             findPreference<UpdatableWidgetPreference>("updatable")?.onClick {
                 it.widgetLayoutResource = R.layout.sample_pref_widget_progress
-                view?.postDelayed(Runnable {
-                    it.widgetLayoutResource = R.layout.sample_pref_widget_check
-                }, 2000)
+                view?.postDelayed(Runnable { it.widgetLayoutResource = R.layout.sample_pref_widget_check }, 2000)
             }
             val tips = findPreference<TipsCardPreference>("tip")
             tips?.addButton("Button") { suggestiveSnackBar("onClick") }
@@ -147,9 +145,7 @@ class SettingsActivity : AppCompatActivity() {
             super.onViewCreated(view, savedInstanceState)
             requireView().setBackgroundColor(resources.getColor(designR.color.oui_des_background_color, settingsActivity.theme))
             addRelativeLinksCard(
-                RelativeLink(getString(R.string.custom_about_oneui_sample_screen)) {
-                    startActivity(Intent(settingsActivity, CustomAboutActivity::class.java))
-                }
+                RelativeLink(getString(R.string.about_custom)) { startActivity(Intent(settingsActivity, CustomAboutActivity::class.java)) }
             )
         }
 
