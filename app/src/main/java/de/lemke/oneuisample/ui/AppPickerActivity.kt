@@ -1,44 +1,43 @@
 package de.lemke.oneuisample.ui
 
-import android.content.pm.ApplicationInfo.FLAG_SYSTEM
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
-import android.content.pm.PackageManager.GET_META_DATA
-import android.content.pm.PackageManager.PackageInfoFlags
 import android.graphics.ColorFilter
-import android.os.Build.VERSION.SDK_INT
-import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.SeslMenuItem
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle.State.CREATED
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.LottieProperty.COLOR_FILTER
 import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisample.R
+import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
+import de.lemke.oneuisample.domain.GetUserSettingsUseCase
+import de.lemke.oneuisample.domain.ObserveAppsUseCase
+import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
+import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.AppPickerDelegate
 import dev.oneuiproject.oneui.delegates.AppPickerOp
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
 import dev.oneuiproject.oneui.ktx.setEntries
-import dev.oneuiproject.oneui.layout.ToolbarLayout
+import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
 import dev.oneuiproject.oneui.layout.startSearchMode
-import de.lemke.oneuisample.R
-import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
-import de.lemke.oneuisample.domain.GetUserSettingsUseCase
-import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
-import de.lemke.oneuisample.ui.util.suggestiveSnackBar
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint
 class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator(), AppPickerOp by AppPickerDelegate() {
     private lateinit var binding: ActivityAppPickerBinding
-    private var showSystemApps = false
+    private var apps: ArrayList<String> = ArrayList()
     private var search = ""
 
     @Inject
@@ -47,25 +46,8 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     @Inject
     lateinit var updateUserSettings: UpdateUserSettingsUseCase
 
-    data class App(val packageName: String, val isSystemApp: Boolean)
-
-    private val apps: List<App> by lazy {
-        packageManager.getInstalledPackagesCompat(GET_META_DATA).map {
-            App(packageName = it.packageName, isSystemApp = (it.applicationInfo?.flags?.and(FLAG_SYSTEM) ?: 1) != 0)
-        }
-    }
-
-    private val packageNames get() = apps.filter { showSystemApps || !it.isSystemApp }.map { it.packageName }
-
-    fun PackageManager.getInstalledPackagesCompat(flags: Int = 0): List<PackageInfo> =
-        if (SDK_INT >= TIRAMISU) getInstalledPackages(PackageInfoFlags.of(flags.toLong()))
-        else getInstalledPackages(0)
-
-    private fun refreshApps() {
-        binding.appPickerProgress.isVisible = true
-        refreshAppList()
-        binding.appPickerProgress.isVisible = false
-    }
+    @Inject
+    lateinit var observeApps: ObserveAppsUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,7 +58,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             seslSetSmoothScrollEnabled(true)
             configure(
                 lifecycleOwner = this@AppPickerActivity,
-                onGetCurrentList = { ArrayList(packageNames) },
+                onGetCurrentList = { apps },
                 onItemClicked = { _, _, appLabel -> suggestiveSnackBar("$appLabel clicked!") },
                 onItemCheckChanged = { _, _, appLabel, isChecked -> },
                 onSelectAllChanged = { _, isChecked -> },
@@ -85,8 +67,11 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         }
         initSpinner()
         lifecycleScope.launch {
-            showSystemApps = getUserSettings().showSystemApps
-            refreshApps()
+            observeApps().flowWithLifecycle(lifecycle, CREATED).collectLatest {
+                apps = ArrayList(it)
+                refreshAppList()
+                binding.appPickerProgress.isVisible = false
+            }
         }
         binding.noEntryView.translateYWithAppBar(binding.toolbarLayout.appBarLayout, this)
     }
@@ -94,28 +79,29 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.app_picker, menu)
         val systemAppsItem = menu.findItem(R.id.menu_item_app_picker_system)
-        (systemAppsItem as SeslMenuItem).badgeText = getString(dev.oneuiproject.oneui.design.R.string.oui_des_new_badge_text)
+        (systemAppsItem as SeslMenuItem).badgeText = getString(designR.string.oui_des_new_badge_text)
         lifecycleScope.launch {
-            showSystemApps = getUserSettings().showSystemApps
-            systemAppsItem.title = getString(if (showSystemApps) R.string.hide_system_apps else R.string.show_system_apps)
+            systemAppsItem.title = getString(if (getUserSettings().showSystemApps) R.string.hide_system_apps else R.string.show_system_apps)
         }
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.menu_app_picker_search -> binding.toolbarLayout.startSearchMode(
-            onStart = { it.queryHint = "Search app"; },
+            onStart = { it.queryHint = "Search apps"; },
             onQuery = { query, _ -> search = query; applyFilter(query); true },
             onEnd = { applyFilter() },
-            onBackBehavior = ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
+            onBackBehavior = CLEAR_DISMISS
         ).let { true }
 
         R.id.menu_item_app_picker_system -> {
             (item as SeslMenuItem).badgeText = null
-            showSystemApps = !showSystemApps
-            lifecycleScope.launch { updateUserSettings { it.copy(showSystemApps = showSystemApps) } }
-            item.title = getString(if (showSystemApps) R.string.hide_system_apps else R.string.show_system_apps)
-            refreshApps()
+            lifecycleScope.launch {
+                item.title = getString(
+                    if (updateUserSettings { it.copy(showSystemApps = !it.showSystemApps) }.showSystemApps) R.string.hide_system_apps
+                    else R.string.show_system_apps
+                )
+            }
             true
         }
 
@@ -131,8 +117,12 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             setEntries(categories) { position, _ ->
                 position?.let {
                     setListType(position)
-                    if (binding.toolbarLayout.isSearchMode) applyFilter(search)
-                    lifecycleScope.launch { updateUserSettings { it.copy(appPickerType = position) } }
+                    lifecycleScope.launch {
+                        if (binding.toolbarLayout.isSearchMode) {
+                            delay(100); applyFilter(search)
+                        }
+                        updateUserSettings { it.copy(appPickerType = position) }
+                    }
                 }
             }
             lifecycleScope.launch { setSelection(getUserSettings().appPickerType) }

@@ -18,6 +18,7 @@
 
     <string name="no_browser_app_installed">No browser app installed…</string>
     <string name="error_cant_open_url">Error: URL could not be opened.</string>
+    <string name="error_loading_apps">Error loading apps</string>
 
     <!--About-->
     <string name="about_app">About OneUI Sample</string>

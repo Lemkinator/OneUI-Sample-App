@@ -7,6 +7,7 @@
     <string name="open_source_licenses">Open-Source-Lizenzen</string>
     <string name="no_browser_app_installed">Keine Browser-App installiert…</string>
     <string name="error_cant_open_url">Fehler: URL konnte nicht geöffnet werden.</string>
+    <string name="error_loading_apps">Fehler beim Laden der Apps</string>
 
     <!--Settings-->
     <string name="design">Design</string>
