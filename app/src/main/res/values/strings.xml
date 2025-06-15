@@ -60,13 +60,14 @@
     <string name="search_filter">Search Filter</string>
     <string name="no_entry">No Entry</string>
 
-    <string name="icons">Icons</string>
-    <string name="picker">Picker</string>
-    <string name="seek_bar">SeekBar</string>
-    <string name="app_picker">AppPicker</string>
-    <string name="widgets">Widgets</string>
-    <string name="progress_bar">ProgressBar</string>
-    <string name="qr">QR</string>
+    <string name="icons" translatable="false">Icons</string>
+    <string name="picker" translatable="false">Picker</string>
+    <string name="seek_bar" translatable="false">SeekBar</string>
+    <string name="bottom_sheet" translatable="false">Bottom Sheet</string>
+    <string name="app_picker" translatable="false">AppPicker</string>
+    <string name="widgets" translatable="false">Widgets</string>
+    <string name="progress_bar" translatable="false">ProgressBar</string>
+    <string name="qr" translatable="false">QR</string>
 
     <string name="date">Date</string>
     <string name="time">Time</string>

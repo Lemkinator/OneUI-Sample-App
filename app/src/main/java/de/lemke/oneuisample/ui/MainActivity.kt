@@ -22,8 +22,22 @@ import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.lifecycle.Lifecycle.State.STARTED
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.model.ButtonModel
+import com.google.android.material.appbar.model.SuggestAppBarModel
+import com.google.android.material.appbar.model.view.SuggestAppBarView
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisample.R
+import de.lemke.oneuisample.databinding.ActivityMainBinding
+import de.lemke.oneuisample.domain.AppStart
+import de.lemke.oneuisample.domain.CheckAppStartUseCase
+import de.lemke.oneuisample.domain.GetUserSettingsUseCase
+import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
+import de.lemke.oneuisample.ui.fragments.FragmentBottomSheet
+import de.lemke.oneuisample.ui.fragments.TabDesign
+import de.lemke.oneuisample.ui.fragments.TabIcons
+import de.lemke.oneuisample.ui.fragments.TabPicker
+import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.dpToPx
 import dev.oneuiproject.oneui.ktx.onSingleClick
 import dev.oneuiproject.oneui.layout.DrawerLayout.DrawerState.CLOSE
@@ -31,15 +45,6 @@ import dev.oneuiproject.oneui.layout.DrawerLayout.DrawerState.CLOSING
 import dev.oneuiproject.oneui.layout.DrawerLayout.DrawerState.OPEN
 import dev.oneuiproject.oneui.layout.DrawerLayout.DrawerState.OPENING
 import dev.oneuiproject.oneui.layout.NavDrawerLayout
-import de.lemke.oneuisample.R
-import de.lemke.oneuisample.databinding.ActivityMainBinding
-import de.lemke.oneuisample.domain.AppStart
-import de.lemke.oneuisample.domain.CheckAppStartUseCase
-import de.lemke.oneuisample.domain.GetUserSettingsUseCase
-import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
-import de.lemke.oneuisample.ui.fragments.TabDesign
-import de.lemke.oneuisample.ui.fragments.TabIcons
-import de.lemke.oneuisample.ui.fragments.TabPicker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -183,10 +188,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
         findViewById<LinearLayout>(R.id.drawerItemSettings).onSingleClick { startActivity(Intent(this, SettingsActivity::class.java)) }
         binding.drawerLayout.apply {
-            setHeaderButtonIcon(AppCompatResources.getDrawable(context, iconsR.drawable.ic_oui_info_outline))
-            setHeaderButtonTooltip(getString(R.string.about_app))
-            setHeaderButtonOnClickListener { startActivity(Intent(this@MainActivity, AboutActivity::class.java)) }
+            setupHeaderButton(
+                icon = AppCompatResources.getDrawable(context, iconsR.drawable.ic_oui_info_outline)!!,
+                tooltipText = getString(R.string.about_app),
+                listener = { startActivity(Intent(this@MainActivity, AboutActivity::class.java)) }
+            )
             setNavRailContentMinSideMargin(14)
+            setAppBarSuggestView(createSuggestAppBarModel())
             closeNavRailOnBack = true
             //isImmersiveScroll = true
             //setupNavRailFadeEffect
@@ -232,11 +240,21 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    private fun createSuggestAppBarModel(): SuggestAppBarModel<SuggestAppBarView> =
+        SuggestAppBarModel.Builder(this).apply {
+            setTitle("This is an a suggestion view")
+            setCloseClickListener { _, _ -> binding.drawerLayout.setAppBarSuggestView(null) }
+            setButtons(
+                arrayListOf(ButtonModel(text = "Action Button", clickListener = { _, _ -> suggestiveSnackBar("Action button clicked!") }))
+            )
+        }.build()
+
     private fun initTabLayout() {
         binding.bottomTab.apply {
             setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.menu_item_seek_bar -> startActivity(Intent(this@MainActivity, SeekBarActivity::class.java)).let { true }
+                    R.id.menu_item_bottom_sheet -> FragmentBottomSheet().show(supportFragmentManager, null).let { true }
                     R.id.menu_item_app_picker -> startActivity(Intent(this@MainActivity, AppPickerActivity::class.java)).let { true }
                     else -> false
                 }
