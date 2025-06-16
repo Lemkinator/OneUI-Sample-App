@@ -10,6 +10,7 @@
 [![](https://img.shields.io/github/contributors/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App/graphs/contributors)
 [![](https://img.shields.io/github/repo-size/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App)
 [![](https://sloc.xyz/github/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App)
+[![CodeFactor](https://www.codefactor.io/repository/github/lemkinator/oneui-sample-app/badge)](https://www.codefactor.io/repository/github/lemkinator/oneui-sample-app)
 
 # OneUI Sample App
 
