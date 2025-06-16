@@ -189,14 +189,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 override fun onTabReselected(tab: TabLayout.Tab) {
                     try {
                         when (tab.text) {
-                            getString(R.string.design) -> findViewById<TabLayout>(R.id.fragmentDesignSubTabs).apply {
-                                val newTabIndex = selectedTabPosition + 1
-                                if (newTabIndex < tabCount) getTabAt(newTabIndex)?.select() else getTabAt(0)?.select()
-                            }
+                            getString(R.string.design) -> binding.fragmentContainer.findViewById<TabLayout>(R.id.fragmentDesignSubTabs)
+                                .apply { getTabAt((selectedTabPosition + 1) % tabCount)?.select() }
 
                             getString(R.string.picker) -> binding.drawerLayout.setExpanded(!binding.drawerLayout.isExpanded, true)
 
-                            getString(R.string.icons) -> findViewById<RecyclerView>(R.id.iconList).apply {
+                            getString(R.string.icons) -> binding.fragmentContainer.findViewById<RecyclerView>(R.id.iconList).apply {
                                 if (canScrollVertically(-1)) smoothScrollToPosition(0)
                                 else binding.drawerLayout.setExpanded(!binding.drawerLayout.isExpanded, true)
                             }

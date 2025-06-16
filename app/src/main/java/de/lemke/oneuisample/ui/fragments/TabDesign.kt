@@ -1,22 +1,17 @@
 package de.lemke.oneuisample.ui.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
-import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignBinding
+import de.lemke.oneuisample.ui.util.autoCleared
 
-@AndroidEntryPoint
-class TabDesign : Fragment() {
-    private lateinit var binding: FragmentTabDesignBinding
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        FragmentTabDesignBinding.inflate(inflater, container, false).also { binding = it }.root
+class TabDesign : Fragment(R.layout.fragment_tab_design) {
+    private val binding by autoCleared { FragmentTabDesignBinding.bind(requireView()) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
