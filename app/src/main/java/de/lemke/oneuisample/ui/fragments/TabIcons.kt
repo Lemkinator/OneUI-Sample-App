@@ -168,8 +168,8 @@ class TabIcons : Fragment(), ViewYTranslator by AppBarAwareYTranslator() {
             onSwiped = { position, swipeDirection, _ ->
                 val icon = iconAdapter.getItemByPosition(position)
                 when (swipeDirection) {
-                    START -> suggestiveSnackBar("${(icon.name)}: Right to Left")
-                    END -> suggestiveSnackBar("${(icon.name)}: Left to Right")
+                    START -> suggestiveSnackBar("${icon.name}: Right to Left")
+                    END -> suggestiveSnackBar("${icon.name}: Left to Right")
                 }
                 true
             }
