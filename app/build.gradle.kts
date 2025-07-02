@@ -95,7 +95,7 @@ dependencies {
     implementation("sesl.androidx.preference:preference:1.2.1+1.0.12-sesl7+rev0")
     implementation("sesl.androidx.indexscroll:indexscroll:1.0.6+1.0.6-sesl7+rev3")
     implementation("sesl.androidx.picker:picker-basic:1.0.17+1.0.17-sesl6+rev2")
-    implementation("sesl.androidx.picker:picker-color:1.0.6+1.0.6-sesl7+rev0")
+    implementation("sesl.androidx.picker:picker-color:1.0.19+1.0.19-sesl7+rev0")
     implementation("sesl.androidx.apppickerview:apppickerview:1.0.1+1.0.1-sesl7+rev1")
     //SESL Material Components + Design Lib + Icons
     implementation("sesl.com.google.android.material:material:1.12.0+1.0.39-sesl7+rev5")
