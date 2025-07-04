@@ -85,7 +85,7 @@ android {
 
 dependencies {
     //SESL Android Jetpack
-    implementation("sesl.androidx.core:core:1.16.0+1.0.16-sesl7+rev0")
+    implementation("sesl.androidx.core:core:1.16.0+1.0.16-sesl7+rev1")
     implementation("sesl.androidx.core:core-ktx:1.16.0+1.0.0-sesl8+rev0")
     implementation("sesl.androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01+1.0.1-sesl7+rev0")
     implementation("sesl.androidx.fragment:fragment:1.8.8+1.0.9-sesl7+rev0")
