@@ -11,10 +11,4 @@
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction,AppCompatResource" />
 
-    <item
-        android:id="@+id/menu_item_app_picker_system"
-        android:title="@string/show_system_apps"
-        app:showAsAction="never"
-        tools:ignore="AppCompatResource" />
-
 </menu>

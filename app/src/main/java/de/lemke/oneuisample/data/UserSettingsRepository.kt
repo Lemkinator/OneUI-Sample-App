@@ -6,10 +6,8 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import dev.oneuiproject.oneui.layout.ToolbarLayout
 import de.lemke.oneuisample.data.SearchOnActionMode.Companion.DEFAULT
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
+import dev.oneuiproject.oneui.layout.ToolbarLayout
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -24,9 +22,6 @@ class UserSettingsRepository @Inject constructor(
 
     /** Returns a user settings flow. */
     fun observeUserSettings() = dataStore.data.map(::settingsFromPreferences)
-
-    /** Emits the current showSystemApps setting. */
-    fun observeShowSystemApps(): Flow<Boolean> = dataStore.data.map { it[KEY_SHOW_SYSTEM_APPS] == true }.distinctUntilChanged()
 
     /**
      * Updates the current user settings and returns the new settings.
@@ -43,7 +38,6 @@ class UserSettingsRepository @Inject constructor(
             it[KEY_DEV_MODE_ENABLED] = newSettings.devModeEnabled
             it[KEY_SEARCH] = newSettings.search
             it[KEY_SEARCH_ACTIVE] = newSettings.searchActive
-            it[KEY_SHOW_SYSTEM_APPS] = newSettings.showSystemApps
             it[KEY_APP_PICKER_TYPE] = newSettings.appPickerType
             it[KEY_SAMPLE_SWITCH_BAR] = newSettings.sampleSwitchBar
             it[KEY_SHOW_INDEX_SCROLL] = newSettings.showIndexScroll
@@ -65,7 +59,6 @@ class UserSettingsRepository @Inject constructor(
         devModeEnabled = prefs[KEY_DEV_MODE_ENABLED] == true,
         search = prefs[KEY_SEARCH] ?: "",
         searchActive = prefs[KEY_SEARCH_ACTIVE] == true,
-        showSystemApps = prefs[KEY_SHOW_SYSTEM_APPS] == true,
         appPickerType = prefs[KEY_APP_PICKER_TYPE] ?: 0,
         sampleSwitchBar = prefs[KEY_SAMPLE_SWITCH_BAR] == true,
         showIndexScroll = prefs[KEY_SHOW_INDEX_SCROLL] != false,
@@ -85,7 +78,6 @@ class UserSettingsRepository @Inject constructor(
         private val KEY_DEV_MODE_ENABLED = booleanPreferencesKey("devModeEnabled")
         private val KEY_SEARCH = stringPreferencesKey("search")
         private val KEY_SEARCH_ACTIVE = booleanPreferencesKey("searchActive")
-        private val KEY_SHOW_SYSTEM_APPS = booleanPreferencesKey("showSystemApps")
         private val KEY_APP_PICKER_TYPE = intPreferencesKey("appPickerType")
         private val KEY_SAMPLE_SWITCH_BAR = booleanPreferencesKey("sampleSwitchBar")
         private val KEY_SHOW_INDEX_SCROLL = booleanPreferencesKey("showIndexScroll")
@@ -114,8 +106,6 @@ data class UserSettings(
     val search: String,
     /** search active */
     val searchActive: Boolean,
-    /** show system apps*/
-    val showSystemApps: Boolean,
     /** app picker type*/
     val appPickerType: Int,
     /** sample switchBar*/

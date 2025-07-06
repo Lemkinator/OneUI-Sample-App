@@ -1,15 +1,23 @@
 package de.lemke.oneuisample.ui
 
+import android.content.Context
 import android.graphics.ColorFilter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.menu.SeslMenuItem
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.lifecycle.Lifecycle.State.CREATED
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.picker.di.AppPickerContext
+import androidx.picker.helper.SeslAppInfoDataHelper
+import androidx.picker.model.AppInfo
+import androidx.picker.model.AppInfoData
+import androidx.picker.model.viewdata.AllAppsViewData
+import androidx.picker.widget.AppPickerState.OnStateChangeListener
+import androidx.picker.widget.SeslAppPickerGridView
+import androidx.picker.widget.SeslAppPickerView
+import androidx.picker.widget.SeslAppPickerView.Companion.ORDER_ASCENDING
 import com.airbnb.lottie.LottieProperty.COLOR_FILTER
 import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
@@ -18,27 +26,24 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
 import de.lemke.oneuisample.domain.GetUserSettingsUseCase
-import de.lemke.oneuisample.domain.ObserveAppsUseCase
 import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
+import de.lemke.oneuisample.ui.util.ListTypes
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
-import dev.oneuiproject.oneui.delegates.AppPickerDelegate
-import dev.oneuiproject.oneui.delegates.AppPickerOp
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
+import dev.oneuiproject.oneui.ktx.dpToPx
+import dev.oneuiproject.oneui.ktx.seslSetFastScrollerAdditionalPadding
 import dev.oneuiproject.oneui.ktx.setEntries
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
 import dev.oneuiproject.oneui.layout.startSearchMode
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint
-class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator(), AppPickerOp by AppPickerDelegate() {
+class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator() {
     private lateinit var binding: ActivityAppPickerBinding
-    private var apps: ArrayList<String> = ArrayList()
-    private var search = ""
+    private val packageManagerHelper by lazy { AppPickerContext(this).packageManagerHelper }
+    private var currentPicker: SeslAppPickerView? = null
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
@@ -46,103 +51,112 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     @Inject
     lateinit var updateUserSettings: UpdateUserSettingsUseCase
 
-    @Inject
-    lateinit var observeApps: ObserveAppsUseCase
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAppPickerBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.appPicker.apply {
-            itemAnimator = null
-            seslSetSmoothScrollEnabled(true)
-            configure(
-                lifecycleOwner = this@AppPickerActivity,
-                onGetCurrentList = { apps },
-                onItemClicked = { _, _, appLabel -> suggestiveSnackBar("$appLabel clicked!") },
-                onItemCheckChanged = { _, _, appLabel, isChecked -> },
-                onSelectAllChanged = { _, isChecked -> },
-                onItemActionClicked = { _, _, appLabel -> suggestiveSnackBar("$appLabel action button clicked!") }
-            )
-        }
         initSpinner()
-        lifecycleScope.launch {
-            observeApps().flowWithLifecycle(lifecycle, CREATED).collectLatest {
-                apps = ArrayList(it)
-                refreshAppList()
-                binding.appPickerProgress.isVisible = false
-            }
-        }
         binding.noEntryView.translateYWithAppBar(binding.toolbarLayout.appBarLayout, this)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.app_picker, menu)
-        val systemAppsItem = menu.findItem(R.id.menu_item_app_picker_system)
-        (systemAppsItem as SeslMenuItem).badgeText = getString(designR.string.oui_des_new_badge_text)
-        lifecycleScope.launch {
-            systemAppsItem.title = getString(if (getUserSettings().showSystemApps) R.string.hide_system_apps else R.string.show_system_apps)
-        }
-        return true
-    }
-
+    override fun onCreateOptionsMenu(menu: Menu): Boolean = menuInflater.inflate(R.menu.app_picker, menu).let { true }
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.menu_app_picker_search -> binding.toolbarLayout.startSearchMode(
-            onStart = { it.queryHint = "Search apps"; },
-            onQuery = { query, _ -> search = query; applyFilter(query); true },
-            onEnd = { applyFilter() },
+            onStart = { it.queryHint = "Search apps"; binding.appPickerSpinner.isEnabled = false },
+            onQuery = { query, _ -> applyFilter(query); true },
+            onEnd = { applyFilter(); binding.appPickerSpinner.isEnabled = true },
             onBackBehavior = CLEAR_DISMISS
         ).let { true }
-
-        R.id.menu_item_app_picker_system -> {
-            (item as SeslMenuItem).badgeText = null
-            lifecycleScope.launch {
-                item.title = getString(
-                    if (updateUserSettings { it.copy(showSystemApps = !it.showSystemApps) }.showSystemApps) R.string.hide_system_apps
-                    else R.string.show_system_apps
-                )
-            }
-            true
-        }
 
         else -> false
     }
 
     private fun initSpinner() {
         binding.appPickerSpinner.apply {
-            val categories = listOf(
-                "List", "List, Action Button", "List, CheckBox", "List, CheckBox, All apps", "List, RadioButton",
-                "List, Switch", "List, Switch, All apps", "Grid", "Grid, CheckBox"
-            )
-            setEntries(categories) { position, _ ->
-                position?.let {
-                    setListType(position)
-                    lifecycleScope.launch {
-                        if (binding.toolbarLayout.isSearchMode) {
-                            delay(100); applyFilter(search)
-                        }
-                        updateUserSettings { it.copy(appPickerType = position) }
-                    }
+            setEntries(ListTypes.entries.map { getString(it.description) }) { pos, _ ->
+                pos?.let { type ->
+                    setAppPickerType(ListTypes.entries[type])
+                    lifecycleScope.launch { updateUserSettings { it.copy(appPickerType = type) } }
                 }
             }
             lifecycleScope.launch { setSelection(getUserSettings().appPickerType) }
         }
     }
 
-    private fun applyFilter(query: String = "") {
-        binding.appPicker.setSearchFilter(query) { itemCount ->
-            if (itemCount <= 0) {
-                binding.appPicker.isVisible = false
-                binding.noEntryLottie.cancelAnimation()
-                binding.noEntryLottie.progress = 0f
-                binding.noEntryScrollView.isVisible = true
-                val callback = LottieValueCallback<ColorFilter>(SimpleColorFilter(getColor(R.color.primary_color_themed)))
-                binding.noEntryLottie.addValueCallback(KeyPath("**"), COLOR_FILTER, callback)
-                binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, 400)
-            } else {
-                binding.noEntryScrollView.isVisible = false
-                binding.appPicker.isVisible = true
+    private fun configureAppPicker(appPicker: SeslAppPickerView) {
+        appPicker.apply {
+            appListOrder = ORDER_ASCENDING
+            seslSetIndexTipEnabled(true)
+            seslSetFillHorizontalPaddingEnabled(true)
+            seslSetFastScrollerAdditionalPadding(10.dpToPx(resources))
+            setOnItemClickEventListener { _, appInfo ->
+                suggestiveSnackBar("${packageManagerHelper.getAppLabel(appInfo)} clicked!")
+                if (appPicker is SeslAppPickerGridView) {
+                    setState(appInfo, !getState(appInfo))
+                    true
+                } else {
+                    false
+                }
+            }
+            setOnItemActionClickEventListener { _, appInfo ->
+                suggestiveSnackBar("${packageManagerHelper.getAppLabel(appInfo)} action clicked!")
+                true
+            }
+            setOnStateChangeListener(object : OnStateChangeListener {
+                override fun onStateAllChanged(isAllSelected: Boolean) = setStateAll(isAllSelected)
+                override fun onStateChanged(appInfo: AppInfo, isSelected: Boolean) {
+                    val allItemsSelected = appPicker.appDataList.count { !(it as AppInfoData).selected } == 0
+                    (headerFooterAdapter.getItem(0) as? AllAppsViewData)?.selectableItem?.setValueSilence(allItemsSelected)
+                }
+            })
+        }
+    }
+
+    private fun setAppPickerType(listType: ListTypes) {
+        binding.appPickerProgress.isVisible = true
+        currentPicker = when (listType) {
+            ListTypes.TYPE_GRID,
+            ListTypes.TYPE_GRID_CHECKBOX -> binding.appPickerGrid.also {
+                it.isVisible = true
+                binding.appPickerList.isVisible = false
+            }
+
+            else -> binding.appPickerList.also {
+                it.isVisible = true
+                binding.appPickerGrid.isVisible = false
             }
         }
+        configureAppPicker(currentPicker!!)
+        val packages = getAppList(this, listType)
+        currentPicker!!.submitList(packages)
+        updateAppPickerVisibility(packages.isNotEmpty())
+        binding.appPickerProgress.isVisible = false
+    }
+
+    fun getAppList(context: Context, listType: ListTypes): List<AppInfoData> {
+        val actionIcon by lazy { ContextCompat.getDrawable(context, dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline) }
+        return SeslAppInfoDataHelper(context, listType.builder).getPackages().onEach {
+            it.subLabel = it.packageName
+            if (listType == ListTypes.TYPE_LIST_ACTION_BUTTON) it.actionIcon = actionIcon
+        }
+    }
+
+    private fun updateAppPickerVisibility(visible: Boolean) {
+        if (visible) {
+            binding.noEntryScrollView.isVisible = false
+            currentPicker?.isVisible = true
+        } else {
+            binding.noEntryLottie.cancelAnimation()
+            binding.noEntryLottie.progress = 0f
+            binding.noEntryScrollView.isVisible = true
+            val callback = LottieValueCallback<ColorFilter>(SimpleColorFilter(getColor(R.color.primary_color_themed)))
+            binding.noEntryLottie.addValueCallback(KeyPath("**"), COLOR_FILTER, callback)
+            binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, 400)
+            currentPicker?.isVisible = false
+        }
+    }
+
+    private fun applyFilter(query: String = "") {
+        currentPicker!!.setSearchFilter(query) { updateAppPickerVisibility(it > 0) }
     }
 }

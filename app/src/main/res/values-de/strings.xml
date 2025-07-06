@@ -33,8 +33,8 @@
     <string name="oobe_tos_text">Durch die Nutzung der App stimmen Sie den %1$s zu.</string>
 
     <string name="search">Suche</string>
-    <string name="no_entry">Kein Eintrag</string>
     <string name="search_filter">Such-Filter</string>
+    <string name="no_results_found">Keine Ergebnisse</string>
 
     <string name="date">Date</string>
     <string name="time">Time</string>
@@ -46,8 +46,6 @@
     <string name="show_letters">Buchstaben anzeigen</string>
     <string name="auto_hide">Auto hide</string>
     <string name="action_mode_search_options">ActionModeSearch options</string>
-    <string name="show_system_apps">System Apps anzeigen</string>
-    <string name="hide_system_apps">System Apps ausblenden</string>
     <string name="search_apps">Apps suchen</string>
 
     <string name="qs_detail_view_text">Das ist der QS Detail View.</string>
@@ -56,5 +54,15 @@
     <string name="face_widget_text_aod">OneUI Sample App AOD Face Widget</string>
 
     <string name="switch_bar_example">Das ist ein SwitchBar Beispiel.</string>
+
+    <string name="list">Liste</string>
+    <string name="list_action_button">Liste, Action Button</string>
+    <string name="list_checkbox">Liste, CheckBox</string>
+    <string name="list_checkbox_all_apps">Liste, CheckBox, Alle apps</string>
+    <string name="list_radiobutton">Liste, RadioButton</string>
+    <string name="list_switch">Liste, Switch</string>
+    <string name="list_switch_all_apps">Liste, Switch, Alle apps</string>
+    <string name="grid">Grid</string>
+    <string name="grid_checkbox">Grid, CheckBox</string>
 
 </resources>

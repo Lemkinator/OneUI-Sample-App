@@ -17,7 +17,7 @@
             android:id="@+id/appPickerSpinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="10dp" />
+            android:layout_marginHorizontal="10dp" />
 
         <dev.oneuiproject.oneui.widget.RoundedFrameLayout
             android:layout_width="match_parent"
@@ -27,14 +27,28 @@
             app:edgeInsetRight="10dp"
             app:roundedCorners="top_right|top_left">
 
-            <androidx.apppickerview.widget.AppPickerView
-                android:id="@+id/appPicker"
+            <androidx.picker.widget.SeslAppPickerListView
+                android:id="@+id/appPickerList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="?android:colorBackground"
                 android:clipToPadding="false"
                 android:paddingHorizontal="10dp"
-                android:scrollbarStyle="outsideOverlay" />
+                android:scrollbarStyle="outsideOverlay"
+                app:customStrategyClass="de.lemke.oneuisample.ui.util.AppPickerCustomStrategy"
+                app:strategy="de.lemke.oneuisample.ui.util.AppPickerStrategy" />
+
+            <androidx.picker.widget.SeslAppPickerGridView
+                android:id="@+id/appPickerGrid"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="10dp"
+                android:background="?android:colorBackground"
+                android:clipToPadding="false"
+                android:paddingHorizontal="10dp"
+                android:scrollbarStyle="outsideOverlay"
+                android:visibility="gone"
+                app:strategy="de.lemke.oneuisample.ui.util.AppPickerStrategy" />
 
             <androidx.core.widget.NestedScrollView
                 android:id="@+id/noEntryScrollView"
@@ -65,7 +79,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
-                        android:text="@string/no_entry"
+                        android:text="@string/no_results_found"
                         android:textColor="@color/primary_text_icon_color_themed"
                         android:textSize="17sp" />
 
