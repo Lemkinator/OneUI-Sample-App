@@ -1,5 +1,7 @@
 package de.lemke.oneuisample.ui.fragments
 
+import android.content.res.Configuration
+import android.graphics.Canvas
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.format.DateFormat.is24HourFormat
@@ -12,6 +14,7 @@ import android.view.inputmethod.EditorInfo.IME_ACTION_NEXT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.createBitmap
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.picker.app.SeslDatePickerDialog
@@ -20,11 +23,11 @@ import androidx.picker.widget.SeslDatePicker
 import androidx.picker.widget.SeslTimePicker
 import androidx.picker3.app.SeslColorPickerDialog
 import dagger.hilt.android.AndroidEntryPoint
-import dev.oneuiproject.oneui.dialog.StartEndTimePickerDialog
-import dev.oneuiproject.oneui.ktx.setEntries
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabPickerBinding
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
+import dev.oneuiproject.oneui.dialog.StartEndTimePickerDialog
+import dev.oneuiproject.oneui.ktx.setEntries
 import java.util.Calendar
 import java.util.Calendar.DAY_OF_MONTH
 import java.util.Calendar.MONTH
@@ -36,6 +39,7 @@ class TabPicker : Fragment() {
     private lateinit var binding: FragmentTabPickerBinding
     private var currentColor = -16547330 // #0381fe
     private var recentColors: List<Int> = listOf(currentColor)
+    private var colorPickerDialog: SeslColorPickerDialog? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTabPickerBinding.inflate(inflater, container, false)
@@ -150,13 +154,31 @@ class TabPicker : Fragment() {
     }
 
     private fun openColorPickerDialog() {
-        SeslColorPickerDialog(
+        colorPickerDialog = SeslColorPickerDialog(
             requireContext(),
             { color: Int -> currentColor = color; recentColors = (listOf(color) + recentColors).distinct().take(6) },
             currentColor, recentColors.toIntArray(), true
         ).apply {
             setTransparencyControlEnabled(true)
             show()
+            requireView().post {
+                setOnBitmapSetListener {
+                    val rootView = requireActivity().window.decorView.rootView
+                    val bitmap = createBitmap(rootView.width, rootView.height)
+                    rootView.draw(Canvas(bitmap))
+                    bitmap
+                }
+            }
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        colorPickerDialog?.apply {
+            if (isShowing) {
+                dismiss()
+                openColorPickerDialog()
+            }
         }
     }
 }

@@ -37,6 +37,7 @@
             android:name="theming-meta-xml"
             android:value="@xml/meta_sample_app" />
 
+        <activity android:name="androidx.picker.eyeDropper.SeslEyeDropperActivity" />
         <activity android:name=".ui.OOBEActivity" />
         <activity android:name=".ui.AboutActivity" />
         <activity android:name=".ui.SeekBarActivity" />
