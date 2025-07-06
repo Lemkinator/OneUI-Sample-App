@@ -8,9 +8,19 @@
   ],
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
       "matchCurrentVersion": "!/^0/",
       "automerge": true
+    },
+    {
+      "matchPackageNames": [
+        "sesl.androidx{/,}**"
+      ],
+      "automerge": false
     }
   ]
 }
