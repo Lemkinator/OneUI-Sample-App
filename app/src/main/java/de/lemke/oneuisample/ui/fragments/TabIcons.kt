@@ -187,8 +187,8 @@ class TabIcons : Fragment(), ViewYTranslator by AppBarAwareYTranslator() {
             return true
         }
 
-        override fun onSearchModeToggle(searchView: SearchView, visible: Boolean) {
-            if (visible) {
+        override fun onSearchModeToggle(searchView: SearchView, isActive: Boolean) {
+            if (isActive) {
                 searchView.apply {
                     seslSetOverflowMenuButtonIcon(AppCompatResources.getDrawable(requireContext(), iconsR.drawable.ic_oui_list_filter))
                     seslSetOverflowMenuButtonVisibility(VISIBLE)
