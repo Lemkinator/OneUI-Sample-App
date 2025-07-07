@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@+id/design_dest">
+
+    <fragment
+        android:id="@+id/design_dest"
+        android:name="de.lemke.oneuisample.ui.fragments.TabDesign"
+        android:label="@string/design"
+        tools:layout="@layout/fragment_tab_design" />
+
+    <fragment
+        android:id="@+id/picker_dest"
+        android:name="de.lemke.oneuisample.ui.fragments.TabPicker"
+        android:label="@string/picker"
+        tools:layout="@layout/fragment_tab_picker" />
+
+    <fragment
+        android:id="@+id/icons_dest"
+        android:name="de.lemke.oneuisample.ui.fragments.TabIcons"
+        android:label="@string/icons"
+        tools:layout="@layout/fragment_tab_icons" />
+
+    <activity
+        android:id="@+id/seek_bar_dest"
+        android:name="de.lemke.oneuisample.ui.SeekBarActivity" />
+
+    <activity
+        android:id="@+id/app_picker_dest"
+        android:name="de.lemke.oneuisample.ui.AppPickerActivity" />
+
+</navigation>

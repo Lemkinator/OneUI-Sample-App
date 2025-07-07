@@ -6,19 +6,12 @@ import android.content.Intent
 import android.content.Intent.ACTION_SEARCH
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.Lifecycle.State.RESUMED
-import androidx.lifecycle.Lifecycle.State.STARTED
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.model.ButtonModel
 import com.google.android.material.appbar.model.SuggestAppBarModel
 import com.google.android.material.appbar.model.view.SuggestAppBarView
-import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityMainBinding
@@ -26,12 +19,10 @@ import de.lemke.oneuisample.domain.AppStart
 import de.lemke.oneuisample.domain.CheckAppStartUseCase
 import de.lemke.oneuisample.domain.GetUserSettingsUseCase
 import de.lemke.oneuisample.ui.fragments.FragmentBottomSheet
-import de.lemke.oneuisample.ui.fragments.TabDesign
-import de.lemke.oneuisample.ui.fragments.TabIcons
-import de.lemke.oneuisample.ui.fragments.TabPicker
 import de.lemke.oneuisample.ui.util.onNavigationSingleClick
 import de.lemke.oneuisample.ui.util.setupHeaderAndNavRail
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
+import dev.oneuiproject.oneui.navigation.setupNavigation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,7 +30,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var binding: ActivityMainBinding
-    private var selectedPosition = -1
     private var time: Long = 0
     private var isUIReady = false
 
@@ -112,8 +102,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun openMain() {
         initDrawer()
-        initTabLayout()
-        initFragments()
         lifecycleScope.launch {
             //manually waiting for the animation to finish :/
             delay(700 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
@@ -124,23 +112,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         if (intent?.action == ACTION_SEARCH) binding.drawerLayout.setSearchQueryFromIntent(intent)
-    }
-
-    private fun initFragments() {
-        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-        listOf(TabDesign(), TabPicker(), TabIcons()).forEach { transaction.add(R.id.fragmentContainer, it) }
-        transaction.commitNowAllowingStateLoss()
-        setFragment(0)
-    }
-
-    fun setFragment(position: Int) {
-        if (selectedPosition != position) {
-            val newFragment: Fragment = supportFragmentManager.fragments[position]
-            selectedPosition = position
-            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-            for (fragment in supportFragmentManager.fragments) transaction.hide(fragment).setMaxLifecycle(fragment, STARTED)
-            transaction.show(newFragment).setMaxLifecycle(newFragment, RESUMED).commitNowAllowingStateLoss()
-        }
     }
 
     private fun initDrawer() {
@@ -160,9 +131,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
             true
         }
-        binding.drawerLayout.setupHeaderAndNavRail(getString(R.string.about_app))
-        binding.drawerLayout.setAppBarSuggestView(createSuggestAppBarModel())
-        //binding.drawerLayout.isImmersiveScroll = true
+        binding.drawerLayout.apply {
+            setupHeaderAndNavRail(getString(R.string.about_app))
+            setAppBarSuggestView(createSuggestAppBarModel())
+            //isImmersiveScroll = true
+            setupNavigation(binding.bottomTab, binding.navigationHost.getFragment())
+        }
     }
 
     private fun createSuggestAppBarModel(): SuggestAppBarModel<SuggestAppBarView> =
@@ -173,37 +147,4 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 arrayListOf(ButtonModel(text = "Action Button", clickListener = { _, _ -> suggestiveSnackBar("Action button clicked!") }))
             )
         }.build()
-
-    private fun initTabLayout() {
-        binding.bottomTab.apply {
-            setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.menu_item_seek_bar -> startActivity(Intent(this@MainActivity, SeekBarActivity::class.java)).let { true }
-                    R.id.menu_item_app_picker -> startActivity(Intent(this@MainActivity, AppPickerActivity::class.java)).let { true }
-                    else -> false
-                }
-            }
-            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                override fun onTabSelected(tab: TabLayout.Tab) = setFragment(tab.position)
-                override fun onTabUnselected(tab: TabLayout.Tab) {}
-                override fun onTabReselected(tab: TabLayout.Tab) {
-                    try {
-                        when (tab.text) {
-                            getString(R.string.design) -> binding.fragmentContainer.findViewById<TabLayout>(R.id.fragmentDesignSubTabs)
-                                .apply { getTabAt((selectedTabPosition + 1) % tabCount)?.select() }
-
-                            getString(R.string.picker) -> binding.drawerLayout.setExpanded(!binding.drawerLayout.isExpanded, true)
-
-                            getString(R.string.icons) -> binding.fragmentContainer.findViewById<RecyclerView>(R.id.iconList).apply {
-                                if (canScrollVertically(-1)) smoothScrollToPosition(0)
-                                else binding.drawerLayout.setExpanded(!binding.drawerLayout.isExpanded, true)
-                            }
-                        }
-                    } catch (e: Exception) { //no required functionality -> ignore errors
-                        Log.e("MainActivity", "Error while reselecting tab", e)
-                    }
-                }
-            })
-        }
-    }
 }

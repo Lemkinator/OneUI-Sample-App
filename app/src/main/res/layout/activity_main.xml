@@ -15,11 +15,14 @@
         app:layout_location="drawer_panel"
         app:menu="@menu/menu_navigation" />
 
-    <FrameLayout
-        android:id="@+id/fragmentContainer"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/navigationHost"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_location="main_content" />
+        app:defaultNavHost="true"
+        app:layout_location="main_content"
+        app:navGraph="@navigation/main_navigation"/>
 
     <dev.oneuiproject.oneui.widget.BottomTabLayout
         android:id="@+id/bottomTab"
