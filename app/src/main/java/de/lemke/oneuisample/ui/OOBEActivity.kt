@@ -24,8 +24,8 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
 import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
 import dev.oneuiproject.oneui.widget.OnboardingTipsItemView
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Locale
 import javax.inject.Inject
 import dev.oneuiproject.oneui.R as oneuiR
 
@@ -65,35 +65,35 @@ class OOBEActivity : AppCompatActivity() {
     private fun initToSView() {
         val tos = getString(R.string.tos)
         val tosText = getString(R.string.oobe_tos_text, tos)
-        val tosLink = SpannableString(tosText)
-        tosLink.setSpan(
-            object : ClickableSpan() {
-                override fun onClick(widget: View) {
-                    AlertDialog.Builder(this@OOBEActivity)
-                        .setTitle(getString(R.string.tos))
-                        .setMessage(getString(R.string.tos_content))
-                        .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                        .show()
-                }
-            },
-            tosText.indexOf(tos), tosText.length - if (Locale.getDefault().language == "de") 4 else 1,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-        binding.oobeIntroFooterTosText.text = tosLink
+        val tosIndex = tosText.lastIndexOf(tos)
+        binding.oobeIntroFooterTosText.text = SpannableString(tosText).apply {
+            setSpan(
+                object : ClickableSpan() {
+                    override fun onClick(widget: View) {
+                        AlertDialog.Builder(this@OOBEActivity)
+                            .setTitle(getString(R.string.tos))
+                            .setMessage(getString(R.string.tos_content))
+                            .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+                            .show()
+                    }
+                },
+                tosIndex, tosIndex + tos.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
         binding.oobeIntroFooterTosText.movementMethod = LinkMovementMethod.getInstance()
         binding.oobeIntroFooterTosText.highlightColor = Color.TRANSPARENT
     }
 
     private fun initFooterButton() {
-        if (resources.configuration.screenWidthDp < 360) {
-            binding.oobeIntroFooterButton.layoutParams.width = MATCH_PARENT
-        }
+        if (resources.configuration.screenWidthDp < 360) binding.oobeIntroFooterButton.layoutParams.width = MATCH_PARENT
         binding.oobeIntroFooterButton.setOnClickListener {
             binding.oobeIntroFooterTosText.isEnabled = false
             binding.oobeIntroFooterButton.isVisible = false
             binding.oobeIntroFooterButtonProgress.isVisible = true
             lifecycleScope.launch {
                 updateUserSettings { it.copy(tosAccepted = true) }
+                delay(500)
                 startActivity(Intent(this@OOBEActivity, MainActivity::class.java))
                 @Suppress("DEPRECATION") if (Build.VERSION.SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
                 finishAfterTransition()
