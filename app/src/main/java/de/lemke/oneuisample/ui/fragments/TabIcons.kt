@@ -13,7 +13,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.toColorInt
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -60,7 +59,7 @@ import javax.inject.Inject
 import dev.oneuiproject.oneui.R as iconsR
 
 @AndroidEntryPoint
-class TabIcons : Fragment(R.layout.fragment_tab_icons), ViewYTranslator by AppBarAwareYTranslator() {
+class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator by AppBarAwareYTranslator() {
     private val binding by autoCleared { FragmentTabIconsBinding.bind(requireView()) }
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var iconAdapter: IconAdapter

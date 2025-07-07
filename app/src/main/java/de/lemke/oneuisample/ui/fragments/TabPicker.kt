@@ -14,7 +14,6 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.picker.app.SeslDatePickerDialog
 import androidx.picker.app.SeslTimePickerDialog
 import androidx.picker.widget.SeslDatePicker
@@ -34,7 +33,7 @@ import java.util.Calendar.YEAR
 import java.util.Locale
 
 @AndroidEntryPoint
-class TabPicker : Fragment(R.layout.fragment_tab_picker) {
+class TabPicker : AbsBaseFragment(R.layout.fragment_tab_picker) {
     private val binding by autoCleared { FragmentTabPickerBinding.bind(requireView()) }
     private var currentColor = -16547330 // #0381fe
     private var recentColors: List<Int> = listOf(currentColor)

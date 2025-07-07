@@ -10,7 +10,7 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignBinding
 import de.lemke.oneuisample.ui.util.autoCleared
 
-class TabDesign : Fragment(R.layout.fragment_tab_design) {
+class TabDesign : AbsBaseFragment(R.layout.fragment_tab_design) {
     private val binding by autoCleared { FragmentTabDesignBinding.bind(requireView()) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
