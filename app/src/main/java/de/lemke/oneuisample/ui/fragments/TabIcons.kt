@@ -2,13 +2,11 @@ package de.lemke.oneuisample.ui.fragments
 
 import android.graphics.ColorFilter
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.View.VISIBLE
-import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
@@ -38,6 +36,7 @@ import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
 import de.lemke.oneuisample.ui.util.IconAdapter
 import de.lemke.oneuisample.ui.util.IconAdapter.Icon
 import de.lemke.oneuisample.ui.util.IconAdapter.Payload.SELECTION_MODE
+import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AllSelectorState
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
@@ -61,8 +60,8 @@ import javax.inject.Inject
 import dev.oneuiproject.oneui.R as iconsR
 
 @AndroidEntryPoint
-class TabIcons : Fragment(), ViewYTranslator by AppBarAwareYTranslator() {
-    private lateinit var binding: FragmentTabIconsBinding
+class TabIcons : Fragment(R.layout.fragment_tab_icons), ViewYTranslator by AppBarAwareYTranslator() {
+    private val binding by autoCleared { FragmentTabIconsBinding.bind(requireView()) }
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var iconAdapter: IconAdapter
     private var isSearchUserInputEnabled = false
@@ -79,9 +78,6 @@ class TabIcons : Fragment(), ViewYTranslator by AppBarAwareYTranslator() {
 
     @Inject
     lateinit var updateUserSettings: UpdateUserSettingsUseCase
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        FragmentTabIconsBinding.inflate(inflater, container, false).also { binding = it }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

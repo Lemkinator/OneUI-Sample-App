@@ -6,9 +6,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.text.format.DateFormat.is24HourFormat
 import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.EditorInfo.IME_ACTION_NEXT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
@@ -25,6 +23,7 @@ import androidx.picker3.app.SeslColorPickerDialog
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabPickerBinding
+import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.dialog.StartEndTimePickerDialog
 import dev.oneuiproject.oneui.ktx.setEntries
@@ -35,16 +34,11 @@ import java.util.Calendar.YEAR
 import java.util.Locale
 
 @AndroidEntryPoint
-class TabPicker : Fragment() {
-    private lateinit var binding: FragmentTabPickerBinding
+class TabPicker : Fragment(R.layout.fragment_tab_picker) {
+    private val binding by autoCleared { FragmentTabPickerBinding.bind(requireView()) }
     private var currentColor = -16547330 // #0381fe
     private var recentColors: List<Int> = listOf(currentColor)
     private var colorPickerDialog: SeslColorPickerDialog? = null
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragmentTabPickerBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

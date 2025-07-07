@@ -29,7 +29,6 @@ class TabDesign : Fragment(R.layout.fragment_tab_design) {
     }
 }
 
-
 class ViewPager2AdapterTabDesignSubtabs(fragment: Fragment) : FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int = 3
     override fun createFragment(position: Int): Fragment = when (position) {
