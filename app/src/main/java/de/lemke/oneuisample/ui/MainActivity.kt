@@ -36,11 +36,7 @@ import java.lang.System.currentTimeMillis
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
-    companion object {
-        var workAround = false
-    }
-
+class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var isUIReady = false
 
@@ -106,10 +102,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private fun openMain() {
         initDrawer()
         isUIReady = true
-        if (!workAround) {
-            workAround = true
-            recreate()
-        }
     }
 
     override fun onNewIntent(intent: Intent?) {
