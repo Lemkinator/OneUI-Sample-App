@@ -23,14 +23,13 @@ import de.lemke.oneuisample.ui.util.onNavigationSingleClick
 import de.lemke.oneuisample.ui.util.setupHeaderAndNavRail
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.navigation.setupNavigation
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
+
     private lateinit var binding: ActivityMainBinding
-    private var time: Long = 0
     private var isUIReady = false
 
     @Inject
@@ -41,43 +40,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
-        time = System.currentTimeMillis()
         super.onCreate(savedInstanceState)
         if (SDK_INT >= 34) overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, fade_in, fade_out)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         splashScreen.setKeepOnScreenCondition { !isUIReady }
-        /*
-        there is a bug in the new splash screen api, when using the onExitAnimationListener -> splash icon flickers
-        therefore setting a manual delay in openMain()
-        splashScreen.setOnExitAnimationListener { splash ->
-            val splashAnimator: ObjectAnimator = ObjectAnimator.ofPropertyValuesHolder(
-                splash.view,
-                PropertyValuesHolder.ofFloat(View.ALPHA, 0f),
-                PropertyValuesHolder.ofFloat(View.SCALE_X, 1.2f),
-                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.2f)
-            )
-            splashAnimator.interpolator = AccelerateDecelerateInterpolator()
-            splashAnimator.duration = 400L
-            splashAnimator.doOnEnd { splash.remove() }
-            val contentAnimator: ObjectAnimator = ObjectAnimator.ofPropertyValuesHolder(
-                binding.root,
-                PropertyValuesHolder.ofFloat(View.ALPHA, 0f, 1f),
-                PropertyValuesHolder.ofFloat(View.SCALE_X, 1.2f, 1f),
-                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.2f, 1f)
-            )
-            contentAnimator.interpolator = AccelerateDecelerateInterpolator()
-            contentAnimator.duration = 400L
-
-            val remainingDuration = splash.iconAnimationDurationMillis - (System.currentTimeMillis() - splash.iconAnimationStartMillis)
-                .coerceAtLeast(0L)
-            lifecycleScope.launch {
-                delay(remainingDuration)
-                splashAnimator.start()
-                contentAnimator.start()
-            }
-        }*/
-
         lifecycleScope.launch {
             when (checkAppStart()) {
                 AppStart.FIRST_TIME -> openOOBE()
@@ -87,9 +54,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    private suspend fun openOOBE() {
-        //manually waiting for the animation to finish :/
-        delay(700 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
+    private fun openOOBE() {
         startActivity(Intent(applicationContext, OOBEActivity::class.java))
         @Suppress("DEPRECATION") if (SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
         finishAfterTransition()
@@ -102,11 +67,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun openMain() {
         initDrawer()
-        lifecycleScope.launch {
-            //manually waiting for the animation to finish :/
-            delay(700 - (System.currentTimeMillis() - time).coerceAtLeast(0L))
-            isUIReady = true
-        }
+        isUIReady = true
     }
 
     override fun onNewIntent(intent: Intent?) {
