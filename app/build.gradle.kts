@@ -93,7 +93,7 @@ dependencies {
     implementation("sesl.androidx.recyclerview:recyclerview:1.4.0+1.0.12-sesl8+rev0")
     implementation("sesl.androidx.picker:picker-basic:1.0.7+1.0.7-sesl8+rev0")
     implementation("sesl.androidx.picker:picker-app:1.0.5+1.0.5-sesl8+rev0")
-    implementation("sesl.androidx.indexscroll:indexscroll:1.0.0+1.0.0-sesl8+rev0")
+    implementation("sesl.androidx.indexscroll:indexscroll:1.0.6+1.0.6-sesl7+rev3")
     implementation("sesl.androidx.preference:preference:1.2.1+1.0.0-sesl8+rev0")
     implementation("sesl.androidx.viewpager2:viewpager2:1.1.0+1.0.0-sesl8+rev0")
     implementation("sesl.androidx.picker:picker-color:1.0.2+1.0.2-sesl8+rev0")
