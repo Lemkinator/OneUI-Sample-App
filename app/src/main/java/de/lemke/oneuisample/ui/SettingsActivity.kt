@@ -127,14 +127,14 @@ class SettingsActivity : AppCompatActivity() {
             suggestion.setOnClosedClickedListener { preferenceScreen.removePreference(suggestionInset) }
             suggestion.setActionButtonOnClickListener {
                 suggestion.startTurnOnAnimation("Turned on")
-                it.postDelayed(Runnable {
+                it.postDelayed({
                     preferenceScreen.removePreference(suggestion)
                     preferenceScreen.removePreference(suggestionInset)
                 }, 1500)
             }
             findPreference<UpdatableWidgetPreference>("updatable")?.onClick {
                 it.widgetLayoutResource = R.layout.sample_pref_widget_progress
-                view?.postDelayed(Runnable { it.widgetLayoutResource = R.layout.sample_pref_widget_check }, 2000)
+                view?.postDelayed({ it.widgetLayoutResource = R.layout.sample_pref_widget_check }, 2000)
             }
             val tips = findPreference<TipsCardPreference>("tip")
             tips?.addButton("Button") { suggestiveSnackBar("onClick") }
@@ -160,7 +160,7 @@ class SettingsActivity : AppCompatActivity() {
                 findPreference<SeslSwitchPreferenceScreen>("switch_screen")?.apply {
                     onClick { startActivity(Intent(settingsActivity, SwitchBarActivity::class.java)) }
                     isChecked = userSettings.sampleSwitchBar
-                    summary = if (isChecked == true) "Enabled" else "Disabled"
+                    summary = if (isChecked) "Enabled" else "Disabled"
                     onPreferenceChangeListener = this@SettingsFragment
                 }
             }
