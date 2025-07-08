@@ -100,16 +100,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openMain() {
-        initDrawer()
-        isUIReady = true
-    }
-
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        if (intent?.action == ACTION_SEARCH) binding.drawerLayout.setSearchQueryFromIntent(intent)
-    }
-
-    private fun initDrawer() {
         binding.navigationView.onNavigationSingleClick { item ->
             when (item.itemId) {
                 R.id.oobe_dest -> openOOBEAndFinish()
@@ -127,6 +117,12 @@ class MainActivity : AppCompatActivity() {
             //isImmersiveScroll = true
             setupNavigation(binding.bottomTab, binding.navigationHost.getFragment())
         }
+        isUIReady = true
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (intent?.action == ACTION_SEARCH) binding.drawerLayout.setSearchQueryFromIntent(intent)
     }
 
     private fun openOOBEAndFinish() {
