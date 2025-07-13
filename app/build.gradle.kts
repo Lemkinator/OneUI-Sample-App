@@ -85,14 +85,14 @@ android {
 
 dependencies {
     //SESL Android Jetpack
-    implementation("sesl.androidx.core:core:1.16.0+1.0.7-sesl8+rev0")
-    implementation("sesl.androidx.core:core-ktx:1.16.0+1.0.0-sesl8+rev0")
+    implementation("sesl.androidx.core:core:1.17.0-beta01+1.0.7-sesl8+rev0")
+    implementation("sesl.androidx.core:core-ktx:1.17.0-beta01+1.0.0-sesl8+rev0")
     implementation("sesl.androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01+1.0.0-sesl8+rev0")
     implementation("sesl.androidx.fragment:fragment:1.8.8+1.0.5-sesl8+rev0")
     implementation("sesl.androidx.appcompat:appcompat:1.7.1+1.0.18-sesl8+rev0")
     implementation("sesl.androidx.recyclerview:recyclerview:1.4.0+1.0.12-sesl8+rev0")
     implementation("sesl.androidx.picker:picker-basic:1.0.7+1.0.7-sesl8+rev0")
-    implementation("sesl.androidx.picker:picker-app:1.0.5+1.0.5-sesl8+rev0")
+    implementation("sesl.androidx.picker:picker-app:1.0.5+1.0.5-sesl8+rev1")
     implementation("sesl.androidx.indexscroll:indexscroll:1.0.0+1.0.0-sesl8+rev0")
     implementation("sesl.androidx.preference:preference:1.2.1+1.0.0-sesl8+rev0")
     implementation("sesl.androidx.viewpager2:viewpager2:1.1.0+1.0.0-sesl8+rev0")
