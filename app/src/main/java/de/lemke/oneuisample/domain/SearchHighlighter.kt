@@ -9,7 +9,7 @@ import dev.oneuiproject.oneui.design.R
 import javax.inject.Inject
 
 class SearchHighlighter @Inject constructor(
-    @ActivityContext private val context: Context
+    @param:ActivityContext private val context: Context
 ) {
     operator fun invoke(text: String, textToBold: String?): SpannableStringBuilder = invoke(text, textToBold, -1)
 

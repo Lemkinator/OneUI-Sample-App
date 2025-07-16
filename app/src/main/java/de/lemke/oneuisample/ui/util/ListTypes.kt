@@ -11,7 +11,7 @@ import androidx.picker.model.AppData.ListSwitchAppDataBuilder
 import androidx.picker.model.AppInfoData
 import de.lemke.oneuisample.R
 
-enum class ListTypes(val builder: Class<out AppData.AppDataBuilder<AppInfoData>>, @StringRes val description: Int) {
+enum class ListTypes(val builder: Class<out AppData.AppDataBuilder<AppInfoData>>, @field:StringRes val description: Int) {
 
     LIST_TYPE(ListAppDataBuilder::class.java, R.string.list),
 

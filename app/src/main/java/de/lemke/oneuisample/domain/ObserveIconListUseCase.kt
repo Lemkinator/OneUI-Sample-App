@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ObserveIconListUseCase @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val userSettingsRepository: UserSettingsRepository,
 ) {
     val iconsId = dev.oneuiproject.oneui.R.drawable::class.java.declaredFields.map { field ->
