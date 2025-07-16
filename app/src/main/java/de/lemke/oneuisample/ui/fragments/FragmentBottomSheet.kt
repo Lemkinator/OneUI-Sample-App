@@ -7,12 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.databinding.FragmentBottomSheetBinding
+import dev.oneuiproject.oneui.app.SemBottomSheetDialogFragment
 
 @AndroidEntryPoint
-class FragmentBottomSheet : BottomSheetDialogFragment() {
+class FragmentBottomSheet : SemBottomSheetDialogFragment() {
     private lateinit var binding: FragmentBottomSheetBinding
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
