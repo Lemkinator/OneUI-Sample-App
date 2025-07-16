@@ -27,7 +27,7 @@
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
                 app:lottie_autoPlay="false"
-                app:lottie_fileName="Good_Face_Icon.json"
+                app:lottie_fileName="good_face.json"
                 app:lottie_loop="false" />
 
             <androidx.appcompat.widget.AppCompatTextView
