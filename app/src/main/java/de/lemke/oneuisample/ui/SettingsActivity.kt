@@ -5,7 +5,8 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.os.Build
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -18,22 +19,20 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
-import androidx.preference.Preference
-import androidx.preference.Preference.OnPreferenceChangeListener
-import androidx.preference.Preference.OnPreferenceClickListener
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
 import androidx.preference.SeslSwitchPreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
-import dev.oneuiproject.oneui.ktx.addRelativeLinksCard
-import dev.oneuiproject.oneui.ktx.onClick
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivitySettingsBinding
 import de.lemke.oneuisample.domain.GetUserSettingsUseCase
 import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
+import dev.oneuiproject.oneui.ktx.addRelativeLinksCard
+import dev.oneuiproject.oneui.ktx.onClick
+import dev.oneuiproject.oneui.ktx.onNewValue
 import dev.oneuiproject.oneui.preference.HorizontalRadioPreference
 import dev.oneuiproject.oneui.preference.InsetPreferenceCategory
 import dev.oneuiproject.oneui.preference.SuggestionCardPreference
@@ -55,7 +54,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     @AndroidEntryPoint
-    class SettingsFragment : PreferenceFragmentCompat(), OnPreferenceChangeListener {
+    class SettingsFragment : PreferenceFragmentCompat() {
         private lateinit var settingsActivity: SettingsActivity
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
@@ -83,26 +82,35 @@ class SettingsActivity : AppCompatActivity() {
         private fun initPreferences() {
             darkModePref = findPreference("dark_mode_pref")!!
             autoDarkModePref = findPreference("dark_mode_auto_pref")!!
-            autoDarkModePref.onPreferenceChangeListener = this
-            darkModePref.onPreferenceChangeListener = this
+            darkModePref.onNewValue { newValue ->
+                val darkMode = newValue == "1"
+                AppCompatDelegate.setDefaultNightMode(if (darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
+                lifecycleScope.launch { updateUserSettings { it.copy(darkMode = darkMode) } }
+            }
+            autoDarkModePref.onNewValue { newValue ->
+                darkModePref.isEnabled = !newValue
+                lifecycleScope.launch {
+                    if (newValue) AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+                    else AppCompatDelegate.setDefaultNightMode(if (getUserSettings().darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
+                    updateUserSettings { it.copy(autoDarkMode = newValue) }
+                }
+            }
             darkModePref.setDividerEnabled(false)
             darkModePref.setTouchEffectEnabled(false)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (SDK_INT >= TIRAMISU) {
                 findPreference<PreferenceCategory>("language_pref_cat")!!.isVisible = true
-                findPreference<PreferenceScreen>("language_pref")!!.onPreferenceClickListener = OnPreferenceClickListener {
-                    val intent = Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri())
+                findPreference<PreferenceScreen>("language_pref")?.onClick { it ->
                     try {
-                        startActivity(intent)
+                        startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri()))
                     } catch (e: ActivityNotFoundException) {
                         e.printStackTrace()
                         suggestiveSnackBar(getString(R.string.change_language_not_supported_by_device))
                     }
-                    true
                 }
             }
 
-            findPreference<PreferenceScreen>("tos_pref")!!.onPreferenceClickListener = OnPreferenceClickListener {
+            findPreference<PreferenceScreen>("tos_pref")?.onClick {
                 AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.tos))
                     .setMessage(getString(R.string.tos_content))
@@ -110,7 +118,7 @@ class SettingsActivity : AppCompatActivity() {
                     .show()
                 true
             }
-            findPreference<PreferenceScreen>("delete_app_data_pref")?.setOnPreferenceClickListener {
+            findPreference<PreferenceScreen>("delete_app_data_pref")?.onClick {
                 AlertDialog.Builder(settingsActivity)
                     .setTitle(R.string.delete_appdata_and_exit)
                     .setMessage(R.string.delete_appdata_and_exit_warning)
@@ -138,7 +146,9 @@ class SettingsActivity : AppCompatActivity() {
             }
             val tips = findPreference<TipsCardPreference>("tip")
             tips?.addButton("Button") { suggestiveSnackBar("onClick") }
-            findPreference<EditTextPreference>("edit_text")?.onPreferenceChangeListener = this
+            findPreference<EditTextPreference>("edit_text")?.onNewValue { newValue ->
+                /* Place your onPreferenceChange logic here */
+            }
         }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -161,45 +171,12 @@ class SettingsActivity : AppCompatActivity() {
                     onClick { startActivity(Intent(settingsActivity, SwitchBarActivity::class.java)) }
                     isChecked = userSettings.sampleSwitchBar
                     summary = if (isChecked) "Enabled" else "Disabled"
-                    onPreferenceChangeListener = this@SettingsFragment
-                }
-            }
-        }
-
-        override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-            when (preference.key) {
-                "dark_mode_pref" -> {
-                    val darkMode = newValue as String == "1"
-                    AppCompatDelegate.setDefaultNightMode(if (darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
-                    lifecycleScope.launch { updateUserSettings { it.copy(darkMode = darkMode) } }
-                    return true
-                }
-
-                "dark_mode_auto_pref" -> {
-                    val autoDarkMode = newValue as Boolean
-                    darkModePref.isEnabled = !autoDarkMode
-                    lifecycleScope.launch {
-                        if (autoDarkMode) AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
-                        else AppCompatDelegate.setDefaultNightMode(if (getUserSettings().darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
-                        updateUserSettings { it.copy(autoDarkMode = newValue) }
+                    onNewValue { newValue ->
+                        summary = if (newValue) "Enabled" else "Disabled"
+                        lifecycleScope.launch { updateUserSettings { it.copy(sampleSwitchBar = newValue) } }
                     }
-                    return true
-                }
-
-                "switch_screen" -> {
-                    val enabled = newValue as Boolean
-                    preference.summary = if (enabled) "Enabled" else "Disabled"
-                    lifecycleScope.launch { updateUserSettings { it.copy(sampleSwitchBar = enabled) } }
-                    return true
-                }
-
-                "edit_text" -> {
-                    @Suppress("unused", "UnusedVariable")
-                    val text = newValue as String
-                    return true
                 }
             }
-            return false
         }
     }
 }
