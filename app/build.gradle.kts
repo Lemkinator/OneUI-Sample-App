@@ -98,7 +98,7 @@ dependencies {
     implementation("sesl.androidx.viewpager2:viewpager2:1.1.0+1.0.0-sesl8+rev0")
     implementation("sesl.androidx.picker:picker-color:1.0.2+1.0.2-sesl8+rev0")
     //SESL Material Components + Design Lib + Icons
-    implementation("sesl.com.google.android.material:material:1.12.0+1.0.31-sesl8+rev0")
+    implementation("sesl.com.google.android.material:material:1.12.0+1.0.31-sesl8+rev1")
     implementation("io.github.tribalfs:oneui-design:0.7.4+oneui7")
     implementation("io.github.oneuiproject:icons:1.1.0")
 
