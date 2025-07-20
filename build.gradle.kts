@@ -45,18 +45,6 @@ allprojects {
         google()
         mavenCentral()
         maven("https://jitpack.io")
-        maven("https://maven.pkg.github.com/tribalfs/sesl-androidx") {
-            credentials {
-                username = githubUsername
-                password = githubAccessToken
-            }
-        }
-        maven("https://maven.pkg.github.com/tribalfs/sesl-material-components-android") {
-            credentials {
-                username = githubUsername
-                password = githubAccessToken
-            }
-        }
         maven("https://maven.pkg.github.com/tribalfs/oneui-design") {
             credentials {
                 username = githubUsername
