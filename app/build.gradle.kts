@@ -87,7 +87,7 @@ dependencies {
     implementation("io.github.tribalfs:oneui-design:0.7.6+oneui7")
     implementation("io.github.oneuiproject:icons:1.1.0")
     implementation("com.airbnb.android:lottie:6.6.7")
-    implementation("com.google.android.gms:play-services-oss-licenses:17.2.1")
+    implementation("com.google.android.gms:play-services-oss-licenses:17.2.2")
     implementation("androidx.core:core-splashscreen:1.2.0-rc01")
     implementation("androidx.datastore:datastore-preferences:1.1.7")
     implementation("com.google.dagger:hilt-android:2.57")
