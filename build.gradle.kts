@@ -36,7 +36,7 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.10")
         classpath("com.android.tools.build:gradle:8.12.0")
         classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.2.10-2.0.2")
-        classpath("com.google.android.gms:oss-licenses-plugin:0.10.6")
+        classpath("com.google.android.gms:oss-licenses-plugin:0.10.7")
     }
 }
 
