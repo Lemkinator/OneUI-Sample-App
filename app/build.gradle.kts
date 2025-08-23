@@ -84,7 +84,7 @@ android {
 }
 
 dependencies {
-    implementation("io.github.tribalfs:oneui-design:0.7.6+oneui7")
+    implementation("io.github.tribalfs:oneui-design:0.7.8+oneui7")
     implementation("io.github.oneuiproject:icons:1.1.0")
     implementation("com.airbnb.android:lottie:6.6.7")
     implementation("com.google.android.gms:play-services-oss-licenses:17.2.2")
