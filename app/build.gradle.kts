@@ -88,7 +88,7 @@ dependencies {
     implementation("io.github.oneuiproject:icons:1.1.0")
     implementation("com.airbnb.android:lottie:6.7.1")
     implementation("com.google.android.gms:play-services-oss-licenses:17.3.0")
-    implementation("androidx.core:core-splashscreen:1.2.0-rc01")
+    implementation("androidx.core:core-splashscreen:1.2.0")
     implementation("androidx.datastore:datastore-preferences:1.1.7")
     implementation("com.google.dagger:hilt-android:2.57.2")
     ksp("com.google.dagger:hilt-compiler:2.57.2")
