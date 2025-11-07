@@ -47,7 +47,7 @@ class SubtabWidgets : Fragment() {
         binding.relativeLink1.setOnClickListener { suggestiveSnackBar("Relative Link 1 Clicked") }
         binding.relativeLink2.setOnClickListener { suggestiveSnackBar("Relative Link 2 Clicked") }
         binding.switchBar.apply {
-            addOnSwitchChangeListener { switchCompat, isChecked ->
+            addOnSwitchChangeListener { _, _ ->
                 setProgressBarVisible(true)
                 postDelayed({ setProgressBarVisible(false) }, 1_000)
             }

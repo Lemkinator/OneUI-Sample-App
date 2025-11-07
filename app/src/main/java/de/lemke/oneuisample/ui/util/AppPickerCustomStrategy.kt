@@ -32,8 +32,8 @@ class AppPickerCustomStrategy : CustomStrategy() {
 
     private class ActionComposableType : ComposableType {
         override val leftFrame: ComposableFrame? = null
-        override val iconFrame: ComposableFrame? = IconFrame.Icon
-        override val titleFrame: ComposableFrame? = TitleFrame.Title
-        override val widgetFrame: ComposableFrame? = WidgetFrame.Action
+        override val iconFrame: ComposableFrame = IconFrame.Icon
+        override val titleFrame: ComposableFrame = TitleFrame.Title
+        override val widgetFrame: ComposableFrame = WidgetFrame.Action
     }
 }

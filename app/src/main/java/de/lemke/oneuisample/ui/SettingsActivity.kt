@@ -100,7 +100,7 @@ class SettingsActivity : AppCompatActivity() {
 
             if (SDK_INT >= TIRAMISU) {
                 findPreference<PreferenceCategory>("language_pref_cat")!!.isVisible = true
-                findPreference<PreferenceScreen>("language_pref")?.onClick { it ->
+                findPreference<PreferenceScreen>("language_pref")?.onClick {
                     try {
                         startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri()))
                     } catch (e: ActivityNotFoundException) {
@@ -116,7 +116,6 @@ class SettingsActivity : AppCompatActivity() {
                     .setMessage(getString(R.string.tos_content))
                     .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
                     .show()
-                true
             }
             findPreference<PreferenceScreen>("delete_app_data_pref")?.onClick {
                 AlertDialog.Builder(settingsActivity)
@@ -127,7 +126,6 @@ class SettingsActivity : AppCompatActivity() {
                         (settingsActivity.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
                     }
                     .show()
-                true
             }
 
             val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
@@ -146,7 +144,7 @@ class SettingsActivity : AppCompatActivity() {
             }
             val tips = findPreference<TipsCardPreference>("tip")
             tips?.addButton("Button") { suggestiveSnackBar("onClick") }
-            findPreference<EditTextPreference>("edit_text")?.onNewValue { newValue ->
+            findPreference<EditTextPreference>("edit_text")?.onNewValue {
                 /* Place your onPreferenceChange logic here */
             }
         }

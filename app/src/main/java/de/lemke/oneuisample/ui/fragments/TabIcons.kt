@@ -140,7 +140,7 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
     }
 
     private fun IconAdapter.setupOnClickListeners() {
-        onClickItem = { position, icon, viewHolder ->
+        onClickItem = { position, icon, _ ->
             if (isActionMode) onToggleItem(icon.id, position)
             else suggestiveSnackBar(icon.beautifiedName, actionText = getString(R.string.ok))
         }
@@ -158,8 +158,8 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
             rightToLeftColor = "#31a5f3".toColorInt(),
             leftToRightDrawableRes = iconsR.drawable.ic_oui_arrow_right,
             rightToLeftDrawableRes = iconsR.drawable.ic_oui_arrow_left,
-            isLeftSwipeEnabled = { viewHolder -> !drawerLayout.isActionMode },
-            isRightSwipeEnabled = { viewHolder -> !drawerLayout.isActionMode },
+            isLeftSwipeEnabled = { !drawerLayout.isActionMode },
+            isRightSwipeEnabled = { !drawerLayout.isActionMode },
             onSwiped = { position, swipeDirection, _ ->
                 val icon = iconAdapter.getItemByPosition(position)
                 when (swipeDirection) {
@@ -271,7 +271,7 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
                 setTitle(getString(R.string.settings))
                 setView(dialogBinding.root)
                 setNegativeButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_cancel), null)
-                setPositiveButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_apply)) { d, w ->
+                setPositiveButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_apply)) { _, _ ->
                     lifecycleScope.launch {
                         updateUserSettings {
                             it.copy(

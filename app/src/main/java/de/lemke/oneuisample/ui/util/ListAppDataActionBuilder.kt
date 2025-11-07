@@ -22,9 +22,9 @@ class ListAppDataActionBuilder(val appInfo: AppInfo) : AppDataBuilder<AppInfoDat
             null,
             null,
             null,
-            false,
-            false,
-            false
+            selected = false,
+            dimmed = false,
+            isValueInSubLabel = false
         )
     
 }

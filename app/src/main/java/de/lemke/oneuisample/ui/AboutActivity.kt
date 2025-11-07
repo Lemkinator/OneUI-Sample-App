@@ -82,9 +82,9 @@ class AboutActivity : AppCompatActivity() {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, getString(R.string.link_oneui_design).toUri()))
         } catch (e: ActivityNotFoundException) {
-            e.printStackTrace(); suggestiveSnackBar(getString(R.string.no_browser_app_installed)); false
+            e.printStackTrace(); suggestiveSnackBar(getString(R.string.no_browser_app_installed))
         } catch (e: Exception) {
-            e.printStackTrace(); suggestiveSnackBar(getString(R.string.error_cant_open_url)); false
+            e.printStackTrace(); suggestiveSnackBar(getString(R.string.error_cant_open_url))
         }
     }
 }
