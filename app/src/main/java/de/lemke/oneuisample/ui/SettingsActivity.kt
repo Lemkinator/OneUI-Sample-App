@@ -17,10 +17,11 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.net.toUri
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
 import androidx.preference.SeslSwitchPreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
@@ -38,10 +39,15 @@ import dev.oneuiproject.oneui.preference.InsetPreferenceCategory
 import dev.oneuiproject.oneui.preference.SuggestionCardPreference
 import dev.oneuiproject.oneui.preference.TipsCardPreference
 import dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
+import dev.oneuiproject.oneui.preference.app.DataStorePreferenceFragment
+import dev.oneuiproject.oneui.preference.app.ObservablePreferencesDataStore
 import dev.oneuiproject.oneui.widget.RelativeLink
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import dev.oneuiproject.oneui.design.R as designR
+
+class SampleObservablePreferencesDataStore(sampleAppPreferences: DataStore<Preferences>) :
+    ObservablePreferencesDataStore(sampleAppPreferences)
 
 @AndroidEntryPoint
 class SettingsActivity : AppCompatActivity() {
@@ -54,7 +60,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     @AndroidEntryPoint
-    class SettingsFragment : PreferenceFragmentCompat() {
+    class SettingsFragment : DataStorePreferenceFragment() {
         private lateinit var settingsActivity: SettingsActivity
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
@@ -65,23 +71,29 @@ class SettingsActivity : AppCompatActivity() {
         @Inject
         lateinit var updateUserSettings: UpdateUserSettingsUseCase
 
+        @Inject
+        lateinit var dataStore: DataStore<Preferences>
+
+        override fun getDataStore(): ObservablePreferencesDataStore = SampleObservablePreferencesDataStore(dataStore)
+
         override fun onAttach(context: Context) {
             super.onAttach(context)
             if (activity is SettingsActivity) settingsActivity = activity as SettingsActivity
         }
 
-        override fun onCreatePreferences(bundle: Bundle?, str: String?) {
-            addPreferencesFromResource(R.xml.preferences)
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            super.onCreatePreferences(savedInstanceState, rootKey)
+            setPreferencesFromResource(R.xml.preferences, rootKey)
         }
 
-        override fun onCreate(bundle: Bundle?) {
-            super.onCreate(bundle)
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
             initPreferences()
         }
 
         private fun initPreferences() {
-            darkModePref = findPreference("dark_mode_pref")!!
-            autoDarkModePref = findPreference("dark_mode_auto_pref")!!
+            darkModePref = findPreference("darkModeString")!!
+            autoDarkModePref = findPreference("darkModeAuto")!!
             darkModePref.onNewValue { newValue ->
                 val darkMode = newValue == "1"
                 AppCompatDelegate.setDefaultNightMode(if (darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
@@ -92,15 +104,14 @@ class SettingsActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     if (newValue) AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
                     else AppCompatDelegate.setDefaultNightMode(if (getUserSettings().darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
-                    updateUserSettings { it.copy(autoDarkMode = newValue) }
                 }
             }
             darkModePref.setDividerEnabled(false)
             darkModePref.setTouchEffectEnabled(false)
 
             if (SDK_INT >= TIRAMISU) {
-                findPreference<PreferenceCategory>("language_pref_cat")!!.isVisible = true
-                findPreference<PreferenceScreen>("language_pref")?.onClick {
+                findPreference<PreferenceCategory>("languagePrefCat")!!.isVisible = true
+                findPreference<PreferenceScreen>("languagePref")?.onClick {
                     try {
                         startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri()))
                     } catch (e: ActivityNotFoundException) {
@@ -110,14 +121,14 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
 
-            findPreference<PreferenceScreen>("tos_pref")?.onClick {
+            findPreference<PreferenceScreen>("tos")?.onClick {
                 AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.tos))
                     .setMessage(getString(R.string.tos_content))
                     .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
                     .show()
             }
-            findPreference<PreferenceScreen>("delete_app_data_pref")?.onClick {
+            findPreference<PreferenceScreen>("deleteAppDataPref")?.onClick {
                 AlertDialog.Builder(settingsActivity)
                     .setTitle(R.string.delete_appdata_and_exit)
                     .setMessage(R.string.delete_appdata_and_exit_warning)
@@ -129,7 +140,7 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
-            val suggestionInset = findPreference<InsetPreferenceCategory>("suggestion_inset")!!
+            val suggestionInset = findPreference<InsetPreferenceCategory>("suggestionInset")!!
             suggestion.setOnClosedClickedListener { preferenceScreen.removePreference(suggestionInset) }
             suggestion.setActionButtonOnClickListener {
                 suggestion.startTurnOnAnimation("Turned on")
@@ -144,7 +155,7 @@ class SettingsActivity : AppCompatActivity() {
             }
             val tips = findPreference<TipsCardPreference>("tip")
             tips?.addButton("Button") { suggestiveSnackBar("onClick") }
-            findPreference<EditTextPreference>("edit_text")?.onNewValue {
+            findPreference<EditTextPreference>("editText")?.onNewValue {
                 /* Place your onPreferenceChange logic here */
             }
         }
@@ -161,18 +172,13 @@ class SettingsActivity : AppCompatActivity() {
             super.onResume()
             lifecycleScope.launch {
                 val userSettings = getUserSettings()
-                findPreference<PreferenceCategory>("dev_options")?.isVisible = userSettings.devModeEnabled
-                autoDarkModePref.isChecked = userSettings.autoDarkMode
+                findPreference<PreferenceCategory>("devOptions")?.isVisible = userSettings.devModeEnabled
                 darkModePref.isEnabled = !autoDarkModePref.isChecked
                 darkModePref.value = if (userSettings.darkMode) "1" else "0"
-                findPreference<SeslSwitchPreferenceScreen>("switch_screen")?.apply {
+                findPreference<SeslSwitchPreferenceScreen>("sampleSwitchBar")?.apply {
                     onClick { startActivity(Intent(settingsActivity, SwitchBarActivity::class.java)) }
-                    isChecked = userSettings.sampleSwitchBar
                     summary = if (isChecked) "Enabled" else "Disabled"
-                    onNewValue { newValue ->
-                        summary = if (newValue) "Enabled" else "Disabled"
-                        lifecycleScope.launch { updateUserSettings { it.copy(sampleSwitchBar = newValue) } }
-                    }
+                    onNewValue { newValue -> summary = if (newValue) "Enabled" else "Disabled" }
                 }
             }
         }
