@@ -13,6 +13,7 @@ import android.view.View.SCALE_X
 import android.view.View.SCALE_Y
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
@@ -110,6 +111,24 @@ class MainActivity : AppCompatActivity() {
                 else -> return@onNavigationSingleClick false
             }
             true
+        }
+        binding.navigationView.findMenuItem(R.id.popup_menu)?.apply {
+            setOnMenuItemClickListener {
+                if (binding.drawerLayout.drawerOffset == 0f) binding.drawerLayout.setDrawerOpen(true)
+                else PopupMenu(this@MainActivity, binding.navigationView.findViewById(R.id.popup_menu)).apply {
+                    seslSetOverlapAnchor(false)
+                    setForceShowIcon(true)
+                    seslSetOffset(140, 0)
+                    inflate(R.menu.menu_popup)
+                    setOnMenuItemClickListener { menuItem ->
+                        title = menuItem.title
+                        suggestiveSnackBar("${menuItem.title} clicked")
+                        true
+                    }
+                    show()
+                }
+                true
+            }
         }
         binding.drawerLayout.apply {
             setupHeaderAndNavRail(getString(R.string.about_app))

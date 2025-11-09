@@ -5,12 +5,18 @@
     tools:ignore="AppCompatResource,HardcodedText,AlwaysShowAction">
 
     <item
-        android:id="@+id/bottom_sheet_dest"
-        android:icon="@drawable/ic_oui_category_advanced_options"
-        android:title="@string/bottom_sheet"
+        android:id="@+id/popup_menu"
+        android:icon="@drawable/ic_oui_category_location"
+        android:title="Pop-up Menu"
         app:actionViewClass="dev.oneuiproject.oneui.navigation.widget.DrawerCategoryItemView" />
 
-    <group android:id="@+id/navigation_oobe_group">
+    <group android:id="@+id/navigation_general_group">
+
+        <item
+            android:id="@+id/bottom_sheet_dest"
+            android:icon="@drawable/ic_oui_navigationbar"
+            android:title="@string/bottom_sheet"
+            app:showAsAction="always" />
 
         <item
             android:id="@+id/oobe_dest"

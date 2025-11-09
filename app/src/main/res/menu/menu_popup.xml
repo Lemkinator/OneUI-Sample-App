@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu1"
+        android:icon="@drawable/ic_oui_category_location"
+        android:title="Pop-up menu item 1"
+        tools:ignore="HardcodedText" />
+
+    <item
+        android:id="@+id/menu2"
+        android:icon="@drawable/ic_oui_category_location"
+        android:title="Pop-up menu item 2"
+        tools:ignore="HardcodedText" />
+
+    <item
+        android:id="@+id/menu3"
+        android:icon="@drawable/ic_oui_category_location"
+        android:title="Pop-up menu item 3"
+        tools:ignore="HardcodedText" />
+
+    <item
+        android:id="@+id/menu4"
+        android:icon="@drawable/ic_oui_category_location"
+        android:title="Pop-up menu item 4"
+        tools:ignore="HardcodedText" />
+</menu>
