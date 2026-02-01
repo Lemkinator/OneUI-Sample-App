@@ -7,8 +7,13 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisample.BuildConfig.VERSION_NAME
+import de.lemke.oneuisample.R
+import de.lemke.oneuisample.databinding.ActivityAboutBinding
+import de.lemke.oneuisample.domain.GetUserSettingsUseCase
+import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
+import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.onMultiClick
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Failed
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Loading
@@ -18,12 +23,6 @@ import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.NotUpdatable
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Unset
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.UpdateAvailable
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.UpdateDownloaded
-import de.lemke.oneuisample.BuildConfig.VERSION_NAME
-import de.lemke.oneuisample.R
-import de.lemke.oneuisample.databinding.ActivityAboutBinding
-import de.lemke.oneuisample.domain.GetUserSettingsUseCase
-import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
-import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import dev.oneuiproject.oneui.design.R as designR
@@ -58,7 +57,7 @@ class AboutActivity : AppCompatActivity() {
         }
         binding.aboutButtonStatus.setOnClickListener { changeStatus() }
         binding.aboutButtonGithub.setOnClickListener { openGitHubPage() }
-        binding.aboutButtonOpenSourceLicenses.setOnClickListener { startActivity(Intent(this, OssLicensesMenuActivity::class.java)) }
+        binding.aboutButtonOpenSourceLicenses.setOnClickListener { startActivity(Intent(this, LibsActivity::class.java)) }
     }
 
     private fun setVersionTextView(textView: TextView, devModeEnabled: Boolean) {

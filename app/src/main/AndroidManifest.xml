@@ -14,7 +14,7 @@
         android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
+        android:label="${APP_NAME}"
         android:localeConfig="@xml/locale_config"
         android:resizeableActivity="true"
         android:supportsRtl="true"
@@ -27,6 +27,7 @@
             android:name="theming-meta-xml"
             android:value="@xml/meta_sample_app" />
         <activity android:name="androidx.picker.eyeDropper.SeslEyeDropperActivity" />
+        <activity android:name=".ui.LibsActivity" />
         <activity android:name=".ui.OOBEActivity" />
         <activity android:name=".ui.AboutActivity" />
         <activity android:name=".ui.SeekBarActivity" />
@@ -38,13 +39,6 @@
         <activity
             android:name=".ui.CustomAboutActivity"
             android:configChanges="orientation|screenLayout|screenSize" />
-        <activity
-            android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
-            android:label="@string/oss_license_title"
-            android:theme="@style/AppTheme.OSL" />
-        <activity
-            android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
-            android:theme="@style/AppTheme.OSL" />
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="orientation|screenLayout|screenSize"
@@ -69,7 +63,7 @@
             android:name=".ui.QSTile"
             android:exported="true"
             android:icon="@drawable/ic_oui_labs"
-            android:label="@string/app_name"
+            android:label="${APP_NAME}"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />

@@ -1,0 +1,36 @@
+[versions]
+aboutlibraries = "14.0.0-b02"
+activity-compose = "1.12.3"
+coreSplashscreen = "1.2.0"
+datastorePreferences = "1.2.0"
+gradle = "9.0.0"
+hilt = "2.59"
+kotlin = "2.3.0"
+ksp = "2.3.5"
+lottie = "6.7.1"
+material3 = "1.4.0"
+oneui-design = "0.8.27+oneui8"
+oneui-icons = "1.1.0"
+
+[libraries]
+aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
+oneui-design = { module = "io.github.tribalfs:oneui-design", version.ref = "oneui-design" }
+oneui-icons = { module = "io.github.oneuiproject:icons", version.ref = "oneui-icons" }
+
+[plugins]
+aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
+android-application = { id = "com.android.application", version.ref = "gradle" }
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+[bundles]
+oneui = ["oneui-icons", "oneui-design"]

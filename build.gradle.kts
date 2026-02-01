@@ -1,4 +1,11 @@
+import com.android.build.api.dsl.CommonExtension
 import java.util.Properties
+
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.compose) apply false
+}
 
 /**
  * Converts a camelCase or mixedCase string to ENV_VAR_STYLE (uppercase with underscores).
@@ -25,21 +32,6 @@ fun getProperty(key: String): String =
 val githubUsername = getProperty("ghUsername")
 val githubAccessToken = getProperty("ghAccessToken")
 
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-        maven("https://jitpack.io")
-    }
-
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.0")
-        classpath("com.android.tools.build:gradle:9.0.0")
-        classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.3.5")
-        classpath("com.google.android.gms:oss-licenses-plugin:0.10.10")
-    }
-}
-
 allprojects {
     repositories {
         google()
@@ -54,6 +46,29 @@ allprojects {
     }
 }
 
-plugins {
-    id("com.google.dagger.hilt.android") version "2.59" apply false
+subprojects {
+    plugins.withId("com.android.base") {
+        project.extensions.findByType(CommonExtension::class.java)?.apply {
+            compileOptions.apply {
+                sourceCompatibility = JavaVersion.VERSION_21
+                targetCompatibility = JavaVersion.VERSION_21
+            }
+            configurations.all {
+                exclude(group = "androidx.core", module = "core")
+                exclude(group = "androidx.core", module = "core-ktx")
+                exclude(group = "androidx.customview", module = "customview")
+                exclude(group = "androidx.coordinatorlayout", module = "coordinatorlayout")
+                exclude(group = "androidx.drawerlayout", module = "drawerlayout")
+                exclude(group = "androidx.viewpager2", module = "viewpager2")
+                exclude(group = "androidx.viewpager", module = "viewpager")
+                exclude(group = "androidx.appcompat", module = "appcompat")
+                exclude(group = "androidx.fragment", module = "fragment")
+                exclude(group = "androidx.preference", module = "preference")
+                exclude(group = "androidx.recyclerview", module = "recyclerview")
+                exclude(group = "androidx.slidingpanelayout", module = "slidingpanelayout")
+                exclude(group = "androidx.swiperefreshlayout", module = "swiperefreshlayout")
+                exclude(group = "com.google.android.material", module = "material")
+            }
+        }
+    }
 }

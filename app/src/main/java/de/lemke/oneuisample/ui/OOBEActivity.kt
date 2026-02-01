@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
 import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
@@ -41,6 +42,7 @@ class OOBEActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= 34) overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, fade_in, fade_out)
         binding = ActivityOobeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.setTitle(BuildConfig.APP_NAME)
         initTipsItems()
         initToSView()
         initFooterButton()
