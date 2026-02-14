@@ -1,8 +1,8 @@
 [versions]
 aboutlibraries = "14.0.0-b02"
 activity-compose = "1.12.4"
-coreSplashscreen = "1.2.0"
-datastorePreferences = "1.2.0"
+core-splashscreen = "1.2.0"
+datastore-preferences = "1.2.0"
 gradle = "9.0.1"
 hilt = "2.59.1"
 kotlin = "2.3.10"
@@ -16,8 +16,8 @@ oneui-icons = "1.1.0"
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore-preferences" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
