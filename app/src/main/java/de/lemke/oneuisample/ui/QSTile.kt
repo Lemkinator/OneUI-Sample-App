@@ -9,7 +9,7 @@ import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.ui.util.toast
 
-@Suppress("redundantOverride","unused")
+@Suppress("redundantOverride", "unused")
 class QSTile : TileService() {
 
     override fun onCreate() {
