@@ -6,27 +6,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.indexscroll.widget.SeslArrayIndexer
-import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import dev.oneuiproject.oneui.delegates.MultiSelector
-import dev.oneuiproject.oneui.delegates.MultiSelectorDelegate
-import dev.oneuiproject.oneui.delegates.SectionIndexerDelegate
-import dev.oneuiproject.oneui.delegates.SemSectionIndexer
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.ui.util.IconAdapter.Icon
 import de.lemke.oneuisample.ui.util.IconAdapter.Payload.HIGHLIGHT
+import dev.oneuiproject.oneui.layout.ToolbarLayout.AllSelectorState
+import dev.oneuiproject.oneui.recyclerview.adapter.IndexedSelectableListAdapter
 import dev.oneuiproject.oneui.utils.SearchHighlighter
-import dev.oneuiproject.oneui.widget.AutoHideIndexScrollView
 import dev.oneuiproject.oneui.widget.SelectableLinearLayout
 
 class IconAdapter(
-    private val context: Context,
-    private val iconIndexScroll: AutoHideIndexScrollView,
-) : RecyclerView.Adapter<IconAdapter.ViewHolder>(),
-    MultiSelector<Long> by MultiSelectorDelegate(isSelectable = { true }),
-    SemSectionIndexer<Icon> by SectionIndexerDelegate(context, labelExtractor = { it.name }) {
+    context: Context,
+    onAllSelectorStateChanged: ((AllSelectorState) -> Unit),
+    onBlockActionMode: (() -> Unit),
+) : IndexedSelectableListAdapter<Icon, IconAdapter.ViewHolder, Long>(
+    indexLabelExtractor = { it: Icon -> it.name },
+    onAllSelectorStateChanged = onAllSelectorStateChanged,
+    onBlockActionMode = onBlockActionMode,
+    selectableIdsProvider = { listItems: List<Icon> -> listItems.map<Icon, Long> { it.id } },
+    selectionChangePayload = Payload.SELECTION_MODE,
+    diffCallback = object : DiffUtil.ItemCallback<Icon>() {
+        override fun areItemsTheSame(oldItem: Icon, newItem: Icon) = oldItem.name == newItem.name
+        override fun areContentsTheSame(oldItem: Icon, newItem: Icon) = oldItem == newItem
+    }
+) {
 
     private val searchHighlighter = SearchHighlighter(context)
 
@@ -34,24 +38,9 @@ class IconAdapter(
         setHasStableIds(true)
     }
 
-    private val asyncListDiffer = AsyncListDiffer(this, object : DiffUtil.ItemCallback<Icon>() {
-        override fun areItemsTheSame(oldItem: Icon, newItem: Icon) = oldItem == newItem
-        override fun areContentsTheSame(oldItem: Icon, newItem: Icon) = oldItem.id == newItem.id
-    })
-
     var onClickItem: ((Int, Icon, ViewHolder) -> Unit)? = null
 
     var onLongClickItem: (() -> Unit)? = null
-
-    fun submitList(listItems: List<Icon>) {
-        updateSections(listItems)
-        asyncListDiffer.submitList(listItems)
-        updateSelectableIds(listItems.map { it.id })
-        if (listItems.isNotEmpty()) {
-            val indexCharacterString = listItems.map { it.indexChar }.distinct().joinToString("").uppercase()
-            iconIndexScroll.setIndexer(SeslArrayIndexer(listItems.map { it.name }, indexCharacterString))
-        }
-    }
 
     var highlight = ""
         set(value) {
@@ -61,13 +50,9 @@ class IconAdapter(
             }
         }
 
-    private val currentList: List<Icon> get() = asyncListDiffer.currentList
-
-    fun getItemByPosition(position: Int) = currentList[position]
+    fun getItemByPosition(position: Int): Icon = currentList[position]
 
     override fun getItemId(position: Int) = currentList[position].id
-
-    override fun getItemCount(): Int = currentList.size
 
     override fun getItemViewType(position: Int): Int = 0
 

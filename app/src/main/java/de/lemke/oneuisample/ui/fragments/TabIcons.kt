@@ -13,6 +13,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.toColorInt
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
+import androidx.indexscroll.widget.SeslArrayIndexer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -34,7 +35,6 @@ import de.lemke.oneuisample.domain.ObserveUserSettingsUseCase
 import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
 import de.lemke.oneuisample.ui.util.IconAdapter
 import de.lemke.oneuisample.ui.util.IconAdapter.Icon
-import de.lemke.oneuisample.ui.util.IconAdapter.Payload.SELECTION_MODE
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
@@ -62,9 +62,15 @@ import dev.oneuiproject.oneui.R as iconsR
 class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator by AppBarAwareYTranslator() {
     private val binding by autoCleared { FragmentTabIconsBinding.bind(requireView()) }
     private lateinit var drawerLayout: DrawerLayout
-    private lateinit var iconAdapter: IconAdapter
     private var isSearchUserInputEnabled = false
     private val allSelectorStateFlow: MutableStateFlow<AllSelectorState> = MutableStateFlow(AllSelectorState())
+    private val iconAdapter: IconAdapter by lazy {
+        IconAdapter(
+            requireContext(),
+            onAllSelectorStateChanged = { allSelectorStateFlow.value = it },
+            onBlockActionMode = ::launchActionMode
+        )
+    }
 
     @Inject
     lateinit var observeIconList: ObserveIconListUseCase
@@ -104,15 +110,15 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
     private fun initList() {
         binding.iconList.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = IconAdapter(context, binding.iconIndexScroll).apply { setupOnClickListeners(); iconAdapter = this }
+            adapter = iconAdapter.apply { setupOnClickListeners() }
             itemAnimator = null
             addItemDecoration(SemItemDecoration(context, ALL, NONE).apply { setDividerInsetStart(76.dpToPx(resources)) })
             enableCoreSeslFeatures()
             hideSoftInputOnScroll()
             configureItemSwipeAnimator()
+            iconAdapter.configureWith(this)
+            binding.iconIndexScroll.attachToRecyclerView(this)
         }
-        iconAdapter.configure(binding.iconList, SELECTION_MODE, onAllSelectorStateChanged = { allSelectorStateFlow.value = it })
-        binding.iconIndexScroll.attachToRecyclerView(binding.iconList)
         lifecycleScope.launch {
             val userSettings = getUserSettings()
             binding.iconList.seslSetFastScrollerEnabled(!userSettings.showIndexScroll)
@@ -136,12 +142,14 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
             binding.iconList.isVisible = true
             iconAdapter.highlight = iconsAndSearch.second ?: ""
             iconAdapter.submitList(iconsAndSearch.first)
+            val indexCharacterString = iconsAndSearch.first.map { it.indexChar }.distinct().joinToString("").uppercase()
+            binding.iconIndexScroll.setIndexer(SeslArrayIndexer(iconsAndSearch.first.map { it.name }, indexCharacterString))
         }
     }
 
     private fun IconAdapter.setupOnClickListeners() {
         onClickItem = { position, icon, _ ->
-            if (isActionMode) onToggleItem(icon.id, position)
+            if (isActionMode) toggleItem(icon.id, position)
             else suggestiveSnackBar(icon.beautifiedName, actionText = getString(R.string.ok))
         }
         onLongClickItem = {
@@ -209,12 +217,12 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
         }
     }
 
-    private fun launchActionMode(initialSelected: Array<Long>? = null) = lifecycleScope.launch {
+    private fun launchActionMode(initialSelected: Set<Long>? = null) = lifecycleScope.launch {
         val userSettings = getUserSettings()
-        iconAdapter.onToggleActionMode(true, initialSelected)
+        iconAdapter.toggleActionMode(true, initialSelected)
         drawerLayout.startActionMode(
             onInflateMenu = { menu, menuInflater -> menuInflater.inflate(R.menu.select, menu) },
-            onEnd = { iconAdapter.onToggleActionMode(false) },
+            onEnd = { iconAdapter.toggleActionMode(false) },
             onSelectMenuItem = {
                 when (it.itemId) {
                     R.id.menu_item_1 -> {
