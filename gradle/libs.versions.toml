@@ -2,7 +2,7 @@
 aboutlibraries = "14.0.0-b02"
 activity-compose = "1.12.4"
 core-splashscreen = "1.2.0"
-datastore-preferences = "1.2.0"
+datastore-preferences = "1.2.1"
 gradle = "9.1.0"
 hilt = "2.59.2"
 kotlin = "2.3.10"
