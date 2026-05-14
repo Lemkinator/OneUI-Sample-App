@@ -1,6 +1,6 @@
 [versions]
 aboutlibraries = "14.2.0"
-activity-compose = "1.12.4"
+activity-compose = "1.13.0"
 core-splashscreen = "1.2.0"
 datastore-preferences = "1.2.1"
 gradle = "9.2.1"
