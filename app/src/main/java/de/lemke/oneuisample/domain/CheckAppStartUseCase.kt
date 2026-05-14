@@ -30,6 +30,7 @@ class CheckAppStartUseCase @Inject constructor(
                     )
                     AppStart.NORMAL
                 }
+
                 else -> AppStart.NORMAL
             }
         }

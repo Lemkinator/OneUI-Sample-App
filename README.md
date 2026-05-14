@@ -14,9 +14,7 @@
 
 # OneUI Sample App
 
-This is a sample app for the <a href="https://github.com/OneUIProject">OneUI libraries</a>.
-While the <a href="https://github.com/OneUIProject/oneui-design#oneui-sample-app">sample app in java</a> is rather meant to test the
-library, this app rather shows the implementation from the user's point of view.
+This is a sample app for the <a href="https://github.com/tribalfs/oneui-design">OneUI-Design lib</a>.
 
 <img loading="lazy" src="img/mobile1.png" height="350" alt="Mobile 1"/>
 <img loading="lazy" src="img/mobile2.png" height="350" alt="Mobile 2"/>

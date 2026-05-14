@@ -32,10 +32,10 @@ import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
 import dev.oneuiproject.oneui.ktx.dpToPx
-import dev.oneuiproject.oneui.ktx.seslSetFastScrollerAdditionalPadding
 import dev.oneuiproject.oneui.ktx.setEntries
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
 import dev.oneuiproject.oneui.layout.startSearchMode
+import dev.oneuiproject.oneui.recyclerview.ktx.seslSetFastScrollerAdditionalPadding
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

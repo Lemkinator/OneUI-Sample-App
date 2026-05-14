@@ -26,5 +26,4 @@ class ListAppDataActionBuilder(val appInfo: AppInfo) : AppDataBuilder<AppInfoDat
             dimmed = false,
             isValueInSubLabel = false
         )
-    
 }
