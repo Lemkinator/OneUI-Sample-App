@@ -17,7 +17,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.net.toUri
-import androidx.core.view.WindowInsetsCompat.Type.systemBars
+import android.view.WindowInsets.Type.systemBars
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
