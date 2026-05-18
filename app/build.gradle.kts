@@ -23,11 +23,11 @@ fun com.android.build.api.dsl.ApplicationBuildType.addConstant(name: String, val
 
 android {
     namespace = "de.lemke.oneuisample"
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig {
         applicationId = "de.lemke.oneuisample"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0.0"
     }
