@@ -15,7 +15,7 @@ fun com.android.build.api.dsl.ApplicationBuildType.addConstant(name: String, val
 
 android {
     namespace = "de.lemke.oneuisample"
-    compileSdk = 37
+    compileSdk = 36
     defaultConfig {
         applicationId = "de.lemke.oneuisample"
         minSdk = 26
@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.material3)
     implementation(libs.core.splashscreen)
+    implementation(libs.core.pip)
     implementation(libs.datastore.preferences)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
