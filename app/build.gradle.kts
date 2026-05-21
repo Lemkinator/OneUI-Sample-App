@@ -53,6 +53,7 @@ android {
         debug {
             isDebuggable = true
             isMinifyEnabled = false
+            //noinspection NotShrinkingResources
             isShrinkResources = false
             applicationIdSuffix = ".debug"
             addConstant("APP_NAME", "OneUI Sample App (Debug)")
