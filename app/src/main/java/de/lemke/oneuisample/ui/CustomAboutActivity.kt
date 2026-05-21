@@ -14,25 +14,25 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.WindowInsets.Type.systemBars
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.net.toUri
-import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import dagger.hilt.android.AndroidEntryPoint
-import dev.oneuiproject.oneui.ktx.invokeOnBack
-import dev.oneuiproject.oneui.ktx.isInMultiWindowModeCompat
-import dev.oneuiproject.oneui.ktx.semSetToolTipText
-import dev.oneuiproject.oneui.ktx.setEnableRecursive
 import de.lemke.oneuisample.BuildConfig.APPLICATION_ID
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityCustomAboutBinding
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
+import dev.oneuiproject.oneui.ktx.invokeOnBack
+import dev.oneuiproject.oneui.ktx.isInMultiWindowModeCompat
+import dev.oneuiproject.oneui.ktx.semSetToolTipText
+import dev.oneuiproject.oneui.ktx.setEnableRecursive
 import dev.oneuiproject.oneui.utils.DeviceLayoutUtil.isPortrait
 import dev.oneuiproject.oneui.widget.AdaptiveCoordinatorLayout.Companion.MARGIN_PROVIDER_ADP_DEFAULT
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,7 +73,7 @@ class CustomAboutActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         setSupportActionBar(binding.aboutToolbar)
-        //Should be called after setSupportActionBar
+        // Should be called after setSupportActionBar
         binding.aboutToolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
         supportActionBar!!.apply {
             setDisplayHomeAsUpEnabled(true)
@@ -104,7 +104,7 @@ class CustomAboutActivity : AppCompatActivity() {
                 binding.aboutAppBar.setExpanded(false)
                 isBackProgressing = false
                 isExpanding = false
-            }
+            },
         )
         updateCallbackState()
     }
@@ -123,10 +123,11 @@ class CustomAboutActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.menu_item_app_info) {
-            val intent = Intent(
-                "android.settings.APPLICATION_DETAILS_SETTINGS",
-                Uri.fromParts("package", APPLICATION_ID, null)
-            )
+            val intent =
+                Intent(
+                    "android.settings.APPLICATION_DETAILS_SETTINGS",
+                    Uri.fromParts("package", APPLICATION_ID, null),
+                )
             intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             return true
@@ -138,7 +139,7 @@ class CustomAboutActivity : AppCompatActivity() {
     private fun refreshAppBar(config: Configuration) {
         if (config.orientation != ORIENTATION_LANDSCAPE && !isInMultiWindowModeCompat) {
             binding.aboutAppBar.apply {
-                seslSetCustomHeightProportion(true, 0.5f)//expanded
+                seslSetCustomHeightProportion(true, 0.5f) // expanded
                 addOnOffsetChangedListener(appBarListener)
                 setExpanded(true, false)
             }
@@ -189,20 +190,24 @@ class CustomAboutActivity : AppCompatActivity() {
         }
     }
 
-    fun openURL(url: String) = try {
-        startActivity(Intent(ACTION_VIEW, url.toUri()))
-    } catch (e: ActivityNotFoundException) {
-        e.printStackTrace()
-        suggestiveSnackBar(getString(R.string.no_browser_app_installed))
-        false
-    } catch (e: Exception) {
-        e.printStackTrace()
-        suggestiveSnackBar(getString(R.string.error_cant_open_url))
-        false
-    }
+    fun openURL(url: String) =
+        try {
+            startActivity(Intent(ACTION_VIEW, url.toUri()))
+        } catch (e: ActivityNotFoundException) {
+            e.printStackTrace()
+            suggestiveSnackBar(getString(R.string.no_browser_app_installed))
+            false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            suggestiveSnackBar(getString(R.string.error_cant_open_url))
+            false
+        }
 
     private inner class AboutAppBarListener : OnOffsetChangedListener {
-        override fun onOffsetChanged(appBarLayout: AppBarLayout, verticalOffset: Int) {
+        override fun onOffsetChanged(
+            appBarLayout: AppBarLayout,
+            verticalOffset: Int,
+        ) {
             // Handle the SwipeUp anim view
             val totalScrollRange = appBarLayout.totalScrollRange
             val abs = abs(verticalOffset)

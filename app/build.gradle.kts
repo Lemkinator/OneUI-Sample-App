@@ -7,8 +7,13 @@ plugins {
 }
 
 fun String.toEnvVarStyle(): String = replace(Regex("([a-z])([A-Z])"), "$1_$2").uppercase()
+
 fun getProperty(key: String): String? = rootProject.findProperty(key)?.toString() ?: System.getenv(key.toEnvVarStyle())
-fun com.android.build.api.dsl.ApplicationBuildType.addConstant(name: String, value: String) {
+
+fun com.android.build.api.dsl.ApplicationBuildType.addConstant(
+    name: String,
+    value: String,
+) {
     manifestPlaceholders += mapOf(name to value)
     buildConfigField("String", name, "\"$value\"")
 }

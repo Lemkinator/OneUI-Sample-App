@@ -60,30 +60,36 @@ class AboutActivity : AppCompatActivity() {
         binding.aboutButtonOpenSourceLicenses.setOnClickListener { startActivity(Intent(this, LibsActivity::class.java)) }
     }
 
-    private fun setVersionTextView(textView: TextView, devModeEnabled: Boolean) {
+    private fun setVersionTextView(
+        textView: TextView,
+        devModeEnabled: Boolean,
+    ) {
         textView.text = getString(designR.string.oui_des_version_info, VERSION_NAME + if (devModeEnabled) " (dev)" else "")
     }
 
     fun changeStatus() {
-        binding.appInfoLayout.updateStatus = when (binding.appInfoLayout.updateStatus) {
-            Loading -> UpdateAvailable
-            UpdateAvailable -> UpdateDownloaded
-            UpdateDownloaded -> NoUpdate
-            NoUpdate -> NotUpdatable
-            NotUpdatable -> NoConnection
-            NoConnection -> Failed("Failed!")
-            Failed("Failed!") -> Unset
-            else -> Loading
-        }
+        binding.appInfoLayout.updateStatus =
+            when (binding.appInfoLayout.updateStatus) {
+                Loading -> UpdateAvailable
+                UpdateAvailable -> UpdateDownloaded
+                UpdateDownloaded -> NoUpdate
+                NoUpdate -> NotUpdatable
+                NotUpdatable -> NoConnection
+                NoConnection -> Failed("Failed!")
+                Failed("Failed!") -> Unset
+                else -> Loading
+            }
     }
 
     fun openGitHubPage() {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, getString(R.string.link_oneui_design).toUri()))
         } catch (e: ActivityNotFoundException) {
-            e.printStackTrace(); suggestiveSnackBar(getString(R.string.no_browser_app_installed))
+            e.printStackTrace()
+            suggestiveSnackBar(getString(R.string.no_browser_app_installed))
         } catch (e: Exception) {
-            e.printStackTrace(); suggestiveSnackBar(getString(R.string.error_cant_open_url))
+            e.printStackTrace()
+            suggestiveSnackBar(getString(R.string.error_cant_open_url))
         }
     }
 }

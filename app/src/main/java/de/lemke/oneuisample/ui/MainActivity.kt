@@ -55,21 +55,23 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         splashScreen.setKeepOnScreenCondition { !isUIReady }
         splashScreen.setOnExitAnimationListener { splash ->
-            val splashAnimator: ObjectAnimator = ObjectAnimator.ofPropertyValuesHolder(
-                splash.view,
-                PropertyValuesHolder.ofFloat(ALPHA, 0f),
-                PropertyValuesHolder.ofFloat(SCALE_X, 1.2f),
-                PropertyValuesHolder.ofFloat(SCALE_Y, 1.2f)
-            )
+            val splashAnimator: ObjectAnimator =
+                ObjectAnimator.ofPropertyValuesHolder(
+                    splash.view,
+                    PropertyValuesHolder.ofFloat(ALPHA, 0f),
+                    PropertyValuesHolder.ofFloat(SCALE_X, 1.2f),
+                    PropertyValuesHolder.ofFloat(SCALE_Y, 1.2f),
+                )
             splashAnimator.interpolator = AccelerateDecelerateInterpolator()
             splashAnimator.duration = 400L
             splashAnimator.doOnEnd { splash.remove() }
-            val contentAnimator: ObjectAnimator = ObjectAnimator.ofPropertyValuesHolder(
-                binding.root,
-                PropertyValuesHolder.ofFloat(ALPHA, 0f, 1f),
-                PropertyValuesHolder.ofFloat(SCALE_X, 1.2f, 1f),
-                PropertyValuesHolder.ofFloat(SCALE_Y, 1.2f, 1f)
-            )
+            val contentAnimator: ObjectAnimator =
+                ObjectAnimator.ofPropertyValuesHolder(
+                    binding.root,
+                    PropertyValuesHolder.ofFloat(ALPHA, 0f, 1f),
+                    PropertyValuesHolder.ofFloat(SCALE_X, 1.2f, 1f),
+                    PropertyValuesHolder.ofFloat(SCALE_Y, 1.2f, 1f),
+                )
             contentAnimator.interpolator = AccelerateDecelerateInterpolator()
             contentAnimator.duration = 400L
             val remainingDuration =
@@ -91,13 +93,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun openOOBE() {
         startActivity(Intent(applicationContext, OOBEActivity::class.java))
-        @Suppress("DEPRECATION") if (SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
+        @Suppress("DEPRECATION")
+        if (SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
         finishAfterTransition()
     }
 
     private suspend fun checkTOS() {
-        if (!getUserSettings().tosAccepted) openOOBE()
-        else openMain()
+        if (!getUserSettings().tosAccepted) {
+            openOOBE()
+        } else {
+            openMain()
+        }
     }
 
     private fun openMain() {
@@ -114,18 +120,21 @@ class MainActivity : AppCompatActivity() {
         }
         binding.navigationView.findMenuItem(R.id.popup_menu)?.apply {
             setOnMenuItemClickListener {
-                if (binding.drawerLayout.drawerOffset == 0f) binding.drawerLayout.setDrawerOpen(true)
-                else PopupMenu(this@MainActivity, binding.navigationView.findViewById(R.id.popup_menu)).apply {
-                    seslSetOverlapAnchor(false)
-                    setForceShowIcon(true)
-                    seslSetOffset(140, 0)
-                    inflate(R.menu.menu_popup)
-                    setOnMenuItemClickListener { menuItem ->
-                        title = menuItem.title
-                        suggestiveSnackBar("${menuItem.title} clicked")
-                        true
+                if (binding.drawerLayout.drawerOffset == 0f) {
+                    binding.drawerLayout.setDrawerOpen(true)
+                } else {
+                    PopupMenu(this@MainActivity, binding.navigationView.findViewById(R.id.popup_menu)).apply {
+                        seslSetOverlapAnchor(false)
+                        setForceShowIcon(true)
+                        seslSetOffset(140, 0)
+                        inflate(R.menu.menu_popup)
+                        setOnMenuItemClickListener { menuItem ->
+                            title = menuItem.title
+                            suggestiveSnackBar("${menuItem.title} clicked")
+                            true
+                        }
+                        show()
                     }
-                    show()
                 }
                 true
             }
@@ -133,7 +142,7 @@ class MainActivity : AppCompatActivity() {
         binding.drawerLayout.apply {
             setupHeaderAndNavRail(getString(R.string.about_app))
             setAppBarSuggestView(createSuggestAppBarModel())
-            //isImmersiveScroll = true
+            // isImmersiveScroll = true
             setupNavigation(binding.bottomTab, binding.navigationHost.getFragment())
         }
         isUIReady = true
@@ -146,16 +155,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun openOOBEAndFinish() {
         startActivity(Intent(this@MainActivity, OOBEActivity::class.java))
-        @Suppress("DEPRECATION") if (SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
+        @Suppress("DEPRECATION")
+        if (SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
         finishAfterTransition()
     }
 
     private fun createSuggestAppBarModel(): SuggestAppBarModel<SuggestAppBarView> =
-        SuggestAppBarModel.Builder(this).apply {
-            setTitle("This is an a suggestion view")
-            setCloseClickListener { _, _ -> binding.drawerLayout.setAppBarSuggestView(null) }
-            setButtons(
-                arrayListOf(ButtonModel(text = "Action Button", clickListener = { _, _ -> suggestiveSnackBar("Action button clicked!") }))
-            )
-        }.build()
+        SuggestAppBarModel
+            .Builder(this)
+            .apply {
+                setTitle("This is an a suggestion view")
+                setCloseClickListener { _, _ -> binding.drawerLayout.setAppBarSuggestView(null) }
+                setButtons(
+                    arrayListOf(
+                        ButtonModel(
+                            text = "Action Button",
+                            clickListener = { _, _ ->
+                                suggestiveSnackBar("Action button clicked!")
+                            },
+                        ),
+                    ),
+                )
+            }.build()
 }

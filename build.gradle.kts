@@ -24,7 +24,14 @@ fun String.toEnvVarStyle(): String = replace(Regex("([a-z])([A-Z])"), "$1_$2").u
  *      ghAccessToken=&lt;YOUR_GITHUB_ACCESS_TOKEN&gt;
  */
 fun getProperty(key: String): String =
-    Properties().apply { rootProject.file("github.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }.getProperty(key)
+    Properties()
+        .apply {
+            rootProject
+                .file("github.properties")
+                .takeIf { it.exists() }
+                ?.inputStream()
+                ?.use { load(it) }
+        }.getProperty(key)
         ?: rootProject.findProperty(key)?.toString()
         ?: System.getenv(key.toEnvVarStyle())
         ?: throw GradleException("Property $key not found")

@@ -36,27 +36,32 @@ class LibsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme(
-                if (isSystemInDarkTheme()) darkColorScheme(
-                    primary = Color(colorResource(id = R.color.primary_color_themed).value),
-                    secondary = Color(colorResource(id = R.color.secondary_text_icon_color_themed).value),
-                    background = Color(colorResource(id = designR.color.oui_des_round_and_bgcolor).value)
-                ) else lightColorScheme(
-                    primary = Color(colorResource(id = R.color.primary_color_themed).value),
-                    secondary = Color(colorResource(id = R.color.secondary_text_icon_color_themed).value),
-                    background = Color(colorResource(id = designR.color.oui_des_round_and_bgcolor).value)
-                )
-            ) {
-                Scaffold(topBar = {
-                    TopAppBar(
-                        title = { Text(stringResource(R.string.open_source_licenses)) },
-                        colors = topAppBarColors(containerColor = Color(colorResource(designR.color.oui_des_round_and_bgcolor).value)),
-                        navigationIcon = {
-                            IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
-                                Icon(imageVector = ImageVector.vectorResource(iconsR.drawable.ic_oui_back), contentDescription = null)
-                            }
-                        }
+                if (isSystemInDarkTheme()) {
+                    darkColorScheme(
+                        primary = Color(colorResource(id = R.color.primary_color_themed).value),
+                        secondary = Color(colorResource(id = R.color.secondary_text_icon_color_themed).value),
+                        background = Color(colorResource(id = designR.color.oui_des_round_and_bgcolor).value),
                     )
-                }
+                } else {
+                    lightColorScheme(
+                        primary = Color(colorResource(id = R.color.primary_color_themed).value),
+                        secondary = Color(colorResource(id = R.color.secondary_text_icon_color_themed).value),
+                        background = Color(colorResource(id = designR.color.oui_des_round_and_bgcolor).value),
+                    )
+                },
+            ) {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text(stringResource(R.string.open_source_licenses)) },
+                            colors = topAppBarColors(containerColor = Color(colorResource(designR.color.oui_des_round_and_bgcolor).value)),
+                            navigationIcon = {
+                                IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
+                                    Icon(imageVector = ImageVector.vectorResource(iconsR.drawable.ic_oui_back), contentDescription = null)
+                                }
+                            },
+                        )
+                    },
                 ) { padding ->
                     Column(modifier = Modifier.padding(padding)) {
                         LibrariesContainer(
