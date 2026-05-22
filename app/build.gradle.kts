@@ -1,9 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.detekt)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.aboutlibraries)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.spotless)
 }
 
 fun String.toEnvVarStyle(): String = replace(Regex("([a-z])([A-Z])"), "$1_$2").uppercase()
@@ -70,7 +72,56 @@ android {
         buildConfig = true
     }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
+    lint {
+        warningsAsErrors = true
+        checkDependencies = false
+        checkReleaseBuilds = true
+        abortOnError = true
+        baseline = file("lint-baseline.xml")
+        sarifReport = true
+        htmlReport = true
+        disable +=
+            setOf(
+                "GradleDependency", // activity-compose 1.13.0 blocked by global androidx.core exclusion
+            )
+    }
 }
+spotless {
+    kotlin {
+        target("src/**/*.kt")
+        targetExclude("**/build/**", "**/generated/**")
+        ktlint(libs.versions.ktlint.get())
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlinGradle {
+        target("*.gradle.kts")
+        ktlint(libs.versions.ktlint.get())
+    }
+    format("xml") {
+        target("src/**/*.xml")
+        targetExclude("**/build/**")
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+detekt {
+    toolVersion = libs.versions.detekt.get()
+    config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+    parallel = true
+    autoCorrect = false
+}
+
+tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
+    jvmTarget = "21"
+    reports {
+        html.required.set(true)
+        sarif.required.set(true)
+    }
+}
+
 dependencies {
     implementation(libs.bundles.oneui)
     implementation(libs.lottie)

@@ -3,14 +3,19 @@ aboutlibraries = "14.2.0"
 activity-compose = "1.12.4"
 core-splashscreen = "1.2.0"
 datastore-preferences = "1.2.1"
+detekt = "2.0.0-alpha.3"
 gradle = "9.2.1"
 hilt = "2.59.2"
 kotlin = "2.3.21"
 ksp = "2.3.8"
+# Used via spotless { kotlin { ktlint(libs.versions.ktlint.get()) } } — version-only ref, no library/plugin alias
+#noinspection UnusedVersionCatalogEntry
+ktlint = "1.8.0"
 lottie = "6.7.1"
 material3 = "1.4.0"
 oneui-design = "0.9.12+oneui8"
 oneui-icons = "1.1.0"
+spotless = "8.5.1"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
@@ -27,10 +32,12 @@ oneui-icons = { module = "io.github.oneuiproject:icons", version.ref = "oneui-ic
 [plugins]
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
 android-application = { id = "com.android.application", version.ref = "gradle" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 
 [bundles]
 oneui = ["oneui-icons", "oneui-design"]
