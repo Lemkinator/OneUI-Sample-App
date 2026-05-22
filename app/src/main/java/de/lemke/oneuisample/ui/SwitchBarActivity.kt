@@ -12,17 +12,20 @@ import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
-import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
-import dev.oneuiproject.oneui.delegates.ViewYTranslator
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivitySwitchbarBinding
 import de.lemke.oneuisample.domain.GetUserSettingsUseCase
 import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
+import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
+import dev.oneuiproject.oneui.delegates.ViewYTranslator
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SwitchBarActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator(), SeslSwitchBar.OnSwitchChangeListener {
+class SwitchBarActivity :
+    AppCompatActivity(),
+    ViewYTranslator by AppBarAwareYTranslator(),
+    SeslSwitchBar.OnSwitchChangeListener {
     private lateinit var binding: ActivitySwitchbarBinding
 
     @Inject
@@ -45,7 +48,10 @@ class SwitchBarActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         binding.switchBarExample.translateYWithAppBar(binding.root.appBarLayout, this)
     }
 
-    override fun onSwitchChanged(switchCompat: SwitchCompat, enabled: Boolean) {
+    override fun onSwitchChanged(
+        switchCompat: SwitchCompat,
+        enabled: Boolean,
+    ) {
         lifecycleScope.launch { updateUserSettings { it.copy(sampleSwitchBar = enabled) } }
         update(enabled)
     }

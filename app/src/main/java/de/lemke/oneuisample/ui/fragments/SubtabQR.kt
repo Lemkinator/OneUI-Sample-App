@@ -10,6 +10,9 @@ import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabQrBinding.inflate
 
 @AndroidEntryPoint
 class SubtabQR : Fragment() {
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        inflate(inflater, container, false).root
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View = inflate(inflater, container, false).root
 }

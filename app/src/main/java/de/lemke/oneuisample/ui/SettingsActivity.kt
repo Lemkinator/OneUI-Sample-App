@@ -46,6 +46,7 @@ import dev.oneuiproject.oneui.design.R as designR
 @AndroidEntryPoint
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
@@ -70,7 +71,10 @@ class SettingsActivity : AppCompatActivity() {
             if (activity is SettingsActivity) settingsActivity = activity as SettingsActivity
         }
 
-        override fun onCreatePreferences(bundle: Bundle?, str: String?) {
+        override fun onCreatePreferences(
+            bundle: Bundle?,
+            str: String?,
+        ) {
             addPreferencesFromResource(R.xml.preferences)
         }
 
@@ -90,8 +94,11 @@ class SettingsActivity : AppCompatActivity() {
             autoDarkModePref.onNewValue { newValue ->
                 darkModePref.isEnabled = !newValue
                 lifecycleScope.launch {
-                    if (newValue) AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
-                    else AppCompatDelegate.setDefaultNightMode(if (getUserSettings().darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
+                    if (newValue) {
+                        AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(if (getUserSettings().darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
+                    }
                     updateUserSettings { it.copy(autoDarkMode = newValue) }
                 }
             }
@@ -111,21 +118,22 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             findPreference<PreferenceScreen>("tos_pref")?.onClick {
-                AlertDialog.Builder(requireContext())
+                AlertDialog
+                    .Builder(requireContext())
                     .setTitle(getString(R.string.tos))
                     .setMessage(getString(R.string.tos_content))
                     .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
                     .show()
             }
             findPreference<PreferenceScreen>("delete_app_data_pref")?.onClick {
-                AlertDialog.Builder(settingsActivity)
+                AlertDialog
+                    .Builder(settingsActivity)
                     .setTitle(R.string.delete_appdata_and_exit)
                     .setMessage(R.string.delete_appdata_and_exit_warning)
                     .setNegativeButton(designR.string.oui_des_common_cancel, null)
                     .setPositiveButton(designR.string.oui_des_common_button_yes) { _: DialogInterface, _: Int ->
                         (settingsActivity.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
-                    }
-                    .show()
+                    }.show()
             }
 
             val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
@@ -145,15 +153,18 @@ class SettingsActivity : AppCompatActivity() {
             val tips = findPreference<TipsCardPreference>("tip")
             tips?.addButton("Button") { suggestiveSnackBar("onClick") }
             findPreference<EditTextPreference>("edit_text")?.onNewValue {
-                /* Place your onPreferenceChange logic here */
+                // Place your onPreferenceChange logic here
             }
         }
 
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        override fun onViewCreated(
+            view: View,
+            savedInstanceState: Bundle?,
+        ) {
             super.onViewCreated(view, savedInstanceState)
             requireView().setBackgroundColor(resources.getColor(designR.color.oui_des_background_color, settingsActivity.theme))
             addRelativeLinksCard(
-                RelativeLink(getString(R.string.about_custom)) { startActivity(Intent(settingsActivity, CustomAboutActivity::class.java)) }
+                RelativeLink(getString(R.string.about_custom)) { startActivity(Intent(settingsActivity, CustomAboutActivity::class.java)) },
             )
         }
 
@@ -178,4 +189,3 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 }
-

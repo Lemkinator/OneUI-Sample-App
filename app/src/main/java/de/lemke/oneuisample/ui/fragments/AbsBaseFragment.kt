@@ -5,7 +5,9 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import com.google.android.material.transition.MaterialElevationScale
 
-abstract class AbsBaseFragment(@LayoutRes layoutResId: Int) : Fragment(layoutResId) {
+abstract class AbsBaseFragment(
+    @LayoutRes layoutResId: Int,
+) : Fragment(layoutResId) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupFragmentTransitions()
@@ -18,6 +20,3 @@ abstract class AbsBaseFragment(@LayoutRes layoutResId: Int) : Fragment(layoutRes
         returnTransition = MaterialElevationScale(false)
     }
 }
-
-
-

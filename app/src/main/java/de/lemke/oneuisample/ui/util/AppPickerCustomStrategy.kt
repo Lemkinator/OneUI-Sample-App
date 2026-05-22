@@ -16,19 +16,23 @@ import androidx.picker.model.AppData.Companion.TYPE_ITEM_SWITCH
 import androidx.picker.model.viewdata.AppInfoViewData
 import androidx.picker.model.viewdata.ViewData
 
-
 @Suppress("unused")
 @Keep
 class AppPickerCustomStrategy : CustomStrategy() {
     override fun getCustomFrameList(): List<CustomFrame> = emptyList()
-    override fun selectComposableType(viewData: ViewData) = if (viewData !is AppInfoViewData) super.selectComposableType(viewData)
-    else when (viewData.itemType) {
-        TYPE_ITEM_CHECKBOX -> ComposableTypeSet.CheckBox
-        TYPE_ITEM_RADIOBUTTON -> ComposableTypeSet.Radio
-        TYPE_ITEM_ACTION_BUTTON -> ActionComposableType()
-        TYPE_ITEM_SWITCH -> ComposableTypeSet.Switch
-        else -> ComposableTypeSet.TextOnly
-    }
+
+    override fun selectComposableType(viewData: ViewData) =
+        if (viewData !is AppInfoViewData) {
+            super.selectComposableType(viewData)
+        } else {
+            when (viewData.itemType) {
+                TYPE_ITEM_CHECKBOX -> ComposableTypeSet.CheckBox
+                TYPE_ITEM_RADIOBUTTON -> ComposableTypeSet.Radio
+                TYPE_ITEM_ACTION_BUTTON -> ActionComposableType()
+                TYPE_ITEM_SWITCH -> ComposableTypeSet.Switch
+                else -> ComposableTypeSet.TextOnly
+            }
+        }
 
     private class ActionComposableType : ComposableType {
         override val leftFrame: ComposableFrame? = null

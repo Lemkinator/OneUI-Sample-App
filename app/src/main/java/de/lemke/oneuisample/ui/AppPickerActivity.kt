@@ -40,7 +40,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator() {
+class AppPickerActivity :
+    AppCompatActivity(),
+    ViewYTranslator by AppBarAwareYTranslator() {
     private lateinit var binding: ActivityAppPickerBinding
     private val packageManagerHelper by lazy { AppPickerContext(this).packageManagerHelper }
     private var currentPicker: SeslAppPickerView? = null
@@ -60,16 +62,32 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean = menuInflater.inflate(R.menu.app_picker, menu).let { true }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.menu_app_picker_search -> binding.toolbarLayout.startSearchMode(
-            onStart = { it.queryHint = "Search apps"; binding.appPickerSpinner.isEnabled = false },
-            onQuery = { query, _ -> applyFilter(query); true },
-            onEnd = { applyFilter(); binding.appPickerSpinner.isEnabled = true },
-            onBackBehavior = CLEAR_DISMISS
-        ).let { true }
 
-        else -> false
-    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
+            R.id.menu_app_picker_search -> {
+                binding.toolbarLayout
+                    .startSearchMode(
+                        onStart = {
+                            it.queryHint = "Search apps"
+                            binding.appPickerSpinner.isEnabled = false
+                        },
+                        onQuery = { query, _ ->
+                            applyFilter(query)
+                            true
+                        },
+                        onEnd = {
+                            applyFilter()
+                            binding.appPickerSpinner.isEnabled = true
+                        },
+                        onBackBehavior = CLEAR_DISMISS,
+                    ).let { true }
+            }
+
+            else -> {
+                false
+            }
+        }
 
     private fun initSpinner() {
         binding.appPickerSpinner.apply {
@@ -102,30 +120,42 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
                 suggestiveSnackBar("${packageManagerHelper.getAppLabel(appInfo)} action clicked!")
                 true
             }
-            setOnStateChangeListener(object : OnStateChangeListener {
-                override fun onStateAllChanged(isAllSelected: Boolean) = setStateAll(isAllSelected)
-                override fun onStateChanged(appInfo: AppInfo, isSelected: Boolean) {
-                    val allItemsSelected = appPicker.appDataList.count { !(it as AppInfoData).selected } == 0
-                    (headerFooterAdapter.getItem(0) as? AllAppsViewData)?.selectableItem?.setValueSilence(allItemsSelected)
-                }
-            })
+            setOnStateChangeListener(
+                object : OnStateChangeListener {
+                    override fun onStateAllChanged(isAllSelected: Boolean) = setStateAll(isAllSelected)
+
+                    override fun onStateChanged(
+                        appInfo: AppInfo,
+                        isSelected: Boolean,
+                    ) {
+                        val allItemsSelected = appPicker.appDataList.count { !(it as AppInfoData).selected } == 0
+                        (headerFooterAdapter.getItem(0) as? AllAppsViewData)?.selectableItem?.setValueSilence(allItemsSelected)
+                    }
+                },
+            )
         }
     }
 
     private fun setAppPickerType(listType: ListTypes) {
         binding.appPickerProgress.isVisible = true
-        currentPicker = when (listType) {
-            ListTypes.TYPE_GRID,
-            ListTypes.TYPE_GRID_CHECKBOX -> binding.appPickerGrid.also {
-                it.isVisible = true
-                binding.appPickerList.isVisible = false
-            }
+        currentPicker =
+            when (listType) {
+                ListTypes.TYPE_GRID,
+                ListTypes.TYPE_GRID_CHECKBOX,
+                -> {
+                    binding.appPickerGrid.also {
+                        it.isVisible = true
+                        binding.appPickerList.isVisible = false
+                    }
+                }
 
-            else -> binding.appPickerList.also {
-                it.isVisible = true
-                binding.appPickerGrid.isVisible = false
+                else -> {
+                    binding.appPickerList.also {
+                        it.isVisible = true
+                        binding.appPickerGrid.isVisible = false
+                    }
+                }
             }
-        }
         configureAppPicker(currentPicker!!)
         val packages = getAppList(this, listType)
         currentPicker!!.submitList(packages)
@@ -133,7 +163,10 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         binding.appPickerProgress.isVisible = false
     }
 
-    fun getAppList(context: Context, listType: ListTypes): List<AppInfoData> {
+    fun getAppList(
+        context: Context,
+        listType: ListTypes,
+    ): List<AppInfoData> {
         val actionIcon by lazy { ContextCompat.getDrawable(context, dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline) }
         return SeslAppInfoDataHelper(context, listType.builder).getPackages().onEach {
             it.subLabel = it.packageName

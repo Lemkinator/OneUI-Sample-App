@@ -19,7 +19,12 @@ fun <T> Fragment.autoCleared(initialize: () -> T): ReadOnlyProperty<Fragment, T>
             _value = null
         }
 
-        override fun getValue(thisRef: Fragment, property: KProperty<*>): T =
-            _value ?: initialize().also { _value = it; viewLifecycleOwner.lifecycle.addObserver(this) }
+        override fun getValue(
+            thisRef: Fragment,
+            property: KProperty<*>,
+        ): T =
+            _value ?: initialize().also {
+                _value = it
+                viewLifecycleOwner.lifecycle.addObserver(this)
+            }
     }
-

@@ -39,7 +39,10 @@ class TabPicker : AbsBaseFragment(R.layout.fragment_tab_picker) {
     private var recentColors: List<Int> = listOf(currentColor)
     private var colorPickerDialog: SeslColorPickerDialog? = null
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         @Suppress("UsePropertyAccessSyntax")
         binding.timePicker.setIs24HourView(is24HourFormat(requireContext()))
@@ -106,7 +109,7 @@ class TabPicker : AbsBaseFragment(R.layout.fragment_tab_picker) {
 
     private fun initSpinner() {
         binding.pickerSpinner.setEntries(
-            listOf("NumberPicker", "TimePicker", "DatePicker", "SpinningDatePicker", "SleepTimePicker")
+            listOf("NumberPicker", "TimePicker", "DatePicker", "SpinningDatePicker", "SleepTimePicker"),
         ) { position, _ ->
             position?.let {
                 binding.numberPicker.isVisible = position == 0
@@ -125,7 +128,9 @@ class TabPicker : AbsBaseFragment(R.layout.fragment_tab_picker) {
             { _: SeslDatePicker?, year: Int, monthOfYear: Int, dayOfMonth: Int ->
                 suggestiveSnackBar(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth))
             },
-            calendar[YEAR], calendar[MONTH], calendar[DAY_OF_MONTH]
+            calendar[YEAR],
+            calendar[MONTH],
+            calendar[DAY_OF_MONTH],
         ).show()
     }
 
@@ -134,7 +139,9 @@ class TabPicker : AbsBaseFragment(R.layout.fragment_tab_picker) {
         SeslTimePickerDialog(
             requireContext(),
             { _: SeslTimePicker?, hourOfDay: Int, minute: Int -> suggestiveSnackBar("$hourOfDay:$minute") },
-            calendar[Calendar.HOUR_OF_DAY], calendar[Calendar.MINUTE], is24HourFormat(requireContext())
+            calendar[Calendar.HOUR_OF_DAY],
+            calendar[Calendar.MINUTE],
+            is24HourFormat(requireContext()),
         ).show()
     }
 
@@ -147,22 +154,28 @@ class TabPicker : AbsBaseFragment(R.layout.fragment_tab_picker) {
     }
 
     private fun openColorPickerDialog() {
-        colorPickerDialog = SeslColorPickerDialog(
-            requireContext(),
-            { color: Int -> currentColor = color; recentColors = (listOf(color) + recentColors).distinct().take(6) },
-            currentColor, recentColors.toIntArray(), true
-        ).apply {
-            setTransparencyControlEnabled(true)
-            show()
-            requireView().post {
-                setOnBitmapSetListener {
-                    val rootView = requireActivity().window.decorView.rootView
-                    val bitmap = createBitmap(rootView.width, rootView.height)
-                    rootView.draw(Canvas(bitmap))
-                    bitmap
+        colorPickerDialog =
+            SeslColorPickerDialog(
+                requireContext(),
+                { color: Int ->
+                    currentColor = color
+                    recentColors = (listOf(color) + recentColors).distinct().take(6)
+                },
+                currentColor,
+                recentColors.toIntArray(),
+                true,
+            ).apply {
+                setTransparencyControlEnabled(true)
+                show()
+                requireView().post {
+                    setOnBitmapSetListener {
+                        val rootView = requireActivity().window.decorView.rootView
+                        val bitmap = createBitmap(rootView.width, rootView.height)
+                        rootView.draw(Canvas(bitmap))
+                        bitmap
+                    }
                 }
             }
-        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

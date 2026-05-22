@@ -49,11 +49,12 @@ class OOBEActivity : AppCompatActivity() {
     }
 
     private fun initTipsItems() {
-        val tipsData = listOf(
-            Triple(R.string.oobe_onboard_msg1_title, R.string.oobe_onboard_msg1_summary, oneuiR.drawable.ic_oui_palette),
-            Triple(R.string.oobe_onboard_msg2_title, R.string.oobe_onboard_msg2_summary, oneuiR.drawable.ic_oui_credit_card_outline),
-            Triple(R.string.oobe_onboard_msg3_title, R.string.oobe_onboard_msg3_summary, oneuiR.drawable.ic_oui_decline)
-        )
+        val tipsData =
+            listOf(
+                Triple(R.string.oobe_onboard_msg1_title, R.string.oobe_onboard_msg1_summary, oneuiR.drawable.ic_oui_palette),
+                Triple(R.string.oobe_onboard_msg2_title, R.string.oobe_onboard_msg2_summary, oneuiR.drawable.ic_oui_credit_card_outline),
+                Triple(R.string.oobe_onboard_msg3_title, R.string.oobe_onboard_msg3_summary, oneuiR.drawable.ic_oui_decline),
+            )
         tipsData.forEach { (titleRes, summaryRes, iconRes) ->
             OnboardingTipsItemView(this).apply {
                 setIcon(iconRes)
@@ -68,21 +69,24 @@ class OOBEActivity : AppCompatActivity() {
         val tos = getString(R.string.tos)
         val tosText = getString(R.string.oobe_tos_text, tos)
         val tosIndex = tosText.lastIndexOf(tos)
-        binding.oobeIntroFooterTosText.text = SpannableString(tosText).apply {
-            setSpan(
-                object : ClickableSpan() {
-                    override fun onClick(widget: View) {
-                        AlertDialog.Builder(this@OOBEActivity)
-                            .setTitle(getString(R.string.tos))
-                            .setMessage(getString(R.string.tos_content))
-                            .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                            .show()
-                    }
-                },
-                tosIndex, tosIndex + tos.length,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
+        binding.oobeIntroFooterTosText.text =
+            SpannableString(tosText).apply {
+                setSpan(
+                    object : ClickableSpan() {
+                        override fun onClick(widget: View) {
+                            AlertDialog
+                                .Builder(this@OOBEActivity)
+                                .setTitle(getString(R.string.tos))
+                                .setMessage(getString(R.string.tos_content))
+                                .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+                                .show()
+                        }
+                    },
+                    tosIndex,
+                    tosIndex + tos.length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                )
+            }
         binding.oobeIntroFooterTosText.movementMethod = LinkMovementMethod.getInstance()
         binding.oobeIntroFooterTosText.highlightColor = Color.TRANSPARENT
     }
@@ -97,7 +101,8 @@ class OOBEActivity : AppCompatActivity() {
                 updateUserSettings { it.copy(tosAccepted = true) }
                 delay(500)
                 startActivity(Intent(this@OOBEActivity, MainActivity::class.java))
-                @Suppress("DEPRECATION") if (Build.VERSION.SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
+                @Suppress("DEPRECATION")
+                if (Build.VERSION.SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
                 finishAfterTransition()
             }
         }

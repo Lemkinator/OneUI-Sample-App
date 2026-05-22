@@ -5,8 +5,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-class ObserveUserSettingsUseCase @Inject constructor(
-    private val userSettingsRepository: UserSettingsRepository,
-) {
-    operator fun invoke() = userSettingsRepository.observeUserSettings().flowOn(Dispatchers.Default)
-}
+class ObserveUserSettingsUseCase
+    @Inject
+    constructor(
+        private val userSettingsRepository: UserSettingsRepository,
+    ) {
+        operator fun invoke() = userSettingsRepository.observeUserSettings().flowOn(Dispatchers.Default)
+    }

@@ -11,8 +11,10 @@ import androidx.picker.model.AppData.ListSwitchAppDataBuilder
 import androidx.picker.model.AppInfoData
 import de.lemke.oneuisample.R
 
-enum class ListTypes(val builder: Class<out AppData.AppDataBuilder<AppInfoData>>, @field:StringRes val description: Int) {
-
+enum class ListTypes(
+    val builder: Class<out AppData.AppDataBuilder<AppInfoData>>,
+    @field:StringRes val description: Int,
+) {
     LIST_TYPE(ListAppDataBuilder::class.java, R.string.list),
 
     TYPE_LIST_ACTION_BUTTON(ListAppDataActionBuilder::class.java, R.string.list_action_button),
@@ -25,6 +27,5 @@ enum class ListTypes(val builder: Class<out AppData.AppDataBuilder<AppInfoData>>
 
     TYPE_GRID(GridAppDataBuilder::class.java, R.string.grid),
 
-    TYPE_GRID_CHECKBOX(GridCheckBoxAppDataBuilder::class.java, R.string.grid_checkbox)
-
+    TYPE_GRID_CHECKBOX(GridCheckBoxAppDataBuilder::class.java, R.string.grid_checkbox),
 }

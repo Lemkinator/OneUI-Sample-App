@@ -11,7 +11,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.snackbar.Snackbar.SESL_SNACKBAR_TYPE_SUGGESTION
 
-
 inline fun Fragment.suggestiveSnackBar(
     @StringRes msg: Int,
     view: View? = null,

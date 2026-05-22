@@ -3,6 +3,7 @@ package de.lemke.oneuisample.ui
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
@@ -85,11 +86,15 @@ class AboutActivity : AppCompatActivity() {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, getString(R.string.link_oneui_design).toUri()))
         } catch (e: ActivityNotFoundException) {
-            e.printStackTrace()
+            Log.w(TAG, "No browser app found", e)
             suggestiveSnackBar(getString(R.string.no_browser_app_installed))
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Failed to open URL", e)
             suggestiveSnackBar(getString(R.string.error_cant_open_url))
         }
+    }
+
+    companion object {
+        private const val TAG = "AboutActivity"
     }
 }

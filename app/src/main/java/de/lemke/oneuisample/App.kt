@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
 import dagger.hilt.android.HiltAndroidApp
 import de.lemke.oneuisample.domain.GetUserSettingsUseCase
-import kotlinx.coroutines.*
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 /**
@@ -13,7 +13,6 @@ import javax.inject.Inject
  */
 @HiltAndroidApp
 class App : Application() {
-
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
 
@@ -22,10 +21,12 @@ class App : Application() {
         runBlocking {
             val userSettings = getUserSettings()
             if (!userSettings.autoDarkMode) {
-                if (userSettings.darkMode) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                if (userSettings.darkMode) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                }
             }
         }
     }
 }
-

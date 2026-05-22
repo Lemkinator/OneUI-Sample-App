@@ -11,6 +11,7 @@ import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.net.Uri
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -194,11 +195,11 @@ class CustomAboutActivity : AppCompatActivity() {
         try {
             startActivity(Intent(ACTION_VIEW, url.toUri()))
         } catch (e: ActivityNotFoundException) {
-            e.printStackTrace()
+            Log.w(TAG, "No browser app found", e)
             suggestiveSnackBar(getString(R.string.no_browser_app_installed))
             false
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Failed to open URL", e)
             suggestiveSnackBar(getString(R.string.error_cant_open_url))
             false
         }
@@ -234,5 +235,9 @@ class CustomAboutActivity : AppCompatActivity() {
         if (isBackProgressing) return
         callbackIsActive.value =
             enable ?: (binding.aboutAppBar.seslIsCollapsed() && isPortrait(resources.configuration) && !isInMultiWindowModeCompat)
+    }
+
+    companion object {
+        private const val TAG = "CustomAboutActivity"
     }
 }

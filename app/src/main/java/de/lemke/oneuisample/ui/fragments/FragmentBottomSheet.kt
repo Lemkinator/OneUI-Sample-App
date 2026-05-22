@@ -21,6 +21,9 @@ class FragmentBottomSheet : SemBottomSheetDialogFragment() {
             setOnShowListener { behavior.state = STATE_EXPANDED }
         }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        FragmentBottomSheetBinding.inflate(inflater, container, false).also { binding = it }.root
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View = FragmentBottomSheetBinding.inflate(inflater, container, false).also { binding = it }.root
 }

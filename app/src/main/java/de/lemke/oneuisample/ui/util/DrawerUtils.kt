@@ -16,7 +16,7 @@ fun NavDrawerLayout.setupHeaderAndNavRail(aboutApp: String) {
     setupHeaderButton(
         icon = AppCompatResources.getDrawable(context, iconsR.drawable.ic_oui_info_outline)!!,
         tooltipText = aboutApp,
-        listener = { context.startActivity(Intent(context, AboutActivity::class.java)) }
+        listener = { context.startActivity(Intent(context, AboutActivity::class.java)) },
     )
     setNavRailContentMinSideMargin(14)
     closeNavRailOnBack = true
@@ -24,7 +24,10 @@ fun NavDrawerLayout.setupHeaderAndNavRail(aboutApp: String) {
 
 private var lastClick = 0L
 
-fun DrawerNavigationView.onNavigationSingleClick(interval: Long = 600, listener: NavigationView.OnNavigationItemSelectedListener) {
+fun DrawerNavigationView.onNavigationSingleClick(
+    interval: Long = 600,
+    listener: NavigationView.OnNavigationItemSelectedListener,
+) {
     setNavigationItemSelectedListener { item ->
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastClick < interval) return@setNavigationItemSelectedListener false

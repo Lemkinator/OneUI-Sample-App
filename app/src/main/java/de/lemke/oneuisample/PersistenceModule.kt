@@ -23,7 +23,4 @@ PersistenceModule : Application() {
     fun provideUserSettingsDataStore(
         @ApplicationContext context: Context,
     ): DataStore<Preferences> = context.userSettingsStore
-
 }
-
-
