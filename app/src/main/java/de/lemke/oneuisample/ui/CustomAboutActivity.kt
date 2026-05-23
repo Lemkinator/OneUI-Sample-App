@@ -191,18 +191,17 @@ class CustomAboutActivity : AppCompatActivity() {
         }
     }
 
-    fun openURL(url: String) =
+    fun openURL(url: String) {
         try {
             startActivity(Intent(ACTION_VIEW, url.toUri()))
         } catch (e: ActivityNotFoundException) {
             Log.w(TAG, "No browser app found", e)
             suggestiveSnackBar(getString(R.string.no_browser_app_installed))
-            false
         } catch (e: SecurityException) {
             Log.e(TAG, "Failed to open URL", e)
             suggestiveSnackBar(getString(R.string.error_cant_open_url))
-            false
         }
+    }
 
     private inner class AboutAppBarListener : OnOffsetChangedListener {
         override fun onOffsetChanged(
