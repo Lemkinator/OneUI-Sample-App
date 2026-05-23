@@ -46,6 +46,7 @@ class SubtabProgressBar : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        animateProgressJob?.cancel()
         animateProgressJob =
             lifecycleScope.launch {
                 while (true) {

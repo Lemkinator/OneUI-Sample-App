@@ -160,7 +160,7 @@
 
     <issue
         id="IconMissingDensityFolder"
-        message="Missing density variation folders in `src\main\res`: drawable-hdpi, drawable-mdpi, drawable-xhdpi">
+        message="Missing density variation folders in `src/main/res`: drawable-hdpi, drawable-mdpi, drawable-xhdpi">
         <location
             file="src/main/res"/>
     </issue>
