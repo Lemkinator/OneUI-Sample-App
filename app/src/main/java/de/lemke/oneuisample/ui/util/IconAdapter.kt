@@ -16,6 +16,7 @@ import dev.oneuiproject.oneui.recyclerview.adapter.IndexedSelectableListAdapter
 import dev.oneuiproject.oneui.utils.SearchHighlighter
 import dev.oneuiproject.oneui.widget.SelectableLinearLayout
 
+@Suppress("IncorrectFormatting") // ktlint indents super-constructor args at 8 sp; IDE expects 4
 class IconAdapter(
     context: Context,
     onAllSelectorStateChanged: ((AllSelectorState) -> Unit),
