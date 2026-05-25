@@ -52,16 +52,14 @@ import dev.oneuiproject.oneui.recyclerview.ktx.hideSoftInputOnScroll
 import dev.oneuiproject.oneui.utils.ItemDecorRule.ALL
 import dev.oneuiproject.oneui.utils.ItemDecorRule.NONE
 import dev.oneuiproject.oneui.utils.SemItemDecoration
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import dev.oneuiproject.oneui.R as iconsR
 
 @AndroidEntryPoint
-class TabIcons :
-    AbsBaseFragment(R.layout.fragment_tab_icons),
-    ViewYTranslator by AppBarAwareYTranslator() {
+class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator by AppBarAwareYTranslator() {
     private val binding by autoCleared { FragmentTabIconsBinding.bind(requireView()) }
     private lateinit var drawerLayout: DrawerLayout
     private var isSearchUserInputEnabled = false

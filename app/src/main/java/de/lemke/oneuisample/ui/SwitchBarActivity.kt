@@ -18,14 +18,11 @@ import de.lemke.oneuisample.domain.GetUserSettingsUseCase
 import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SwitchBarActivity :
-    AppCompatActivity(),
-    ViewYTranslator by AppBarAwareYTranslator(),
-    SeslSwitchBar.OnSwitchChangeListener {
+class SwitchBarActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator(), SeslSwitchBar.OnSwitchChangeListener {
     private lateinit var binding: ActivitySwitchbarBinding
 
     @Inject

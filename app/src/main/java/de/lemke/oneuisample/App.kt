@@ -4,8 +4,8 @@ import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
 import dagger.hilt.android.HiltAndroidApp
 import de.lemke.oneuisample.domain.GetUserSettingsUseCase
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
+import kotlinx.coroutines.runBlocking
 
 /**
  * Main entry point into the application process.

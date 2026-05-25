@@ -36,13 +36,11 @@ import dev.oneuiproject.oneui.ktx.setEntries
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
 import dev.oneuiproject.oneui.layout.startSearchMode
 import dev.oneuiproject.oneui.recyclerview.ktx.seslSetFastScrollerAdditionalPadding
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class AppPickerActivity :
-    AppCompatActivity(),
-    ViewYTranslator by AppBarAwareYTranslator() {
+class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator() {
     private lateinit var binding: ActivityAppPickerBinding
     private val packageManagerHelper by lazy { AppPickerContext(this).packageManagerHelper }
     private var currentPicker: SeslAppPickerView? = null

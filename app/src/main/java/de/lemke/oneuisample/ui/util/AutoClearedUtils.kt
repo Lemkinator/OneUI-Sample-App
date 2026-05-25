@@ -13,18 +13,18 @@ import kotlin.reflect.KProperty
  */
 fun <T> Fragment.autoCleared(initialize: () -> T): ReadOnlyProperty<Fragment, T> =
     object : ReadOnlyProperty<Fragment, T>, DefaultLifecycleObserver {
-        private var _value: T? = null
+        private var cachedValue: T? = null
 
         override fun onDestroy(owner: LifecycleOwner) {
-            _value = null
+            cachedValue = null
         }
 
         override fun getValue(
             thisRef: Fragment,
             property: KProperty<*>,
         ): T =
-            _value ?: initialize().also {
-                _value = it
+            cachedValue ?: initialize().also {
+                cachedValue = it
                 viewLifecycleOwner.lifecycle.addObserver(this)
             }
     }

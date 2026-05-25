@@ -21,7 +21,7 @@ class IconAdapter(
     onAllSelectorStateChanged: ((AllSelectorState) -> Unit),
     onBlockActionMode: (() -> Unit),
 ) : IndexedSelectableListAdapter<Icon, IconAdapter.ViewHolder, Long>(
-        indexLabelExtractor = { icon: Icon -> icon.name },
+        indexLabelExtractor = { it: Icon -> it.name },
         onAllSelectorStateChanged = onAllSelectorStateChanged,
         onBlockActionMode = onBlockActionMode,
         selectableIdsProvider = { listItems: List<Icon> -> listItems.map<Icon, Long> { it.id } },
@@ -105,9 +105,7 @@ class IconAdapter(
         holder.bindActionMode(getItemId(position))
     }
 
-    inner class ViewHolder(
-        itemView: View,
-    ) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var selectableLayout: SelectableLinearLayout? = itemView.findViewById(R.id.listItemSelectableLayout)
         var imageView: ImageView? = itemView.findViewById(R.id.listItemImage)
         var textView: TextView? = itemView.findViewById(R.id.listItemTitle)

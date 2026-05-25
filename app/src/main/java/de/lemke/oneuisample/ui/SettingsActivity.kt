@@ -39,8 +39,8 @@ import dev.oneuiproject.oneui.preference.SuggestionCardPreference
 import dev.oneuiproject.oneui.preference.TipsCardPreference
 import dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
 import dev.oneuiproject.oneui.widget.RelativeLink
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint

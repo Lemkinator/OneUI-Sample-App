@@ -9,9 +9,7 @@ import androidx.picker.model.viewdata.ViewData
 
 @Suppress("unused")
 @Keep
-class AppPickerStrategy(
-    appPickerContext: AppPickerContext,
-) : AppItemStrategy(appPickerContext) {
+class AppPickerStrategy(appPickerContext: AppPickerContext) : AppItemStrategy(appPickerContext) {
     override fun convert(
         dataList: List<AppData>,
         comparator: Comparator<ViewData>?,

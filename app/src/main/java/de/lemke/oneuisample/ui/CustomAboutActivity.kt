@@ -36,8 +36,8 @@ import dev.oneuiproject.oneui.ktx.semSetToolTipText
 import dev.oneuiproject.oneui.ktx.setEnableRecursive
 import dev.oneuiproject.oneui.utils.DeviceLayoutUtil.isPortrait
 import dev.oneuiproject.oneui.widget.AdaptiveCoordinatorLayout.Companion.MARGIN_PROVIDER_ADP_DEFAULT
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.math.abs
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @AndroidEntryPoint
 class CustomAboutActivity : AppCompatActivity() {

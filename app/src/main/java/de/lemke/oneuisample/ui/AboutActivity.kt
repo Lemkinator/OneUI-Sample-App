@@ -24,8 +24,8 @@ import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.NotUpdatable
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Unset
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.UpdateAvailable
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.UpdateDownloaded
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint

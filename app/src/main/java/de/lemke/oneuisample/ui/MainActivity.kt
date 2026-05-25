@@ -31,10 +31,10 @@ import de.lemke.oneuisample.ui.util.onNavigationSingleClick
 import de.lemke.oneuisample.ui.util.setupHeaderAndNavRail
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.navigation.setupNavigation
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.lang.System.currentTimeMillis
 import javax.inject.Inject
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {

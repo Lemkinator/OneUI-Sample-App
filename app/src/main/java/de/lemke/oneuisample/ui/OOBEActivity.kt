@@ -25,9 +25,9 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
 import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
 import dev.oneuiproject.oneui.widget.OnboardingTipsItemView
+import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import dev.oneuiproject.oneui.R as oneuiR
 
 @AndroidEntryPoint
@@ -101,8 +101,7 @@ class OOBEActivity : AppCompatActivity() {
                 updateUserSettings { it.copy(tosAccepted = true) }
                 delay(500)
                 startActivity(Intent(this@OOBEActivity, MainActivity::class.java))
-                @Suppress("DEPRECATION")
-                if (Build.VERSION.SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
+                @Suppress("DEPRECATION") if (Build.VERSION.SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
                 finishAfterTransition()
             }
         }
