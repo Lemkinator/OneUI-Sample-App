@@ -21,7 +21,7 @@ class IconAdapter(
     onAllSelectorStateChanged: ((AllSelectorState) -> Unit),
     onBlockActionMode: (() -> Unit),
 ) : IndexedSelectableListAdapter<Icon, IconAdapter.ViewHolder, Long>(
-        indexLabelExtractor = { it: Icon -> it.name },
+        indexLabelExtractor = { icon: Icon -> icon.name },
         onAllSelectorStateChanged = onAllSelectorStateChanged,
         onBlockActionMode = onBlockActionMode,
         selectableIdsProvider = { listItems: List<Icon> -> listItems.map<Icon, Long> { it.id } },
