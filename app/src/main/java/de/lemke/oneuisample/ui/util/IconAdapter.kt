@@ -25,7 +25,7 @@ class IconAdapter(
         indexLabelExtractor = { icon: Icon -> icon.name },
         onAllSelectorStateChanged = onAllSelectorStateChanged,
         onBlockActionMode = onBlockActionMode,
-        selectableIdsProvider = { listItems: List<Icon> -> listItems.map<Icon, Long> { it.id } },
+        selectableIdsProvider = { listItems: List<Icon> -> listItems.map<Icon, Long> { icon -> icon.id } },
         selectionChangePayload = Payload.SELECTION_MODE,
         diffCallback =
             object : DiffUtil.ItemCallback<Icon>() {
