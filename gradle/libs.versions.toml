@@ -1,5 +1,5 @@
 [versions]
-aboutlibraries = "14.2.0"
+aboutlibraries = "14.2.1"
 activity-compose = "1.12.4"
 core-splashscreen = "1.2.0"
 datastore-preferences = "1.2.1"
@@ -7,7 +7,7 @@ detekt = "2.0.0-alpha.3"
 gradle = "9.2.1"
 hilt = "2.59.2"
 kotlin = "2.3.21"
-ksp = "2.3.8"
+ksp = "2.3.9"
 # Used via spotless { kotlin { ktlint(libs.versions.ktlint.get()) } } — version-only ref, no library/plugin alias
 #noinspection UnusedVersionCatalogEntry
 ktlint = "1.8.0"
