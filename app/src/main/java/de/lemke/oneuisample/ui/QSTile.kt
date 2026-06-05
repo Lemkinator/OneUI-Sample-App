@@ -49,6 +49,7 @@ class QSTile : TileService() {
 
     fun semGetSettingsIntent(): Intent = Intent(this, MainActivity::class.java)
 
+    @Suppress("FunctionOnlyReturningConstant")
     fun semIsToggleButtonExists(): Boolean = true
 
     fun semIsToggleButtonChecked(): Boolean = qsTile.state == Tile.STATE_ACTIVE
@@ -63,5 +64,5 @@ class QSTile : TileService() {
         qsTile.updateTile()
     }
 
-    fun semGetDetailViewSettingButtonName(): CharSequence = "Setting Button Name" // unknown
+    fun semGetDetailViewSettingButtonName(): CharSequence = getString(R.string.settings)
 }
