@@ -10,7 +10,7 @@ detekt = "2.0.0-alpha.3"
 gradle = "9.2.1"
 hilt = "2.59.2"
 # Hilt 2.59.2 does not support Kotlin 2.4.0 metadata, noinspection until a Hilt version ships with Kotlin 2.4 compatibility
-#noinspection GradleDependency
+#noinspection NewerVersionAvailable
 kotlin = "2.3.21"
 ksp = "2.3.9"
 # Used via spotless { kotlin { ktlint(libs.versions.ktlint.get()) } } — version-only ref, no library/plugin alias
