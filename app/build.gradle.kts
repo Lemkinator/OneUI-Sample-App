@@ -75,16 +75,14 @@ android {
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
     lint {
         warningsAsErrors = true
+        // checkDependencies = false: private AAR deps (oneui-design, common-utils) surface
+        // hundreds of unactionable warnings; flip to true once in-project surface is clean
         checkDependencies = false
         checkReleaseBuilds = true
         abortOnError = true
         baseline = file("lint-baseline.xml")
         sarifReport = true
         htmlReport = true
-        disable +=
-            setOf(
-                "GradleDependency", // activity-compose 1.13.0 blocked by global androidx.core exclusion
-            )
     }
 }
 spotless {

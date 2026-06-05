@@ -1,4 +1,4 @@
-package de.lemke.oneuisample.ui.util
+package de.lemke.oneuisample.domain
 
 import android.R.anim.fade_in
 import android.R.anim.fade_out

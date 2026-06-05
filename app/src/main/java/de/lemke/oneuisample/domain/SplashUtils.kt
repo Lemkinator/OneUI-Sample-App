@@ -1,4 +1,4 @@
-package de.lemke.oneuisample.ui.util
+package de.lemke.oneuisample.domain
 
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder

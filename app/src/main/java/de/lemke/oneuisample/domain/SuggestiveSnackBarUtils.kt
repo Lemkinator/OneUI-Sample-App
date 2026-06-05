@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package de.lemke.oneuisample.ui.util
+package de.lemke.oneuisample.domain
 
 import android.R.id.content
 import android.app.Activity

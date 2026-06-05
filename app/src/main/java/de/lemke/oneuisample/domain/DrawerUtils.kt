@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package de.lemke.oneuisample.ui.util
+package de.lemke.oneuisample.domain
 
 import android.content.Intent
 import androidx.appcompat.content.res.AppCompatResources

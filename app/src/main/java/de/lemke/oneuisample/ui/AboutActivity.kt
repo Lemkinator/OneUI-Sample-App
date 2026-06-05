@@ -1,12 +1,9 @@
 package de.lemke.oneuisample.ui
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
@@ -14,7 +11,8 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityAboutBinding
 import de.lemke.oneuisample.domain.GetUserSettingsUseCase
 import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
-import de.lemke.oneuisample.ui.util.suggestiveSnackBar
+import de.lemke.oneuisample.domain.openURL
+import de.lemke.oneuisample.domain.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.onMultiClick
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Failed
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Loading
@@ -57,7 +55,7 @@ class AboutActivity : AppCompatActivity() {
             }
         }
         binding.aboutButtonStatus.setOnClickListener { changeStatus() }
-        binding.aboutButtonGithub.setOnClickListener { openGitHubPage() }
+        binding.aboutButtonGithub.setOnClickListener { openURL(getString(R.string.link_oneui_design)) }
         binding.aboutButtonOpenSourceLicenses.setOnClickListener { startActivity(Intent(this, LibsActivity::class.java)) }
     }
 
@@ -80,21 +78,5 @@ class AboutActivity : AppCompatActivity() {
                 Failed("Failed!") -> Unset
                 else -> Loading
             }
-    }
-
-    fun openGitHubPage() {
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, getString(R.string.link_oneui_design).toUri()))
-        } catch (e: ActivityNotFoundException) {
-            Log.w(TAG, "No browser app found", e)
-            suggestiveSnackBar(getString(R.string.no_browser_app_installed))
-        } catch (e: SecurityException) {
-            Log.e(TAG, "Failed to open URL", e)
-            suggestiveSnackBar(getString(R.string.error_cant_open_url))
-        }
-    }
-
-    companion object {
-        private const val TAG = "AboutActivity"
     }
 }

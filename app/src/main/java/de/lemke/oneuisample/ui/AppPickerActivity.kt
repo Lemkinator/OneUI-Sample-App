@@ -27,8 +27,8 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
 import de.lemke.oneuisample.domain.GetUserSettingsUseCase
 import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
+import de.lemke.oneuisample.domain.suggestiveSnackBar
 import de.lemke.oneuisample.ui.util.ListTypes
-import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
 import dev.oneuiproject.oneui.ktx.dpToPx
@@ -138,9 +138,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         binding.appPickerProgress.isVisible = true
         currentPicker =
             when (listType) {
-                ListTypes.TYPE_GRID,
-                ListTypes.TYPE_GRID_CHECKBOX,
-                -> {
+                ListTypes.TYPE_GRID, ListTypes.TYPE_GRID_CHECKBOX -> {
                     binding.appPickerGrid.also {
                         it.isVisible = true
                         binding.appPickerList.isVisible = false

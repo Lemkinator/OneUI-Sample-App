@@ -21,8 +21,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabWidgetsBinding
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabWidgetsBinding.inflate
+import de.lemke.oneuisample.domain.suggestiveSnackBar
 import de.lemke.oneuisample.ui.MainActivity
-import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.setEntries
 
 @AndroidEntryPoint

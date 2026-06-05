@@ -1,9 +1,7 @@
 package de.lemke.oneuisample.ui
 
 import android.annotation.SuppressLint
-import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.Intent.ACTION_VIEW
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.res.Configuration
@@ -11,14 +9,12 @@ import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.net.Uri
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.WindowInsets.Type.systemBars
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.net.toUri
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
@@ -29,7 +25,7 @@ import de.lemke.oneuisample.BuildConfig.APPLICATION_ID
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityCustomAboutBinding
-import de.lemke.oneuisample.ui.util.suggestiveSnackBar
+import de.lemke.oneuisample.domain.openURL
 import dev.oneuiproject.oneui.ktx.invokeOnBack
 import dev.oneuiproject.oneui.ktx.isInMultiWindowModeCompat
 import dev.oneuiproject.oneui.ktx.semSetToolTipText
@@ -191,18 +187,6 @@ class CustomAboutActivity : AppCompatActivity() {
         }
     }
 
-    fun openURL(url: String) {
-        try {
-            startActivity(Intent(ACTION_VIEW, url.toUri()))
-        } catch (e: ActivityNotFoundException) {
-            Log.w(TAG, "No browser app found", e)
-            suggestiveSnackBar(getString(R.string.no_browser_app_installed))
-        } catch (e: SecurityException) {
-            Log.e(TAG, "Failed to open URL", e)
-            suggestiveSnackBar(getString(R.string.error_cant_open_url))
-        }
-    }
-
     private inner class AboutAppBarListener : OnOffsetChangedListener {
         override fun onOffsetChanged(
             appBarLayout: AppBarLayout,
@@ -234,9 +218,5 @@ class CustomAboutActivity : AppCompatActivity() {
         if (isBackProgressing) return
         callbackIsActive.value =
             enable ?: (binding.aboutAppBar.seslIsCollapsed() && isPortrait(resources.configuration) && !isInMultiWindowModeCompat)
-    }
-
-    companion object {
-        private const val TAG = "CustomAboutActivity"
     }
 }

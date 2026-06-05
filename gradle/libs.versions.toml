@@ -1,11 +1,16 @@
 [versions]
 aboutlibraries = "14.2.1"
+# activity-compose 1.13.x requires androidx.core.app.PictureInPictureProvider, absent in the androidx.core
+# version bundled by oneui-design. Upgrading is blocked until oneui-design ships a compatible core.
+#noinspection GradleDependency
 activity-compose = "1.12.4"
 core-splashscreen = "1.2.0"
 datastore-preferences = "1.2.1"
 detekt = "2.0.0-alpha.3"
 gradle = "9.2.1"
 hilt = "2.59.2"
+# Hilt 2.59.2 does not support Kotlin 2.4.0 metadata, noinspection until a Hilt version ships with Kotlin 2.4 compatibility
+#noinspection GradleDependency
 kotlin = "2.3.21"
 ksp = "2.3.9"
 # Used via spotless { kotlin { ktlint(libs.versions.ktlint.get()) } } — version-only ref, no library/plugin alias
@@ -15,7 +20,7 @@ lottie = "6.7.1"
 material3 = "1.4.0"
 oneui-design = "0.9.12+oneui8"
 oneui-icons = "1.1.0"
-spotless = "8.5.1"
+spotless = "8.6.0"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }

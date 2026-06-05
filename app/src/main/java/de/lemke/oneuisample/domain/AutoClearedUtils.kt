@@ -1,4 +1,4 @@
-package de.lemke.oneuisample.ui.util
+package de.lemke.oneuisample.domain
 
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
