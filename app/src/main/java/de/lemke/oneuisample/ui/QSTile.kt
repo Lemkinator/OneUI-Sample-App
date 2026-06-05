@@ -18,7 +18,7 @@ class QSTile : TileService() {
 
     override fun onStartListening() {
         // Called when this tile moves into a listening state.
-        // When this tile is in a listening state it is expected to keep the UI up to date.
+        // When this tile is in a listening state, it is expected to keep the UI up to date.
         // Any listeners or callbacks needed to keep this tile up to date should be registered here.
         super.onStartListening()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
