@@ -14,12 +14,11 @@ suspend fun AppCompatActivity.onboardIfNeeded(
     getUserSettings: GetUserSettingsUseCase,
     allowSkip: Boolean = false,
 ): Boolean {
-    if (allowSkip && intent.getBooleanExtra(EXTRA_SKIP_ONBOARDING, false)) return true
-    val shouldShowOOBE =
-        when (checkAppStart()) {
-            AppStart.FIRST_TIME -> true
-            AppStart.NORMAL, AppStart.FIRST_TIME_VERSION -> !getUserSettings().tosAccepted
-        }
+    val skipRequested = allowSkip && intent.getBooleanExtra(EXTRA_SKIP_ONBOARDING, false)
+    val shouldShowOOBE = !skipRequested && when (checkAppStart()) {
+        AppStart.FIRST_TIME -> true
+        AppStart.NORMAL, AppStart.FIRST_TIME_VERSION -> !getUserSettings().tosAccepted
+    }
     if (shouldShowOOBE) {
         startActivity(
             Intent(this, OOBEActivity::class.java)

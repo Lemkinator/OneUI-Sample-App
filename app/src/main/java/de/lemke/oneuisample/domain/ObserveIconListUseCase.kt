@@ -15,9 +15,9 @@ class ObserveIconListUseCase @Inject constructor(
     private val userSettingsRepository: UserSettingsRepository,
 ) {
     val iconsId =
-        dev.oneuiproject.oneui.R.drawable::class.java.declaredFields.map { field ->
-            field.getInt(null).let { Icon(it, context.resources.getResourceEntryName(it)) }
-        }
+        dev.oneuiproject.oneui.R.drawable::class.java.declaredFields
+            .filter { it.type == Int::class.java }
+            .map { field -> field.getInt(null).let { Icon(it, context.resources.getResourceEntryName(it)) } }
 
     operator fun invoke(): Flow<Pair<List<Icon>, String?>> =
         userSettingsRepository.observeUserSettings().map {
