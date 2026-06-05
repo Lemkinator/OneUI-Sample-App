@@ -83,80 +83,6 @@ class SettingsActivity : AppCompatActivity() {
             initPreferences()
         }
 
-        private fun initPreferences() {
-            darkModePref = findPreference("dark_mode_pref")!!
-            autoDarkModePref = findPreference("dark_mode_auto_pref")!!
-            darkModePref.onNewValue { newValue ->
-                val darkMode = newValue == "1"
-                AppCompatDelegate.setDefaultNightMode(if (darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
-                lifecycleScope.launch { updateUserSettings { it.copy(darkMode = darkMode) } }
-            }
-            autoDarkModePref.onNewValue { newValue ->
-                darkModePref.isEnabled = !newValue
-                lifecycleScope.launch {
-                    if (newValue) {
-                        AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
-                    } else {
-                        AppCompatDelegate.setDefaultNightMode(if (getUserSettings().darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
-                    }
-                    updateUserSettings { it.copy(autoDarkMode = newValue) }
-                }
-            }
-            darkModePref.setDividerEnabled(false)
-            darkModePref.setTouchEffectEnabled(false)
-
-            if (SDK_INT >= TIRAMISU) {
-                findPreference<PreferenceCategory>("language_pref_cat")!!.isVisible = true
-                findPreference<PreferenceScreen>("language_pref")?.onClick {
-                    try {
-                        startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri()))
-                    } catch (e: ActivityNotFoundException) {
-                        e.printStackTrace()
-                        suggestiveSnackBar(getString(R.string.change_language_not_supported_by_device))
-                    }
-                }
-            }
-
-            findPreference<PreferenceScreen>("tos_pref")?.onClick {
-                AlertDialog
-                    .Builder(requireContext())
-                    .setTitle(getString(R.string.tos))
-                    .setMessage(getString(R.string.tos_content))
-                    .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                    .show()
-            }
-            findPreference<PreferenceScreen>("delete_app_data_pref")?.onClick {
-                AlertDialog
-                    .Builder(settingsActivity)
-                    .setTitle(R.string.delete_appdata_and_exit)
-                    .setMessage(R.string.delete_appdata_and_exit_warning)
-                    .setNegativeButton(designR.string.oui_des_common_cancel, null)
-                    .setPositiveButton(designR.string.oui_des_common_button_yes) { _: DialogInterface, _: Int ->
-                        (settingsActivity.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
-                    }.show()
-            }
-
-            val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
-            val suggestionInset = findPreference<InsetPreferenceCategory>("suggestion_inset")!!
-            suggestion.setOnClosedClickedListener { preferenceScreen.removePreference(suggestionInset) }
-            suggestion.setActionButtonOnClickListener {
-                suggestion.startTurnOnAnimation("Turned on")
-                it.postDelayed({
-                    preferenceScreen.removePreference(suggestion)
-                    preferenceScreen.removePreference(suggestionInset)
-                }, 1500)
-            }
-            findPreference<UpdatableWidgetPreference>("updatable")?.onClick {
-                it.widgetLayoutResource = R.layout.sample_pref_widget_progress
-                view?.postDelayed({ it.widgetLayoutResource = R.layout.sample_pref_widget_check }, 2000)
-            }
-            val tips = findPreference<TipsCardPreference>("tip")
-            tips?.addButton("Button") { suggestiveSnackBar("onClick") }
-            findPreference<EditTextPreference>("edit_text")?.onNewValue {
-                // Place your onPreferenceChange logic here
-            }
-        }
-
         override fun onViewCreated(
             view: View,
             savedInstanceState: Bundle?,
@@ -185,6 +111,98 @@ class SettingsActivity : AppCompatActivity() {
                         lifecycleScope.launch { updateUserSettings { it.copy(sampleSwitchBar = newValue) } }
                     }
                 }
+            }
+        }
+
+        private fun initPreferences() {
+            initDarkModePrefs()
+            initLanguagePref()
+            initTosPref()
+            initDeleteAppDataPref()
+            initSuggestionCard()
+            findPreference<UpdatableWidgetPreference>("updatable")?.onClick {
+                it.widgetLayoutResource = R.layout.sample_pref_widget_progress
+                view?.postDelayed({ it.widgetLayoutResource = R.layout.sample_pref_widget_check }, 2000)
+            }
+            val tips = findPreference<TipsCardPreference>("tip")
+            tips?.addButton("Button") { suggestiveSnackBar("onClick") }
+            findPreference<EditTextPreference>("edit_text")?.onNewValue { suggestiveSnackBar("New value: $it") }
+        }
+
+        private fun initDarkModePrefs() {
+            darkModePref = findPreference("dark_mode_pref")!!
+            autoDarkModePref = findPreference("dark_mode_auto_pref")!!
+            darkModePref.onNewValue { newValue ->
+                val darkMode = newValue == "1"
+                AppCompatDelegate.setDefaultNightMode(if (darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
+                lifecycleScope.launch { updateUserSettings { it.copy(darkMode = darkMode) } }
+            }
+            autoDarkModePref.onNewValue { newValue ->
+                darkModePref.isEnabled = !newValue
+                lifecycleScope.launch {
+                    if (newValue) {
+                        AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(if (getUserSettings().darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
+                    }
+                    updateUserSettings { it.copy(autoDarkMode = newValue) }
+                }
+            }
+            darkModePref.setDividerEnabled(false)
+            darkModePref.setTouchEffectEnabled(false)
+        }
+
+        private fun initLanguagePref() {
+            if (SDK_INT >= TIRAMISU) {
+                findPreference<PreferenceCategory>("language_pref_cat")!!.isVisible = true
+                findPreference<PreferenceScreen>("language_pref")?.onClick {
+                    try {
+                        startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri()))
+                    } catch (e: ActivityNotFoundException) {
+                        e.printStackTrace()
+                        suggestiveSnackBar(getString(R.string.change_language_not_supported_by_device))
+                    }
+                }
+            }
+        }
+
+        private fun initTosPref() {
+            findPreference<PreferenceScreen>("tos_pref")?.onClick {
+                AlertDialog
+                    .Builder(requireContext())
+                    .setTitle(getString(R.string.tos))
+                    .setMessage(getString(R.string.tos_content))
+                    .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+                    .show()
+            }
+        }
+
+        private fun initDeleteAppDataPref() {
+            findPreference<PreferenceScreen>("delete_app_data_pref")?.onClick {
+                AlertDialog
+                    .Builder(settingsActivity)
+                    .setTitle(R.string.delete_appdata_and_exit)
+                    .setMessage(R.string.delete_appdata_and_exit_warning)
+                    .setNegativeButton(designR.string.oui_des_common_cancel, null)
+                    .setPositiveButton(designR.string.oui_des_common_button_yes) { _: DialogInterface, _: Int ->
+                        (settingsActivity.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
+                    }.show()
+            }
+        }
+
+        private fun initSuggestionCard() {
+            val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
+            val suggestionInset = findPreference<InsetPreferenceCategory>("suggestion_inset")!!
+            suggestion.setOnClosedClickedListener { preferenceScreen.removePreference(suggestionInset) }
+            suggestion.setActionButtonOnClickListener {
+                suggestion.startTurnOnAnimation("Turned on")
+                it.postDelayed(
+                    {
+                        preferenceScreen.removePreference(suggestion)
+                        preferenceScreen.removePreference(suggestionInset)
+                    },
+                    1500,
+                )
             }
         }
     }
