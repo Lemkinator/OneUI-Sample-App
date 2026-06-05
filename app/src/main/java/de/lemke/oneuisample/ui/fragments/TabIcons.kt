@@ -15,7 +15,6 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.indexscroll.widget.SeslArrayIndexer
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper.END
 import androidx.recyclerview.widget.ItemTouchHelper.START
@@ -34,6 +33,7 @@ import de.lemke.oneuisample.domain.ObserveIconListUseCase
 import de.lemke.oneuisample.domain.ObserveUserSettingsUseCase
 import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
 import de.lemke.oneuisample.domain.autoCleared
+import de.lemke.oneuisample.domain.launchAndRepeatWithViewLifecycle
 import de.lemke.oneuisample.domain.suggestiveSnackBar
 import de.lemke.oneuisample.ui.util.IconAdapter
 import de.lemke.oneuisample.ui.util.IconAdapter.Icon
@@ -93,10 +93,8 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
         drawerLayout = requireActivity().findViewById(R.id.drawerLayout)
         initList()
         setupMenuProvider()
-        lifecycleScope.launch {
-            updateUserSettings { it.copy(searchActive = false) }
-            observeIconList().flowWithLifecycle(lifecycle).collectLatest { updateList(it) }
-        }
+        lifecycleScope.launch { updateUserSettings { it.copy(searchActive = false) } }
+        launchAndRepeatWithViewLifecycle { observeIconList().collectLatest { updateList(it) } }
         binding.noEntryView.translateYWithAppBar(requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout).appBarLayout, this)
     }
 

@@ -13,12 +13,14 @@ import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition
 import androidx.lifecycle.lifecycleScope
 import java.lang.System.currentTimeMillis
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val SPLASH_ANIMATION_DURATION_MS = 400L
 private const val SPLASH_SCALE_FACTOR = 1.2f
 
+/** Configures the splash screen to stay visible while [condition] holds, then animates it out while fading in [root]. */
 fun AppCompatActivity.configureSplashScreen(
     splashScreen: SplashScreen,
     root: View,
@@ -48,7 +50,7 @@ fun AppCompatActivity.configureSplashScreen(
         val remainingDuration =
             splash.iconAnimationDurationMillis - (currentTimeMillis() - splash.iconAnimationStartMillis).coerceAtLeast(0L)
         lifecycleScope.launch {
-            delay(remainingDuration)
+            delay(remainingDuration.milliseconds)
             splashAnimator.start()
             contentAnimator.start()
         }
