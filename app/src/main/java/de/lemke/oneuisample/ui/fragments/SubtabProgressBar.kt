@@ -9,19 +9,20 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabProgressBarBinding
+import de.lemke.oneuisample.domain.autoCleared
 import de.lemke.oneuisample.domain.launchAndRepeatWithViewLifecycle
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
 class SubtabProgressBar : Fragment() {
-    private lateinit var binding: FragmentTabDesignSubtabProgressBarBinding
+    private val binding by autoCleared { FragmentTabDesignSubtabProgressBarBinding.bind(requireView()) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View = FragmentTabDesignSubtabProgressBarBinding.inflate(inflater, container, false).also { binding = it }.root
+    ): View = FragmentTabDesignSubtabProgressBarBinding.inflate(inflater, container, false).root
 
     override fun onViewCreated(
         view: View,

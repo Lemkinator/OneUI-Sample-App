@@ -21,13 +21,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabWidgetsBinding
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabWidgetsBinding.inflate
+import de.lemke.oneuisample.domain.autoCleared
 import de.lemke.oneuisample.domain.suggestiveSnackBar
 import de.lemke.oneuisample.ui.MainActivity
 import dev.oneuiproject.oneui.ktx.setEntries
 
 @AndroidEntryPoint
 class SubtabWidgets : Fragment() {
-    private lateinit var binding: FragmentTabDesignSubtabWidgetsBinding
+    private val binding by autoCleared { FragmentTabDesignSubtabWidgetsBinding.bind(requireView()) }
     private val faceJsons = listOf("great_face.json", "good_face.json", "checking_face.json", "sad_face.json")
     private val faceJsonNames = listOf("Great Face", "Good Face", "Checking Face", "Sad Face")
 
@@ -35,7 +36,7 @@ class SubtabWidgets : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View = inflate(inflater, container, false).also { binding = it }.root
+    ): View = inflate(inflater, container, false).root
 
     override fun onViewCreated(
         view: View,
