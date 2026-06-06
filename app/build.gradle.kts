@@ -75,7 +75,7 @@ android {
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
     lint {
         warningsAsErrors = true
-        // checkDependencies = false: private AAR deps (oneui-design, common-utils) surface
+        // checkDependencies = false: private AAR deps surface
         // hundreds of unactionable warnings; flip to true once in-project surface is clean
         checkDependencies = false
         checkReleaseBuilds = true
@@ -128,7 +128,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.material3)
     implementation(libs.core.splashscreen)
-    implementation(libs.datastore.preferences)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 }

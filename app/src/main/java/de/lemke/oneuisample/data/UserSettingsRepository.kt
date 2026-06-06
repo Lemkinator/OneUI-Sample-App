@@ -1,140 +1,154 @@
 package de.lemke.oneuisample.data
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
-import de.lemke.oneuisample.data.SearchOnActionMode.Companion.DEFAULT
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import dev.oneuiproject.oneui.layout.ToolbarLayout
-import javax.inject.Inject
-import kotlinx.coroutines.flow.first
+import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
-/** Provides CRUD operations for user settings. */
-class UserSettingsRepository @Inject constructor(
-    private val dataStore: DataStore<Preferences>,
-) {
-    /** Returns the current user settings. */
-    suspend fun getUserSettings(): UserSettings = dataStore.data.map(::settingsFromPreferences).first()
+/** Global singleton for accessing app settings; must be initialized via [initUserSettingsAndSetDarkMode]. */
+lateinit var userSettings: UserSettingsRepository
 
-    /** Returns a user settings flow. */
-    fun observeUserSettings() = dataStore.data.map(::settingsFromPreferences)
-
-    /**
-     * Updates the current user settings and returns the new settings.
-     * @param f Invoked with the current settings; The settings returned from this function will replace the current ones.
-     */
-    suspend fun updateSettings(f: (UserSettings) -> UserSettings): UserSettings {
-        val prefs =
-            dataStore.edit {
-                val newSettings = f(settingsFromPreferences(it))
-                it[KEY_LAST_VERSION_CODE] = newSettings.lastVersionCode
-                it[KEY_LAST_VERSION_NAME] = newSettings.lastVersionName
-                it[KEY_DARK_MODE] = newSettings.darkMode
-                it[KEY_AUTO_DARK_MODE] = newSettings.autoDarkMode
-                it[KEY_TOS_ACCEPTED] = newSettings.tosAccepted
-                it[KEY_DEV_MODE_ENABLED] = newSettings.devModeEnabled
-                it[KEY_SEARCH] = newSettings.search
-                it[KEY_SEARCH_ACTIVE] = newSettings.searchActive
-                it[KEY_APP_PICKER_TYPE] = newSettings.appPickerType
-                it[KEY_SAMPLE_SWITCH_BAR] = newSettings.sampleSwitchBar
-                it[KEY_SHOW_INDEX_SCROLL] = newSettings.showIndexScroll
-                it[KEY_INDEX_SCROLL_SHOW_LETTERS] = newSettings.indexScrollShowLetters
-                it[KEY_INDEX_SCROLL_AUTO_HIDE] = newSettings.indexScrollAutoHide
-                it[KEY_ACTION_MODE_SHOW_CANCEL] = newSettings.actionModeShowCancel
-                it[KEY_ACTION_MODE_KEEP_SEARCH] = newSettings.searchOnActionMode.ordinal
-            }
-        return settingsFromPreferences(prefs)
-    }
-
-    private fun settingsFromPreferences(prefs: Preferences) =
-        UserSettings(
-            lastVersionCode = prefs[KEY_LAST_VERSION_CODE] ?: -1,
-            lastVersionName = prefs[KEY_LAST_VERSION_NAME] ?: "0.0",
-            darkMode = prefs[KEY_DARK_MODE] == true,
-            autoDarkMode = prefs[KEY_AUTO_DARK_MODE] != false,
-            tosAccepted = prefs[KEY_TOS_ACCEPTED] == true,
-            devModeEnabled = prefs[KEY_DEV_MODE_ENABLED] == true,
-            search = prefs[KEY_SEARCH] ?: "",
-            searchActive = prefs[KEY_SEARCH_ACTIVE] == true,
-            appPickerType = prefs[KEY_APP_PICKER_TYPE] ?: 0,
-            sampleSwitchBar = prefs[KEY_SAMPLE_SWITCH_BAR] == true,
-            showIndexScroll = prefs[KEY_SHOW_INDEX_SCROLL] != false,
-            indexScrollShowLetters = prefs[KEY_INDEX_SCROLL_SHOW_LETTERS] != false,
-            indexScrollAutoHide = prefs[KEY_INDEX_SCROLL_AUTO_HIDE] != false,
-            actionModeShowCancel = prefs[KEY_ACTION_MODE_SHOW_CANCEL] == true,
-            searchOnActionMode = prefs[KEY_ACTION_MODE_KEEP_SEARCH]?.let { SearchOnActionMode.entries.getOrNull(it) } ?: DEFAULT,
-        )
-
-    private companion object {
-        private val KEY_LAST_VERSION_CODE = intPreferencesKey("lastVersionCode")
-        private val KEY_LAST_VERSION_NAME = stringPreferencesKey("lastVersionName")
-        private val KEY_DARK_MODE = booleanPreferencesKey("darkMode")
-        private val KEY_AUTO_DARK_MODE = booleanPreferencesKey("autoDarkMode")
-        private val KEY_TOS_ACCEPTED = booleanPreferencesKey("tosAccepted")
-        private val KEY_DEV_MODE_ENABLED = booleanPreferencesKey("devModeEnabled")
-        private val KEY_SEARCH = stringPreferencesKey("search")
-        private val KEY_SEARCH_ACTIVE = booleanPreferencesKey("searchActive")
-        private val KEY_APP_PICKER_TYPE = intPreferencesKey("appPickerType")
-        private val KEY_SAMPLE_SWITCH_BAR = booleanPreferencesKey("sampleSwitchBar")
-        private val KEY_SHOW_INDEX_SCROLL = booleanPreferencesKey("showIndexScroll")
-        private val KEY_INDEX_SCROLL_SHOW_LETTERS = booleanPreferencesKey("indexScrollShowLetters")
-        private val KEY_INDEX_SCROLL_AUTO_HIDE = booleanPreferencesKey("indexScrollAutoHide")
-        private val KEY_ACTION_MODE_SHOW_CANCEL = booleanPreferencesKey("actionModeShowCancel")
-        private val KEY_ACTION_MODE_KEEP_SEARCH = intPreferencesKey("actionModeKeepSearch")
+/** Initializes [userSettings] from the default shared preferences and applies the saved dark mode setting. */
+fun Context.initUserSettingsAndSetDarkMode() {
+    userSettings = UserSettingsRepository(getSharedPreferences("user_settings", MODE_PRIVATE))
+    when {
+        userSettings.autoDarkMode -> setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+        userSettings.darkMode -> setDefaultNightMode(MODE_NIGHT_YES)
+        else -> setDefaultNightMode(MODE_NIGHT_NO)
     }
 }
 
-/** Settings associated with the current user. */
 data class UserSettings(
-    /** Last App-Version-Code */
-    val lastVersionCode: Int,
-    /** Last App-Version-Name */
-    val lastVersionName: String,
-    /** Dark Mode enabled */
-    val darkMode: Boolean,
-    /** Auto Dark Mode enabled */
-    val autoDarkMode: Boolean,
-    /** terms of service accepted by user */
-    val tosAccepted: Boolean,
-    /** devMode enabled */
-    val devModeEnabled: Boolean,
-    /** current search */
-    val search: String,
-    /** search active */
-    val searchActive: Boolean,
-    /** app picker type*/
-    val appPickerType: Int,
-    /** sample switchBar*/
-    val sampleSwitchBar: Boolean,
-    /** show indexScroll*/
-    val showIndexScroll: Boolean,
-    /** show letters in indexScroll*/
-    val indexScrollShowLetters: Boolean,
-    /** auto hide indexScroll*/
-    val indexScrollAutoHide: Boolean,
-    /** show cancel button in action mode*/
-    val actionModeShowCancel: Boolean,
-    /** search on action mode*/
-    val searchOnActionMode: SearchOnActionMode,
+    val darkMode: Boolean = false,
+    val autoDarkMode: Boolean = true,
+    val lastVersionCode: Int = -1,
+    val lastVersionName: String = "0.0",
+    val acceptedTosVersion: Int = -1,
+    val devModeEnabled: Boolean = false,
+    val appPickerType: Int = 0,
+    val sampleSwitchBar: Boolean = false,
+    val showIndexScroll: Boolean = true,
+    val indexScrollShowLetters: Boolean = true,
+    val indexScrollAutoHide: Boolean = true,
+    val actionModeShowCancel: Boolean = false,
+    val searchOnActionMode: SearchOnActionMode = SearchOnActionMode.Dismiss,
+    val search: String = "",
+    val searchActive: Boolean = false,
 )
 
-enum class SearchOnActionMode {
-    DISMISS,
-    NO_DISMISS,
-    CONCURRENT,
-    ;
+/** SharedPreferences-backed repository for user settings. */
+class UserSettingsRepository(private val preferences: SharedPreferences) {
+    var darkMode: Boolean by preferences.delegates.darkMode(false)
+    var autoDarkMode: Boolean by preferences.delegates.boolean(true)
+    var lastVersionCode: Int by preferences.delegates.int(-1)
+    var lastVersionName: String by preferences.delegates.string("0.0")
+    var acceptedTosVersion: Int by preferences.delegates.int(-1)
+    var devModeEnabled: Boolean by preferences.delegates.boolean(false)
+    var appPickerType: Int by preferences.delegates.int(0)
+    var sampleSwitchBar: Boolean by preferences.delegates.boolean(false)
+    var showIndexScroll: Boolean by preferences.delegates.boolean(true)
+    var indexScrollShowLetters: Boolean by preferences.delegates.boolean(true)
+    var indexScrollAutoHide: Boolean by preferences.delegates.boolean(true)
+    var actionModeShowCancel: Boolean by preferences.delegates.boolean(false)
+    var searchOnActionMode: SearchOnActionMode by preferences.delegates.searchOnActionMode()
+    var search: String by preferences.delegates.string("")
+    var searchActive: Boolean by preferences.delegates.boolean(false)
 
-    companion object {
-        val DEFAULT = DISMISS
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    private fun snapshot() =
+        UserSettings(
+            darkMode = darkMode,
+            autoDarkMode = autoDarkMode,
+            lastVersionCode = lastVersionCode,
+            lastVersionName = lastVersionName,
+            acceptedTosVersion = acceptedTosVersion,
+            devModeEnabled = devModeEnabled,
+            appPickerType = appPickerType,
+            sampleSwitchBar = sampleSwitchBar,
+            showIndexScroll = showIndexScroll,
+            indexScrollShowLetters = indexScrollShowLetters,
+            indexScrollAutoHide = indexScrollAutoHide,
+            actionModeShowCancel = actionModeShowCancel,
+            searchOnActionMode = searchOnActionMode,
+            search = search,
+            searchActive = searchActive,
+        )
+
+    /**
+     * A [StateFlow] of the current [UserSettings] snapshot.
+     *
+     * Backed by a single, strongly-held [SharedPreferences.OnSharedPreferenceChangeListener] so the
+     * listener is never GC'd. Per-field flows are available as extension properties:
+     *
+     * ```
+     * userSettings.flow                    // StateFlow<UserSettings> (whole snapshot)
+     * userSettings.flow.search             // Flow<String>
+     * userSettings.flow.searchActive       // Flow<Boolean>
+     *
+     * combine(userSettings.flow.search,
+     *         userSettings.flow.searchActive) { s, a -> ... }
+     * ```
+     */
+    val flow: StateFlow<UserSettings> =
+        callbackFlow {
+            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> trySend(snapshot()) }
+            preferences.registerOnSharedPreferenceChangeListener(listener)
+            awaitClose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+        }.distinctUntilChanged()
+            .stateIn(scope, SharingStarted.Eagerly, snapshot())
+
+    /**
+     * Atomically reads the current snapshot, applies [transform], and writes back only the changed
+     * fields. Use for multi-field batch writes (e.g., a settings dialog applying 5 fields at once).
+     * Synchronized to prevent interleaved concurrent updates.
+     *
+     * Single-field writes can just assign directly: `userSettings.devModeEnabled = true`.
+     *
+     * Usage: `userSettings.update { copy(showIndexScroll = true, indexScrollAutoHide = false) }`
+     */
+    @Synchronized
+    fun update(transform: UserSettings.() -> UserSettings) {
+        val current = flow.value
+        val new = current.transform()
+        if (new.darkMode != current.darkMode) darkMode = new.darkMode
+        if (new.autoDarkMode != current.autoDarkMode) autoDarkMode = new.autoDarkMode
+        if (new.lastVersionCode != current.lastVersionCode) lastVersionCode = new.lastVersionCode
+        if (new.lastVersionName != current.lastVersionName) lastVersionName = new.lastVersionName
+        if (new.acceptedTosVersion != current.acceptedTosVersion) acceptedTosVersion = new.acceptedTosVersion
+        if (new.devModeEnabled != current.devModeEnabled) devModeEnabled = new.devModeEnabled
+        if (new.appPickerType != current.appPickerType) appPickerType = new.appPickerType
+        if (new.sampleSwitchBar != current.sampleSwitchBar) sampleSwitchBar = new.sampleSwitchBar
+        if (new.showIndexScroll != current.showIndexScroll) showIndexScroll = new.showIndexScroll
+        if (new.indexScrollShowLetters != current.indexScrollShowLetters) indexScrollShowLetters = new.indexScrollShowLetters
+        if (new.indexScrollAutoHide != current.indexScrollAutoHide) indexScrollAutoHide = new.indexScrollAutoHide
+        if (new.actionModeShowCancel != current.actionModeShowCancel) actionModeShowCancel = new.actionModeShowCancel
+        if (new.searchOnActionMode != current.searchOnActionMode) searchOnActionMode = new.searchOnActionMode
+        if (new.search != current.search) search = new.search
+        if (new.searchActive != current.searchActive) searchActive = new.searchActive
     }
-
-    fun getToolbarValue(listener: ToolbarLayout.SearchModeListener?) =
-        when (this) {
-            DISMISS -> ToolbarLayout.SearchOnActionMode.Dismiss
-            NO_DISMISS -> ToolbarLayout.SearchOnActionMode.NoDismiss
-            CONCURRENT -> ToolbarLayout.SearchOnActionMode.Concurrent(listener)
-        }
 }
+
+/** Per-field Flow accessors — each emits only when that field changes (distinctUntilChanged applied). **/
+val StateFlow<UserSettings>.search: Flow<String> get() = map { it.search }.distinctUntilChanged()
+val StateFlow<UserSettings>.searchActive: Flow<Boolean> get() = map { it.searchActive }.distinctUntilChanged()
+
+/** Helper retrieving the [ToolbarLayout.SearchOnActionMode] from [userSettings] with a [ToolbarLayout.SearchModeListener]. */
+fun SearchOnActionMode.withListener(listener: ToolbarLayout.SearchModeListener?) =
+    if (this is SearchOnActionMode.Concurrent) SearchOnActionMode.Concurrent(listener) else this

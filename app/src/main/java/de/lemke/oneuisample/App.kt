@@ -1,13 +1,8 @@
 package de.lemke.oneuisample
 
 import android.app.Application
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import dagger.hilt.android.HiltAndroidApp
-import de.lemke.oneuisample.domain.GetUserSettingsUseCase
-import javax.inject.Inject
-import kotlinx.coroutines.runBlocking
+import de.lemke.oneuisample.data.initUserSettingsAndSetDarkMode
 
 /**
  * Main entry point into the application process.
@@ -15,20 +10,8 @@ import kotlinx.coroutines.runBlocking
  */
 @HiltAndroidApp
 class App : Application() {
-    @Inject
-    lateinit var getUserSettings: GetUserSettingsUseCase
-
     override fun onCreate() {
         super.onCreate()
-        runBlocking {
-            val userSettings = getUserSettings()
-            if (!userSettings.autoDarkMode) {
-                if (userSettings.darkMode) {
-                    AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
-                }
-            }
-        }
+        initUserSettingsAndSetDarkMode()
     }
 }
