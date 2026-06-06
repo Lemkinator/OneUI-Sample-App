@@ -1,4 +1,11 @@
 [versions]
+#noinspection UnusedVersionCatalogEntry
+compileSdk = "37"
+#noinspection UnusedVersionCatalogEntry
+targetSdk = "37"
+#noinspection UnusedVersionCatalogEntry
+jvmTarget = "21"
+
 aboutlibraries = "14.2.1"
 # activity-compose 1.13.x requires androidx.core.app.PictureInPictureProvider, absent in the androidx.core
 # version bundled by oneui-design. Upgrading is blocked until oneui-design ships a compatible core.

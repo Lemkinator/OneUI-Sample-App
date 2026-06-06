@@ -22,11 +22,11 @@ fun com.android.build.api.dsl.ApplicationBuildType.addConstant(
 
 android {
     namespace = "de.lemke.oneuisample"
-    compileSdk = 37
+    compileSdk = libs.versions.compileSdk.get().toInt()
     defaultConfig {
         applicationId = "de.lemke.oneuisample"
         minSdk = 26
-        targetSdk = 37
+        targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0.0"
         buildConfigField("boolean", "FIRST_RUN_SKIPPABLE", "false")
@@ -114,7 +114,7 @@ detekt {
 }
 
 tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
-    jvmTarget = "21"
+    jvmTarget = libs.versions.jvmTarget.get()
     reports {
         html.required.set(true)
         sarif.required.set(true)
