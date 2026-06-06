@@ -1,12 +1,12 @@
-package de.lemke.oneuisample.data
+package de.lemke.oneuisample
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import de.lemke.oneuisample.data.UserSettingsRepository
 import javax.inject.Singleton
 
 @Module
@@ -16,5 +16,5 @@ object PersistenceModule {
     @Singleton
     fun provideUserSettingsRepository(
         @ApplicationContext context: Context,
-    ): UserSettingsRepository = UserSettingsRepository(context.getSharedPreferences("user_settings", MODE_PRIVATE))
+    ): UserSettingsRepository = UserSettingsRepository(context.getSharedPreferences("user_settings", Context.MODE_PRIVATE))
 }
