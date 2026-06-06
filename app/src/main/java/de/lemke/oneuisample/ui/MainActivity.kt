@@ -11,6 +11,7 @@ import com.google.android.material.appbar.model.SuggestAppBarModel
 import com.google.android.material.appbar.model.view.SuggestAppBarView
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.BuildConfig
+import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityMainBinding
 import de.lemke.oneuisample.domain.configureSplashScreen
@@ -21,12 +22,14 @@ import de.lemke.oneuisample.domain.overrideFadeOpenTransition
 import de.lemke.oneuisample.domain.setupHeaderAndNavRail
 import de.lemke.oneuisample.domain.suggestiveSnackBar
 import de.lemke.oneuisample.ui.fragments.FragmentBottomSheet
+import javax.inject.Inject
 import dev.oneuiproject.oneui.navigation.setupNavigation
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var isUIReady = false
+    @Inject lateinit var userSettings: UserSettingsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -35,7 +38,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         configureSplashScreen(splashScreen, binding.root) { !isUIReady }
-        if (!onboardIfNeeded(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME, allowSkip = BuildConfig.FIRST_RUN_SKIPPABLE)) return
+        if (!onboardIfNeeded(userSettings, BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME,
+                allowSkip = BuildConfig.FIRST_RUN_SKIPPABLE)) return
         initNavigation()
         initDrawerLayout()
         initPopupMenu()

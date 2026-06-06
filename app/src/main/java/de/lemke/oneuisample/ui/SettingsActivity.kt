@@ -25,7 +25,7 @@ import androidx.preference.SeslSwitchPreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.userSettings
+import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivitySettingsBinding
 import de.lemke.oneuisample.domain.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.addRelativeLinksCard
@@ -37,6 +37,7 @@ import dev.oneuiproject.oneui.preference.SuggestionCardPreference
 import dev.oneuiproject.oneui.preference.TipsCardPreference
 import dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
 import dev.oneuiproject.oneui.widget.RelativeLink
+import javax.inject.Inject
 import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint
@@ -55,6 +56,7 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var settingsActivity: SettingsActivity
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
+        @Inject lateinit var userSettings: UserSettingsRepository
 
         override fun onAttach(context: Context) {
             super.onAttach(context)

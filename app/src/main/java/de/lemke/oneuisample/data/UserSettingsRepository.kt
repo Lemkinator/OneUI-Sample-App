@@ -1,12 +1,6 @@
 package de.lemke.oneuisample.data
 
-import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import kotlinx.coroutines.CoroutineScope
@@ -20,19 +14,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-
-/** Global singleton for accessing app settings; must be initialized via [initUserSettingsAndSetDarkMode]. */
-lateinit var userSettings: UserSettingsRepository
-
-/** Initializes [userSettings] from the default shared preferences and applies the saved dark mode setting. */
-fun Context.initUserSettingsAndSetDarkMode() {
-    userSettings = UserSettingsRepository(getSharedPreferences("user_settings", MODE_PRIVATE))
-    when {
-        userSettings.autoDarkMode -> setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
-        userSettings.darkMode -> setDefaultNightMode(MODE_NIGHT_YES)
-        else -> setDefaultNightMode(MODE_NIGHT_NO)
-    }
-}
 
 data class UserSettings(
     val darkMode: Boolean = false,
