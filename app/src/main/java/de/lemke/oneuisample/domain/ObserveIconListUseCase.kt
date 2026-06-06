@@ -2,9 +2,9 @@ package de.lemke.oneuisample.domain
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.data.search
 import de.lemke.oneuisample.data.searchActive
-import de.lemke.oneuisample.data.userSettings
 import de.lemke.oneuisample.ui.util.IconAdapter.Icon
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Singleton
 class ObserveIconListUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
+    private val userSettings: UserSettingsRepository,
 ) {
     val iconsId =
         dev.oneuiproject.oneui.R.drawable::class.java.declaredFields

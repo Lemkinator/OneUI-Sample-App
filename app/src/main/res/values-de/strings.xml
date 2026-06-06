@@ -53,15 +53,15 @@
     <string name="face_widget_text">OneUI Sample App Face Widget</string>
     <string name="face_widget_text_aod">OneUI Sample App AOD Face Widget</string>
 
-    <string name="switch_bar_example">Das ist ein SwitchBar Beispiel.</string>
+    <string name="switch_bar_example">Das ist ein SwitchBar-Beispiel.</string>
 
     <string name="list">Liste</string>
     <string name="list_action_button">Liste, Action Button</string>
     <string name="list_checkbox">Liste, CheckBox</string>
-    <string name="list_checkbox_all_apps">Liste, CheckBox, Alle apps</string>
+    <string name="list_checkbox_all_apps">Liste, CheckBox, alle apps</string>
     <string name="list_radiobutton">Liste, RadioButton</string>
     <string name="list_switch">Liste, Switch</string>
-    <string name="list_switch_all_apps">Liste, Switch, Alle apps</string>
+    <string name="list_switch_all_apps">Liste, Switch, alle apps</string>
     <string name="grid">Grid</string>
     <string name="grid_checkbox">Grid, CheckBox</string>
 

@@ -12,14 +12,18 @@ import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.userSettings
+import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivitySwitchbarBinding
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SwitchBarActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator(), SeslSwitchBar.OnSwitchChangeListener {
     private lateinit var binding: ActivitySwitchbarBinding
+
+    @Inject
+    lateinit var userSettings: UserSettingsRepository
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {

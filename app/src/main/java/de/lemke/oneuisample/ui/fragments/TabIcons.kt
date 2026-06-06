@@ -23,7 +23,7 @@ import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.userSettings
+import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.data.withListener
 import de.lemke.oneuisample.databinding.DialogSettingsBinding
 import de.lemke.oneuisample.databinding.FragmentTabIconsBinding
@@ -68,6 +68,9 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
 
     @Inject
     lateinit var observeIconList: ObserveIconListUseCase
+
+    @Inject
+    lateinit var userSettings: UserSettingsRepository
 
     override fun onViewCreated(
         view: View,
@@ -185,8 +188,8 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
 
     private fun startSearch() = drawerLayout.startSearchMode(searchModeListener, DISMISS)
 
-    val searchModeListener =
-        getSearchListener {
+    val searchModeListener by lazy {
+        getSearchListener(userSettings) {
             seslSetOverflowMenuButtonIcon(AppCompatResources.getDrawable(requireContext(), iconsR.drawable.ic_oui_list_filter))
             seslSetOverflowMenuButtonVisibility(VISIBLE)
             seslSetOnOverflowMenuButtonClickListener {
@@ -199,6 +202,7 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
                 }
             }
         }
+    }
 
     private fun launchActionMode(initialSelected: Set<Long>? = null) {
         iconAdapter.toggleActionMode(true, initialSelected)

@@ -3,11 +3,12 @@ package de.lemke.oneuisample.domain
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import de.lemke.oneuisample.data.userSettings
+import de.lemke.oneuisample.data.UserSettingsRepository
 import dev.oneuiproject.oneui.ktx.hideSoftInput
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 
 fun Fragment.getSearchListener(
+    userSettings: UserSettingsRepository,
     @StringRes queryHint: Int? = null,
     onActivate: SearchView.() -> Unit = {},
 ): ToolbarLayout.SearchModeListener =

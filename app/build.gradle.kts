@@ -22,11 +22,17 @@ fun com.android.build.api.dsl.ApplicationBuildType.addConstant(
 
 android {
     namespace = "de.lemke.oneuisample"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
     defaultConfig {
         applicationId = "de.lemke.oneuisample"
         minSdk = 26
-        targetSdk = libs.versions.targetSdk.get().toInt()
+        targetSdk =
+            libs.versions.targetSdk
+                .get()
+                .toInt()
         versionCode = 1
         versionName = "1.0.0"
         buildConfigField("boolean", "FIRST_RUN_SKIPPABLE", "false")

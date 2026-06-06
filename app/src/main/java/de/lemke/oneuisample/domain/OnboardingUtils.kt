@@ -2,7 +2,7 @@ package de.lemke.oneuisample.domain
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
-import de.lemke.oneuisample.data.userSettings
+import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.OOBEActivity
 
 const val EXTRA_SKIP_ONBOARDING = "skipOnboarding"
@@ -10,11 +10,12 @@ const val EXTRA_VERSION_CODE = "versionCode"
 const val EXTRA_VERSION_NAME = "versionName"
 
 fun AppCompatActivity.onboardIfNeeded(
+    userSettings: UserSettingsRepository,
     versionCode: Int,
     versionName: String,
     allowSkip: Boolean = false,
 ): Boolean {
-    val appStart = checkAppStart(versionCode, versionName)
+    val appStart = checkAppStart(userSettings, versionCode, versionName)
     val skipRequested = allowSkip && intent.getBooleanExtra(EXTRA_SKIP_ONBOARDING, false)
     if (!skipRequested && appStart.shouldShowOOBE) {
         startActivity(

@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.userSettings
+import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivityAboutBinding
 import de.lemke.oneuisample.domain.openURL
 import de.lemke.oneuisample.domain.suggestiveSnackBar
@@ -20,11 +20,15 @@ import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.NotUpdatable
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Unset
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.UpdateAvailable
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.UpdateDownloaded
+import javax.inject.Inject
 import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint
 class AboutActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAboutBinding
+
+    @Inject
+    lateinit var userSettings: UserSettingsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
