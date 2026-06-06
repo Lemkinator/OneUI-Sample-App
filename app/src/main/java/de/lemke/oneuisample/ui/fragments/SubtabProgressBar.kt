@@ -52,7 +52,7 @@ class SubtabProgressBar : Fragment() {
                 while (true) {
                     listOf(binding.progressbar1, binding.progressbar2, binding.progressbar3, binding.progressbar4, binding.progressbar5)
                         .forEach { bar -> bar.progress = (bar.progress + 1) % 1000 }
-                    delay(10)
+                    delay(16)
                 }
             }
     }

@@ -29,10 +29,12 @@ fun <T> Fragment.autoCleared(initialize: () -> T): ReadOnlyProperty<Fragment, T>
             val value = initialize()
             // ON_DESTROY fires before onDestroyView() in modern AndroidX. If binding is accessed
             // during cleanup, skip caching — adding an observer to a DESTROYED lifecycle is a no-op.
-            val lifecycle = viewLifecycleOwner.lifecycle
-            if (lifecycle.currentState != Lifecycle.State.DESTROYED) {
-                cachedValue = value
-                lifecycle.addObserver(this)
+            if (thisRef.view != null) {
+                val lifecycle = viewLifecycleOwner.lifecycle
+                if (lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                    cachedValue = value
+                    lifecycle.addObserver(this)
+                }
             }
             return value
         }

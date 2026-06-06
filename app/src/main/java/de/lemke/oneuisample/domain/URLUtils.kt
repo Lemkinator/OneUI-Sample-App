@@ -2,6 +2,7 @@
 
 package de.lemke.oneuisample.domain
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -38,7 +39,9 @@ fun Context.openURL(url: String?): Boolean =
             toast(getString(R.string.error_cant_open_url))
             false
         } else {
-            startActivity(Intent(ACTION_VIEW, url.toUri()))
+            val intent = Intent(ACTION_VIEW, url.toUri())
+            if (this !is Activity) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
             true
         }
     } catch (e: ActivityNotFoundException) {

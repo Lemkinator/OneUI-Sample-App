@@ -80,6 +80,14 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
         setupMenuProvider()
         userSettings.searchActive = false
         launchAndRepeatWithViewLifecycle { observeIconList().collectLatest { updateList(it) } }
+        launchAndRepeatWithViewLifecycle {
+            userSettings.flow.collectLatest { settings ->
+                binding.iconList.seslSetFastScrollerEnabled(!settings.showIndexScroll)
+                binding.iconIndexScroll.isVisible = settings.showIndexScroll
+                binding.iconIndexScroll.setIndexBarTextMode(settings.indexScrollShowLetters)
+                binding.iconIndexScroll.setAutoHide(settings.indexScrollAutoHide)
+            }
+        }
         binding.noEntryView.translateYWithAppBar(requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout).appBarLayout, this)
     }
 
@@ -114,10 +122,6 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
             iconAdapter.configureWith(this)
             binding.iconIndexScroll.attachToRecyclerView(this)
         }
-        binding.iconList.seslSetFastScrollerEnabled(!userSettings.showIndexScroll)
-        binding.iconIndexScroll.isVisible = userSettings.showIndexScroll
-        binding.iconIndexScroll.setIndexBarTextMode(userSettings.indexScrollShowLetters)
-        binding.iconIndexScroll.setAutoHide(userSettings.indexScrollAutoHide)
     }
 
     private fun updateList(iconsAndSearch: Pair<List<Icon>, String?>) {
@@ -271,10 +275,6 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
                             },
                     )
                 }
-                binding.iconList.seslSetFastScrollerEnabled(!userSettings.showIndexScroll)
-                binding.iconIndexScroll.isVisible = userSettings.showIndexScroll
-                binding.iconIndexScroll.setIndexBarTextMode(userSettings.indexScrollShowLetters)
-                binding.iconIndexScroll.setAutoHide(userSettings.indexScrollAutoHide)
             }
             show()
         }

@@ -18,7 +18,12 @@ class ObserveIconListUseCase @Inject constructor(
     val iconsId =
         dev.oneuiproject.oneui.R.drawable::class.java.declaredFields
             .filter { it.type == Int::class.java }
-            .map { field -> field.getInt(null).let { Icon(it, context.resources.getResourceEntryName(it)) } }
+            .mapNotNull { field ->
+                runCatching {
+                    field.isAccessible = true
+                    field.getInt(null).let { Icon(it, context.resources.getResourceEntryName(it)) }
+                }.getOrNull()
+            }
 
     operator fun invoke() =
         combine(userSettings.flow.search, userSettings.flow.searchActive) { search, active ->
