@@ -1,30 +1,77 @@
 package de.lemke.oneuisample.domain
 
-import android.content.Intent
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import de.lemke.oneuisample.ui.OOBEActivity
+import de.lemke.oneuisample.R
+import de.lemke.oneuisample.data.userSettings
 
-const val EXTRA_SKIP_ONBOARDING = "skipOnboarding"
+private const val TAG = "AppStart"
 
-suspend fun AppCompatActivity.onboardIfNeeded(
-    checkAppStart: CheckAppStartUseCase,
-    getUserSettings: GetUserSettingsUseCase,
-    allowSkip: Boolean = false,
-): Boolean {
-    val skipRequested = allowSkip && intent.getBooleanExtra(EXTRA_SKIP_ONBOARDING, false)
-    val shouldShowOOBE =
-        !skipRequested &&
-            when (checkAppStart()) {
-                AppStart.FIRST_TIME -> true
-                AppStart.NORMAL, AppStart.FIRST_TIME_VERSION -> !getUserSettings().tosAccepted
+/** Result category of an app launch relative to the previously recorded version. */
+enum class AppStartResult { FIRST_TIME, FIRST_TIME_VERSION, NORMAL }
+
+/** Snapshot of version and TOS state captured at app launch. */
+@Suppress("unused")
+class AppStart(
+    val result: AppStartResult,
+    val versionCode: Int,
+    val versionName: String,
+    val lastVersionCode: Int,
+    val lastVersionName: String,
+    val tosVersion: Int,
+    val acceptedTosVersion: Int,
+) {
+    /** `true` if no previous installation was recorded. */
+    val isFirstTime get() = lastVersionCode == -1
+
+    /** `true` if the app was upgraded since the last launch. */
+    val isFirstTimeVersion get() = lastVersionCode in 0..<versionCode
+
+    /** `true` if the user has accepted the current TOS version. */
+    val tosAccepted get() = acceptedTosVersion >= tosVersion
+
+    /** `true` if OOBE should be shown (first install or TOS not accepted). */
+    val shouldShowOOBE get() = isFirstTime || !tosAccepted
+
+    /** `true` if [threshold] falls within the range of version codes updated across on this launch. */
+    fun versionThresholdPassed(threshold: Int) = lastVersionCode >= 0 && threshold in lastVersionCode..<versionCode
+
+    override fun toString(): String =
+        "AppStart(result=$result, versionCode=$versionCode, versionName='$versionName', " +
+            "lastVersionCode=$lastVersionCode, lastVersionName='$lastVersionName', " +
+            "tosVersion=$tosVersion, acceptedTosVersion=$acceptedTosVersion)"
+}
+
+/** Checks whether this is the first run, a version upgrade, or a normal start. Version info is committed by the caller. */
+internal fun AppCompatActivity.checkAppStart(
+    versionCode: Int,
+    versionName: String,
+): AppStart {
+    val lastVersionCode = userSettings.lastVersionCode
+    val lastVersionName = userSettings.lastVersionName
+    val tosVersion = resources.getInteger(R.integer.tos_version)
+    val acceptedTosVersion = userSettings.acceptedTosVersion
+    val result =
+        when {
+            lastVersionCode == -1 -> {
+                AppStartResult.FIRST_TIME
             }
-    if (shouldShowOOBE) {
-        startActivity(
-            Intent(this, OOBEActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
-        )
-        finishWithFade()
-        return false
+
+            lastVersionCode < versionCode -> {
+                AppStartResult.FIRST_TIME_VERSION
+            }
+
+            lastVersionCode > versionCode -> {
+                Log.w(TAG, "Current version code ($versionCode) is less than the one recognized on last startup ($lastVersionCode). ")
+                Log.w(TAG, "Defensively assuming normal app start.")
+                AppStartResult.NORMAL
+            }
+
+            else -> {
+                AppStartResult.NORMAL
+            }
+        }
+    return AppStart(result, versionCode, versionName, lastVersionCode, lastVersionName, tosVersion, acceptedTosVersion).apply {
+        Log.d(TAG, this.toString())
     }
-    return true
 }
