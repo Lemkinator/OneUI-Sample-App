@@ -10,6 +10,7 @@ import androidx.lifecycle.Lifecycle.State.RESUMED
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabProgressBarBinding
 import de.lemke.oneuisample.domain.launchAndRepeatWithViewLifecycle
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
@@ -39,7 +40,7 @@ class SubtabProgressBar : Fragment() {
             while (true) {
                 listOf(binding.progressbar1, binding.progressbar2, binding.progressbar3, binding.progressbar4, binding.progressbar5)
                     .forEach { bar -> bar.progress = (bar.progress + 1) % 1000 }
-                delay(16)
+                delay(16.milliseconds)
             }
         }
     }

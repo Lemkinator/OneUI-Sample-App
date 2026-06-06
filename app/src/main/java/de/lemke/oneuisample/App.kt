@@ -11,14 +11,15 @@ import javax.inject.Inject
 
 @HiltAndroidApp
 class App : Application() {
-    @Inject lateinit var userSettings: UserSettingsRepository
+    @Inject
+    lateinit var userSettings: UserSettingsRepository
 
     override fun onCreate() {
         super.onCreate()
         when {
             userSettings.autoDarkMode -> setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
-            userSettings.darkMode     -> setDefaultNightMode(MODE_NIGHT_YES)
-            else                      -> setDefaultNightMode(MODE_NIGHT_NO)
+            userSettings.darkMode -> setDefaultNightMode(MODE_NIGHT_YES)
+            else -> setDefaultNightMode(MODE_NIGHT_NO)
         }
     }
 }

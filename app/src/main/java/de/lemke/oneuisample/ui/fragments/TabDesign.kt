@@ -27,7 +27,8 @@ class TabDesign : AbsBaseFragment(R.layout.fragment_tab_design) {
                     position: Int,
                     positionOffset: Float,
                     positionOffsetPixels: Int,
-                ) {}
+                ) {
+                }
 
                 override fun onPageSelected(position: Int) {}
 

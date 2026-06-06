@@ -16,6 +16,5 @@ object PersistenceModule {
     @Singleton
     fun provideUserSettingsRepository(
         @ApplicationContext context: Context,
-    ): UserSettingsRepository =
-        UserSettingsRepository(context.getSharedPreferences("user_settings", MODE_PRIVATE))
+    ): UserSettingsRepository = UserSettingsRepository(context.getSharedPreferences("user_settings", MODE_PRIVATE))
 }

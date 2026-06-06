@@ -68,6 +68,7 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
 
     @Inject
     lateinit var observeIconList: ObserveIconListUseCase
+
     @Inject
     lateinit var userSettings: UserSettingsRepository
 

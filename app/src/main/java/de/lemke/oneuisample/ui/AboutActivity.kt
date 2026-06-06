@@ -12,7 +12,6 @@ import de.lemke.oneuisample.databinding.ActivityAboutBinding
 import de.lemke.oneuisample.domain.openURL
 import de.lemke.oneuisample.domain.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.onMultiClick
-import javax.inject.Inject
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Failed
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Loading
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.NoConnection
@@ -21,12 +20,15 @@ import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.NotUpdatable
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Unset
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.UpdateAvailable
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.UpdateDownloaded
+import javax.inject.Inject
 import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint
 class AboutActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAboutBinding
-    @Inject lateinit var userSettings: UserSettingsRepository
+
+    @Inject
+    lateinit var userSettings: UserSettingsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

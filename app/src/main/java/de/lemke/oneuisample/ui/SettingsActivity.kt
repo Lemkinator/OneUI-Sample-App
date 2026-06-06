@@ -56,7 +56,9 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var settingsActivity: SettingsActivity
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
-        @Inject lateinit var userSettings: UserSettingsRepository
+
+        @Inject
+        lateinit var userSettings: UserSettingsRepository
 
         override fun onAttach(context: Context) {
             super.onAttach(context)

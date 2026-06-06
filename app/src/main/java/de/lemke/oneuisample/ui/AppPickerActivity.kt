@@ -41,7 +41,9 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     private lateinit var binding: ActivityAppPickerBinding
     private val packageManagerHelper by lazy { AppPickerContext(this).packageManagerHelper }
     private var currentPicker: SeslAppPickerView? = null
-    @Inject lateinit var userSettings: UserSettingsRepository
+
+    @Inject
+    lateinit var userSettings: UserSettingsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -21,7 +21,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SwitchBarActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator(), SeslSwitchBar.OnSwitchChangeListener {
     private lateinit var binding: ActivitySwitchbarBinding
-    @Inject lateinit var userSettings: UserSettingsRepository
+
+    @Inject
+    lateinit var userSettings: UserSettingsRepository
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {

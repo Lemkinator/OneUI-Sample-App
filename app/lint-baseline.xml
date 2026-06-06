@@ -9,7 +9,7 @@
         <location
             file="src/main/res/drawable/ic_branding.xml"
             line="44"
-            column="35"/>
+            column="35" />
     </issue>
 
     <issue
@@ -20,7 +20,7 @@
         <location
             file="src/main/res/drawable/ic_branding.xml"
             line="54"
-            column="35"/>
+            column="35" />
     </issue>
 
     <issue
@@ -31,7 +31,7 @@
         <location
             file="src/main/res/layout/activity_about.xml"
             line="6"
-            column="5"/>
+            column="5" />
     </issue>
 
     <issue
@@ -42,7 +42,7 @@
         <location
             file="src/main/res/layout/activity_custom_about.xml"
             line="7"
-            column="5"/>
+            column="5" />
     </issue>
 
     <issue
@@ -53,7 +53,7 @@
         <location
             file="src/main/res/values/colors.xml"
             line="6"
-            column="12"/>
+            column="12" />
     </issue>
 
     <issue
@@ -64,7 +64,7 @@
         <location
             file="src/main/res/values/colors.xml"
             line="7"
-            column="12"/>
+            column="12" />
     </issue>
 
     <issue
@@ -75,7 +75,7 @@
         <location
             file="src/main/res/values/colors.xml"
             line="8"
-            column="12"/>
+            column="12" />
     </issue>
 
     <issue
@@ -86,7 +86,7 @@
         <location
             file="src/main/res/values/colors.xml"
             line="9"
-            column="12"/>
+            column="12" />
     </issue>
 
     <issue
@@ -97,7 +97,7 @@
         <location
             file="src/main/res/values/colors.xml"
             line="13"
-            column="12"/>
+            column="12" />
     </issue>
 
     <issue
@@ -108,7 +108,7 @@
         <location
             file="src/main/res/values/strings.xml"
             line="19"
-            column="13"/>
+            column="13" />
     </issue>
 
     <issue
@@ -119,7 +119,7 @@
         <location
             file="src/main/res/values/strings.xml"
             line="93"
-            column="13"/>
+            column="13" />
     </issue>
 
     <issue
@@ -130,7 +130,7 @@
         <location
             file="src/main/res/values/strings.xml"
             line="96"
-            column="13"/>
+            column="13" />
     </issue>
 
     <issue
@@ -141,28 +141,28 @@
         <location
             file="src/main/res/values/theme.xml"
             line="8"
-            column="12"/>
+            column="12" />
     </issue>
 
     <issue
         id="IconLocation"
         message="Found bitmap drawable `res/drawable/about_page_avatar_salvo.png` in densityless folder">
         <location
-            file="src/main/res/drawable/about_page_avatar_salvo.png"/>
+            file="src/main/res/drawable/about_page_avatar_salvo.png" />
     </issue>
 
     <issue
         id="IconLocation"
         message="Found bitmap drawable `res/drawable/about_page_avatar_yann.png` in densityless folder">
         <location
-            file="src/main/res/drawable/about_page_avatar_yann.png"/>
+            file="src/main/res/drawable/about_page_avatar_yann.png" />
     </issue>
 
     <issue
         id="IconMissingDensityFolder"
         message="Missing density variation folders in `src/main/res`: drawable-hdpi, drawable-mdpi, drawable-xhdpi">
         <location
-            file="src/main/res"/>
+            file="src/main/res" />
     </issue>
 
 </issues>
