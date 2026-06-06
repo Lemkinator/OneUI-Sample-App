@@ -123,9 +123,10 @@ class UserSettingsRepository(private val preferences: SharedPreferences) {
      *
      * Usage: `userSettings.update { copy(showIndexScroll = true, indexScrollAutoHide = false) }`
      */
+    @Suppress("CyclomaticComplexMethod")
     @Synchronized
     fun update(transform: UserSettings.() -> UserSettings) {
-        val current = flow.value
+        val current = snapshot()
         val new = current.transform()
         if (new.darkMode != current.darkMode) darkMode = new.darkMode
         if (new.autoDarkMode != current.autoDarkMode) autoDarkMode = new.autoDarkMode

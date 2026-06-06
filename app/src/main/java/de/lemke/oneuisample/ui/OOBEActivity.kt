@@ -24,6 +24,8 @@ import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.userSettings
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
+import de.lemke.oneuisample.domain.EXTRA_VERSION_CODE
+import de.lemke.oneuisample.domain.EXTRA_VERSION_NAME
 import dev.oneuiproject.oneui.widget.OnboardingTipsItemView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -95,6 +97,8 @@ class OOBEActivity : AppCompatActivity() {
             binding.oobeIntroFooterButtonProgress.isVisible = true
             lifecycleScope.launch {
                 userSettings.acceptedTosVersion = resources.getInteger(de.lemke.oneuisample.R.integer.tos_version)
+                userSettings.lastVersionCode = intent.getIntExtra(EXTRA_VERSION_CODE, BuildConfig.VERSION_CODE)
+                userSettings.lastVersionName = intent.getStringExtra(EXTRA_VERSION_NAME) ?: BuildConfig.VERSION_NAME
                 delay(500)
                 startActivity(Intent(this@OOBEActivity, MainActivity::class.java))
                 @Suppress("DEPRECATION") if (Build.VERSION.SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
