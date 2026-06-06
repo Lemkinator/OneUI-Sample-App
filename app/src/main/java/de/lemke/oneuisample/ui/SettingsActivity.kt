@@ -17,7 +17,6 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.net.toUri
-import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -26,9 +25,8 @@ import androidx.preference.SeslSwitchPreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.data.userSettings
 import de.lemke.oneuisample.databinding.ActivitySettingsBinding
-import de.lemke.oneuisample.domain.GetUserSettingsUseCase
-import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
 import de.lemke.oneuisample.domain.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.addRelativeLinksCard
 import dev.oneuiproject.oneui.ktx.onClick
@@ -39,8 +37,6 @@ import dev.oneuiproject.oneui.preference.SuggestionCardPreference
 import dev.oneuiproject.oneui.preference.TipsCardPreference
 import dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
 import dev.oneuiproject.oneui.widget.RelativeLink
-import javax.inject.Inject
-import kotlinx.coroutines.launch
 import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint
@@ -59,12 +55,6 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var settingsActivity: SettingsActivity
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
-
-        @Inject
-        lateinit var getUserSettings: GetUserSettingsUseCase
-
-        @Inject
-        lateinit var updateUserSettings: UpdateUserSettingsUseCase
 
         override fun onAttach(context: Context) {
             super.onAttach(context)
@@ -96,20 +86,17 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onResume() {
             super.onResume()
-            lifecycleScope.launch {
-                val userSettings = getUserSettings()
-                findPreference<PreferenceCategory>("dev_options")?.isVisible = userSettings.devModeEnabled
-                autoDarkModePref.isChecked = userSettings.autoDarkMode
-                darkModePref.isEnabled = !autoDarkModePref.isChecked
-                darkModePref.value = if (userSettings.darkMode) "1" else "0"
-                findPreference<SeslSwitchPreferenceScreen>("switch_screen")?.apply {
-                    onClick { startActivity(Intent(settingsActivity, SwitchBarActivity::class.java)) }
-                    isChecked = userSettings.sampleSwitchBar
-                    summary = if (isChecked) "Enabled" else "Disabled"
-                    onNewValue { newValue ->
-                        summary = if (newValue) "Enabled" else "Disabled"
-                        lifecycleScope.launch { updateUserSettings { it.copy(sampleSwitchBar = newValue) } }
-                    }
+            findPreference<PreferenceCategory>("dev_options")?.isVisible = userSettings.devModeEnabled
+            autoDarkModePref.isChecked = userSettings.autoDarkMode
+            darkModePref.isEnabled = !autoDarkModePref.isChecked
+            darkModePref.value = if (userSettings.darkMode) "1" else "0"
+            findPreference<SeslSwitchPreferenceScreen>("switch_screen")?.apply {
+                onClick { startActivity(Intent(settingsActivity, SwitchBarActivity::class.java)) }
+                isChecked = userSettings.sampleSwitchBar
+                summary = if (isChecked) "Enabled" else "Disabled"
+                onNewValue { newValue ->
+                    summary = if (newValue) "Enabled" else "Disabled"
+                    userSettings.sampleSwitchBar = newValue
                 }
             }
         }
@@ -135,18 +122,16 @@ class SettingsActivity : AppCompatActivity() {
             darkModePref.onNewValue { newValue ->
                 val darkMode = newValue == "1"
                 AppCompatDelegate.setDefaultNightMode(if (darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
-                lifecycleScope.launch { updateUserSettings { it.copy(darkMode = darkMode) } }
+                userSettings.darkMode = darkMode
             }
             autoDarkModePref.onNewValue { newValue ->
                 darkModePref.isEnabled = !newValue
-                lifecycleScope.launch {
-                    if (newValue) {
-                        AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
-                    } else {
-                        AppCompatDelegate.setDefaultNightMode(if (getUserSettings().darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
-                    }
-                    updateUserSettings { it.copy(autoDarkMode = newValue) }
+                if (newValue) {
+                    AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(if (userSettings.darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
                 }
+                userSettings.autoDarkMode = newValue
             }
             darkModePref.setDividerEnabled(false)
             darkModePref.setTouchEffectEnabled(false)

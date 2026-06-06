@@ -22,10 +22,9 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.data.userSettings
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
-import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
 import dev.oneuiproject.oneui.widget.OnboardingTipsItemView
-import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import dev.oneuiproject.oneui.R as oneuiR
@@ -33,9 +32,6 @@ import dev.oneuiproject.oneui.R as oneuiR
 @AndroidEntryPoint
 class OOBEActivity : AppCompatActivity() {
     private lateinit var binding: ActivityOobeBinding
-
-    @Inject
-    lateinit var updateUserSettings: UpdateUserSettingsUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,7 +94,7 @@ class OOBEActivity : AppCompatActivity() {
             binding.oobeIntroFooterButton.isVisible = false
             binding.oobeIntroFooterButtonProgress.isVisible = true
             lifecycleScope.launch {
-                updateUserSettings { it.copy(tosAccepted = true) }
+                userSettings.acceptedTosVersion = resources.getInteger(de.lemke.oneuisample.R.integer.tos_version)
                 delay(500)
                 startActivity(Intent(this@OOBEActivity, MainActivity::class.java))
                 @Suppress("DEPRECATION") if (Build.VERSION.SDK_INT < 34) overridePendingTransition(fade_in, fade_out)

@@ -4,13 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.data.userSettings
 import de.lemke.oneuisample.databinding.ActivityAboutBinding
-import de.lemke.oneuisample.domain.GetUserSettingsUseCase
-import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
 import de.lemke.oneuisample.domain.openURL
 import de.lemke.oneuisample.domain.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.onMultiClick
@@ -22,19 +20,11 @@ import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.NotUpdatable
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Unset
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.UpdateAvailable
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.UpdateDownloaded
-import javax.inject.Inject
-import kotlinx.coroutines.launch
 import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint
 class AboutActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAboutBinding
-
-    @Inject
-    lateinit var getUserSettings: GetUserSettingsUseCase
-
-    @Inject
-    lateinit var updateUserSettings: UpdateUserSettingsUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,13 +36,11 @@ class AboutActivity : AppCompatActivity() {
             setMainButtonClickListener { suggestiveSnackBar("Main button clicked! updateState: $updateStatus") }
         }
         val version: TextView = binding.appInfoLayout.findViewById(designR.id.app_info_version)
-        lifecycleScope.launch { setVersionTextView(version, getUserSettings().devModeEnabled) }
+        setVersionTextView(version, userSettings.devModeEnabled)
         version.onMultiClick {
-            lifecycleScope.launch {
-                val newDevModeEnabled = !getUserSettings().devModeEnabled
-                updateUserSettings { it.copy(devModeEnabled = newDevModeEnabled) }
-                setVersionTextView(version, newDevModeEnabled)
-            }
+            val newDevModeEnabled = !userSettings.devModeEnabled
+            userSettings.devModeEnabled = newDevModeEnabled
+            setVersionTextView(version, newDevModeEnabled)
         }
         binding.aboutButtonStatus.setOnClickListener { changeStatus() }
         binding.aboutButtonGithub.setOnClickListener { openURL(getString(R.string.link_oneui_design)) }
