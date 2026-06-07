@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.net.toUri
+import androidx.fragment.app.viewModels
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -25,8 +26,8 @@ import androidx.preference.SeslSwitchPreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivitySettingsBinding
+import de.lemke.oneuisample.ui.util.collectState
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.addRelativeLinksCard
 import dev.oneuiproject.oneui.ktx.onClick
@@ -37,7 +38,6 @@ import dev.oneuiproject.oneui.preference.SuggestionCardPreference
 import dev.oneuiproject.oneui.preference.TipsCardPreference
 import dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
 import dev.oneuiproject.oneui.widget.RelativeLink
-import javax.inject.Inject
 import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint
@@ -56,9 +56,7 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var settingsActivity: SettingsActivity
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
-
-        @Inject
-        lateinit var userSettings: UserSettingsRepository
+        private val viewModel: SettingsViewModel by viewModels()
 
         override fun onAttach(context: Context) {
             super.onAttach(context)
@@ -86,27 +84,23 @@ class SettingsActivity : AppCompatActivity() {
             addRelativeLinksCard(
                 RelativeLink(getString(R.string.about_custom)) { startActivity(Intent(settingsActivity, CustomAboutActivity::class.java)) },
             )
+            collectState(viewModel.state) { render(it) }
         }
 
-        override fun onResume() {
-            super.onResume()
-            findPreference<PreferenceCategory>("dev_options")?.isVisible = userSettings.devModeEnabled
-            autoDarkModePref.isChecked = userSettings.autoDarkMode
-            darkModePref.isEnabled = !autoDarkModePref.isChecked
-            darkModePref.value = if (userSettings.darkMode) "1" else "0"
+        private fun render(state: SettingsUiState) {
+            findPreference<PreferenceCategory>("dev_options")?.isVisible = state.devModeEnabled
+            autoDarkModePref.isChecked = state.autoDarkMode
+            darkModePref.isEnabled = !state.autoDarkMode
+            darkModePref.value = if (state.darkMode) "1" else "0"
             findPreference<SeslSwitchPreferenceScreen>("switch_screen")?.apply {
-                onClick { startActivity(Intent(settingsActivity, SwitchBarActivity::class.java)) }
-                isChecked = userSettings.sampleSwitchBar
+                isChecked = state.sampleSwitchBar
                 summary = if (isChecked) "Enabled" else "Disabled"
-                onNewValue { newValue ->
-                    summary = if (newValue) "Enabled" else "Disabled"
-                    userSettings.sampleSwitchBar = newValue
-                }
             }
         }
 
         private fun initPreferences() {
             initDarkModePrefs()
+            initSwitchBarPref()
             initLanguagePref()
             initTosPref()
             initDeleteAppDataPref()
@@ -126,19 +120,28 @@ class SettingsActivity : AppCompatActivity() {
             darkModePref.onNewValue { newValue ->
                 val darkMode = newValue == "1"
                 AppCompatDelegate.setDefaultNightMode(if (darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
-                userSettings.darkMode = darkMode
+                viewModel.onDarkModeChanged(darkMode)
             }
             autoDarkModePref.onNewValue { newValue ->
-                darkModePref.isEnabled = !newValue
                 if (newValue) {
                     AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
                 } else {
-                    AppCompatDelegate.setDefaultNightMode(if (userSettings.darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
+                    AppCompatDelegate.setDefaultNightMode(if (viewModel.state.value.darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
                 }
-                userSettings.autoDarkMode = newValue
+                viewModel.onAutoDarkModeChanged(newValue)
             }
             darkModePref.setDividerEnabled(false)
             darkModePref.setTouchEffectEnabled(false)
+        }
+
+        private fun initSwitchBarPref() {
+            findPreference<SeslSwitchPreferenceScreen>("switch_screen")?.apply {
+                onClick { startActivity(Intent(settingsActivity, SwitchBarActivity::class.java)) }
+                onNewValue { newValue ->
+                    summary = if (newValue) "Enabled" else "Disabled"
+                    viewModel.onSampleSwitchBarChanged(newValue)
+                }
+            }
         }
 
         private fun initLanguagePref() {
