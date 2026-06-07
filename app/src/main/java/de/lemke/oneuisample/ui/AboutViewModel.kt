@@ -1,13 +1,14 @@
 package de.lemke.oneuisample.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.lemke.oneuisample.data.UserSettingsRepository
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 data class AboutUiState(
     val devModeEnabled: Boolean = false,
@@ -17,12 +18,16 @@ data class AboutUiState(
 class AboutViewModel @Inject constructor(
     private val userSettings: UserSettingsRepository,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(AboutUiState(devModeEnabled = userSettings.devModeEnabled))
-    val state: StateFlow<AboutUiState> = _state.asStateFlow()
+    val state: StateFlow<AboutUiState> =
+        userSettings.flow
+            .map { AboutUiState(devModeEnabled = it.devModeEnabled) }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = AboutUiState(devModeEnabled = userSettings.devModeEnabled),
+            )
 
     fun onToggleDevMode() {
-        val newValue = !userSettings.devModeEnabled
-        userSettings.devModeEnabled = newValue
-        _state.update { it.copy(devModeEnabled = newValue) }
+        userSettings.devModeEnabled = !userSettings.devModeEnabled
     }
 }
