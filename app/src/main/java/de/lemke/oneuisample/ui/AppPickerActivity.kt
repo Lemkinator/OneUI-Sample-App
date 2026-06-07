@@ -5,6 +5,7 @@ import android.graphics.ColorFilter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -23,9 +24,9 @@ import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
 import de.lemke.oneuisample.ui.util.ListTypes
+import de.lemke.oneuisample.ui.util.collectState
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
@@ -34,16 +35,13 @@ import dev.oneuiproject.oneui.ktx.setEntries
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
 import dev.oneuiproject.oneui.layout.startSearchMode
 import dev.oneuiproject.oneui.recyclerview.ktx.seslSetFastScrollerAdditionalPadding
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator() {
     private lateinit var binding: ActivityAppPickerBinding
+    private val viewModel: AppPickerViewModel by viewModels()
     private val packageManagerHelper by lazy { AppPickerContext(this).packageManagerHelper }
     private var currentPicker: SeslAppPickerView? = null
-
-    @Inject
-    lateinit var userSettings: UserSettingsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +49,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         setContentView(binding.root)
         initSpinner()
         binding.noEntryView.translateYWithAppBar(binding.toolbarLayout.appBarLayout, this)
+        collectState(viewModel.state) { render(it) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean = menuInflater.inflate(R.menu.app_picker, menu).let { true }
@@ -84,13 +83,14 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     private fun initSpinner() {
         binding.appPickerSpinner.apply {
             setEntries(ListTypes.entries.map { getString(it.description) }) { pos, _ ->
-                pos?.let { type ->
-                    setAppPickerType(ListTypes.entries[type])
-                    userSettings.appPickerType = type
-                }
+                pos?.let { viewModel.onPickerTypeChanged(it) }
             }
-            setSelection(userSettings.appPickerType)
+            setSelection(viewModel.state.value.pickerType)
         }
+    }
+
+    private fun render(state: AppPickerUiState) {
+        setAppPickerType(ListTypes.entries[state.pickerType])
     }
 
     private fun configureAppPicker(appPicker: SeslAppPickerView) {
