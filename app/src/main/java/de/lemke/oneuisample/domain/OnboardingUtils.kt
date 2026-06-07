@@ -14,10 +14,9 @@ fun AppCompatActivity.onboardIfNeeded(
     versionCode: Int,
     versionName: String,
     allowSkip: Boolean = false,
-): Boolean {
+): AppStart? {
     val appStart = checkAppStart(userSettings, versionCode, versionName)
-    val skipRequested = allowSkip && intent.getBooleanExtra(EXTRA_SKIP_ONBOARDING, false)
-    if (!skipRequested && appStart.shouldShowOOBE) {
+    if (!(allowSkip && intent.getBooleanExtra(EXTRA_SKIP_ONBOARDING, false)) && appStart.shouldShowOOBE) {
         startActivity(
             Intent(this, OOBEActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -25,10 +24,10 @@ fun AppCompatActivity.onboardIfNeeded(
                 .putExtra(EXTRA_VERSION_NAME, versionName),
         )
         finishWithFade()
-        return false
+        return null
     }
     userSettings.lastVersionCode = versionCode
     userSettings.lastVersionName = versionName
     overrideFadeOpenTransition()
-    return true
+    return appStart
 }

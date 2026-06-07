@@ -10,7 +10,9 @@ import com.google.android.material.appbar.model.ButtonModel
 import com.google.android.material.appbar.model.SuggestAppBarModel
 import com.google.android.material.appbar.model.view.SuggestAppBarView
 import dagger.hilt.android.AndroidEntryPoint
-import de.lemke.oneuisample.BuildConfig
+import de.lemke.oneuisample.BuildConfig.FIRST_RUN_SKIPPABLE
+import de.lemke.oneuisample.BuildConfig.VERSION_CODE
+import de.lemke.oneuisample.BuildConfig.VERSION_NAME
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivityMainBinding
@@ -35,15 +37,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        if (!onboardIfNeeded(
-                userSettings,
-                BuildConfig.VERSION_CODE,
-                BuildConfig.VERSION_NAME,
-                allowSkip = BuildConfig.FIRST_RUN_SKIPPABLE,
-            )
-        ) {
-            return
-        }
+        onboardIfNeeded(userSettings, VERSION_CODE, VERSION_NAME, allowSkip = FIRST_RUN_SKIPPABLE) ?: return
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         configureSplashScreen(splashScreen, binding.root) { !isUIReady }
