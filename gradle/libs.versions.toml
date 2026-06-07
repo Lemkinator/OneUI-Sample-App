@@ -1,23 +1,38 @@
 [versions]
+#noinspection UnusedVersionCatalogEntry
+compileSdk = "37"
+#noinspection UnusedVersionCatalogEntry
+targetSdk = "37"
+#noinspection UnusedVersionCatalogEntry
+jvmTarget = "21"
+
 aboutlibraries = "14.2.1"
+# activity-compose 1.13.x requires androidx.core.app.PictureInPictureProvider, absent in the androidx.core
+# version bundled by oneui-design. Upgrading is blocked until oneui-design ships a compatible core.
+#noinspection GradleDependency
 activity-compose = "1.12.4"
 core-splashscreen = "1.2.0"
-datastore-preferences = "1.2.1"
+detekt = "2.0.0-alpha.3"
 gradle = "9.2.1"
 hilt = "2.59.2"
+# Hilt 2.59.2 does not support Kotlin 2.4.0 metadata, noinspection until a Hilt version ships with Kotlin 2.4 compatibility
+#noinspection NewerVersionAvailable
 kotlin = "2.3.21"
 ksp = "2.3.9"
+# Used via spotless { kotlin { ktlint(libs.versions.ktlint.get()) } } — version-only ref, no library/plugin alias
+#noinspection UnusedVersionCatalogEntry
+ktlint = "1.8.0"
 lottie = "6.7.1"
 material3 = "1.4.0"
 oneui-design = "0.9.12+oneui8"
 oneui-icons = "1.1.0"
+spotless = "8.6.0"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore-preferences" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
@@ -27,10 +42,12 @@ oneui-icons = { module = "io.github.oneuiproject:icons", version.ref = "oneui-ic
 [plugins]
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
 android-application = { id = "com.android.application", version.ref = "gradle" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 
 [bundles]
 oneui = ["oneui-icons", "oneui-design"]

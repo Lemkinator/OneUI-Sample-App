@@ -1,29 +1,20 @@
 package de.lemke.oneuisample
 
-import android.app.Application
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import de.lemke.oneuisample.data.UserSettingsRepository
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object
-PersistenceModule : Application() {
-    private val Context.userSettingsStore: DataStore<Preferences> by preferencesDataStore(name = "userSettings")
-
+object PersistenceModule {
     @Provides
     @Singleton
-    fun provideUserSettingsDataStore(
+    fun provideUserSettingsRepository(
         @ApplicationContext context: Context,
-    ): DataStore<Preferences> = context.userSettingsStore
-
+    ): UserSettingsRepository = UserSettingsRepository(context.getSharedPreferences("user_settings", Context.MODE_PRIVATE))
 }
-
-

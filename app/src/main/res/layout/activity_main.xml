@@ -21,7 +21,7 @@
         android:layout_height="match_parent"
         app:defaultNavHost="true"
         app:layout_location="main_content"
-        app:navGraph="@navigation/main_navigation"/>
+        app:navGraph="@navigation/main_navigation" />
 
     <dev.oneuiproject.oneui.widget.BottomTabLayout
         android:id="@+id/bottomTab"

@@ -1,9 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.detekt)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.aboutlibraries)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.spotless)
 }
 
 fun String.toEnvVarStyle(): String = replace(Regex("([a-z])([A-Z])"), "$1_$2").uppercase()
@@ -20,13 +22,20 @@ fun com.android.build.api.dsl.ApplicationBuildType.addConstant(
 
 android {
     namespace = "de.lemke.oneuisample"
-    compileSdk = 37
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
     defaultConfig {
         applicationId = "de.lemke.oneuisample"
         minSdk = 26
-        targetSdk = 37
+        targetSdk =
+            libs.versions.targetSdk
+                .get()
+                .toInt()
         versionCode = 1
         versionName = "1.0.0"
+        buildConfigField("boolean", "FIRST_RUN_SKIPPABLE", "false")
     }
     @Suppress("UnstableApiUsage")
     androidResources.localeFilters += listOf("en", "de")
@@ -70,7 +79,56 @@ android {
         buildConfig = true
     }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
+    lint {
+        warningsAsErrors = true
+        // checkDependencies = false: private AAR deps surface
+        // hundreds of unactionable warnings; flip to true once in-project surface is clean
+        checkDependencies = false
+        checkReleaseBuilds = true
+        abortOnError = true
+        baseline = file("lint-baseline.xml")
+        sarifReport = true
+        htmlReport = true
+        // Avatar PNGs in drawable/ are intentionally densityless (photos, not icons)
+        disable += setOf("IconLocation", "IconMissingDensityFolder")
+    }
 }
+spotless {
+    kotlin {
+        target("src/**/*.kt")
+        targetExclude("**/build/**", "**/generated/**")
+        ktlint(libs.versions.ktlint.get())
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlinGradle {
+        target("*.gradle.kts")
+        ktlint(libs.versions.ktlint.get())
+    }
+    format("xml") {
+        target("src/**/*.xml")
+        targetExclude("**/build/**")
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+detekt {
+    toolVersion = libs.versions.detekt.get()
+    config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+    parallel = true
+    autoCorrect = false
+}
+
+tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
+    jvmTarget = libs.versions.jvmTarget.get()
+    reports {
+        html.required.set(true)
+        sarif.required.set(true)
+    }
+}
+
 dependencies {
     implementation(libs.bundles.oneui)
     implementation(libs.lottie)
@@ -78,7 +136,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.material3)
     implementation(libs.core.splashscreen)
-    implementation(libs.datastore.preferences)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 }

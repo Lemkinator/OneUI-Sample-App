@@ -9,28 +9,38 @@ import dev.oneuiproject.oneui.design.R
 import javax.inject.Inject
 
 class SearchHighlighter @Inject constructor(
-    @param:ActivityContext private val context: Context
+    @param:ActivityContext private val context: Context,
 ) {
-    operator fun invoke(text: String, textToBold: String?): SpannableStringBuilder = invoke(text, textToBold, -1)
+    operator fun invoke(
+        text: String,
+        textToBold: String?,
+    ): SpannableStringBuilder = invoke(text, textToBold, -1)
 
-    operator fun invoke(text: String, textToBold: String?, lengthBefore: Int): SpannableStringBuilder {
+    operator fun invoke(
+        text: String,
+        textToBold: String?,
+        lengthBefore: Int,
+    ): SpannableStringBuilder {
         if (textToBold.isNullOrBlank()) return SpannableStringBuilder(text)
         return makeSectionOfTextBold(SpannableStringBuilder(text), HashSet(textToBold.split(" ")), lengthBefore)
     }
 
-    private fun makeSectionOfTextBold(builder: SpannableStringBuilder, textToBold: String): SpannableStringBuilder {
+    private fun makeSectionOfTextBold(
+        builder: SpannableStringBuilder,
+        textToBold: String,
+    ): SpannableStringBuilder {
         var text = builder.toString()
         if (textToBold.isEmpty() || !text.contains(textToBold, ignoreCase = true)) return builder
         var startingIndex = text.indexOf(textToBold, ignoreCase = true)
         var endingIndex = startingIndex + textToBold.length
-        var offset = 0 //for multiple replaces
+        var offset = 0 // for multiple replaces
         var firstSearchIndex = text.length
         while (startingIndex >= 0) {
             builder.setSpan(
                 TextAppearanceSpan(context, R.style.OneUI_SearchHighlightedTextAppearance),
                 offset + startingIndex,
                 offset + endingIndex,
-                SPAN_MARK_MARK
+                SPAN_MARK_MARK,
             )
             if (startingIndex < firstSearchIndex) firstSearchIndex = startingIndex
             text = text.substring(endingIndex)
@@ -44,7 +54,7 @@ class SearchHighlighter @Inject constructor(
     private fun makeSectionOfTextBold(
         spannableStringBuilder: SpannableStringBuilder,
         textsToBold: HashSet<String>,
-        lengthBefore: Int
+        lengthBefore: Int,
     ): SpannableStringBuilder {
         var builder = spannableStringBuilder
         val text = builder.toString()
@@ -56,7 +66,10 @@ class SearchHighlighter @Inject constructor(
             }
         }
         val start = 0.coerceAtLeast(firstSearchIndex - lengthBefore)
-        return if (firstSearchIndex != text.length && lengthBefore >= 0 && start > 0) builder.replace(0, start, "...")
-        else builder
+        return if (firstSearchIndex != text.length && lengthBefore >= 0 && start > 0) {
+            builder.replace(0, start, "...")
+        } else {
+            builder
+        }
     }
 }

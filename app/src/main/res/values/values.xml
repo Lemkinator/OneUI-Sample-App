@@ -1,0 +1,7 @@
+<resources>
+    <integer name="tos_version">0</integer>
+    <drawable name="oobe1_icon">@drawable/ic_oui_palette</drawable>
+    <drawable name="oobe2_icon">@drawable/ic_oui_credit_card_outline</drawable>
+    <drawable name="oobe3_icon">@drawable/ic_oui_decline</drawable>
+
+</resources>

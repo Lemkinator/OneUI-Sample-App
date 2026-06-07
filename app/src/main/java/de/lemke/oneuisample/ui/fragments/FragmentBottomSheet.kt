@@ -9,11 +9,12 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDE
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.databinding.FragmentBottomSheetBinding
+import de.lemke.oneuisample.domain.autoCleared
 import dev.oneuiproject.oneui.app.SemBottomSheetDialogFragment
 
 @AndroidEntryPoint
 class FragmentBottomSheet : SemBottomSheetDialogFragment() {
-    private lateinit var binding: FragmentBottomSheetBinding
+    private val binding by autoCleared { FragmentBottomSheetBinding.bind(requireView()) }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
         (super.onCreateDialog(savedInstanceState) as BottomSheetDialog).apply {
@@ -21,6 +22,9 @@ class FragmentBottomSheet : SemBottomSheetDialogFragment() {
             setOnShowListener { behavior.state = STATE_EXPANDED }
         }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        FragmentBottomSheetBinding.inflate(inflater, container, false).also { binding = it }.root
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View = FragmentBottomSheetBinding.inflate(inflater, container, false).root
 }

@@ -6,41 +6,42 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SeslProgressBar
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle.State.RESUMED
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabProgressBarBinding
-import kotlinx.coroutines.Job
+import de.lemke.oneuisample.domain.autoCleared
+import de.lemke.oneuisample.domain.launchAndRepeatWithViewLifecycle
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SubtabProgressBar : Fragment() {
-    private lateinit var binding: FragmentTabDesignSubtabProgressBarBinding
-    private var animateProgressJob: Job? = null
+    private val binding by autoCleared { FragmentTabDesignSubtabProgressBarBinding.bind(requireView()) }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        FragmentTabDesignSubtabProgressBarBinding.inflate(inflater, container, false).also { binding = it }.root
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View = FragmentTabDesignSubtabProgressBarBinding.inflate(inflater, container, false).root
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         listOf(binding.progressbar1, binding.progressbar2, binding.progressbar3, binding.progressbar4)
-            .forEach { it.setMode(SeslProgressBar.MODE_CIRCLE); it.progress = 0; it.max = 1000 }
+            .forEach {
+                it.setMode(SeslProgressBar.MODE_CIRCLE)
+                it.progress = 0
+                it.max = 1000
+            }
         binding.progressbar5.progress = 0
         binding.progressbar5.max = 1000
-    }
-
-    override fun onPause() {
-        super.onPause()
-        animateProgressJob?.cancel()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        animateProgressJob = lifecycleScope.launch {
+        launchAndRepeatWithViewLifecycle(RESUMED) {
             while (true) {
                 listOf(binding.progressbar1, binding.progressbar2, binding.progressbar3, binding.progressbar4, binding.progressbar5)
                     .forEach { bar -> bar.progress = (bar.progress + 1) % 1000 }
-                delay(10)
+                delay(16.milliseconds)
             }
         }
     }

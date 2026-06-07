@@ -9,14 +9,11 @@ import android.view.View
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.toColorInt
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.indexscroll.widget.SeslArrayIndexer
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper.END
 import androidx.recyclerview.widget.ItemTouchHelper.START
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,21 +23,20 @@ import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.SearchOnActionMode
+import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.withListener
 import de.lemke.oneuisample.databinding.DialogSettingsBinding
 import de.lemke.oneuisample.databinding.FragmentTabIconsBinding
-import de.lemke.oneuisample.domain.GetUserSettingsUseCase
 import de.lemke.oneuisample.domain.ObserveIconListUseCase
-import de.lemke.oneuisample.domain.ObserveUserSettingsUseCase
-import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
+import de.lemke.oneuisample.domain.autoCleared
+import de.lemke.oneuisample.domain.getSearchListener
+import de.lemke.oneuisample.domain.launchAndRepeatWithViewLifecycle
+import de.lemke.oneuisample.domain.suggestiveSnackBar
 import de.lemke.oneuisample.ui.util.IconAdapter
 import de.lemke.oneuisample.ui.util.IconAdapter.Icon
-import de.lemke.oneuisample.ui.util.autoCleared
-import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
 import dev.oneuiproject.oneui.ktx.dpToPx
-import dev.oneuiproject.oneui.ktx.hideSoftInput
 import dev.oneuiproject.oneui.layout.DrawerLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout.AllSelectorState
@@ -52,23 +48,21 @@ import dev.oneuiproject.oneui.recyclerview.ktx.hideSoftInputOnScroll
 import dev.oneuiproject.oneui.utils.ItemDecorRule.ALL
 import dev.oneuiproject.oneui.utils.ItemDecorRule.NONE
 import dev.oneuiproject.oneui.utils.SemItemDecoration
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 import dev.oneuiproject.oneui.R as iconsR
 
 @AndroidEntryPoint
 class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator by AppBarAwareYTranslator() {
     private val binding by autoCleared { FragmentTabIconsBinding.bind(requireView()) }
     private lateinit var drawerLayout: DrawerLayout
-    private var isSearchUserInputEnabled = false
     private val allSelectorStateFlow: MutableStateFlow<AllSelectorState> = MutableStateFlow(AllSelectorState())
     private val iconAdapter: IconAdapter by lazy {
         IconAdapter(
             requireContext(),
             onAllSelectorStateChanged = { allSelectorStateFlow.value = it },
-            onBlockActionMode = ::launchActionMode
+            onBlockActionMode = ::launchActionMode,
         )
     }
 
@@ -76,36 +70,48 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
     lateinit var observeIconList: ObserveIconListUseCase
 
     @Inject
-    lateinit var getUserSettings: GetUserSettingsUseCase
+    lateinit var userSettings: UserSettingsRepository
 
-    @Inject
-    lateinit var observeUserSettings: ObserveUserSettingsUseCase
-
-    @Inject
-    lateinit var updateUserSettings: UpdateUserSettingsUseCase
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         binding.swipeRefreshLayout.seslSetRefreshOnce(true)
         drawerLayout = requireActivity().findViewById(R.id.drawerLayout)
         initList()
         setupMenuProvider()
-        lifecycleScope.launch {
-            updateUserSettings { it.copy(searchActive = false) }
-            observeIconList().flowWithLifecycle(lifecycle).collectLatest { updateList(it) }
+        userSettings.searchActive = false
+        launchAndRepeatWithViewLifecycle { observeIconList().collectLatest { updateList(it) } }
+        launchAndRepeatWithViewLifecycle {
+            userSettings.flow.collectLatest { settings ->
+                binding.iconList.seslSetFastScrollerEnabled(!settings.showIndexScroll)
+                binding.iconIndexScroll.isVisible = settings.showIndexScroll
+                binding.iconIndexScroll.setIndexBarTextMode(settings.indexScrollShowLetters)
+                binding.iconIndexScroll.setAutoHide(settings.indexScrollAutoHide)
+            }
         }
         binding.noEntryView.translateYWithAppBar(requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout).appBarLayout, this)
     }
 
-    private fun setupMenuProvider() = requireActivity().addMenuProvider(object : MenuProvider {
-        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) = menuInflater.inflate(R.menu.icon_tab_menu, menu)
-        override fun onMenuItemSelected(menuItem: MenuItem): Boolean = when (menuItem.itemId) {
-            R.id.menu_item_search -> startSearch().let { true }
-            R.id.menu_item_settings -> showSettingsDialog().let { true }
-            else -> false
-        }
-    }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    private fun setupMenuProvider() =
+        requireActivity().addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(
+                    menu: Menu,
+                    menuInflater: MenuInflater,
+                ) = menuInflater.inflate(R.menu.icon_tab_menu, menu)
 
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                    when (menuItem.itemId) {
+                        R.id.menu_item_search -> startSearch().let { true }
+                        R.id.menu_item_settings -> showSettingsDialog().let { true }
+                        else -> false
+                    }
+            },
+            viewLifecycleOwner,
+            Lifecycle.State.RESUMED,
+        )
 
     private fun initList() {
         binding.iconList.apply {
@@ -118,13 +124,6 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
             configureItemSwipeAnimator()
             iconAdapter.configureWith(this)
             binding.iconIndexScroll.attachToRecyclerView(this)
-        }
-        lifecycleScope.launch {
-            val userSettings = getUserSettings()
-            binding.iconList.seslSetFastScrollerEnabled(!userSettings.showIndexScroll)
-            binding.iconIndexScroll.isVisible = userSettings.showIndexScroll
-            binding.iconIndexScroll.setIndexBarTextMode(userSettings.indexScrollShowLetters)
-            binding.iconIndexScroll.setAutoHide(userSettings.indexScrollAutoHide)
         }
     }
 
@@ -142,15 +141,23 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
             binding.iconList.isVisible = true
             iconAdapter.highlight = iconsAndSearch.second ?: ""
             iconAdapter.submitList(iconsAndSearch.first)
-            val indexCharacterString = iconsAndSearch.first.map { it.indexChar }.distinct().joinToString("").uppercase()
+            val indexCharacterString =
+                iconsAndSearch.first
+                    .map { it.indexChar }
+                    .distinct()
+                    .joinToString("")
+                    .uppercase()
             binding.iconIndexScroll.setIndexer(SeslArrayIndexer(iconsAndSearch.first.map { it.name }, indexCharacterString))
         }
     }
 
     private fun IconAdapter.setupOnClickListeners() {
         onClickItem = { position, icon, _ ->
-            if (isActionMode) toggleItem(icon.id, position)
-            else suggestiveSnackBar(icon.beautifiedName, actionText = getString(R.string.ok))
+            if (isActionMode) {
+                toggleItem(icon.id, position)
+            } else {
+                suggestiveSnackBar(icon.beautifiedName, actionText = getString(R.string.ok))
+            }
         }
         onLongClickItem = {
             if (!isActionMode) launchActionMode()
@@ -175,50 +182,29 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
                     END -> suggestiveSnackBar("${icon.name}: Left to Right")
                 }
                 true
-            }
+            },
         )
     }
 
     private fun startSearch() = drawerLayout.startSearchMode(searchModeListener, DISMISS)
 
-    val searchModeListener = object : ToolbarLayout.SearchModeListener {
-        override fun onQueryTextSubmit(query: String?): Boolean = setSearch(query).also { requireActivity().hideSoftInput() }
-        override fun onQueryTextChange(query: String?): Boolean = setSearch(query)
-        private fun setSearch(query: String?): Boolean {
-            if (!isSearchUserInputEnabled) return false
-            lifecycleScope.launch { updateUserSettings { it.copy(search = query ?: "") } }
-            return true
-        }
-
-        override fun onSearchModeToggle(searchView: SearchView, isActive: Boolean) {
-            if (isActive) {
-                searchView.apply {
-                    seslSetOverflowMenuButtonIcon(AppCompatResources.getDrawable(requireContext(), iconsR.drawable.ic_oui_list_filter))
-                    seslSetOverflowMenuButtonVisibility(VISIBLE)
-                    seslSetOnOverflowMenuButtonClickListener {
-                        clearFocus()
-                        AlertDialog.Builder(requireContext()).apply {
-                            setTitle(getString(R.string.search_filter))
-                            setNegativeButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_cancel), null)
-                            setPositiveButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_apply), null)
-                            show()
-                        }
-                    }
+    val searchModeListener by lazy {
+        getSearchListener(userSettings) {
+            seslSetOverflowMenuButtonIcon(AppCompatResources.getDrawable(requireContext(), iconsR.drawable.ic_oui_list_filter))
+            seslSetOverflowMenuButtonVisibility(VISIBLE)
+            seslSetOnOverflowMenuButtonClickListener {
+                clearFocus()
+                AlertDialog.Builder(requireContext()).apply {
+                    setTitle(getString(R.string.search_filter))
+                    setNegativeButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_cancel), null)
+                    setPositiveButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_apply), null)
+                    show()
                 }
-                isSearchUserInputEnabled = true
-                lifecycleScope.launch {
-                    updateUserSettings { it.copy(searchActive = true) }
-                    searchView.setQuery(getUserSettings().search, false)
-                }
-            } else {
-                isSearchUserInputEnabled = false
-                lifecycleScope.launch { updateUserSettings { it.copy(searchActive = false) } }
             }
         }
     }
 
-    private fun launchActionMode(initialSelected: Set<Long>? = null) = lifecycleScope.launch {
-        val userSettings = getUserSettings()
+    private fun launchActionMode(initialSelected: Set<Long>? = null) {
         iconAdapter.toggleActionMode(true, initialSelected)
         drawerLayout.startActionMode(
             onInflateMenu = { menu, menuInflater -> menuInflater.inflate(R.menu.select, menu) },
@@ -243,66 +229,58 @@ class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator b
                         true
                     }
 
-                    else -> false
+                    else -> {
+                        false
+                    }
                 }
             },
             onSelectAll = { isChecked: Boolean -> iconAdapter.onToggleSelectAll(isChecked) },
             allSelectorStateFlow = allSelectorStateFlow,
-            searchOnActionMode = userSettings.searchOnActionMode.getToolbarValue(searchModeListener),
-            showCancel = userSettings.actionModeShowCancel
+            searchOnActionMode = userSettings.searchOnActionMode.withListener(searchModeListener),
+            showCancel = userSettings.actionModeShowCancel,
         )
     }
 
-
     private fun showSettingsDialog() {
-        lifecycleScope.launch {
-            val dialogBinding = DialogSettingsBinding.inflate(layoutInflater).apply {
-                getUserSettings().let {
-                    actionModeShowCancel.isChecked = it.actionModeShowCancel
-                    showIndexScroll.isChecked = it.showIndexScroll
-                    indexScrollShowLetters.isChecked = it.indexScrollShowLetters
-                    indexScrollAutoHide.isChecked = it.indexScrollAutoHide
-                    indexScrollShowLetters.isEnabled = it.showIndexScroll
-                    indexScrollAutoHide.isEnabled = it.showIndexScroll
-                    when (it.searchOnActionMode) {
-                        SearchOnActionMode.DISMISS -> amsOptions.check(R.id.amsDismiss)
-                        SearchOnActionMode.NO_DISMISS -> amsOptions.check(R.id.amsNoDismiss)
-                        SearchOnActionMode.CONCURRENT -> amsOptions.check(R.id.amsConcurrent)
-                    }
+        val dialogBinding =
+            DialogSettingsBinding.inflate(layoutInflater).apply {
+                actionModeShowCancel.isChecked = userSettings.actionModeShowCancel
+                showIndexScroll.isChecked = userSettings.showIndexScroll
+                indexScrollShowLetters.isChecked = userSettings.indexScrollShowLetters
+                indexScrollAutoHide.isChecked = userSettings.indexScrollAutoHide
+                indexScrollShowLetters.isEnabled = userSettings.showIndexScroll
+                indexScrollAutoHide.isEnabled = userSettings.showIndexScroll
+                when (userSettings.searchOnActionMode) {
+                    ToolbarLayout.SearchOnActionMode.Dismiss -> amsOptions.check(R.id.amsDismiss)
+                    ToolbarLayout.SearchOnActionMode.NoDismiss -> amsOptions.check(R.id.amsNoDismiss)
+                    is ToolbarLayout.SearchOnActionMode.Concurrent -> amsOptions.check(R.id.amsConcurrent)
                 }
                 showIndexScroll.onCheckedChangedListener = { _, isChecked ->
                     indexScrollShowLetters.isEnabled = isChecked
                     indexScrollAutoHide.isEnabled = isChecked
                 }
             }
-            AlertDialog.Builder(requireContext()).apply {
-                setTitle(getString(R.string.settings))
-                setView(dialogBinding.root)
-                setNegativeButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_cancel), null)
-                setPositiveButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_apply)) { _, _ ->
-                    lifecycleScope.launch {
-                        updateUserSettings {
-                            it.copy(
-                                actionModeShowCancel = dialogBinding.actionModeShowCancel.isChecked,
-                                showIndexScroll = dialogBinding.showIndexScroll.isChecked,
-                                indexScrollShowLetters = dialogBinding.indexScrollShowLetters.isChecked,
-                                indexScrollAutoHide = dialogBinding.indexScrollAutoHide.isChecked,
-                                searchOnActionMode = when (dialogBinding.amsOptions.checkedRadioButtonId) {
-                                    R.id.amsDismiss -> SearchOnActionMode.DISMISS
-                                    R.id.amsNoDismiss -> SearchOnActionMode.NO_DISMISS
-                                    else -> SearchOnActionMode.CONCURRENT
-                                }
-                            )
-                        }.apply {
-                            binding.iconList.seslSetFastScrollerEnabled(!showIndexScroll)
-                            binding.iconIndexScroll.isVisible = showIndexScroll
-                            binding.iconIndexScroll.setIndexBarTextMode(indexScrollShowLetters)
-                            binding.iconIndexScroll.setAutoHide(indexScrollAutoHide)
-                        }
-                    }
+        AlertDialog.Builder(requireContext()).apply {
+            setTitle(getString(R.string.settings))
+            setView(dialogBinding.root)
+            setNegativeButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_cancel), null)
+            setPositiveButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_apply)) { _, _ ->
+                userSettings.update {
+                    copy(
+                        actionModeShowCancel = dialogBinding.actionModeShowCancel.isChecked,
+                        showIndexScroll = dialogBinding.showIndexScroll.isChecked,
+                        indexScrollShowLetters = dialogBinding.indexScrollShowLetters.isChecked,
+                        indexScrollAutoHide = dialogBinding.indexScrollAutoHide.isChecked,
+                        searchOnActionMode =
+                            when (dialogBinding.amsOptions.checkedRadioButtonId) {
+                                R.id.amsDismiss -> ToolbarLayout.SearchOnActionMode.Dismiss
+                                R.id.amsNoDismiss -> ToolbarLayout.SearchOnActionMode.NoDismiss
+                                else -> ToolbarLayout.SearchOnActionMode.Concurrent(null)
+                            },
+                    )
                 }
-                show()
             }
+            show()
         }
     }
 }

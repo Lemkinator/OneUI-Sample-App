@@ -18,23 +18,30 @@ import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
-import dev.oneuiproject.oneui.ktx.setEntries
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabWidgetsBinding
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabWidgetsBinding.inflate
+import de.lemke.oneuisample.domain.autoCleared
+import de.lemke.oneuisample.domain.suggestiveSnackBar
 import de.lemke.oneuisample.ui.MainActivity
-import de.lemke.oneuisample.ui.util.suggestiveSnackBar
+import dev.oneuiproject.oneui.ktx.setEntries
 
 @AndroidEntryPoint
 class SubtabWidgets : Fragment() {
-    private lateinit var binding: FragmentTabDesignSubtabWidgetsBinding
+    private val binding by autoCleared { FragmentTabDesignSubtabWidgetsBinding.bind(requireView()) }
     private val faceJsons = listOf("great_face.json", "good_face.json", "checking_face.json", "sad_face.json")
     private val faceJsonNames = listOf("Great Face", "Good Face", "Checking Face", "Sad Face")
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        inflate(inflater, container, false).also { binding = it }.root
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View = inflate(inflater, container, false).root
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         binding.buttonColored.setOnClickListener { suggestiveSnackBar("Colored") }
         binding.buttonFilled.setOnClickListener { suggestiveSnackBar("Filled") }
@@ -52,9 +59,10 @@ class SubtabWidgets : Fragment() {
                 postDelayed({ setProgressBarVisible(false) }, 1_000)
             }
         }
-        binding.fragmentSpinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, faceJsonNames).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
+        binding.fragmentSpinner.adapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, faceJsonNames).apply {
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
         binding.fragmentSpinner.setEntries(faceJsonNames) { position, _ ->
             position?.let {
                 binding.faceIconLottie.setAnimation(faceJsons[position])
@@ -70,6 +78,5 @@ class SubtabWidgets : Fragment() {
             seslSetOnUpButtonClickListener { suggestiveSnackBar("Search Up Button Clicked") }
         }
         if (SDK_INT >= Q) binding.root.seslSetGoToTopEnabled(true)
-
     }
 }

@@ -19,7 +19,7 @@
     <View
         android:background="?seslDialogDivderColor"
         android:layout_height="1dp"
-        android:layout_width="match_parent"/>
+        android:layout_width="match_parent" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -34,7 +34,7 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="400dp"/>
+                android:layout_height="400dp" />
 
         </LinearLayout>
 

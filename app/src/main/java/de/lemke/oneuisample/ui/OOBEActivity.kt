@@ -22,20 +22,22 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
-import de.lemke.oneuisample.domain.UpdateUserSettingsUseCase
+import de.lemke.oneuisample.domain.EXTRA_VERSION_CODE
+import de.lemke.oneuisample.domain.EXTRA_VERSION_NAME
 import dev.oneuiproject.oneui.widget.OnboardingTipsItemView
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import dev.oneuiproject.oneui.R as oneuiR
 
 @AndroidEntryPoint
 class OOBEActivity : AppCompatActivity() {
     private lateinit var binding: ActivityOobeBinding
 
     @Inject
-    lateinit var updateUserSettings: UpdateUserSettingsUseCase
+    lateinit var userSettings: UserSettingsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,11 +51,12 @@ class OOBEActivity : AppCompatActivity() {
     }
 
     private fun initTipsItems() {
-        val tipsData = listOf(
-            Triple(R.string.oobe_onboard_msg1_title, R.string.oobe_onboard_msg1_summary, oneuiR.drawable.ic_oui_palette),
-            Triple(R.string.oobe_onboard_msg2_title, R.string.oobe_onboard_msg2_summary, oneuiR.drawable.ic_oui_credit_card_outline),
-            Triple(R.string.oobe_onboard_msg3_title, R.string.oobe_onboard_msg3_summary, oneuiR.drawable.ic_oui_decline)
-        )
+        val tipsData =
+            listOf(
+                Triple(R.string.oobe_onboard_msg1_title, R.string.oobe_onboard_msg1_summary, R.drawable.oobe1_icon),
+                Triple(R.string.oobe_onboard_msg2_title, R.string.oobe_onboard_msg2_summary, R.drawable.oobe2_icon),
+                Triple(R.string.oobe_onboard_msg3_title, R.string.oobe_onboard_msg3_summary, R.drawable.oobe3_icon),
+            )
         tipsData.forEach { (titleRes, summaryRes, iconRes) ->
             OnboardingTipsItemView(this).apply {
                 setIcon(iconRes)
@@ -68,21 +71,24 @@ class OOBEActivity : AppCompatActivity() {
         val tos = getString(R.string.tos)
         val tosText = getString(R.string.oobe_tos_text, tos)
         val tosIndex = tosText.lastIndexOf(tos)
-        binding.oobeIntroFooterTosText.text = SpannableString(tosText).apply {
-            setSpan(
-                object : ClickableSpan() {
-                    override fun onClick(widget: View) {
-                        AlertDialog.Builder(this@OOBEActivity)
-                            .setTitle(getString(R.string.tos))
-                            .setMessage(getString(R.string.tos_content))
-                            .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                            .show()
-                    }
-                },
-                tosIndex, tosIndex + tos.length,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
+        binding.oobeIntroFooterTosText.text =
+            SpannableString(tosText).apply {
+                setSpan(
+                    object : ClickableSpan() {
+                        override fun onClick(widget: View) {
+                            AlertDialog
+                                .Builder(this@OOBEActivity)
+                                .setTitle(getString(R.string.tos))
+                                .setMessage(getString(R.string.tos_content))
+                                .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+                                .show()
+                        }
+                    },
+                    tosIndex,
+                    tosIndex + tos.length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                )
+            }
         binding.oobeIntroFooterTosText.movementMethod = LinkMovementMethod.getInstance()
         binding.oobeIntroFooterTosText.highlightColor = Color.TRANSPARENT
     }
@@ -94,8 +100,10 @@ class OOBEActivity : AppCompatActivity() {
             binding.oobeIntroFooterButton.isVisible = false
             binding.oobeIntroFooterButtonProgress.isVisible = true
             lifecycleScope.launch {
-                updateUserSettings { it.copy(tosAccepted = true) }
-                delay(500)
+                userSettings.acceptedTosVersion = resources.getInteger(R.integer.tos_version)
+                userSettings.lastVersionCode = intent.getIntExtra(EXTRA_VERSION_CODE, BuildConfig.VERSION_CODE)
+                userSettings.lastVersionName = intent.getStringExtra(EXTRA_VERSION_NAME) ?: BuildConfig.VERSION_NAME
+                delay(500.milliseconds)
                 startActivity(Intent(this@OOBEActivity, MainActivity::class.java))
                 @Suppress("DEPRECATION") if (Build.VERSION.SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
                 finishAfterTransition()

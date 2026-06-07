@@ -3,8 +3,10 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.detekt) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.spotless) apply false
 }
 
 /**
@@ -50,6 +52,14 @@ allprojects {
                 password = githubAccessToken
             }
         }
+    }
+}
+
+tasks.register("staticAnalysis") {
+    group = "verification"
+    description = "Runs Spotless check + Detekt across all subprojects."
+    subprojects.forEach { sub ->
+        dependsOn(sub.tasks.matching { it.name in setOf("spotlessCheck", "detekt") })
     }
 }
 
