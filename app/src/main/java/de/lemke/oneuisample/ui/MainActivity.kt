@@ -36,10 +36,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        overrideFadeOpenTransition()
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        configureSplashScreen(splashScreen, binding.root) { !isUIReady }
         if (!onboardIfNeeded(
                 userSettings,
                 BuildConfig.VERSION_CODE,
@@ -49,6 +45,10 @@ class MainActivity : AppCompatActivity() {
         ) {
             return
         }
+        overrideFadeOpenTransition()
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        configureSplashScreen(splashScreen, binding.root) { !isUIReady }
         initNavigation()
         initDrawerLayout()
         initPopupMenu()

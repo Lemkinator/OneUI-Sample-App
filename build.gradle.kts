@@ -67,24 +67,26 @@ subprojects {
     plugins.withId("com.android.base") {
         project.extensions.findByType(CommonExtension::class.java)?.apply {
             compileOptions.apply {
-                sourceCompatibility = JavaVersion.VERSION_21
-                targetCompatibility = JavaVersion.VERSION_21
+                sourceCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
+                targetCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
             }
-            configurations.all {
-                exclude(group = "androidx.core", module = "core")
-                exclude(group = "androidx.core", module = "core-ktx")
-                exclude(group = "androidx.customview", module = "customview")
-                exclude(group = "androidx.coordinatorlayout", module = "coordinatorlayout")
-                exclude(group = "androidx.drawerlayout", module = "drawerlayout")
-                exclude(group = "androidx.viewpager2", module = "viewpager2")
-                exclude(group = "androidx.viewpager", module = "viewpager")
-                exclude(group = "androidx.appcompat", module = "appcompat")
-                exclude(group = "androidx.fragment", module = "fragment")
-                exclude(group = "androidx.preference", module = "preference")
-                exclude(group = "androidx.recyclerview", module = "recyclerview")
-                exclude(group = "androidx.slidingpanelayout", module = "slidingpanelayout")
-                exclude(group = "androidx.swiperefreshlayout", module = "swiperefreshlayout")
-                exclude(group = "com.google.android.material", module = "material")
+            plugins.withId("com.android.application") {
+                configurations.matching { !it.name.startsWith("test", ignoreCase = true) }.configureEach {
+                    exclude(group = "androidx.core", module = "core")
+                    exclude(group = "androidx.core", module = "core-ktx")
+                    exclude(group = "androidx.customview", module = "customview")
+                    exclude(group = "androidx.coordinatorlayout", module = "coordinatorlayout")
+                    exclude(group = "androidx.drawerlayout", module = "drawerlayout")
+                    exclude(group = "androidx.viewpager2", module = "viewpager2")
+                    exclude(group = "androidx.viewpager", module = "viewpager")
+                    exclude(group = "androidx.appcompat", module = "appcompat")
+                    exclude(group = "androidx.fragment", module = "fragment")
+                    exclude(group = "androidx.preference", module = "preference")
+                    exclude(group = "androidx.recyclerview", module = "recyclerview")
+                    exclude(group = "androidx.slidingpanelayout", module = "slidingpanelayout")
+                    exclude(group = "androidx.swiperefreshlayout", module = "swiperefreshlayout")
+                    exclude(group = "com.google.android.material", module = "material")
+                }
             }
         }
     }
