@@ -40,11 +40,16 @@ class SwitchBarActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         viewModel.onSwitchChanged(enabled)
     }
 
+    private var lastRenderedEnabled: Boolean? = null
+
     private fun render(state: SwitchBarUiState) {
         if (binding.root.switchBar.isChecked != state.enabled) {
             binding.root.switchBar.isChecked = state.enabled
         }
-        update(state.enabled)
+        if (lastRenderedEnabled != state.enabled) {
+            lastRenderedEnabled = state.enabled
+            update(state.enabled)
+        }
     }
 
     private fun update(enabled: Boolean) {
