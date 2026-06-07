@@ -79,6 +79,11 @@ android {
         buildConfig = true
     }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
+    testOptions {
+        unitTests {
+            all { test -> test.useJUnitPlatform() }
+        }
+    }
     lint {
         warningsAsErrors = true
         // checkDependencies = false: private AAR deps surface
@@ -138,4 +143,7 @@ dependencies {
     implementation(libs.core.splashscreen)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.konsist)
 }
