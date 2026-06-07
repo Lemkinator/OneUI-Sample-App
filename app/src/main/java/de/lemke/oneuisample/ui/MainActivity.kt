@@ -41,8 +41,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         configureSplashScreen(splashScreen, binding.root) { !isUIReady }
-        initNavigation()
-        initDrawerLayout()
+        initDrawer()
         initPopupMenu()
         isUIReady = true
     }
@@ -57,7 +56,13 @@ class MainActivity : AppCompatActivity() {
         finishWithFade()
     }
 
-    private fun initNavigation() {
+    private fun initDrawer() {
+        binding.drawerLayout.apply {
+            setupHeaderAndNavRail(getString(R.string.about_app))
+            setAppBarSuggestView(createSuggestAppBarModel())
+            // isImmersiveScroll = true
+            setupNavigation(binding.bottomTab, binding.navigationHost.getFragment())
+        }
         binding.navigationView.onNavigationSingleClick { item ->
             when (item.itemId) {
                 R.id.oobe_dest -> openOOBEAndFinish()
@@ -68,15 +73,6 @@ class MainActivity : AppCompatActivity() {
                 else -> return@onNavigationSingleClick false
             }
             true
-        }
-    }
-
-    private fun initDrawerLayout() {
-        binding.drawerLayout.apply {
-            setupHeaderAndNavRail(getString(R.string.about_app))
-            setAppBarSuggestView(createSuggestAppBarModel())
-            // isImmersiveScroll = true
-            setupNavigation(binding.bottomTab, binding.navigationHost.getFragment())
         }
     }
 
