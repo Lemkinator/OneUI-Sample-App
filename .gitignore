@@ -30,7 +30,7 @@ cmake-build-*/
 .DS_Store
 .kotlin/
 
-/build
+build/
 *.aab
 
 /captures
