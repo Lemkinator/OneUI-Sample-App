@@ -26,6 +26,7 @@ ksp = "2.3.9"
 # Used via spotless { kotlin { ktlint(libs.versions.ktlint.get()) } } — version-only ref, no library/plugin alias
 #noinspection UnusedVersionCatalogEntry
 ktlint = "1.8.0"
+leakcanary = "2.14"
 lottie = "6.7.1"
 material3 = "1.4.0"
 oneui-design = "0.9.12+oneui8"
@@ -42,6 +43,7 @@ hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hil
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
+leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 oneui-design = { module = "io.github.tribalfs:oneui-design", version.ref = "oneui-design" }
 oneui-icons = { module = "io.github.oneuiproject:icons", version.ref = "oneui-icons" }
