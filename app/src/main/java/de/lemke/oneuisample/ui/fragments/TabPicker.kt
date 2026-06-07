@@ -22,8 +22,8 @@ import androidx.picker3.app.SeslColorPickerDialog
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabPickerBinding
-import de.lemke.oneuisample.domain.autoCleared
-import de.lemke.oneuisample.domain.suggestiveSnackBar
+import de.lemke.oneuisample.ui.util.autoCleared
+import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.dialog.StartEndTimePickerDialog
 import dev.oneuiproject.oneui.ktx.setEntries
 import java.util.Calendar

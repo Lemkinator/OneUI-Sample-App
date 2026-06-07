@@ -27,7 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivitySettingsBinding
-import de.lemke.oneuisample.domain.suggestiveSnackBar
+import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.addRelativeLinksCard
 import dev.oneuiproject.oneui.ktx.onClick
 import dev.oneuiproject.oneui.ktx.onNewValue

@@ -9,7 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDE
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.databinding.FragmentBottomSheetBinding
-import de.lemke.oneuisample.domain.autoCleared
+import de.lemke.oneuisample.ui.util.autoCleared
 import dev.oneuiproject.oneui.app.SemBottomSheetDialogFragment
 
 @AndroidEntryPoint

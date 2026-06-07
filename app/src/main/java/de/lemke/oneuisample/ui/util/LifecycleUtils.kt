@@ -15,7 +15,7 @@
  */
 @file:Suppress("unused")
 
-package de.lemke.oneuisample.domain
+package de.lemke.oneuisample.ui.util
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment

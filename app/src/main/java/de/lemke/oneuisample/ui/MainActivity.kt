@@ -16,10 +16,13 @@ import de.lemke.oneuisample.BuildConfig.VERSION_NAME
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivityMainBinding
-import de.lemke.oneuisample.domain.configureSplashScreen
-import de.lemke.oneuisample.domain.finishWithFade
-import de.lemke.oneuisample.domain.suggestiveSnackBar
 import de.lemke.oneuisample.ui.fragments.FragmentBottomSheet
+import de.lemke.oneuisample.ui.util.configureSplashScreen
+import de.lemke.oneuisample.ui.util.finishWithFade
+import de.lemke.oneuisample.ui.util.onNavigationSingleClick
+import de.lemke.oneuisample.ui.util.onboardIfNeeded
+import de.lemke.oneuisample.ui.util.setupHeaderAndNavRail
+import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.navigation.setupNavigation
 import javax.inject.Inject
 

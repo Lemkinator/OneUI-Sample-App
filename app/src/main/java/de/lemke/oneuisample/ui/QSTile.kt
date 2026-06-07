@@ -7,7 +7,7 @@ import android.service.quicksettings.TileService
 import android.widget.RemoteViews
 import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.domain.toast
+import de.lemke.oneuisample.ui.util.toast
 
 @Suppress("redundantOverride", "unused")
 class QSTile : TileService() {

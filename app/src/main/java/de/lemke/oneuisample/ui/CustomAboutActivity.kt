@@ -25,7 +25,7 @@ import de.lemke.oneuisample.BuildConfig.APPLICATION_ID
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityCustomAboutBinding
-import de.lemke.oneuisample.domain.openURL
+import de.lemke.oneuisample.ui.util.openURL
 import dev.oneuiproject.oneui.ktx.invokeOnBack
 import dev.oneuiproject.oneui.ktx.isInMultiWindowModeCompat
 import dev.oneuiproject.oneui.ktx.semSetToolTipText

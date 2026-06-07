@@ -1,4 +1,4 @@
-package de.lemke.oneuisample.domain
+package de.lemke.oneuisample.ui.util
 
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.SearchView

@@ -29,11 +29,11 @@ import de.lemke.oneuisample.databinding.DialogSettingsBinding
 import de.lemke.oneuisample.databinding.FragmentTabIconsBinding
 import de.lemke.oneuisample.domain.Icon
 import de.lemke.oneuisample.domain.ObserveIconListUseCase
-import de.lemke.oneuisample.domain.autoCleared
-import de.lemke.oneuisample.domain.getSearchListener
-import de.lemke.oneuisample.domain.launchAndRepeatWithViewLifecycle
-import de.lemke.oneuisample.domain.suggestiveSnackBar
 import de.lemke.oneuisample.ui.util.IconAdapter
+import de.lemke.oneuisample.ui.util.autoCleared
+import de.lemke.oneuisample.ui.util.getSearchListener
+import de.lemke.oneuisample.ui.util.launchAndRepeatWithViewLifecycle
+import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
 import dev.oneuiproject.oneui.ktx.dpToPx

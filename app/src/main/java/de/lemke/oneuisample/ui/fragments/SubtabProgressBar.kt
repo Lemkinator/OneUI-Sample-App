@@ -9,8 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabProgressBarBinding
-import de.lemke.oneuisample.domain.autoCleared
-import de.lemke.oneuisample.domain.launchAndRepeatWithViewLifecycle
+import de.lemke.oneuisample.ui.util.autoCleared
+import de.lemke.oneuisample.ui.util.launchAndRepeatWithViewLifecycle
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 
