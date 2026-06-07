@@ -89,8 +89,12 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         }
     }
 
+    private var renderedPickerType = -1
+
     private fun render(state: AppPickerUiState) {
-        setAppPickerType(ListTypes.entries[state.pickerType])
+        if (renderedPickerType == state.pickerType) return
+        renderedPickerType = state.pickerType
+        setAppPickerType(ListTypes.entries.getOrElse(state.pickerType) { ListTypes.entries.first() })
     }
 
     private fun configureAppPicker(appPicker: SeslAppPickerView) {
