@@ -18,8 +18,12 @@ class AcceptTosUseCase @Inject constructor(
         versionCode: Int,
         versionName: String,
     ) = withContext(Dispatchers.Default) {
-        userSettings.acceptedTosVersion = context.resources.getInteger(R.integer.tos_version)
-        userSettings.lastVersionCode = versionCode
-        userSettings.lastVersionName = versionName
+        userSettings.update {
+            copy(
+                acceptedTosVersion = context.resources.getInteger(R.integer.tos_version),
+                lastVersionCode = versionCode,
+                lastVersionName = versionName,
+            )
+        }
     }
 }

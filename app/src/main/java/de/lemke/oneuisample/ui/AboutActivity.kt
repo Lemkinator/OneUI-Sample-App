@@ -27,19 +27,19 @@ import dev.oneuiproject.oneui.design.R as designR
 class AboutActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAboutBinding
     private val viewModel: AboutViewModel by viewModels()
+    private lateinit var versionTextView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAboutBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        versionTextView = binding.appInfoLayout.findViewById(designR.id.app_info_version)
         binding.appInfoLayout.apply {
             addOptionalText("Extra 1")
             addOptionalText("Extra 2")
             setMainButtonClickListener { suggestiveSnackBar("Main button clicked! updateState: $updateStatus") }
         }
-        binding.appInfoLayout.findViewById<TextView>(designR.id.app_info_version).onMultiClick {
-            viewModel.onToggleDevMode()
-        }
+        versionTextView.onMultiClick { viewModel.onToggleDevMode() }
         binding.aboutButtonStatus.setOnClickListener { changeStatus() }
         binding.aboutButtonGithub.setOnClickListener { openURL(getString(R.string.link_oneui_design)) }
         binding.aboutButtonOpenSourceLicenses.setOnClickListener { startActivity(Intent(this, LibsActivity::class.java)) }
@@ -47,7 +47,7 @@ class AboutActivity : AppCompatActivity() {
     }
 
     private fun render(state: AboutUiState) {
-        binding.appInfoLayout.findViewById<TextView>(designR.id.app_info_version).text =
+        versionTextView.text =
             getString(designR.string.oui_des_version_info, VERSION_NAME + if (state.devModeEnabled) " (dev)" else "")
     }
 

@@ -24,6 +24,7 @@ import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
 import de.lemke.oneuisample.ui.util.collectEvents
+import de.lemke.oneuisample.ui.util.collectState
 import dev.oneuiproject.oneui.widget.OnboardingTipsItemView
 
 @AndroidEntryPoint
@@ -40,6 +41,11 @@ class OOBEActivity : AppCompatActivity() {
         initTipsItems()
         initToSView()
         initFooterButton()
+        collectState(viewModel.isAccepting) { isAccepting ->
+            binding.oobeIntroFooterTosText.isEnabled = !isAccepting
+            binding.oobeIntroFooterButton.isVisible = !isAccepting
+            binding.oobeIntroFooterButtonProgress.isVisible = isAccepting
+        }
         collectEvents(viewModel.events) { event ->
             when (event) {
                 OOBEEvent.NavigateToMain -> navigateToMain()
@@ -98,11 +104,6 @@ class OOBEActivity : AppCompatActivity() {
 
     private fun initFooterButton() {
         if (resources.configuration.screenWidthDp < 360) binding.oobeIntroFooterButton.layoutParams.width = MATCH_PARENT
-        binding.oobeIntroFooterButton.setOnClickListener {
-            binding.oobeIntroFooterTosText.isEnabled = false
-            binding.oobeIntroFooterButton.isVisible = false
-            binding.oobeIntroFooterButtonProgress.isVisible = true
-            viewModel.onAcceptTos()
-        }
+        binding.oobeIntroFooterButton.setOnClickListener { viewModel.onAcceptTos() }
     }
 }
