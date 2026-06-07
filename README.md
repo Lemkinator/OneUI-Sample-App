@@ -3,13 +3,13 @@
 
 <img src="img/OneUI_Sample_App_squircle.png" height="150" alt="Icon"/>
 
-[![](https://img.shields.io/website?down_color=red&down_message=offline&up_color=blue&up_message=online&url=https%3A%2F%2Fwww.leonard-lemke.com)](https://www.leonard-lemke.com/rr)
-[![](https://img.shields.io/github/last-commit/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App/commits/)
-[![](https://img.shields.io/github/issues-raw/Lemkinator/OneUI-Sample-App?color=%23ff4400)](https://github.com/Lemkinator/OneUI-Sample-App/issues)
-[![](https://img.shields.io/github/issues-pr-raw/Lemkinator/OneUI-Sample-App?color=%23bb00bb)](https://github.com/Lemkinator/OneUI-Sample-App/pulls)
-[![](https://img.shields.io/github/contributors/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App/graphs/contributors)
-[![](https://img.shields.io/github/repo-size/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App)
-[![](https://sloc.xyz/github/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App)
+[![Website](https://img.shields.io/website?down_color=red&down_message=offline&up_color=blue&up_message=online&url=https%3A%2F%2Fwww.leonard-lemke.com)](https://www.leonard-lemke.com/rr)
+[![Last Commit](https://img.shields.io/github/last-commit/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App/commits/)
+[![Issues](https://img.shields.io/github/issues-raw/Lemkinator/OneUI-Sample-App?color=%23ff4400)](https://github.com/Lemkinator/OneUI-Sample-App/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr-raw/Lemkinator/OneUI-Sample-App?color=%23bb00bb)](https://github.com/Lemkinator/OneUI-Sample-App/pulls)
+[![Contributors](https://img.shields.io/github/contributors/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App/graphs/contributors)
+[![Repo Size](https://img.shields.io/github/repo-size/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App)
+[![SLOC](https://sloc.xyz/github/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App)
 [![CodeFactor](https://www.codefactor.io/repository/github/lemkinator/oneui-sample-app/badge)](https://www.codefactor.io/repository/github/lemkinator/oneui-sample-app)
 
 # OneUI Sample App
@@ -28,6 +28,17 @@ This is a sample app for the <a href="https://github.com/tribalfs/oneui-design">
 </h3>
 
 <br><br>
+
+## Development Setup
+
+One-time setup per clone (Windows):
+
+```bash
+git config core.autocrlf input
+git config core.hooksPath .githooks
+```
+
+This enables LF line endings and the pre-commit hook (runs Spotless + Detekt before each commit).
 
 ![Alt](https://repobeats.axiom.co/api/embed/9c5efca56ef370169e709a04923cfcd6451fa62a.svg "Repobeats analytics image")
 
