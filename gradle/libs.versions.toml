@@ -13,7 +13,7 @@ aboutlibraries = "14.2.1"
 activity-compose = "1.12.4"
 core-splashscreen = "1.2.0"
 detekt = "2.0.0-alpha.3"
-gradle = "9.2.1"
+agp = "9.2.1"
 hilt = "2.59.2"
 # Hilt 2.59.2 does not support Kotlin 2.4.0 metadata, noinspection until a Hilt version ships with Kotlin 2.4 compatibility
 #noinspection NewerVersionAvailable
@@ -41,7 +41,7 @@ oneui-icons = { module = "io.github.oneuiproject:icons", version.ref = "oneui-ic
 
 [plugins]
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
-android-application = { id = "com.android.application", version.ref = "gradle" }
+android-application = { id = "com.android.application", version.ref = "agp" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
