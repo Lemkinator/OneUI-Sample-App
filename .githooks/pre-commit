@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-if [ "$(git config --get core.autocrlf)" = "true" ]; then
+autocrlf=$(git config --get core.autocrlf || true)
+if [ "$autocrlf" = "true" ]; then
   echo "✘ core.autocrlf=true breaks formatting checks."
   echo "  Run: git config core.autocrlf input"
   exit 1
