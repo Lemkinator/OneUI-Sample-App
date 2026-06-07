@@ -1,8 +1,10 @@
-package de.lemke.oneuisample.domain
+package de.lemke.oneuisample.ui.util
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.domain.AppStart
+import de.lemke.oneuisample.domain.checkAppStart
 import de.lemke.oneuisample.ui.OOBEActivity
 
 const val EXTRA_SKIP_ONBOARDING = "skipOnboarding"

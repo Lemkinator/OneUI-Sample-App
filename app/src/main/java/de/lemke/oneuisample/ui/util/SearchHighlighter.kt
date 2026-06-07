@@ -1,4 +1,4 @@
-package de.lemke.oneuisample.domain
+package de.lemke.oneuisample.ui.util
 
 import android.content.Context
 import android.text.SpannableStringBuilder

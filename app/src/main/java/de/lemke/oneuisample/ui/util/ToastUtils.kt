@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package de.lemke.oneuisample.domain
+package de.lemke.oneuisample.ui.util
 
 import android.content.Context
 import android.widget.Toast

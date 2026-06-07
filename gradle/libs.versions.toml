@@ -12,9 +12,13 @@ aboutlibraries = "14.2.1"
 #noinspection GradleDependency
 activity-compose = "1.12.4"
 core-splashscreen = "1.2.0"
+dependency-analysis = "3.14.1"
 detekt = "2.0.0-alpha.3"
 agp = "9.2.1"
 hilt = "2.59.2"
+junit-jupiter = "6.1.0"
+junit-platform = "6.1.0"
+konsist = "0.17.3"
 # Hilt 2.59.2 does not support Kotlin 2.4.0 metadata, noinspection until a Hilt version ships with Kotlin 2.4 compatibility
 #noinspection NewerVersionAvailable
 kotlin = "2.3.21"
@@ -35,6 +39,9 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3",
 core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
+konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 oneui-design = { module = "io.github.tribalfs:oneui-design", version.ref = "oneui-design" }
 oneui-icons = { module = "io.github.oneuiproject:icons", version.ref = "oneui-icons" }
@@ -42,6 +49,7 @@ oneui-icons = { module = "io.github.oneuiproject:icons", version.ref = "oneui-ic
 [plugins]
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
 android-application = { id = "com.android.application", version.ref = "agp" }
+dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependency-analysis" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

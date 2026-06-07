@@ -9,8 +9,8 @@ import de.lemke.oneuisample.BuildConfig.VERSION_NAME
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivityAboutBinding
-import de.lemke.oneuisample.domain.openURL
-import de.lemke.oneuisample.domain.suggestiveSnackBar
+import de.lemke.oneuisample.ui.util.openURL
+import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.onMultiClick
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Failed
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Loading

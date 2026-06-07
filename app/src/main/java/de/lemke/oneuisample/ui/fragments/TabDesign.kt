@@ -8,7 +8,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignBinding
-import de.lemke.oneuisample.domain.autoCleared
+import de.lemke.oneuisample.ui.util.autoCleared
 
 class TabDesign : AbsBaseFragment(R.layout.fragment_tab_design) {
     private val binding by autoCleared { FragmentTabDesignBinding.bind(requireView()) }
