@@ -1,6 +1,5 @@
 package de.lemke.oneuisample.ui
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,7 +9,6 @@ import de.lemke.oneuisample.domain.CompleteOnboardingUseCase
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_CODE
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_NAME
 import javax.inject.Inject
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -37,24 +35,12 @@ class OOBEViewModel @Inject constructor(
     private val _isAccepting = MutableStateFlow(false)
     val isAccepting: StateFlow<Boolean> = _isAccepting.asStateFlow()
 
-    @Suppress("TooGenericExceptionCaught")
     fun onAcceptTos() {
         if (_isAccepting.value) return
         viewModelScope.launch {
             _isAccepting.value = true
-            try {
-                completeOnboarding(versionCode, versionName)
-                _events.emit(OOBEEvent.NavigateToMain)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.w(TAG, "Onboarding failed — re-enabling button", e)
-                _isAccepting.value = false
-            }
+            completeOnboarding(versionCode, versionName)
+            _events.emit(OOBEEvent.NavigateToMain)
         }
-    }
-
-    private companion object {
-        const val TAG = "OOBEViewModel"
     }
 }
