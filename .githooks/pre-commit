@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -e
+
+if [ "$(git config --get core.autocrlf)" = "true" ]; then
+  echo "✘ core.autocrlf=true breaks formatting checks."
+  echo "  Run: git config core.autocrlf input"
+  exit 1
+fi
+
+./gradlew staticAnalysis -q || {
+  echo "✘ Spotless/Detekt violations. Fix with: ./gradlew spotlessApply"
+  exit 1
+}
