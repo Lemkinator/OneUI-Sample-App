@@ -2,6 +2,7 @@ package de.lemke.oneuisample.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SeslSwitchBar
 import androidx.appcompat.widget.SwitchCompat
@@ -12,37 +13,36 @@ import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivitySwitchbarBinding
+import de.lemke.oneuisample.ui.util.collectState
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class SwitchBarActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator(), SeslSwitchBar.OnSwitchChangeListener {
     private lateinit var binding: ActivitySwitchbarBinding
-
-    @Inject
-    lateinit var userSettings: UserSettingsRepository
+    private val viewModel: SwitchBarViewModel by viewModels()
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySwitchbarBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val enabled = userSettings.sampleSwitchBar
-        binding.root.switchBar.isChecked = enabled
-        update(enabled)
         binding.root.switchBar.addOnSwitchChangeListener(this)
         binding.switchBarExample.translateYWithAppBar(binding.root.appBarLayout, this)
+        collectState(viewModel.state) { render(it) }
     }
 
     override fun onSwitchChanged(
         switchCompat: SwitchCompat,
         enabled: Boolean,
     ) {
-        userSettings.sampleSwitchBar = enabled
-        update(enabled)
+        viewModel.onSwitchChanged(enabled)
+    }
+
+    private fun render(state: SwitchBarUiState) {
+        binding.root.switchBar.isChecked = state.enabled
+        update(state.enabled)
     }
 
     private fun update(enabled: Boolean) {
