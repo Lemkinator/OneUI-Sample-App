@@ -15,7 +15,7 @@
  */
 @file:Suppress("unused")
 
-package de.lemke.oneuisample.domain
+package de.lemke.oneuisample.ui
 
 import android.content.Intent
 import android.os.Bundle

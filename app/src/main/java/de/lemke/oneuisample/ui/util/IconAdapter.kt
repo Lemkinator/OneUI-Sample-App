@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.ui.util.IconAdapter.Icon
+import de.lemke.oneuisample.domain.Icon
 import de.lemke.oneuisample.ui.util.IconAdapter.Payload.HIGHLIGHT
 import dev.oneuiproject.oneui.layout.ToolbarLayout.AllSelectorState
 import dev.oneuiproject.oneui.recyclerview.adapter.IndexedSelectableListAdapter
@@ -138,17 +138,5 @@ class IconAdapter(
     enum class Payload {
         SELECTION_MODE,
         HIGHLIGHT,
-    }
-
-    data class Icon(
-        val resId: Int,
-        val resEntryName: String,
-    ) {
-        val id get() = resId.toLong()
-        val name get() = resEntryName.removePrefix("ic_oui_")
-        val beautifiedName get() = name.replace('_', ' ').replaceFirstChar { it.uppercase() }
-        val indexChar get() = name.first().uppercaseChar()
-
-        fun containsKeywords(keywords: Set<String>): Boolean = keywords.any { name.contains(it, ignoreCase = true) }
     }
 }

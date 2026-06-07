@@ -5,7 +5,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.data.search
 import de.lemke.oneuisample.data.searchActive
-import de.lemke.oneuisample.ui.util.IconAdapter.Icon
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.combine

@@ -1,9 +1,12 @@
-package de.lemke.oneuisample.domain
+package de.lemke.oneuisample.ui
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import de.lemke.oneuisample.data.UserSettingsRepository
-import de.lemke.oneuisample.ui.OOBEActivity
+import de.lemke.oneuisample.domain.AppStart
+import de.lemke.oneuisample.domain.checkAppStart
+import de.lemke.oneuisample.domain.finishWithFade
+import de.lemke.oneuisample.domain.overrideFadeOpenTransition
 
 const val EXTRA_SKIP_ONBOARDING = "skipOnboarding"
 const val EXTRA_VERSION_CODE = "versionCode"

@@ -24,8 +24,6 @@ import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
-import de.lemke.oneuisample.domain.EXTRA_VERSION_CODE
-import de.lemke.oneuisample.domain.EXTRA_VERSION_NAME
 import dev.oneuiproject.oneui.widget.OnboardingTipsItemView
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds

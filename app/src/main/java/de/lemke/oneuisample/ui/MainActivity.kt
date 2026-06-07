@@ -18,9 +18,6 @@ import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivityMainBinding
 import de.lemke.oneuisample.domain.configureSplashScreen
 import de.lemke.oneuisample.domain.finishWithFade
-import de.lemke.oneuisample.domain.onNavigationSingleClick
-import de.lemke.oneuisample.domain.onboardIfNeeded
-import de.lemke.oneuisample.domain.setupHeaderAndNavRail
 import de.lemke.oneuisample.domain.suggestiveSnackBar
 import de.lemke.oneuisample.ui.fragments.FragmentBottomSheet
 import dev.oneuiproject.oneui.navigation.setupNavigation
