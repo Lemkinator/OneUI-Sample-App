@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.lemke.oneuisample.BuildConfig
-import de.lemke.oneuisample.domain.AcceptTosUseCase
+import de.lemke.oneuisample.domain.CompleteOnboardingUseCase
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_CODE
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_NAME
 import javax.inject.Inject
@@ -25,7 +25,7 @@ sealed class OOBEEvent {
 @HiltViewModel
 class OOBEViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val acceptTos: AcceptTosUseCase,
+    private val completeOnboarding: CompleteOnboardingUseCase,
 ) : ViewModel() {
     private val versionCode = savedStateHandle.get<Int>(EXTRA_VERSION_CODE) ?: BuildConfig.VERSION_CODE
     private val versionName = savedStateHandle.get<String>(EXTRA_VERSION_NAME) ?: BuildConfig.VERSION_NAME
@@ -40,7 +40,7 @@ class OOBEViewModel @Inject constructor(
         if (_isAccepting.value) return
         viewModelScope.launch {
             _isAccepting.value = true
-            acceptTos(versionCode, versionName)
+            completeOnboarding(versionCode, versionName)
             delay(500.milliseconds)
             _events.send(OOBEEvent.NavigateToMain)
         }

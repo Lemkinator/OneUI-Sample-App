@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Singleton
-class AcceptTosUseCase @Inject constructor(
+class CompleteOnboardingUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val userSettings: UserSettingsRepository,
 ) {
