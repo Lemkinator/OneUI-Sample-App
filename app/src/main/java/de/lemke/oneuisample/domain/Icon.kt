@@ -7,7 +7,7 @@ data class Icon(
     val id get() = resId.toLong()
     val name get() = resEntryName.removePrefix("ic_oui_")
     val beautifiedName get() = name.replace('_', ' ').replaceFirstChar { it.uppercase() }
-    val indexChar get() = name.first().uppercaseChar()
+    val indexChar get() = name.firstOrNull()?.uppercaseChar() ?: '#'
 
     fun containsKeywords(keywords: Set<String>): Boolean = keywords.any { name.contains(it, ignoreCase = true) }
 }
