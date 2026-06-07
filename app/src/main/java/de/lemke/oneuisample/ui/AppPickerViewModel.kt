@@ -4,11 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.ui.util.stateInViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 data class AppPickerUiState(
     val pickerType: Int = 0,
@@ -21,11 +20,7 @@ class AppPickerViewModel @Inject constructor(
     val state: StateFlow<AppPickerUiState> =
         userSettings.flow
             .map { AppPickerUiState(pickerType = it.appPickerType) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = AppPickerUiState(pickerType = userSettings.appPickerType),
-            )
+            .stateInViewModel(viewModelScope, AppPickerUiState(pickerType = userSettings.appPickerType))
 
     fun onPickerTypeChanged(type: Int) {
         userSettings.appPickerType = type
