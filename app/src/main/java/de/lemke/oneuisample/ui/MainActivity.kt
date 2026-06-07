@@ -18,7 +18,6 @@ import de.lemke.oneuisample.domain.configureSplashScreen
 import de.lemke.oneuisample.domain.finishWithFade
 import de.lemke.oneuisample.domain.onNavigationSingleClick
 import de.lemke.oneuisample.domain.onboardIfNeeded
-import de.lemke.oneuisample.domain.overrideFadeOpenTransition
 import de.lemke.oneuisample.domain.setupHeaderAndNavRail
 import de.lemke.oneuisample.domain.suggestiveSnackBar
 import de.lemke.oneuisample.ui.fragments.FragmentBottomSheet
@@ -45,7 +44,6 @@ class MainActivity : AppCompatActivity() {
         ) {
             return
         }
-        overrideFadeOpenTransition()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         configureSplashScreen(splashScreen, binding.root) { !isUIReady }

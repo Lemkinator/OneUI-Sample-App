@@ -29,5 +29,6 @@ fun AppCompatActivity.onboardIfNeeded(
     }
     userSettings.lastVersionCode = versionCode
     userSettings.lastVersionName = versionName
+    overrideFadeOpenTransition()
     return true
 }
