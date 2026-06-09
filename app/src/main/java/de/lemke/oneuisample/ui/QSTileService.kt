@@ -5,7 +5,6 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.RemoteViews
-import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.ui.util.toast
 
@@ -54,7 +53,7 @@ class QSTileService : TileService() {
 
     fun semIsToggleButtonChecked(): Boolean = qsTile.state == Tile.STATE_ACTIVE
 
-    fun semGetDetailViewTitle(): CharSequence = BuildConfig.APP_NAME
+    fun semGetDetailViewTitle(): CharSequence = getString(R.string.app_name)
 
     fun semGetDetailView(): RemoteViews = RemoteViews(packageName, R.layout.qs_detail_view)
 

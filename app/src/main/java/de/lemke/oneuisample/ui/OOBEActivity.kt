@@ -20,7 +20,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import dagger.hilt.android.AndroidEntryPoint
-import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
 import de.lemke.oneuisample.ui.util.collectEvents
@@ -41,7 +40,7 @@ class OOBEActivity : AppCompatActivity() {
         }
         binding = ActivityOobeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.root.setTitle(BuildConfig.APP_NAME)
+        binding.root.setTitle(getString(R.string.app_name))
         initTipsItems()
         initToSView()
         initFooterButton()
