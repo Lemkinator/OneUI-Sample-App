@@ -64,7 +64,7 @@
         </activity>
 
         <service
-            android:name=".ui.QSTile"
+            android:name=".ui.QSTileService"
             android:exported="true"
             android:icon="@drawable/ic_oui_labs"
             android:label="${APP_NAME}"

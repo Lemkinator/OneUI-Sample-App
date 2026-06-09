@@ -10,7 +10,7 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignBinding
 import de.lemke.oneuisample.ui.util.autoCleared
 
-class TabDesign : AbsBaseFragment(R.layout.fragment_tab_design) {
+class TabDesignFragment : AbsBaseFragment(R.layout.fragment_tab_design) {
     private val binding by autoCleared { FragmentTabDesignBinding.bind(requireView()) }
 
     override fun onDestroyView() {
@@ -23,7 +23,7 @@ class TabDesign : AbsBaseFragment(R.layout.fragment_tab_design) {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        binding.viewPager2Design.adapter = ViewPager2AdapterTabDesignSubtabs(this)
+        binding.viewPager2Design.adapter = TabDesignSubtabsAdapter(this)
         binding.viewPager2Design.seslSetSuggestionPaging(true)
         binding.viewPager2Design.offscreenPageLimit = 2
         binding.viewPager2Design.registerOnPageChangeCallback(
@@ -46,14 +46,14 @@ class TabDesign : AbsBaseFragment(R.layout.fragment_tab_design) {
     }
 }
 
-class ViewPager2AdapterTabDesignSubtabs(fragment: Fragment) : FragmentStateAdapter(fragment) {
+class TabDesignSubtabsAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int = 3
 
     override fun createFragment(position: Int): Fragment =
         when (position) {
-            0 -> SubtabWidgets()
-            1 -> SubtabProgressBar()
-            2 -> SubtabQR()
-            else -> SubtabWidgets()
+            0 -> SubtabWidgetsFragment()
+            1 -> SubtabProgressBarFragment()
+            2 -> SubtabQrFragment()
+            else -> SubtabWidgetsFragment()
         }
 }

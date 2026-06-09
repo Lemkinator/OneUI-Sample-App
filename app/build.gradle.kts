@@ -221,6 +221,12 @@ kover {
                     "*Activity\$*",
                     "*Fragment",
                     "*Fragment\$*",
+                    "*Adapter",
+                    "*Adapter\$*",
+                    "*Receiver",
+                    "*Receiver\$*",
+                    "*TileService",
+                    "*TileService\$*",
                     "*DebugTools*",
                 )
             }

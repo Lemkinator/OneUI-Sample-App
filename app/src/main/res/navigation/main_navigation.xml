@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/design_dest"
-        android:name="de.lemke.oneuisample.ui.fragments.TabDesign"
+        android:name="de.lemke.oneuisample.ui.fragments.TabDesignFragment"
         android:label="@string/design"
         tools:layout="@layout/fragment_tab_design" />
 
     <fragment
         android:id="@+id/picker_dest"
-        android:name="de.lemke.oneuisample.ui.fragments.TabPicker"
+        android:name="de.lemke.oneuisample.ui.fragments.TabPickerFragment"
         android:label="@string/picker"
         tools:layout="@layout/fragment_tab_picker" />
 
     <fragment
         android:id="@+id/icons_dest"
-        android:name="de.lemke.oneuisample.ui.fragments.TabIcons"
+        android:name="de.lemke.oneuisample.ui.fragments.TabIconsFragment"
         android:label="@string/icons"
         tools:layout="@layout/fragment_tab_icons" />
 

@@ -10,7 +10,7 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.ui.util.toast
 
 @Suppress("redundantOverride", "unused")
-class QSTile : TileService() {
+class QSTileService : TileService() {
     override fun onCreate() {
         // Called by the system when the service is first created.
         super.onCreate()

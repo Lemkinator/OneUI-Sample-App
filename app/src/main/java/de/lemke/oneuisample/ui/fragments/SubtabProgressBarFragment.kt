@@ -15,7 +15,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
-class SubtabProgressBar : Fragment() {
+class SubtabProgressBarFragment : Fragment() {
     private val binding by autoCleared { FragmentTabDesignSubtabProgressBarBinding.bind(requireView()) }
 
     override fun onCreateView(

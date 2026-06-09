@@ -27,7 +27,7 @@ import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.setEntries
 
 @AndroidEntryPoint
-class SubtabWidgets : Fragment() {
+class SubtabWidgetsFragment : Fragment() {
     private val binding by autoCleared { FragmentTabDesignSubtabWidgetsBinding.bind(requireView()) }
     private val faceJsons = listOf("great_face.json", "good_face.json", "checking_face.json", "sad_face.json")
     private val faceJsonNames = listOf("Great Face", "Good Face", "Checking Face", "Sad Face")
