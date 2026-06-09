@@ -74,6 +74,11 @@ subprojects {
                 sourceCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
                 targetCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
             }
+
+            // oneui-design replaces these AOSP AndroidX modules with Samsung forks; exclude
+            // AOSP originals from all com.android.application modules to prevent shadowing.
+            // com.android.test modules (e.g. :benchmarks) are not matched and keep
+            // genuine AOSP AndroidX for UiAutomator and benchmark dependencies.
             plugins.withId("com.android.application") {
                 // Exclude from production AND androidTest* configs (not unit-test* which need
                 // real AOSP AndroidX for Robolectric).
