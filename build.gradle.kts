@@ -75,6 +75,8 @@ subprojects {
                 targetCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
             }
             plugins.withId("com.android.application") {
+                // Exclude from production AND androidTest* configs (not unit-test* which need
+                // real AOSP AndroidX for Robolectric).
                 configurations.matching { !it.name.startsWith("test", ignoreCase = true) }.configureEach {
                     exclude(group = "androidx.core", module = "core")
                     exclude(group = "androidx.core", module = "core-ktx")
