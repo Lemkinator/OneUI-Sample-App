@@ -1,18 +1,14 @@
 package de.lemke.oneuisample.ui
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.HiltTestApplication
-import de.lemke.oneuisample.data.UserSettingsRepository
-import javax.inject.Inject
+import de.lemke.oneuisample.App
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -20,29 +16,18 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-@HiltAndroidTest
+// sdk = [36]: Robolectric 4.16.1 max supported SDK; bump when 4.17+ adds SDK 37.
+// App::class: uses the production Hilt component so App.onCreate() initializes all singletons.
 @RunWith(RobolectricTestRunner::class)
-@Config(application = HiltTestApplication::class, sdk = [36])
+@Config(application = App::class, sdk = [36])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MainActivityScreenshotTest {
-    @get:Rule
-    val hiltRule = HiltAndroidRule(this)
-
-    @Inject
-    lateinit var userSettings: UserSettingsRepository
-
     @Before
     fun setup() {
-        hiltRule.inject()
         // Bypass OOBE: fresh SharedPreferences has lastVersionCode = -1 which triggers redirect.
-        userSettings.lastVersionCode = Int.MAX_VALUE
-        userSettings.acceptedTosVersion = Int.MAX_VALUE
-        // Bypass OOBE check in TestApp: also set directly on the prefs backing the test instance
-        val prefs =
-            ApplicationProvider
-                .getApplicationContext<HiltTestApplication>()
-                .getSharedPreferences("user_settings", Context.MODE_PRIVATE)
-        prefs
+        ApplicationProvider
+            .getApplicationContext<Application>()
+            .getSharedPreferences("user_settings", Context.MODE_PRIVATE)
             .edit()
             .putInt("lastVersionCode", Int.MAX_VALUE)
             .putInt("acceptedTosVersion", Int.MAX_VALUE)
@@ -50,7 +35,7 @@ class MainActivityScreenshotTest {
     }
 
     private fun captureMainScreenshot(fileName: String) {
-        val context = ApplicationProvider.getApplicationContext<HiltTestApplication>()
+        val context = ApplicationProvider.getApplicationContext<Application>()
         ActivityScenario
             .launch<MainActivity>(Intent(context, MainActivity::class.java))
             .use { scenario ->
