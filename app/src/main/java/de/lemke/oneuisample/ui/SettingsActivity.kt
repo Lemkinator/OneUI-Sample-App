@@ -57,6 +57,8 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
         private val viewModel: SettingsViewModel by viewModels()
+        private lateinit var devOptionsPref: PreferenceCategory
+        private lateinit var switchScreenPref: SeslSwitchPreferenceScreen
 
         override fun onAttach(context: Context) {
             super.onAttach(context)
@@ -88,17 +90,19 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun render(state: SettingsUiState) {
-            findPreference<PreferenceCategory>("dev_options")?.isVisible = state.devModeEnabled
+            devOptionsPref.isVisible = state.devModeEnabled
             autoDarkModePref.isChecked = state.autoDarkMode
             darkModePref.isEnabled = !state.autoDarkMode
             darkModePref.value = if (state.darkMode) "1" else "0"
-            findPreference<SeslSwitchPreferenceScreen>("switch_screen")?.apply {
+            switchScreenPref.apply {
                 isChecked = state.sampleSwitchBar
                 summary = if (isChecked) "Enabled" else "Disabled"
             }
         }
 
         private fun initPreferences() {
+            devOptionsPref = findPreference("dev_options")!!
+            switchScreenPref = findPreference("switch_screen")!!
             initDarkModePrefs()
             initSwitchBarPref()
             initLanguagePref()
@@ -135,7 +139,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun initSwitchBarPref() {
-            findPreference<SeslSwitchPreferenceScreen>("switch_screen")?.apply {
+            switchScreenPref.apply {
                 onClick { startActivity(Intent(settingsActivity, SwitchBarActivity::class.java)) }
                 onNewValue { newValue ->
                     summary = if (newValue) "Enabled" else "Disabled"
