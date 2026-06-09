@@ -24,8 +24,10 @@ import androidx.lifecycle.Lifecycle.State.STARTED
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /** Launches [block] in the lifecycle scope, repeating it whenever the lifecycle reaches [minActiveState]. */
@@ -62,20 +64,34 @@ inline fun <T> Fragment.collectState(
     flow.collect { onEach(it) }
 }
 
-/** Consumes events from [channel] and delivers each to [onEach] while the activity is at least [minActiveState]. */
+/** Collects [flow] events and delivers each to [onEach] while the activity is at least [minActiveState]. */
 inline fun <T> AppCompatActivity.collectEvents(
-    channel: ReceiveChannel<T>,
+    flow: Flow<T>,
     minActiveState: State = STARTED,
     crossinline onEach: (T) -> Unit,
 ) = launchAndRepeatWithLifecycle(minActiveState) {
-    for (event in channel) onEach(event)
+    flow.collect { onEach(it) }
 }
 
-/** Consumes events from [channel] and delivers each to [onEach] while the fragment view is at least [minActiveState]. */
+/** Collects [flow] events and delivers each to [onEach] while the fragment view is at least [minActiveState]. */
 inline fun <T> Fragment.collectEvents(
-    channel: ReceiveChannel<T>,
+    flow: Flow<T>,
     minActiveState: State = STARTED,
     crossinline onEach: (T) -> Unit,
 ) = launchAndRepeatWithViewLifecycle(minActiveState) {
-    for (event in channel) onEach(event)
+    flow.collect { onEach(it) }
 }
+
+/**
+ * Returns a [StateFlow] backed by this flow, using [SharingStarted.WhileSubscribed] with a
+ * 5-second timeout. Intended for ViewModel state derived from a repository flow.
+ */
+fun <T> Flow<T>.stateInViewModel(
+    scope: CoroutineScope,
+    initialValue: T,
+): StateFlow<T> =
+    stateIn(
+        scope = scope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = initialValue,
+    )

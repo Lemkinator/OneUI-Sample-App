@@ -85,6 +85,7 @@
     <string name="face_widget_text">OneUI Sample App Face Widget</string>
     <string name="face_widget_text_aod">OneUI Sample App AOD Face Widget</string>
 
+    <string name="memory_leaks" translatable="false">Memory leaks</string>
     <string name="switch_bar_example">This is a SwitchBar example.</string>
 
     <string name="list">List</string>

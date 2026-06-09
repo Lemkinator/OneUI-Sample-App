@@ -10,12 +10,14 @@ import com.google.android.material.appbar.model.ButtonModel
 import com.google.android.material.appbar.model.SuggestAppBarModel
 import com.google.android.material.appbar.model.view.SuggestAppBarView
 import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.BuildConfig.FIRST_RUN_SKIPPABLE
 import de.lemke.oneuisample.BuildConfig.VERSION_CODE
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivityMainBinding
+import de.lemke.oneuisample.openLeakCanary
 import de.lemke.oneuisample.ui.fragments.FragmentBottomSheet
 import de.lemke.oneuisample.ui.util.configureSplashScreen
 import de.lemke.oneuisample.ui.util.finishWithFade
@@ -63,6 +65,7 @@ class MainActivity : AppCompatActivity() {
             // isImmersiveScroll = true
             setupNavigation(binding.bottomTab, binding.navigationHost.getFragment())
         }
+        binding.navigationView.findMenuItem(R.id.leaks_dest)?.isVisible = BuildConfig.DEBUG
         binding.navigationView.onNavigationSingleClick { item ->
             when (item.itemId) {
                 R.id.oobe_dest -> openOOBEAndFinish()
@@ -70,6 +73,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.about_custom_dest -> startActivity(Intent(this, CustomAboutActivity::class.java))
                 R.id.settings_dest -> startActivity(Intent(this, SettingsActivity::class.java))
                 R.id.bottom_sheet_dest -> FragmentBottomSheet().show(supportFragmentManager, null)
+                R.id.leaks_dest -> openLeakCanary(this)
                 else -> return@onNavigationSingleClick false
             }
             true

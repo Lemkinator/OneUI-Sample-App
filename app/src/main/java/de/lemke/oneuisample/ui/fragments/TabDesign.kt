@@ -13,6 +13,11 @@ import de.lemke.oneuisample.ui.util.autoCleared
 class TabDesign : AbsBaseFragment(R.layout.fragment_tab_design) {
     private val binding by autoCleared { FragmentTabDesignBinding.bind(requireView()) }
 
+    override fun onDestroyView() {
+        view?.findViewById<ViewPager2>(R.id.viewPager2Design)?.adapter = null
+        super.onDestroyView()
+    }
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,

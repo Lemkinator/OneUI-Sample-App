@@ -143,6 +143,7 @@ dependencies {
     implementation(libs.core.splashscreen)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    debugImplementation(libs.leakcanary)
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.konsist)

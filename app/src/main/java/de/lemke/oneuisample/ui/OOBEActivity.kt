@@ -15,39 +15,51 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout.LayoutParams
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
-import de.lemke.oneuisample.ui.util.EXTRA_VERSION_CODE
-import de.lemke.oneuisample.ui.util.EXTRA_VERSION_NAME
+import de.lemke.oneuisample.ui.util.collectEvents
+import de.lemke.oneuisample.ui.util.collectState
+import de.lemke.oneuisample.ui.util.finishWithFade
 import dev.oneuiproject.oneui.widget.OnboardingTipsItemView
-import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class OOBEActivity : AppCompatActivity() {
     private lateinit var binding: ActivityOobeBinding
-
-    @Inject
-    lateinit var userSettings: UserSettingsRepository
+    private val viewModel: OOBEViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= 34) overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, fade_in, fade_out)
+        if (Build.VERSION.SDK_INT >= 34) {
+            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, fade_in, fade_out)
+            overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, fade_in, fade_out)
+        }
         binding = ActivityOobeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.root.setTitle(BuildConfig.APP_NAME)
         initTipsItems()
         initToSView()
         initFooterButton()
+        collectState(viewModel.isAccepting) { isAccepting ->
+            binding.oobeIntroFooterTosText.isEnabled = !isAccepting
+            binding.oobeIntroFooterButton.isVisible = !isAccepting
+            binding.oobeIntroFooterButtonProgress.isVisible = isAccepting
+        }
+        collectEvents(viewModel.events) { event ->
+            when (event) {
+                OOBEEvent.NavigateToMain -> navigateToMain()
+            }
+        }
+    }
+
+    private fun navigateToMain() {
+        startActivity(Intent(this, MainActivity::class.java))
+        finishWithFade()
     }
 
     private fun initTipsItems() {
@@ -95,19 +107,6 @@ class OOBEActivity : AppCompatActivity() {
 
     private fun initFooterButton() {
         if (resources.configuration.screenWidthDp < 360) binding.oobeIntroFooterButton.layoutParams.width = MATCH_PARENT
-        binding.oobeIntroFooterButton.setOnClickListener {
-            binding.oobeIntroFooterTosText.isEnabled = false
-            binding.oobeIntroFooterButton.isVisible = false
-            binding.oobeIntroFooterButtonProgress.isVisible = true
-            lifecycleScope.launch {
-                userSettings.acceptedTosVersion = resources.getInteger(R.integer.tos_version)
-                userSettings.lastVersionCode = intent.getIntExtra(EXTRA_VERSION_CODE, BuildConfig.VERSION_CODE)
-                userSettings.lastVersionName = intent.getStringExtra(EXTRA_VERSION_NAME) ?: BuildConfig.VERSION_NAME
-                delay(500.milliseconds)
-                startActivity(Intent(this@OOBEActivity, MainActivity::class.java))
-                @Suppress("DEPRECATION") if (Build.VERSION.SDK_INT < 34) overridePendingTransition(fade_in, fade_out)
-                finishAfterTransition()
-            }
-        }
+        binding.oobeIntroFooterButton.setOnClickListener { viewModel.onAcceptTos() }
     }
 }
