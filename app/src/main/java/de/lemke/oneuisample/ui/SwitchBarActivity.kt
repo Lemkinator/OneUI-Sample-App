@@ -41,10 +41,12 @@ class SwitchBarActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     }
 
     private fun render(state: SwitchBarUiState) {
-        if (binding.root.switchBar.isChecked != state.enabled) {
-            binding.root.switchBar.removeOnSwitchChangeListener(this)
-            binding.root.switchBar.isChecked = state.enabled
-            binding.root.switchBar.addOnSwitchChangeListener(this)
+        binding.root.switchBar.apply {
+            if (isChecked != state.enabled) {
+                removeOnSwitchChangeListener(this@SwitchBarActivity)
+                isChecked = state.enabled
+                addOnSwitchChangeListener(this@SwitchBarActivity)
+            }
         }
         update(state.enabled)
     }
