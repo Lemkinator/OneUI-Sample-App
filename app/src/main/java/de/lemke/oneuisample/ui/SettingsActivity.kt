@@ -56,9 +56,9 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var settingsActivity: SettingsActivity
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
-        private val viewModel: SettingsViewModel by viewModels()
         private lateinit var devOptionsPref: PreferenceCategory
         private lateinit var switchScreenPref: SeslSwitchPreferenceScreen
+        private val viewModel: SettingsViewModel by viewModels()
 
         override fun onAttach(context: Context) {
             super.onAttach(context)
