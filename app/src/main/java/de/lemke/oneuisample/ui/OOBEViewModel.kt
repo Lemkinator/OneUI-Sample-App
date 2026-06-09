@@ -9,7 +9,9 @@ import de.lemke.oneuisample.domain.CompleteOnboardingUseCase
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_CODE
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_NAME
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,6 +42,7 @@ class OOBEViewModel @Inject constructor(
         viewModelScope.launch {
             _isAccepting.value = true
             completeOnboarding(versionCode, versionName)
+            delay(500.milliseconds)
             _events.send(OOBEEvent.NavigateToMain)
         }
     }

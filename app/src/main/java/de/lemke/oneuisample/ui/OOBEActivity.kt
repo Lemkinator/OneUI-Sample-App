@@ -19,7 +19,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.R
@@ -28,9 +27,6 @@ import de.lemke.oneuisample.ui.util.collectEvents
 import de.lemke.oneuisample.ui.util.collectState
 import de.lemke.oneuisample.ui.util.finishWithFade
 import dev.oneuiproject.oneui.widget.OnboardingTipsItemView
-import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class OOBEActivity : AppCompatActivity() {
@@ -62,11 +58,8 @@ class OOBEActivity : AppCompatActivity() {
     }
 
     private fun navigateToMain() {
-        lifecycleScope.launch {
-            delay(500.milliseconds)
-            startActivity(Intent(this@OOBEActivity, MainActivity::class.java))
-            finishWithFade()
-        }
+        startActivity(Intent(this, MainActivity::class.java))
+        finishWithFade()
     }
 
     private fun initTipsItems() {
