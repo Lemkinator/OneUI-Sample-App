@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { persist-credentials: false }
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
       - uses: gradle/actions/setup-gradle@v4
       - run: chmod +x ./gradlew && ./gradlew spotlessCheck detekt --stacktrace
@@ -34,9 +34,9 @@ jobs:
     timeout-minutes: 30
     needs: check-formatting
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { persist-credentials: false }
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
       - uses: gradle/actions/setup-gradle@v4
       - run: chmod +x ./gradlew && ./gradlew lintDebug --stacktrace
@@ -52,9 +52,9 @@ jobs:
     timeout-minutes: 30
     needs: check-formatting
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { persist-credentials: false }
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
       - uses: gradle/actions/setup-gradle@v4
       - run: chmod +x ./gradlew && ./gradlew testDebugUnitTest koverXmlReportDebug koverHtmlReportDebug koverVerifyDebug --stacktrace
@@ -83,9 +83,9 @@ jobs:
     timeout-minutes: 30
     needs: check-formatting
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { persist-credentials: false }
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
       - uses: gradle/actions/setup-gradle@v4
       - run: chmod +x ./gradlew && ./gradlew verifyRoborazziDebug --stacktrace
@@ -128,9 +128,9 @@ jobs:
     timeout-minutes: 30
     needs: [ lint, unit-tests, screenshot-tests, instrumented-tests ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with: { persist-credentials: false }
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
       - uses: gradle/actions/setup-gradle@v4
       - run: chmod +x ./gradlew && ./gradlew assembleRelease --stacktrace
