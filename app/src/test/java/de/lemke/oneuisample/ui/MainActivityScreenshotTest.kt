@@ -9,6 +9,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.bypassOobe
+import de.lemke.oneuisample.data.UserSettingsRepository
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,7 +28,7 @@ class MainActivityScreenshotTest {
     fun setup() {
         ApplicationProvider
             .getApplicationContext<Application>()
-            .getSharedPreferences("user_settings", Context.MODE_PRIVATE)
+            .getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
             .bypassOobe()
     }
 

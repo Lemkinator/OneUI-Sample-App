@@ -36,6 +36,10 @@ class UserSettingsRepository(
     private val preferences: SharedPreferences,
     scope: CoroutineScope,
 ) {
+    companion object {
+        const val PREFS_NAME = "user_settings"
+    }
+
     var darkMode: Boolean by preferences.delegates.darkMode(false)
     var autoDarkMode: Boolean by preferences.delegates.boolean(true)
     var lastVersionCode: Int by preferences.delegates.int(-1)
@@ -131,6 +135,6 @@ class UserSettingsRepository(
 val StateFlow<UserSettings>.search: Flow<String> get() = map { it.search }.distinctUntilChanged()
 val StateFlow<UserSettings>.searchActive: Flow<Boolean> get() = map { it.searchActive }.distinctUntilChanged()
 
-/** Helper retrieving the [ToolbarLayout.SearchOnActionMode] from [userSettings] with a [ToolbarLayout.SearchModeListener]. */
+/** Helper retrieving the [ToolbarLayout.SearchOnActionMode] from [UserSettings] with a [ToolbarLayout.SearchModeListener]. */
 fun SearchOnActionMode.withListener(listener: ToolbarLayout.SearchModeListener?) =
     if (this is SearchOnActionMode.Concurrent) SearchOnActionMode.Concurrent(listener) else this

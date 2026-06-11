@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew lint
 ```
 
-No unit tests exist in this project.
+Test suite: unit tests (Kotest/MockK), Robolectric integration tests, Roborazzi screenshot tests, Kover coverage. Run with `./gradlew testDebugUnitTest`.
 
 ## Private Dependencies (Required for Build)
 

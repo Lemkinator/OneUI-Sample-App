@@ -10,6 +10,7 @@ import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
+import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.MainActivity
 import io.kotest.matchers.shouldBe
 import org.junit.Before
@@ -23,7 +24,7 @@ import org.robolectric.annotation.Config
 @Config(application = App::class, sdk = [36])
 class URLUtilsKtFragmentTest {
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
-    private val prefs get() = context.getSharedPreferences("user_settings", Context.MODE_PRIVATE)
+    private val prefs get() = context.getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
 
     @Before
     fun setup() {

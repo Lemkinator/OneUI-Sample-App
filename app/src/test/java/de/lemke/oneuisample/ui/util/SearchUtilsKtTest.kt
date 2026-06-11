@@ -32,7 +32,7 @@ import org.robolectric.annotation.Config
 @Config(application = App::class, sdk = [36])
 class SearchUtilsKtTest {
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
-    private val prefs get() = context.getSharedPreferences("user_settings", Context.MODE_PRIVATE)
+    private val prefs get() = context.getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
     private lateinit var testScope: TestScope
 
     @Before

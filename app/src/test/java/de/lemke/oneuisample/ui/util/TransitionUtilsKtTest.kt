@@ -8,6 +8,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.bypassOobe
+import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.MainActivity
 import org.junit.Before
 import org.junit.Test
@@ -23,7 +24,7 @@ class TransitionUtilsKtTest {
     fun setup() {
         ApplicationProvider
             .getApplicationContext<Application>()
-            .getSharedPreferences("user_settings", Context.MODE_PRIVATE)
+            .getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
             .bypassOobe()
     }
 

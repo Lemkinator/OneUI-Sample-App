@@ -30,5 +30,6 @@ object PersistenceModule {
     fun provideUserSettingsRepository(
         @ApplicationContext context: Context,
         @ApplicationScope scope: CoroutineScope,
-    ): UserSettingsRepository = UserSettingsRepository(context.getSharedPreferences("user_settings", Context.MODE_PRIVATE), scope)
+    ): UserSettingsRepository =
+        UserSettingsRepository(context.getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE), scope)
 }
