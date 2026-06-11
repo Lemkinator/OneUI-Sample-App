@@ -34,7 +34,7 @@ class ObserveIconListUseCaseTest {
         val context = ApplicationProvider.getApplicationContext<Application>()
         prefs = context.getSharedPreferences("test_observe_icons", Context.MODE_PRIVATE)
         prefs.edit().clear().commit()
-        repo = UserSettingsRepository(prefs, testScope)
+        repo = UserSettingsRepository(prefs, testScope.backgroundScope)
         useCase = ObserveIconListUseCase(context, repo)
     }
 
@@ -44,49 +44,45 @@ class ObserveIconListUseCaseTest {
     }
 
     @Test
-    fun `returns full icon list with null search when searchActive is false`() {
-        runTest {
+    fun `returns full icon list with null search when searchActive is false`() =
+        testScope.runTest {
             val (icons, search) = useCase().first()
             icons shouldBe useCase.iconsId
             search shouldBe null
         }
-    }
 
     @Test
-    fun `returns full icon list with null search when searchActive is true but search is blank`() {
-        runTest {
+    fun `returns full icon list with null search when searchActive is true but search is blank`() =
+        testScope.runTest {
             repo.searchActive = true
             repo.search = "   "
             val (icons, search) = useCase().first()
             icons shouldBe useCase.iconsId
             search shouldBe null
         }
-    }
 
     @Test
-    fun `returns filtered list and search string when searchActive is true and search is non-blank`() {
-        runTest {
+    fun `returns filtered list and search string when searchActive is true and search is non-blank`() =
+        testScope.runTest {
             repo.searchActive = true
             repo.search = "star"
             val (icons, search) = useCase().first()
             search shouldBe "star"
             icons.all { it.containsKeywords(setOf("star")) } shouldBe true
         }
-    }
 
     @Test
-    fun `filtered list is a subset of the full icon list`() {
-        runTest {
+    fun `filtered list is a subset of the full icon list`() =
+        testScope.runTest {
             repo.searchActive = true
             repo.search = "star"
             val (filtered, _) = useCase().first()
             filtered.all { useCase.iconsId.contains(it) } shouldBe true
         }
-    }
 
     @Test
-    fun `search splits on spaces into keywords`() {
-        runTest {
+    fun `search splits on spaces into keywords`() =
+        testScope.runTest {
             repo.searchActive = true
             repo.search = "star moon"
             val (icons, search) = useCase().first()
@@ -94,16 +90,14 @@ class ObserveIconListUseCaseTest {
             icons.isNotEmpty() shouldBe true
             icons.all { it.containsKeywords(setOf("star", "moon")) } shouldBe true
         }
-    }
 
     @Test
-    fun `returns null search when searchActive becomes false`() {
-        runTest {
+    fun `returns null search when searchActive becomes false`() =
+        testScope.runTest {
             repo.searchActive = true
             repo.search = "star"
             repo.searchActive = false
             val (_, search) = useCase().first()
             search shouldBe null
         }
-    }
 }
