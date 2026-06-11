@@ -1,24 +1,23 @@
+@file:OptIn(ExperimentalRoborazziApi::class)
+
+import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
+
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.android.junit)
     alias(libs.plugins.detekt)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.aboutlibraries)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kover)
+    alias(libs.plugins.roborazzi)
     alias(libs.plugins.spotless)
 }
 
 fun String.toEnvVarStyle(): String = replace(Regex("([a-z])([A-Z])"), "$1_$2").uppercase()
 
 fun getProperty(key: String): String? = rootProject.findProperty(key)?.toString() ?: System.getenv(key.toEnvVarStyle())
-
-fun com.android.build.api.dsl.ApplicationBuildType.addConstant(
-    name: String,
-    value: String,
-) {
-    manifestPlaceholders += mapOf(name to value)
-    buildConfigField("String", name, "\"$value\"")
-}
 
 android {
     namespace = "de.lemke.oneuisample"
@@ -35,6 +34,7 @@ android {
                 .toInt()
         versionCode = 1
         versionName = "1.0.0"
+        testInstrumentationRunner = "de.lemke.oneuisample.HiltTestRunner"
         buildConfigField("boolean", "FIRST_RUN_SKIPPABLE", "false")
     }
     @Suppress("UnstableApiUsage")
@@ -60,7 +60,6 @@ android {
             isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true
-            addConstant("APP_NAME", "OneUI Sample App")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             ndk { debugSymbolLevel = "FULL" }
         }
@@ -70,7 +69,6 @@ android {
             //noinspection NotShrinkingResources
             isShrinkResources = false
             applicationIdSuffix = ".debug"
-            addConstant("APP_NAME", "OneUI Sample App (Debug)")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -78,11 +76,24 @@ android {
         viewBinding = true
         buildConfig = true
     }
-    packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/LICENSE*"
+            excludes += "/META-INF/licenses/**"
+        }
+        jniLibs.useLegacyPackaging = true // sets extractNativeLibs=true; affects only APK install-time .so extraction, not AAB publishing
+    }
     testOptions {
         unitTests {
-            all { test -> test.useJUnitPlatform() }
+            isIncludeAndroidResources = true
+            all { test ->
+                test.useJUnitPlatform()
+                test.jvmArgs("-XX:+EnableDynamicAgentLoading")
+                test.systemProperty("robolectric.graphicsMode", "NATIVE")
+            }
         }
+        animationsDisabled = true
     }
     lint {
         warningsAsErrors = true
@@ -144,7 +155,69 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     debugImplementation(libs.leakcanary)
-    testImplementation(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.platform.launcher)
+
+    testImplementation(libs.arch.core.testing)
+    testImplementation(libs.bundles.unit.test)
+    testImplementation(libs.bundles.robolectric.test)
+    testImplementation(libs.hilt.android.testing)
     testImplementation(libs.konsist)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit4)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.vintage.engine)
+    kspTest(libs.hilt.compiler)
+
+    androidTestImplementation(libs.bundles.android.test)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.turbine)
+    androidTestImplementation(libs.kotest.assertions.core)
+    androidTestImplementation(libs.coroutines.test)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.compiler)
+}
+
+roborazzi {
+    outputDir.set(layout.projectDirectory.dir("src/test/screenshots"))
+    compare {
+        outputDir.set(layout.buildDirectory.dir("reports/roborazzi"))
+    }
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                classes(
+                    "*.databinding.*",
+                    "*.BuildConfig",
+                    "*Hilt_*",
+                    "*_HiltModules*",
+                    "*_Factory",
+                    "*_Provide*",
+                    "*_MembersInjector",
+                    "dagger.hilt.*",
+                    "hilt_aggregated_deps.*",
+                    "*.di.*",
+                    "*Activity",
+                    "*Activity$*",
+                    "*Fragment",
+                    "*Fragment$*",
+                    "*Adapter",
+                    "*Adapter$*",
+                    "*Receiver",
+                    "*Receiver$*",
+                    "*TileService",
+                    "*TileService$*",
+                    "*DebugTools*",
+                    "*ComposableSingletons$*",
+                )
+            }
+        }
+        variant("debug") {
+            verify {
+                rule { minBound(95) }
+            }
+        }
+    }
 }

@@ -33,7 +33,7 @@ import java.util.Calendar.YEAR
 import java.util.Locale
 
 @AndroidEntryPoint
-class TabPicker : AbsBaseFragment(R.layout.fragment_tab_picker) {
+class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     private val binding by autoCleared { FragmentTabPickerBinding.bind(requireView()) }
     private var currentColor = -16547330 // #0381fe
     private var recentColors: List<Int> = listOf(currentColor)

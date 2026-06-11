@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class ArchitectureTest {
-    private val scope = Konsist.scopeFromProduction()
-
     @Test
     fun `data layer does not depend on ui`() {
-        scope.files
+        Konsist
+            .scopeFromProduction()
+            .files
             .withPackage("de.lemke.oneuisample.data..")
             .forEach { file ->
                 assertTrue(
@@ -22,7 +22,9 @@ class ArchitectureTest {
 
     @Test
     fun `domain layer does not depend on ui`() {
-        scope.files
+        Konsist
+            .scopeFromProduction()
+            .files
             .withPackage("de.lemke.oneuisample.domain..")
             .forEach { file ->
                 assertTrue(
@@ -34,7 +36,9 @@ class ArchitectureTest {
 
     @Test
     fun `data layer does not depend on domain`() {
-        scope.files
+        Konsist
+            .scopeFromProduction()
+            .files
             .withPackage("de.lemke.oneuisample.data..")
             .forEach { file ->
                 assertTrue(

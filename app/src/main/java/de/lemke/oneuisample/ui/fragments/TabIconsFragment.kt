@@ -54,7 +54,7 @@ import kotlinx.coroutines.flow.collectLatest
 import dev.oneuiproject.oneui.R as iconsR
 
 @AndroidEntryPoint
-class TabIcons : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator by AppBarAwareYTranslator() {
+class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator by AppBarAwareYTranslator() {
     private val binding by autoCleared { FragmentTabIconsBinding.bind(requireView()) }
     private lateinit var drawerLayout: DrawerLayout
     private val allSelectorStateFlow: MutableStateFlow<AllSelectorState> = MutableStateFlow(AllSelectorState())

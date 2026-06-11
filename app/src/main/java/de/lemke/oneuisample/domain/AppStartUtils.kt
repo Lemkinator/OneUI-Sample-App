@@ -11,7 +11,6 @@ private const val TAG = "AppStart"
 enum class AppStartResult { FIRST_TIME, FIRST_TIME_VERSION, NORMAL }
 
 /** Snapshot of version and TOS state captured at app launch. */
-@Suppress("unused")
 class AppStart(
     val result: AppStartResult,
     val versionCode: Int,

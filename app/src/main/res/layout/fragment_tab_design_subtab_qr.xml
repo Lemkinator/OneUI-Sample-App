@@ -14,7 +14,7 @@
         android:orientation="vertical"
         android:paddingHorizontal="10dp">
 
-        <dev.oneuiproject.oneui.widget.QRImageView
+        <dev.oneuiproject.oneui.qr.widget.QrImageView
             android:id="@+id/qr_image_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
             app:qrContent="https://github.com/tribalfs/sesl-androidx"
             app:qrIcon="@drawable/ic_launcher" />
 
-        <dev.oneuiproject.oneui.widget.QRImageView
+        <dev.oneuiproject.oneui.qr.widget.QrImageView
             android:id="@+id/qr_image_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
             app:qrContent="https://github.com/tribalfs/sesl-material-components-android"
             app:qrRoundedFrame="false" />
 
-        <dev.oneuiproject.oneui.widget.QRImageView
+        <dev.oneuiproject.oneui.qr.widget.QrImageView
             android:id="@+id/qr_image_3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
             app:qrTintAnchor="true"
             app:qrTintFrame="true" />
 
-        <dev.oneuiproject.oneui.widget.QRImageView
+        <dev.oneuiproject.oneui.qr.widget.QrImageView
             android:id="@+id/qr_image_4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

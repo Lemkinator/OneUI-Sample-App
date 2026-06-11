@@ -9,7 +9,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabQrBinding.inflate
 
 @AndroidEntryPoint
-class SubtabQR : Fragment() {
+class SubtabQrFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

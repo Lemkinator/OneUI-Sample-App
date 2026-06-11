@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew lint
 ```
 
-No unit tests exist in this project.
+Test suite: unit tests (Kotest/MockK), Robolectric integration tests, Roborazzi screenshot tests, Kover coverage. Run with `./gradlew testDebugUnitTest`.
 
 ## Private Dependencies (Required for Build)
 
@@ -38,6 +38,14 @@ Activities and Fragments inject use cases directly:
 
 State collected via `flowWithLifecycle(lifecycle).collectLatest { }` in `lifecycleScope`. ViewBinding uses the `autoCleared` delegate (
 `ui/util/AutoClearedUtils.kt`) to prevent leaks.
+
+## Robolectric + JUnit 5
+
+**Do not migrate Robolectric tests to JUnit 5.** `org.robolectric.junit.jupiter.RobolectricExtension` does not exist — Robolectric has no
+native JUnit 5 support ([issue #3477](https://github.com/robolectric/robolectric/issues/3477)). The community extension
+`tech.apter.junit5.jupiter:robolectric-extension` only targets Robolectric 4.14.1, is pre-release, and has no Hilt/Roborazzi support.
+
+`@RunWith(RobolectricTestRunner::class)` + `junit-vintage-engine` is correct. Keep until Robolectric ships native JUnit 5.
 
 ## Key Patterns
 

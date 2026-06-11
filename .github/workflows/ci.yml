@@ -1,0 +1,139 @@
+name: CI
+
+on:
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check-formatting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x ./gradlew && ./gradlew spotlessCheck detekt --stacktrace
+        env:
+          GH_USERNAME: ${{ secrets.GH_USERNAME }}
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: detekt-report, path: app/build/reports/detekt/ }
+
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: check-formatting
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x ./gradlew && ./gradlew lintDebug --stacktrace
+        env:
+          GH_USERNAME: ${{ secrets.GH_USERNAME }}
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: lint-report, path: app/build/reports/lint-results-* }
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: check-formatting
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x ./gradlew && ./gradlew testDebugUnitTest koverXmlReportDebug koverHtmlReportDebug koverVerifyDebug --stacktrace
+        env:
+          GH_USERNAME: ${{ secrets.GH_USERNAME }}
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          files: app/build/reports/kover/reportDebug.xml
+          flags: unittests
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          files: app/build/test-results/testDebugUnitTest/*.xml
+          flags: unittests
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kover-coverage-report
+          path: app/build/reports/kover/htmlDebug/
+
+  screenshot-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: check-formatting
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x ./gradlew && ./gradlew verifyRoborazziDebug --stacktrace
+        env:
+          GH_USERNAME: ${{ secrets.GH_USERNAME }}
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: roborazzi-diff, path: app/build/reports/roborazzi/ }
+
+  # TODO(plan-5): replace with Gradle Managed Devices — see plan-5 step 10j
+  instrumented-tests:
+    runs-on: ubuntu-latest
+    needs: check-formatting
+    steps:
+      - run: echo "Instrumented tests disabled pending GMD migration (plan-5 step 10j)"
+      # - uses: actions/checkout@v4
+      #   with: { persist-credentials: false }
+      # - uses: actions/setup-java@v4
+      #   with: { distribution: temurin, java-version: '21' }
+      # - uses: gradle/actions/setup-gradle@v4
+      # - name: Enable KVM
+      #   run: |
+      #     echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+      #       | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+      #     sudo udevadm control --reload-rules
+      #     sudo udevadm trigger --name-match=kvm
+      # - uses: reactivecircus/android-emulator-runner@v2
+      #   with:
+      #     api-level: 35
+      #     arch: x86_64
+      #     profile: pixel_6
+      #     script: chmod +x ./gradlew && ./gradlew connectedDebugAndroidTest --stacktrace
+      #   env:
+      #     GH_USERNAME: ${{ secrets.GH_USERNAME }}
+      #     GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [ lint, unit-tests, screenshot-tests, instrumented-tests ]
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x ./gradlew && ./gradlew assembleRelease --stacktrace
+        env:
+          GH_USERNAME: ${{ secrets.GH_USERNAME }}
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}

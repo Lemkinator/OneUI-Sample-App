@@ -3,10 +3,13 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.junit) apply false
     alias(libs.plugins.dependency.analysis)
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.kover) apply false
+    alias(libs.plugins.roborazzi) apply false
     alias(libs.plugins.spotless) apply false
 }
 
@@ -71,7 +74,14 @@ subprojects {
                 sourceCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
                 targetCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
             }
+
+            // oneui-design replaces these AOSP AndroidX modules with Samsung forks; exclude
+            // AOSP originals from all com.android.application modules to prevent shadowing.
+            // com.android.test modules (e.g. :benchmarks) are not matched and keep
+            // genuine AOSP AndroidX for UiAutomator and benchmark dependencies.
             plugins.withId("com.android.application") {
+                // Exclude from production AND androidTest* configs (not unit-test* which need
+                // real AOSP AndroidX for Robolectric).
                 configurations.matching { !it.name.startsWith("test", ignoreCase = true) }.configureEach {
                     exclude(group = "androidx.core", module = "core")
                     exclude(group = "androidx.core", module = "core-ktx")

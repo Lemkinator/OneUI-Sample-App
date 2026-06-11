@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package de.lemke.oneuisample.ui.util
 
 import android.R.id.content
