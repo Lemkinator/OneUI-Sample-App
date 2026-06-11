@@ -9,7 +9,11 @@
   "platformAutomerge": true,
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
       "matchCurrentVersion": "!/^0/",
       "automerge": true
     },
@@ -54,7 +58,9 @@
     },
     {
       "groupName": "github-actions",
-      "matchManagers": ["github-actions"]
+      "matchManagers": [
+        "github-actions"
+      ]
     },
     {
       "groupName": "static-analysis",
