@@ -7,20 +7,22 @@ import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.UserSettingsRepository
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 
 class CompleteOnboardingUseCaseTest : ShouldSpec(
     {
-        val mockContext = mockk<Context>()
-        val mockResources = mockk<Resources>()
-        val mockRepo = mockk<UserSettingsRepository>(relaxed = true)
-        val useCase = CompleteOnboardingUseCase(mockContext, mockRepo)
+        lateinit var mockContext: Context
+        lateinit var mockResources: Resources
+        lateinit var mockRepo: UserSettingsRepository
+        lateinit var useCase: CompleteOnboardingUseCase
 
         beforeEach {
-            clearMocks(mockRepo)
+            mockContext = mockk()
+            mockResources = mockk()
+            mockRepo = mockk(relaxed = true)
+            useCase = CompleteOnboardingUseCase(mockContext, mockRepo)
             every { mockContext.resources } returns mockResources
             every { mockResources.getInteger(R.integer.tos_version) } returns 2
         }

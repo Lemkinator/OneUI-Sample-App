@@ -2,7 +2,6 @@ package de.lemke.oneuisample.ui
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import de.lemke.oneuisample.TestDispatcherListener
 import de.lemke.oneuisample.domain.CompleteOnboardingUseCase
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_CODE
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_NAME
@@ -12,19 +11,29 @@ import io.mockk.clearMocks
 import io.mockk.coJustRun
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OOBEViewModelTest : ShouldSpec(
     {
+        val testDispatcher = UnconfinedTestDispatcher()
         val completeOnboarding = mockk<CompleteOnboardingUseCase>()
 
         lateinit var viewModel: OOBEViewModel
 
         beforeEach {
+            Dispatchers.setMain(testDispatcher)
             clearMocks(completeOnboarding)
             coJustRun { completeOnboarding(any(), any()) }
             viewModel = OOBEViewModel(SavedStateHandle(), completeOnboarding)
+        }
+
+        afterEach {
+            Dispatchers.resetMain()
         }
 
         should("isAccepting starts as false") {
@@ -50,7 +59,7 @@ class OOBEViewModelTest : ShouldSpec(
         should("onAcceptTos emits NavigateToMain event after delay") {
             viewModel.events.test {
                 viewModel.onAcceptTos()
-                TestDispatcherListener.scheduler.advanceUntilIdle()
+                testDispatcher.scheduler.advanceUntilIdle()
                 awaitItem() shouldBe OOBEEvent.NavigateToMain
             }
         }

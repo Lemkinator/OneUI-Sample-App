@@ -82,8 +82,7 @@ class SnackBarUtilsKtActivityTest {
     @Test
     fun `suggestiveSnackBar String with explicit action covers non-default action path`() {
         withActivity { activity ->
-            var actionRegistered = false
-            val snackbar = activity.suggestiveSnackBar("msg", actionText = "Act", action = { actionRegistered = true })
+            val snackbar = activity.suggestiveSnackBar("msg", actionText = "Act", action = { })
             snackbar shouldNotBe null
         }
     }
