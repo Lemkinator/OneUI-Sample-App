@@ -41,8 +41,11 @@ class SearchUtilsKtTest {
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
                 val navHost = activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as? NavHostFragment
-                val fragment = navHost?.childFragmentManager?.fragments?.firstOrNull()
-                if (fragment != null) block(fragment, activity)
+                val fragment =
+                    checkNotNull(navHost?.childFragmentManager?.fragments?.firstOrNull()) {
+                        "NavHostFragment contained no fragments"
+                    }
+                block(fragment, activity)
             }
             shadowOf(Looper.getMainLooper()).idle()
         }
