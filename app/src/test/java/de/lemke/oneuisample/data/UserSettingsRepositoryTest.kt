@@ -46,6 +46,7 @@ class UserSettingsRepositoryTest {
     @After
     fun tearDown() {
         repoScope.cancel()
+        testScope.cancel()
     }
 
     @Test

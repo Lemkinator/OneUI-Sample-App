@@ -91,8 +91,6 @@ android {
                 test.useJUnitPlatform()
                 test.jvmArgs("-XX:+EnableDynamicAgentLoading")
                 test.systemProperty("robolectric.graphicsMode", "NATIVE")
-                test.systemProperty("roborazzi.test.record", project.findProperty("roborazzi.record") ?: "false")
-                test.systemProperty("roborazzi.test.verify", project.findProperty("roborazzi.verify") ?: "true")
             }
         }
         animationsDisabled = true
