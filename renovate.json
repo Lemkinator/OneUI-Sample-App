@@ -20,7 +20,8 @@
     {
       "groupName": "kotlin",
       "matchPackageNames": [
-        "org.jetbrains.kotlin**",
+        "org.jetbrains.kotlin:**",
+        "org.jetbrains.kotlin.*:**",
         "com.google.devtools.ksp**"
       ]
     },
@@ -40,7 +41,7 @@
       "groupName": "kotest",
       "matchPackageNames": [
         "io.kotest**",
-        "de.mannodermaus.android-junit"
+        "de.mannodermaus.android-junit**"
       ]
     },
     {
