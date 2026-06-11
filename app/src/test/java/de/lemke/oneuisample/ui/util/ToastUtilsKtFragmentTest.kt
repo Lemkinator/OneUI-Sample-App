@@ -11,6 +11,7 @@ import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.ui.MainActivity
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.Before
 import org.junit.Test
@@ -51,7 +52,7 @@ class ToastUtilsKtFragmentTest {
         withFragment { fragment ->
             fragment.toast("Hello from fragment")
         }
-        ShadowToast.getLatestToast() shouldNotBe null
+        ShadowToast.getTextOfLatestToast() shouldBe "Hello from fragment"
     }
 
     @Test

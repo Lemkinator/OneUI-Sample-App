@@ -8,6 +8,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class AboutViewModelTest : ShouldSpec(
@@ -38,6 +39,7 @@ class AboutViewModelTest : ShouldSpec(
             val transformSlot = slot<UserSettings.() -> UserSettings>()
             every { mockRepo.update(capture(transformSlot)) } answers { }
             viewModel.onToggleDevMode()
+            verify(exactly = 1) { mockRepo.update(any()) }
             UserSettings(devModeEnabled = false).run(transformSlot.captured).devModeEnabled shouldBe true
             UserSettings(devModeEnabled = true).run(transformSlot.captured).devModeEnabled shouldBe false
         }
