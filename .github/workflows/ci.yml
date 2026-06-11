@@ -69,6 +69,7 @@ jobs:
       - if: ${{ !cancelled() }}
         uses: codecov/test-results-action@v1
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: app/build/test-results/testDebugUnitTest/*.xml
           flags: unittests
       - if: failure()
