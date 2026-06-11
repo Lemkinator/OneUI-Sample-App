@@ -11,8 +11,10 @@ import dev.oneuiproject.oneui.app.SemBottomSheetDialogFragment
 @AndroidEntryPoint
 class BottomSheetFragment : SemBottomSheetDialogFragment(R.layout.fragment_bottom_sheet) {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
-        (super.onCreateDialog(savedInstanceState) as BottomSheetDialog).apply {
-            behavior.skipCollapsed = true
-            setOnShowListener { behavior.state = STATE_EXPANDED }
+        super.onCreateDialog(savedInstanceState).also {
+            (it as? BottomSheetDialog)?.apply {
+                behavior.skipCollapsed = true
+                setOnShowListener { behavior.state = STATE_EXPANDED }
+            }
         }
 }
