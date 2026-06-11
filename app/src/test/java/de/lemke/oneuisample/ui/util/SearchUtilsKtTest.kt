@@ -10,6 +10,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.MainActivity
 import io.kotest.matchers.shouldBe
@@ -29,11 +30,7 @@ class SearchUtilsKtTest {
 
     @Before
     fun setup() {
-        prefs
-            .edit()
-            .putInt("lastVersionCode", Int.MAX_VALUE)
-            .putInt("acceptedTosVersion", Int.MAX_VALUE)
-            .commit()
+        prefs.bypassOobe()
     }
 
     private fun withFragmentAndActivity(block: (androidx.fragment.app.Fragment, MainActivity) -> Unit) {

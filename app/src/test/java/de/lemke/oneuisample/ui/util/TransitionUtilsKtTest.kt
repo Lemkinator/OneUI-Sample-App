@@ -7,6 +7,7 @@ import android.os.Looper
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
+import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.ui.MainActivity
 import org.junit.Before
 import org.junit.Test
@@ -23,10 +24,7 @@ class TransitionUtilsKtTest {
         ApplicationProvider
             .getApplicationContext<Application>()
             .getSharedPreferences("user_settings", Context.MODE_PRIVATE)
-            .edit()
-            .putInt("lastVersionCode", Int.MAX_VALUE)
-            .putInt("acceptedTosVersion", Int.MAX_VALUE)
-            .commit()
+            .bypassOobe()
     }
 
     private fun withMainActivity(block: (MainActivity) -> Unit) {

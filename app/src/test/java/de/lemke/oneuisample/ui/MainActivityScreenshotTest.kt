@@ -8,6 +8,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
 import de.lemke.oneuisample.App
+import de.lemke.oneuisample.bypassOobe
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,14 +25,10 @@ import org.robolectric.annotation.GraphicsMode
 class MainActivityScreenshotTest {
     @Before
     fun setup() {
-        // Bypass OOBE: fresh SharedPreferences has lastVersionCode = -1 which triggers redirect.
         ApplicationProvider
             .getApplicationContext<Application>()
             .getSharedPreferences("user_settings", Context.MODE_PRIVATE)
-            .edit()
-            .putInt("lastVersionCode", Int.MAX_VALUE)
-            .putInt("acceptedTosVersion", Int.MAX_VALUE)
-            .commit()
+            .bypassOobe()
     }
 
     private fun captureMainScreenshot(fileName: String) {

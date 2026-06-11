@@ -20,10 +20,10 @@ class SettingsViewModelTest : ShouldSpec(
         beforeEach {
             clearMocks(mockRepo)
             every { mockRepo.flow } returns settingsFlow
-            every { mockRepo.darkMode } returns false
+            // autoDarkMode defaults to true in UserSettings; relaxed mock returns false, so must stub explicitly.
+            // Other boolean properties (darkMode, devModeEnabled, sampleSwitchBar) default to false
+            // and relaxed mock already returns false — no stubs needed.
             every { mockRepo.autoDarkMode } returns true
-            every { mockRepo.devModeEnabled } returns false
-            every { mockRepo.sampleSwitchBar } returns false
             viewModel = SettingsViewModel(mockRepo)
         }
 
