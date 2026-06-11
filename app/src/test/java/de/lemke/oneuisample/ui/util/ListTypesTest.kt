@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldNotBe
 
 class ListTypesTest : ShouldSpec({
     should("all seven enum values are accessible") {
-        ListTypes.values().size shouldBe 7
+        ListTypes.entries.size shouldBe 7
     }
 
     should("valueOf returns the correct constant") {
@@ -14,11 +14,11 @@ class ListTypesTest : ShouldSpec({
     }
 
     should("each entry has a non-null builder class") {
-        ListTypes.values().forEach { it.builder shouldNotBe null }
+        ListTypes.entries.forEach { it.builder shouldNotBe null }
     }
 
     should("each entry has a positive description resource id") {
-        ListTypes.values().forEach { (it.description > 0) shouldBe true }
+        ListTypes.entries.forEach { (it.description > 0) shouldBe true }
     }
 
     should("LIST_TYPE builder is distinct from TYPE_GRID builder") {

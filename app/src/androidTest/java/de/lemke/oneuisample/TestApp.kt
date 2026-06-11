@@ -15,7 +15,7 @@ open class TestApp : Application() {
             .edit()
             .putInt("lastVersionCode", Int.MAX_VALUE)
             .putInt("acceptedTosVersion", Int.MAX_VALUE)
-            .apply()
+            .commit()
     }
 }
 
