@@ -14,6 +14,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -31,6 +32,10 @@ class OOBEViewModelTest : ShouldSpec(
             viewModel = OOBEViewModel(SavedStateHandle(), completeOnboarding)
         }
 
+        afterEach {
+            Dispatchers.resetMain()
+        }
+
         should("isAccepting starts as false") {
             viewModel.isAccepting.value shouldBe false
         }
@@ -40,9 +45,9 @@ class OOBEViewModelTest : ShouldSpec(
             viewModel.isAccepting.value shouldBe true
         }
 
-        should("onAcceptTos calls completeOnboarding") {
+        should("onAcceptTos calls completeOnboarding exactly once") {
             viewModel.onAcceptTos()
-            coVerify(atLeast = 1) { completeOnboarding(any(), any()) }
+            coVerify(exactly = 1) { completeOnboarding(any(), any()) }
         }
 
         should("subsequent onAcceptTos while accepting is ignored") {
