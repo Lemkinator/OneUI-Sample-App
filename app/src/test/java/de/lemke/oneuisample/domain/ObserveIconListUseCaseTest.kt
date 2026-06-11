@@ -7,7 +7,7 @@ import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.data.UserSettingsRepository
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +32,7 @@ class ObserveIconListUseCaseTest {
 
     @Test
     fun `returns full icon list with null search when searchActive is false`() {
-        runBlocking {
+        runTest {
             val (icons, search) = useCase().first()
             icons shouldBe useCase.iconsId
             search shouldBe null
@@ -41,7 +41,7 @@ class ObserveIconListUseCaseTest {
 
     @Test
     fun `returns full icon list with null search when searchActive is true but search is blank`() {
-        runBlocking {
+        runTest {
             repo.searchActive = true
             repo.search = "   "
             val (icons, search) = useCase().first()
@@ -52,7 +52,7 @@ class ObserveIconListUseCaseTest {
 
     @Test
     fun `returns filtered list and search string when searchActive is true and search is non-blank`() {
-        runBlocking {
+        runTest {
             repo.searchActive = true
             repo.search = "star"
             val (icons, search) = useCase().first()
@@ -63,7 +63,7 @@ class ObserveIconListUseCaseTest {
 
     @Test
     fun `filtered list is a subset of the full icon list`() {
-        runBlocking {
+        runTest {
             repo.searchActive = true
             repo.search = "star"
             val (filtered, _) = useCase().first()
@@ -73,18 +73,19 @@ class ObserveIconListUseCaseTest {
 
     @Test
     fun `search splits on spaces into keywords`() {
-        runBlocking {
+        runTest {
             repo.searchActive = true
             repo.search = "star moon"
             val (icons, search) = useCase().first()
             search shouldBe "star moon"
+            icons.isNotEmpty() shouldBe true
             icons.all { it.containsKeywords(setOf("star", "moon")) } shouldBe true
         }
     }
 
     @Test
     fun `returns null search when searchActive becomes false`() {
-        runBlocking {
+        runTest {
             repo.searchActive = true
             repo.search = "star"
             repo.searchActive = false
