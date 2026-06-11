@@ -26,7 +26,7 @@ jobs:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with: { name: detekt-report, path: app/build/reports/detekt/ }
 
   lint:
@@ -44,7 +44,7 @@ jobs:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with: { name: lint-report, path: app/build/reports/lint-results-* }
 
   unit-tests:
@@ -73,7 +73,7 @@ jobs:
           files: app/build/test-results/testDebugUnitTest/*.xml
           flags: unittests
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kover-coverage-report
           path: app/build/reports/kover/htmlDebug/
@@ -93,7 +93,7 @@ jobs:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with: { name: roborazzi-diff, path: app/build/reports/roborazzi/ }
 
   # TODO(plan-5): replace with Gradle Managed Devices — see plan-5 step 10j
