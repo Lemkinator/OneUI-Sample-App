@@ -202,17 +202,17 @@ kover {
                     "hilt_aggregated_deps.*",
                     "*.di.*",
                     "*Activity",
-                    "*Activity\$*",
+                    "*Activity$*",
                     "*Fragment",
-                    "*Fragment\$*",
+                    "*Fragment$*",
                     "*Adapter",
-                    "*Adapter\$*",
+                    "*Adapter$*",
                     "*Receiver",
-                    "*Receiver\$*",
+                    "*Receiver$*",
                     "*TileService",
-                    "*TileService\$*",
+                    "*TileService$*",
                     "*DebugTools*",
-                    "*ComposableSingletons\$*",
+                    "*ComposableSingletons$*",
                 )
             }
         }

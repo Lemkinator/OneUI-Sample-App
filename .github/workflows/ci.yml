@@ -126,7 +126,7 @@ jobs:
   assemble:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [lint, unit-tests, screenshot-tests, instrumented-tests]
+    needs: [ lint, unit-tests, screenshot-tests, instrumented-tests ]
     steps:
       - uses: actions/checkout@v4
         with: { persist-credentials: false }

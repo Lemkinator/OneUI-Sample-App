@@ -13,7 +13,6 @@ import kotlin.reflect.KProperty
 val SharedPreferences.delegates get() = SharedPreferenceDelegates(this)
 
 /** Factory for type-safe [ReadWriteProperty] delegates backed by [SharedPreferences]. */
-@Suppress("unused")
 class SharedPreferenceDelegates(
     private val prefs: SharedPreferences,
 ) {

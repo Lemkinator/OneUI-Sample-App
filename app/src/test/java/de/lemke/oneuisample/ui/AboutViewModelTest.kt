@@ -36,7 +36,7 @@ class AboutViewModelTest : ShouldSpec(
 
         should("onToggleDevMode toggles devModeEnabled via repository update") {
             val transformSlot = slot<UserSettings.() -> UserSettings>()
-            every { mockRepo.update(capture(transformSlot)) } answers { Unit }
+            every { mockRepo.update(capture(transformSlot)) } answers { }
             viewModel.onToggleDevMode()
             UserSettings(devModeEnabled = false).run(transformSlot.captured).devModeEnabled shouldBe true
             UserSettings(devModeEnabled = true).run(transformSlot.captured).devModeEnabled shouldBe false

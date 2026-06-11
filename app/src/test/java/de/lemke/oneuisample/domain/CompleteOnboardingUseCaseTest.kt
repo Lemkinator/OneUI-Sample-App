@@ -29,7 +29,7 @@ class CompleteOnboardingUseCaseTest : ShouldSpec(
 
         should("update acceptedTosVersion to tos_version resource value") {
             val transformSlot = slot<UserSettings.() -> UserSettings>()
-            every { mockRepo.update(capture(transformSlot)) } answers { Unit }
+            every { mockRepo.update(capture(transformSlot)) } answers { }
 
             useCase(versionCode = 10, versionName = "1.0")
 
@@ -39,7 +39,7 @@ class CompleteOnboardingUseCaseTest : ShouldSpec(
 
         should("update lastVersionCode to provided versionCode") {
             val transformSlot = slot<UserSettings.() -> UserSettings>()
-            every { mockRepo.update(capture(transformSlot)) } answers { Unit }
+            every { mockRepo.update(capture(transformSlot)) } answers { }
 
             useCase(versionCode = 7, versionName = "2.0")
 
@@ -49,7 +49,7 @@ class CompleteOnboardingUseCaseTest : ShouldSpec(
 
         should("update lastVersionName to provided versionName") {
             val transformSlot = slot<UserSettings.() -> UserSettings>()
-            every { mockRepo.update(capture(transformSlot)) } answers { Unit }
+            every { mockRepo.update(capture(transformSlot)) } answers { }
 
             useCase(versionCode = 1, versionName = "3.1.4")
 

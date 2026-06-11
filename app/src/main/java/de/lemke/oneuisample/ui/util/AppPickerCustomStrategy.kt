@@ -16,7 +16,6 @@ import androidx.picker.model.AppData.Companion.TYPE_ITEM_SWITCH
 import androidx.picker.model.viewdata.AppInfoViewData
 import androidx.picker.model.viewdata.ViewData
 
-@Suppress("unused")
 @Keep
 class AppPickerCustomStrategy : CustomStrategy() {
     override fun getCustomFrameList(): List<CustomFrame> = emptyList()
