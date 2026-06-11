@@ -218,6 +218,7 @@ kover {
                     "*TileService",
                     "*TileService\$*",
                     "*DebugTools*",
+                    "*ComposableSingletons\$*",
                 )
             }
         }
