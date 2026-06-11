@@ -6,20 +6,62 @@
     ":renovatePrefix",
     ":configMigration"
   ],
+  "platformAutomerge": true,
   "packageRules": [
     {
-      "matchUpdateTypes": [
-        "minor",
-        "patch",
-        "digest"
-      ],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
       "matchCurrentVersion": "!/^0/",
       "automerge": true
     },
     {
+      "groupName": "kotlin",
+      "matchPackageNames": [
+        "org.jetbrains.kotlin:**",
+        "org.jetbrains.kotlin.android",
+        "com.google.devtools.ksp**"
+      ]
+    },
+    {
       "groupName": "hilt",
       "matchPackageNames": [
-        "com.google.dagger**"
+        "com.google.dagger:**",
+        "com.google.dagger.hilt.android"
+      ]
+    },
+    {
+      "groupName": "androidx-test",
+      "matchPackageNames": [
+        "androidx.test:**",
+        "androidx.test.ext:**",
+        "androidx.test.espresso:**",
+        "androidx.test.uiautomator:**"
+      ]
+    },
+    {
+      "groupName": "kotest",
+      "matchPackageNames": [
+        "io.kotest:**",
+        "de.mannodermaus.android-junit"
+      ]
+    },
+    {
+      "groupName": "screenshot-testing",
+      "matchPackageNames": [
+        "io.github.takahirom.roborazzi:**",
+        "io.github.takahirom.roborazzi",
+        "org.robolectric:**"
+      ]
+    },
+    {
+      "groupName": "github-actions",
+      "matchManagers": ["github-actions"]
+    },
+    {
+      "groupName": "static-analysis",
+      "matchPackageNames": [
+        "dev.detekt:**",
+        "io.gitlab.arturbosch.detekt**",
+        "com.diffplug.spotless"
       ]
     }
   ]

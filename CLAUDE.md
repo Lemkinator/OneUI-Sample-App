@@ -47,6 +47,19 @@ native JUnit 5 support ([issue #3477](https://github.com/robolectric/robolectric
 
 `@RunWith(RobolectricTestRunner::class)` + `junit-vintage-engine` is correct. Keep until Robolectric ships native JUnit 5.
 
+## Dependency Version Policy
+
+Default: use the latest stable version of every dependency.
+Renovate keeps minor/patch current; bump majors manually with release-note review.
+
+Known exceptions:
+
+1. Kotlin + KSP lockstep — Renovate's `kotlin` group enforces this
+2. Detekt on fresh Kotlin majors — may need alpha until stable catches up
+3. Plugin AGP compatibility windows — check before bumping AGP
+4. CI emulator images — pin to most stable, not newest
+5. benchmark-macro — use 1.5.0-alpha06+ with AGP 9.x until 1.5.0 stable (see Plan 5)
+
 ## Key Patterns
 
 **Dependency exclusions** — root `build.gradle.kts` globally excludes `appcompat`, `fragment`, `recyclerview`, `material`, `viewpager2`, and
