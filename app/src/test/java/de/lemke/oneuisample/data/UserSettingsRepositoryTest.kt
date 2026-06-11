@@ -7,7 +7,10 @@ import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,17 +20,24 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class UserSettingsRepositoryTest {
+    private lateinit var testScope: TestScope
     private lateinit var prefs: SharedPreferences
     private lateinit var repo: UserSettingsRepository
 
     @Before
     fun setup() {
+        testScope = TestScope()
         prefs =
             ApplicationProvider
                 .getApplicationContext<Application>()
                 .getSharedPreferences("test_user_settings", Context.MODE_PRIVATE)
         prefs.edit().clear().commit()
-        repo = UserSettingsRepository(prefs)
+        repo = UserSettingsRepository(prefs, testScope)
+    }
+
+    @After
+    fun tearDown() {
+        testScope.cancel()
     }
 
     @Test
@@ -115,11 +125,10 @@ class UserSettingsRepositoryTest {
 
     @Test
     fun `flow reflects property write`() =
-        runTest {
-            val testRepo = UserSettingsRepository(prefs, backgroundScope)
-            testRepo.flow.test {
+        testScope.runTest {
+            repo.flow.test {
                 awaitItem() // consume initial snapshot
-                testRepo.sampleSwitchBar = true
+                repo.sampleSwitchBar = true
                 awaitItem().sampleSwitchBar shouldBe true
             }
         }
