@@ -110,6 +110,7 @@ class SearchUtilsKtTest {
             val listener = fragment.getSearchListener(repo)
             listener.onSearchModeToggle(searchView, true)
             repo.searchActive shouldBe true
+            searchView.query.toString() shouldBe "prev"
         }
     }
 

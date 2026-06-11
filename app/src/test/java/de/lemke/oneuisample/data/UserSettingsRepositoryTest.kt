@@ -3,8 +3,10 @@ package de.lemke.oneuisample.data
 import android.app.Application
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import app.cash.turbine.test
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -110,10 +112,14 @@ class UserSettingsRepositoryTest {
     }
 
     @Test
-    fun `flow reflects property write`() {
-        repo.sampleSwitchBar = true
-        repo.flow.value.sampleSwitchBar shouldBe true
-    }
+    fun `flow reflects property write`() =
+        runBlocking {
+            repo.flow.test {
+                awaitItem() // consume initial snapshot
+                repo.sampleSwitchBar = true
+                awaitItem().sampleSwitchBar shouldBe true
+            }
+        }
 
     @Test
     fun `withListener returns Concurrent with new listener when mode is Concurrent`() {
