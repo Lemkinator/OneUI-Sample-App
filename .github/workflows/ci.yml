@@ -96,34 +96,32 @@ jobs:
         uses: actions/upload-artifact@v4
         with: { name: roborazzi-diff, path: app/build/reports/roborazzi/ }
 
+  # TODO(plan-5): replace with Gradle Managed Devices — see plan-5 step 10j
   instrumented-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
     needs: check-formatting
-    strategy:
-      matrix:
-        api-level: [35]
     steps:
-      - uses: actions/checkout@v4
-        with: { persist-credentials: false }
-      - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: '21' }
-      - uses: gradle/actions/setup-gradle@v4
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
-            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-      - uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          arch: x86_64
-          profile: pixel_6
-          script: chmod +x ./gradlew && ./gradlew connectedDebugAndroidTest --stacktrace
-        env:
-          GH_USERNAME: ${{ secrets.GH_USERNAME }}
-          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+      - run: echo "Instrumented tests disabled pending GMD migration (plan-5 step 10j)"
+      # - uses: actions/checkout@v4
+      #   with: { persist-credentials: false }
+      # - uses: actions/setup-java@v4
+      #   with: { distribution: temurin, java-version: '21' }
+      # - uses: gradle/actions/setup-gradle@v4
+      # - name: Enable KVM
+      #   run: |
+      #     echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+      #       | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+      #     sudo udevadm control --reload-rules
+      #     sudo udevadm trigger --name-match=kvm
+      # - uses: reactivecircus/android-emulator-runner@v2
+      #   with:
+      #     api-level: 35
+      #     arch: x86_64
+      #     profile: pixel_6
+      #     script: chmod +x ./gradlew && ./gradlew connectedDebugAndroidTest --stacktrace
+      #   env:
+      #     GH_USERNAME: ${{ secrets.GH_USERNAME }}
+      #     GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
 
   assemble:
     runs-on: ubuntu-latest
