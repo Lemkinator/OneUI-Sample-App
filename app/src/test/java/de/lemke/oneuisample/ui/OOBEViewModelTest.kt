@@ -14,6 +14,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class OOBEViewModelTest : ShouldSpec(
     {
         val completeOnboarding = mockk<CompleteOnboardingUseCase>()
@@ -46,7 +47,6 @@ class OOBEViewModelTest : ShouldSpec(
             coVerify(exactly = 1) { completeOnboarding(any(), any()) }
         }
 
-        @OptIn(ExperimentalCoroutinesApi::class)
         should("onAcceptTos emits NavigateToMain event after delay") {
             viewModel.events.test {
                 viewModel.onAcceptTos()
@@ -55,7 +55,7 @@ class OOBEViewModelTest : ShouldSpec(
             }
         }
 
-        should("uses versionCode and versionName from SavedStateHandle when present") {
+        should("construction with version extras in SavedStateHandle does not throw and starts not accepting") {
             val handle = SavedStateHandle(mapOf(EXTRA_VERSION_CODE to 5, EXTRA_VERSION_NAME to "2.0"))
             val vm = OOBEViewModel(handle, completeOnboarding)
             vm.isAccepting.value shouldBe false
