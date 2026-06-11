@@ -20,7 +20,7 @@ jobs:
         with: { persist-credentials: false }
       - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - run: chmod +x ./gradlew && ./gradlew spotlessCheck detekt --stacktrace
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
@@ -38,7 +38,7 @@ jobs:
         with: { persist-credentials: false }
       - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - run: chmod +x ./gradlew && ./gradlew lintDebug --stacktrace
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
@@ -56,7 +56,7 @@ jobs:
         with: { persist-credentials: false }
       - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - run: chmod +x ./gradlew && ./gradlew testDebugUnitTest koverXmlReportDebug koverHtmlReportDebug koverVerifyDebug --stacktrace
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
@@ -87,7 +87,7 @@ jobs:
         with: { persist-credentials: false }
       - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - run: chmod +x ./gradlew && ./gradlew verifyRoborazziDebug --stacktrace
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
@@ -132,7 +132,7 @@ jobs:
         with: { persist-credentials: false }
       - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - run: chmod +x ./gradlew && ./gradlew assembleRelease --stacktrace
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
