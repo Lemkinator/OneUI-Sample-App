@@ -21,7 +21,7 @@
       "groupName": "kotlin",
       "matchPackageNames": [
         "org.jetbrains.kotlin:**",
-        "org.jetbrains.kotlin.android",
+        "org.jetbrains.kotlin.**",
         "com.google.devtools.ksp**"
       ]
     },
@@ -35,10 +35,7 @@
     {
       "groupName": "androidx-test",
       "matchPackageNames": [
-        "androidx.test:**",
-        "androidx.test.ext:**",
-        "androidx.test.espresso:**",
-        "androidx.test.uiautomator:**"
+        "androidx.test**"
       ]
     },
     {
@@ -51,8 +48,7 @@
     {
       "groupName": "screenshot-testing",
       "matchPackageNames": [
-        "io.github.takahirom.roborazzi:**",
-        "io.github.takahirom.roborazzi",
+        "io.github.takahirom.roborazzi**",
         "org.robolectric:**"
       ]
     },
@@ -65,7 +61,7 @@
     {
       "groupName": "static-analysis",
       "matchPackageNames": [
-        "dev.detekt:**",
+        "dev.detekt**",
         "io.gitlab.arturbosch.detekt**",
         "com.diffplug.spotless"
       ]

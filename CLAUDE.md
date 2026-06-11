@@ -58,7 +58,7 @@ Known exceptions:
 2. Detekt on fresh Kotlin majors — may need alpha until stable catches up
 3. Plugin AGP compatibility windows — check before bumping AGP
 4. CI emulator images — pin to most stable, not newest
-5. benchmark-macro — use 1.5.0-alpha06+ with AGP 9.x until 1.5.0 stable (see Plan 5)
+5. benchmark-macro — use 1.5.0-alpha06+ with AGP 9.x until 1.5.0 stable
 
 ## Static Analysis
 
