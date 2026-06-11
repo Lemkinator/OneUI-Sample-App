@@ -7,6 +7,7 @@ import android.os.Looper
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
+import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.MainActivity
 import io.kotest.matchers.shouldBe
@@ -39,7 +40,7 @@ class OnboardingUtilsKtTest {
         prefs.getInt("lastVersionCode", -1) shouldBe -1
     }
 
-    // upgrade: 0 < lastVersionCode < versionCode=1 → FIRST_TIME_VERSION → shouldShowOOBE = false → updates + returns AppStart
+    // upgrade: 0 < lastVersionCode < versionCode → FIRST_TIME_VERSION → shouldShowOOBE = false → updates + returns AppStart
     @Test
     fun `onboardIfNeeded updates version and returns AppStart on upgrade`() {
         prefs
@@ -50,21 +51,21 @@ class OnboardingUtilsKtTest {
         ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use {
             shadowOf(Looper.getMainLooper()).idle()
         }
-        prefs.getInt("lastVersionCode", -1) shouldBe 1
+        prefs.getInt("lastVersionCode", -1) shouldBe BuildConfig.VERSION_CODE
     }
 
-    // else branch: lastVersionCode == versionCode == 1 → NORMAL (no Log.w) → updates + returns AppStart
+    // else branch: lastVersionCode == versionCode → NORMAL (no Log.w) → updates + returns AppStart
     @Test
     fun `onboardIfNeeded returns AppStart on same version launch`() {
         prefs
             .edit()
-            .putInt("lastVersionCode", 1)
+            .putInt("lastVersionCode", BuildConfig.VERSION_CODE)
             .putInt("acceptedTosVersion", Int.MAX_VALUE)
             .commit()
         ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use {
             shadowOf(Looper.getMainLooper()).idle()
         }
-        prefs.getInt("lastVersionCode", -1) shouldBe 1
+        prefs.getInt("lastVersionCode", -1) shouldBe BuildConfig.VERSION_CODE
     }
 
     // allowSkip=true + no EXTRA_SKIP_ONBOARDING → getBooleanExtra=false → !(true&&false)=true → shouldShowOOBE=true → OOBE
