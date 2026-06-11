@@ -103,8 +103,6 @@ Report at `build/reports/dependency-analysis/build-health-report.txt`. Review un
 
 **IDE formatter (Ctrl+Alt+L) vs spotlessApply** — these ARE in sync. The ktlint IntelliJ plugin (`.idea/ktlint-plugin.xml`, mode `DISTRACT_FREE`) runs ktlint as a **post-processor after** IntelliJ's native formatter. Flow: IntelliJ formats → plugin runs ktlint on the result → final output matches `spotlessApply` exactly. IntelliJ never "learns" ktlint rules; ktlint just fixes IntelliJ's output. If the plugin mode is changed to `MANUAL`, this breaks — keep `DISTRACT_FREE`.
 
-When upgrading ktlint: run `./gradlew spotlessApply` after the bump, check for new IDE diagnostics, and add `.editorconfig` overrides for any newly misbehaving rules.
-
 ## Key Patterns
 
 **Dependency exclusions** — root `build.gradle.kts` globally excludes `appcompat`, `fragment`, `recyclerview`, `material`, `viewpager2`, and
