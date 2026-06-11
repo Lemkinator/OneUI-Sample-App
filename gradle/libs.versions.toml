@@ -12,7 +12,7 @@ aboutlibraries = "14.2.1"
 #noinspection GradleDependency
 activity-compose = "1.12.4"
 core-splashscreen = "1.2.0"
-dependency-analysis = "3.14.1"
+dependency-analysis = "3.15.0"
 detekt = "2.0.0-alpha.3"
 agp = "9.2.1"
 hilt = "2.59.2"
