@@ -87,7 +87,6 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
-            isReturnDefaultValues = true
             all { test ->
                 test.useJUnitPlatform()
                 test.jvmArgs("-XX:+EnableDynamicAgentLoading")
