@@ -97,11 +97,6 @@ android {
         }
         animationsDisabled = true
     }
-    sourceSets {
-        named("test") {
-            resources.srcDir("src/test/screenshots")
-        }
-    }
     lint {
         warningsAsErrors = true
         // checkDependencies = false: private AAR deps surface
