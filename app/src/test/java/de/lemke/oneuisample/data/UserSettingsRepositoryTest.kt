@@ -114,4 +114,111 @@ class UserSettingsRepositoryTest {
         repo.sampleSwitchBar = true
         repo.flow.value.sampleSwitchBar shouldBe true
     }
+
+    @Test
+    fun `withListener returns Concurrent with new listener when mode is Concurrent`() {
+        SearchOnActionMode.Concurrent(null).withListener(null) shouldBe SearchOnActionMode.Concurrent(null)
+    }
+
+    @Test
+    fun `withListener returns Dismiss unchanged`() {
+        SearchOnActionMode.Dismiss.withListener(null) shouldBe SearchOnActionMode.Dismiss
+    }
+
+    @Test
+    fun `withListener returns NoDismiss unchanged`() {
+        SearchOnActionMode.NoDismiss.withListener(null) shouldBe SearchOnActionMode.NoDismiss
+    }
+
+    @Test
+    fun `lastVersionName round-trip`() {
+        repo.lastVersionName = "2.5"
+        repo.lastVersionName shouldBe "2.5"
+    }
+
+    @Test
+    fun `appPickerType round-trip`() {
+        repo.appPickerType = 2
+        repo.appPickerType shouldBe 2
+    }
+
+    @Test
+    fun `showIndexScroll round-trip`() {
+        repo.showIndexScroll = false
+        repo.showIndexScroll shouldBe false
+    }
+
+    @Test
+    fun `indexScrollShowLetters round-trip`() {
+        repo.indexScrollShowLetters = false
+        repo.indexScrollShowLetters shouldBe false
+    }
+
+    @Test
+    fun `indexScrollAutoHide round-trip`() {
+        repo.indexScrollAutoHide = false
+        repo.indexScrollAutoHide shouldBe false
+    }
+
+    @Test
+    fun `actionModeShowCancel round-trip`() {
+        repo.actionModeShowCancel = true
+        repo.actionModeShowCancel shouldBe true
+    }
+
+    @Test
+    fun `search round-trip`() {
+        repo.search = "hello"
+        repo.search shouldBe "hello"
+    }
+
+    @Test
+    fun `searchActive round-trip`() {
+        repo.searchActive = true
+        repo.searchActive shouldBe true
+    }
+
+    @Test
+    fun `searchOnActionMode round-trip for Concurrent`() {
+        repo.searchOnActionMode = SearchOnActionMode.Concurrent(null)
+        repo.searchOnActionMode shouldBe SearchOnActionMode.Concurrent(null)
+    }
+
+    @Test
+    fun `update applies all fields`() {
+        repo.update {
+            copy(
+                darkMode = true,
+                autoDarkMode = false,
+                lastVersionCode = 100,
+                lastVersionName = "5.0",
+                acceptedTosVersion = 5,
+                devModeEnabled = true,
+                appPickerType = 3,
+                sampleSwitchBar = true,
+                showIndexScroll = false,
+                indexScrollShowLetters = false,
+                indexScrollAutoHide = false,
+                actionModeShowCancel = true,
+                searchOnActionMode = SearchOnActionMode.NoDismiss,
+                search = "test",
+                searchActive = true,
+            )
+        }
+        repo.darkMode shouldBe true
+        repo.autoDarkMode shouldBe false
+        repo.lastVersionCode shouldBe 100
+        repo.lastVersionName shouldBe "5.0"
+        repo.acceptedTosVersion shouldBe 5
+        repo.devModeEnabled shouldBe true
+        repo.appPickerType shouldBe 3
+        repo.sampleSwitchBar shouldBe true
+        repo.showIndexScroll shouldBe false
+        repo.indexScrollShowLetters shouldBe false
+        repo.indexScrollAutoHide shouldBe false
+        repo.actionModeShowCancel shouldBe true
+        repo.searchOnActionMode shouldBe SearchOnActionMode.NoDismiss
+        repo.search shouldBe "test"
+        repo.searchActive shouldBe true
+    }
 }
