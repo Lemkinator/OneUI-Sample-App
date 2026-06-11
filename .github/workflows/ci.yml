@@ -61,15 +61,15 @@ jobs:
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-      - uses: codecov/codecov-action@v5
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: app/build/reports/kover/reportDebug.xml
           flags: unittests
-      - if: ${{ !cancelled() }}
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
         uses: codecov/test-results-action@v1
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: app/build/test-results/testDebugUnitTest/*.xml
           flags: unittests
       - if: failure()
