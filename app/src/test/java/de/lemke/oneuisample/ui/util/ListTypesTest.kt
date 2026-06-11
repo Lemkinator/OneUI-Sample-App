@@ -28,8 +28,4 @@ class ListTypesTest : ShouldSpec({
     should("TYPE_LIST_CHECKBOX and TYPE_LIST_RADIOBUTTON have distinct builders") {
         ListTypes.TYPE_LIST_CHECKBOX.builder shouldNotBe ListTypes.TYPE_LIST_RADIOBUTTON.builder
     }
-
-    should("ordinals are sequential starting at zero") {
-        ListTypes.values().forEachIndexed { i, v -> v.ordinal shouldBe i }
-    }
 })

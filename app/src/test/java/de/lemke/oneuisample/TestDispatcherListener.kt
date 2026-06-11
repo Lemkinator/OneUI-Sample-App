@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.setMain
 class TestDispatcherListener : BeforeTestListener, AfterTestListener {
     companion object {
         var scheduler: TestCoroutineScheduler = TestCoroutineScheduler()
+            private set
     }
 
     override suspend fun beforeTest(testCase: TestCase) {
