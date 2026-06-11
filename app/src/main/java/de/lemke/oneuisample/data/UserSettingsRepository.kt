@@ -34,7 +34,10 @@ data class UserSettings(
 )
 
 /** SharedPreferences-backed repository for user settings. */
-class UserSettingsRepository(private val preferences: SharedPreferences) {
+class UserSettingsRepository(
+    private val preferences: SharedPreferences,
+    scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+) {
     var darkMode: Boolean by preferences.delegates.darkMode(false)
     var autoDarkMode: Boolean by preferences.delegates.boolean(true)
     var lastVersionCode: Int by preferences.delegates.int(-1)
@@ -50,8 +53,6 @@ class UserSettingsRepository(private val preferences: SharedPreferences) {
     var searchOnActionMode: SearchOnActionMode by preferences.delegates.searchOnActionMode()
     var search: String by preferences.delegates.string("")
     var searchActive: Boolean by preferences.delegates.boolean(false)
-
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private fun snapshot() =
         UserSettings(

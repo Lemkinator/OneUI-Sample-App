@@ -2,11 +2,12 @@ package de.lemke.oneuisample.data
 
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -16,11 +17,12 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class UserSettingsRepositoryTest {
+    private lateinit var prefs: SharedPreferences
     private lateinit var repo: UserSettingsRepository
 
     @Before
     fun setup() {
-        val prefs =
+        prefs =
             ApplicationProvider
                 .getApplicationContext<Application>()
                 .getSharedPreferences("test_user_settings", Context.MODE_PRIVATE)
@@ -113,10 +115,11 @@ class UserSettingsRepositoryTest {
 
     @Test
     fun `flow reflects property write`() =
-        runBlocking {
-            repo.flow.test {
+        runTest {
+            val testRepo = UserSettingsRepository(prefs, backgroundScope)
+            testRepo.flow.test {
                 awaitItem() // consume initial snapshot
-                repo.sampleSwitchBar = true
+                testRepo.sampleSwitchBar = true
                 awaitItem().sampleSwitchBar shouldBe true
             }
         }
