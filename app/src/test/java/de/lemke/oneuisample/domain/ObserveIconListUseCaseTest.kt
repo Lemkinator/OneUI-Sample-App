@@ -6,8 +6,12 @@ import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.data.UserSettingsRepository
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,17 +21,24 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class ObserveIconListUseCaseTest {
+    private lateinit var testScope: TestScope
     private lateinit var prefs: SharedPreferences
     private lateinit var repo: UserSettingsRepository
     private lateinit var useCase: ObserveIconListUseCase
 
     @Before
     fun setup() {
+        testScope = TestScope(UnconfinedTestDispatcher())
         val context = ApplicationProvider.getApplicationContext<Application>()
         prefs = context.getSharedPreferences("test_observe_icons", Context.MODE_PRIVATE)
         prefs.edit().clear().commit()
-        repo = UserSettingsRepository(prefs)
+        repo = UserSettingsRepository(prefs, testScope)
         useCase = ObserveIconListUseCase(context, repo)
+    }
+
+    @After
+    fun tearDown() {
+        testScope.cancel()
     }
 
     @Test

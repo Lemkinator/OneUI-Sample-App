@@ -9,6 +9,7 @@ import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -26,7 +27,7 @@ class UserSettingsRepositoryTest {
 
     @Before
     fun setup() {
-        testScope = TestScope()
+        testScope = TestScope(UnconfinedTestDispatcher())
         prefs =
             ApplicationProvider
                 .getApplicationContext<Application>()

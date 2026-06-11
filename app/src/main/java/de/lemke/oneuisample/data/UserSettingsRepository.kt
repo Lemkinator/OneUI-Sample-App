@@ -4,8 +4,6 @@ import android.content.SharedPreferences
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,7 +34,7 @@ data class UserSettings(
 /** SharedPreferences-backed repository for user settings. */
 class UserSettingsRepository(
     private val preferences: SharedPreferences,
-    scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+    scope: CoroutineScope,
 ) {
     var darkMode: Boolean by preferences.delegates.darkMode(false)
     var autoDarkMode: Boolean by preferences.delegates.boolean(true)

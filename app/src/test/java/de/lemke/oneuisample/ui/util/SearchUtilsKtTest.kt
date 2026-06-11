@@ -15,6 +15,10 @@ import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.MainActivity
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,10 +31,17 @@ import org.robolectric.annotation.Config
 class SearchUtilsKtTest {
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
     private val prefs get() = context.getSharedPreferences("user_settings", Context.MODE_PRIVATE)
+    private lateinit var testScope: TestScope
 
     @Before
     fun setup() {
+        testScope = TestScope(UnconfinedTestDispatcher())
         prefs.bypassOobe()
+    }
+
+    @After
+    fun tearDown() {
+        testScope.cancel()
     }
 
     private fun withFragmentAndActivity(block: (androidx.fragment.app.Fragment, MainActivity) -> Unit) {
@@ -55,7 +66,7 @@ class SearchUtilsKtTest {
         withFragment { fragment ->
             val testPrefs = context.getSharedPreferences("test_search_utils", Context.MODE_PRIVATE)
             testPrefs.edit().clear().commit()
-            val repo = UserSettingsRepository(testPrefs)
+            val repo = UserSettingsRepository(testPrefs, testScope)
             val listener = fragment.getSearchListener(repo)
             listener shouldNotBe null
         }
@@ -66,7 +77,7 @@ class SearchUtilsKtTest {
         withFragment { fragment ->
             val testPrefs = context.getSharedPreferences("test_search_change", Context.MODE_PRIVATE)
             testPrefs.edit().clear().commit()
-            val repo = UserSettingsRepository(testPrefs)
+            val repo = UserSettingsRepository(testPrefs, testScope)
             repo.searchActive = false
             val listener = fragment.getSearchListener(repo)
             listener.onQueryTextChange("hello") shouldBe false
@@ -78,7 +89,7 @@ class SearchUtilsKtTest {
         withFragment { fragment ->
             val testPrefs = context.getSharedPreferences("test_search_active", Context.MODE_PRIVATE)
             testPrefs.edit().clear().commit()
-            val repo = UserSettingsRepository(testPrefs)
+            val repo = UserSettingsRepository(testPrefs, testScope)
             repo.searchActive = true
             val listener = fragment.getSearchListener(repo)
             listener.onQueryTextChange("hello") shouldBe true
@@ -91,7 +102,7 @@ class SearchUtilsKtTest {
         withFragment { fragment ->
             val testPrefs = context.getSharedPreferences("test_search_null", Context.MODE_PRIVATE)
             testPrefs.edit().clear().commit()
-            val repo = UserSettingsRepository(testPrefs)
+            val repo = UserSettingsRepository(testPrefs, testScope)
             repo.searchActive = true
             val listener = fragment.getSearchListener(repo)
             listener.onQueryTextChange(null) shouldBe true
@@ -104,7 +115,7 @@ class SearchUtilsKtTest {
         withFragmentAndActivity { fragment, activity ->
             val testPrefs = context.getSharedPreferences("test_search_toggle", Context.MODE_PRIVATE)
             testPrefs.edit().clear().commit()
-            val repo = UserSettingsRepository(testPrefs)
+            val repo = UserSettingsRepository(testPrefs, testScope)
             repo.search = "prev"
             val searchView = SearchView(activity)
             val listener = fragment.getSearchListener(repo)
@@ -119,7 +130,7 @@ class SearchUtilsKtTest {
         withFragmentAndActivity { fragment, activity ->
             val testPrefs = context.getSharedPreferences("test_search_deactivate", Context.MODE_PRIVATE)
             testPrefs.edit().clear().commit()
-            val repo = UserSettingsRepository(testPrefs)
+            val repo = UserSettingsRepository(testPrefs, testScope)
             repo.searchActive = true
             val searchView = SearchView(activity)
             val listener = fragment.getSearchListener(repo)
@@ -133,7 +144,7 @@ class SearchUtilsKtTest {
         withFragment { fragment ->
             val testPrefs = context.getSharedPreferences("test_search_submit", Context.MODE_PRIVATE)
             testPrefs.edit().clear().commit()
-            val repo = UserSettingsRepository(testPrefs)
+            val repo = UserSettingsRepository(testPrefs, testScope)
             repo.searchActive = true
             val listener = fragment.getSearchListener(repo)
             listener.onQueryTextSubmit("submitted") shouldBe true
@@ -146,7 +157,7 @@ class SearchUtilsKtTest {
         withFragment { fragment ->
             val testPrefs = context.getSharedPreferences("test_search_submit_inactive", Context.MODE_PRIVATE)
             testPrefs.edit().clear().commit()
-            val repo = UserSettingsRepository(testPrefs)
+            val repo = UserSettingsRepository(testPrefs, testScope)
             repo.searchActive = false
             val listener = fragment.getSearchListener(repo)
             listener.onQueryTextSubmit("hello") shouldBe false
@@ -158,7 +169,7 @@ class SearchUtilsKtTest {
         withFragmentAndActivity { fragment, activity ->
             val testPrefs = context.getSharedPreferences("test_search_hint", Context.MODE_PRIVATE)
             testPrefs.edit().clear().commit()
-            val repo = UserSettingsRepository(testPrefs)
+            val repo = UserSettingsRepository(testPrefs, testScope)
             val searchView = SearchView(activity)
             val listener = fragment.getSearchListener(repo, queryHint = R.string.app_name)
             listener.onSearchModeToggle(searchView, true)

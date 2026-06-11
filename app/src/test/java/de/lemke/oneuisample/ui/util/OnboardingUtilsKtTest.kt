@@ -12,6 +12,10 @@ import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.MainActivity
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,10 +28,17 @@ import org.robolectric.annotation.Config
 class OnboardingUtilsKtTest {
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
     private val prefs get() = context.getSharedPreferences("user_settings", Context.MODE_PRIVATE)
+    private lateinit var testScope: TestScope
 
     @Before
     fun setup() {
+        testScope = TestScope(UnconfinedTestDispatcher())
         prefs.edit().clear().commit()
+    }
+
+    @After
+    fun tearDown() {
+        testScope.cancel()
     }
 
     // firstInstall: lastVersionCode = -1 → shouldShowOOBE = true → startActivity(OOBE) + finishWithFade + return null
@@ -81,7 +92,7 @@ class OnboardingUtilsKtTest {
             scenario.onActivity { activity ->
                 val testPrefs = context.getSharedPreferences("test_allowskip_noextra", Context.MODE_PRIVATE)
                 testPrefs.edit().clear().commit()
-                val repo = UserSettingsRepository(testPrefs)
+                val repo = UserSettingsRepository(testPrefs, testScope)
                 // No EXTRA_SKIP_ONBOARDING in intent → getBooleanExtra=false
                 // allowSkip=true && false = false → !(false)=true → shouldShowOOBE=true → OOBE
                 val result = activity.onboardIfNeeded(repo, 1, "1.0", allowSkip = true)
@@ -107,7 +118,7 @@ class OnboardingUtilsKtTest {
                     .putInt("lastVersionCode", 1)
                     .putInt("acceptedTosVersion", Int.MAX_VALUE)
                     .commit()
-                val repo = UserSettingsRepository(testPrefs)
+                val repo = UserSettingsRepository(testPrefs, testScope)
                 // omit allowSkip — exercises the $default synthetic wrapper (default = false)
                 val result = activity.onboardIfNeeded(repo, 1, "1.0")
                 result shouldNotBe null
@@ -130,7 +141,7 @@ class OnboardingUtilsKtTest {
             scenario.onActivity { activity ->
                 val testPrefs = context.getSharedPreferences("test_skip_prefs", Context.MODE_PRIVATE)
                 testPrefs.edit().clear().commit()
-                val repo = UserSettingsRepository(testPrefs)
+                val repo = UserSettingsRepository(testPrefs, testScope)
                 // fresh repo: lastVersionCode = -1 → shouldShowOOBE = true
                 // but allowSkip=true + intent has EXTRA_SKIP_ONBOARDING=true → condition is false → no OOBE
                 val result = activity.onboardIfNeeded(repo, 1, "1.0", allowSkip = true)
