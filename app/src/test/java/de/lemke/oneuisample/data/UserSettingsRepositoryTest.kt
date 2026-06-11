@@ -7,6 +7,9 @@ import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -18,27 +21,31 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class UserSettingsRepositoryTest {
+    private lateinit var repoScope: CoroutineScope
     private lateinit var testScope: TestScope
     private lateinit var prefs: SharedPreferences
     private lateinit var repo: UserSettingsRepository
 
     @Before
     fun setup() {
-        testScope = TestScope(UnconfinedTestDispatcher())
+        val dispatcher = UnconfinedTestDispatcher()
+        repoScope = CoroutineScope(dispatcher + SupervisorJob())
+        testScope = TestScope(dispatcher)
         prefs =
             ApplicationProvider
                 .getApplicationContext<Application>()
                 .getSharedPreferences("test_user_settings", Context.MODE_PRIVATE)
         prefs.edit().clear().commit()
-        repo = UserSettingsRepository(prefs, testScope)
+        repo = UserSettingsRepository(prefs, repoScope)
     }
 
     @After
     fun tearDown() {
-        testScope.cancel()
+        repoScope.cancel()
     }
 
     @Test
