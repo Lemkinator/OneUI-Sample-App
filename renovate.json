@@ -27,8 +27,7 @@
     {
       "groupName": "hilt",
       "matchPackageNames": [
-        "com.google.dagger:**",
-        "com.google.dagger.hilt.android"
+        "com.google.dagger**"
       ]
     },
     {
