@@ -7,22 +7,22 @@ targetSdk = "37"
 jvmTarget = "21"
 
 aboutlibraries = "14.2.1"
-benchmark-macro = "1.5.0-alpha06"
 # activity-compose 1.13.x requires androidx.core.app.PictureInPictureProvider, absent in the androidx.core
 # version bundled by oneui-design. Upgrading is blocked until oneui-design ships a compatible core.
 #noinspection GradleDependency
 activity-compose = "1.12.4"
+agp = "9.2.1"
 androidx-test-core = "1.7.0"
 androidx-test-espresso = "3.7.0"
 androidx-test-ext-junit = "1.3.0"
 androidx-test-rules = "1.7.0"
 androidx-test-runner = "1.7.0"
 arch-core-testing = "2.2.0"
+benchmark-macro = "1.5.0-alpha06"
 coroutines = "1.11.0"
 core-splashscreen = "1.2.0"
 dependency-analysis = "3.15.0"
 detekt = "2.0.0-alpha.3"
-agp = "9.2.1"
 hilt = "2.59.2"
 junit-android-framework = "2.0.1"
 junit4 = "4.13.2"
@@ -40,11 +40,11 @@ ksp = "2.3.9"
 ktlint = "1.8.0"
 leakcanary = "2.14"
 lottie = "6.7.1"
-profileinstaller = "1.4.1"
 material3 = "1.4.0"
 mockk = "1.14.11"
 oneui-design = "0.9.13+oneui8"
 oneui-icons = "1.1.0"
+profileinstaller = "1.4.1"
 robolectric = "4.16.1"
 roborazzi = "1.63.0"
 spotless = "8.6.0"
@@ -83,8 +83,8 @@ lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 oneui-design = { module = "io.github.tribalfs:oneui-design", version.ref = "oneui-design" }
-profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }
 oneui-icons = { module = "io.github.oneuiproject:icons", version.ref = "oneui-icons" }
+profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
 roborazzi-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule", version.ref = "roborazzi" }
@@ -94,9 +94,9 @@ uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = 
 [plugins]
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-junit = { id = "de.mannodermaus.android-junit", version.ref = "junit-android-framework" }
 android-test = { id = "com.android.test", version.ref = "agp" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark-macro" }
-android-junit = { id = "de.mannodermaus.android-junit", version.ref = "junit-android-framework" }
 dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependency-analysis" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
