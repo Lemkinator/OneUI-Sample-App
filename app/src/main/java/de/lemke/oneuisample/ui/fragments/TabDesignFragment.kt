@@ -12,8 +12,11 @@ import de.lemke.oneuisample.ui.util.autoCleared
 
 class TabDesignFragment : AbsBaseFragment(R.layout.fragment_tab_design) {
     private val binding by autoCleared { FragmentTabDesignBinding.bind(requireView()) }
+    private var tabLayoutMediator: TabLayoutMediator? = null
 
     override fun onDestroyView() {
+        tabLayoutMediator?.detach()
+        tabLayoutMediator = null
         view?.findViewById<ViewPager2>(R.id.viewPager2Design)?.adapter = null
         super.onDestroyView()
     }
@@ -40,9 +43,9 @@ class TabDesignFragment : AbsBaseFragment(R.layout.fragment_tab_design) {
                 override fun onPageScrollStateChanged(state: Int) {}
             },
         )
-        TabLayoutMediator(binding.fragmentDesignSubTabs, binding.viewPager2Design) { tab, position ->
+        tabLayoutMediator = TabLayoutMediator(binding.fragmentDesignSubTabs, binding.viewPager2Design) { tab, position ->
             tab.text = arrayOf(getString(R.string.widgets), getString(R.string.progress_bar), getString(R.string.qr))[position]
-        }.attach()
+        }.also { it.attach() }
     }
 }
 
