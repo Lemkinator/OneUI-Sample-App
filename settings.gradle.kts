@@ -13,3 +13,4 @@ plugins {
 
 rootProject.name = "OneUI-Sample-App"
 include(":app")
+include(":benchmarks")

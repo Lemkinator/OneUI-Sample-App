@@ -7,6 +7,7 @@ targetSdk = "37"
 jvmTarget = "21"
 
 aboutlibraries = "14.2.1"
+benchmark-macro = "1.5.0-alpha06"
 # activity-compose 1.13.x requires androidx.core.app.PictureInPictureProvider, absent in the androidx.core
 # version bundled by oneui-design. Upgrading is blocked until oneui-design ships a compatible core.
 #noinspection GradleDependency
@@ -39,6 +40,7 @@ ksp = "2.3.9"
 ktlint = "1.8.0"
 leakcanary = "2.14"
 lottie = "6.7.1"
+profileinstaller = "1.4.1"
 material3 = "1.4.0"
 mockk = "1.14.11"
 oneui-design = "0.9.13+oneui8"
@@ -47,6 +49,7 @@ robolectric = "4.16.1"
 roborazzi = "1.63.0"
 spotless = "8.6.0"
 turbine = "1.2.1"
+uiautomator = "2.3.0"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
@@ -60,6 +63,7 @@ androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "a
 androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test-rules" }
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
 arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "arch-core-testing" }
+benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "benchmark-macro" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
@@ -79,15 +83,19 @@ lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 oneui-design = { module = "io.github.tribalfs:oneui-design", version.ref = "oneui-design" }
+profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }
 oneui-icons = { module = "io.github.oneuiproject:icons", version.ref = "oneui-icons" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
 roborazzi-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule", version.ref = "roborazzi" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
 
 [plugins]
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-test = { id = "com.android.test", version.ref = "agp" }
+baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark-macro" }
 android-junit = { id = "de.mannodermaus.android-junit", version.ref = "junit-android-framework" }
 dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependency-analysis" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }

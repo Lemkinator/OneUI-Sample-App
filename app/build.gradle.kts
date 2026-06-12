@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.roborazzi)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.baselineprofile)
 }
 
 fun String.toEnvVarStyle(): String = replace(Regex("([a-z])([A-Z])"), "$1_$2").uppercase()
@@ -94,6 +95,15 @@ android {
             }
         }
         animationsDisabled = true
+        managedDevices.localDevices {
+            @Suppress("UnstableApiUsage")
+            create("pixel9Api35") {
+                device = "Pixel 9"
+                apiLevel = 35
+                systemImageSource = "aosp"
+                testedAbi = "x86_64"
+            }
+        }
     }
     lint {
         warningsAsErrors = true
@@ -109,6 +119,18 @@ android {
         disable += setOf("IconLocation", "IconMissingDensityFolder")
     }
 }
+androidComponents {
+    listOf("nonMinifiedRelease", "benchmarkRelease").forEach { buildType ->
+        onVariants(selector().withBuildType(buildType)) { variant ->
+            variant.buildConfigFields!!.put(
+                "FIRST_RUN_SKIPPABLE",
+                com.android.build.api.variant
+                    .BuildConfigField("boolean", "true", "Allow benchmarks to skip the first-run chain"),
+            )
+        }
+    }
+}
+
 spotless {
     kotlin {
         target("src/**/*.kt")
@@ -154,6 +176,8 @@ dependencies {
     implementation(libs.core.splashscreen)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    implementation(libs.profileinstaller)
+    baselineProfile(project(":benchmarks"))
     debugImplementation(libs.leakcanary)
 
     testImplementation(libs.arch.core.testing)
@@ -175,6 +199,10 @@ dependencies {
     androidTestImplementation(libs.coroutines.test)
     androidTestImplementation(libs.hilt.android.testing)
     kspAndroidTest(libs.hilt.compiler)
+}
+
+baselineProfile {
+    dexLayoutOptimization = true
 }
 
 roborazzi {
