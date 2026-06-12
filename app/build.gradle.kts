@@ -95,15 +95,6 @@ android {
             }
         }
         animationsDisabled = true
-        managedDevices.localDevices {
-            @Suppress("UnstableApiUsage")
-            create("pixel9Api35") {
-                device = "Pixel 9"
-                apiLevel = 35
-                systemImageSource = "aosp"
-                testedAbi = "x86_64"
-            }
-        }
     }
     lint {
         warningsAsErrors = true
@@ -176,6 +167,7 @@ dependencies {
     implementation(libs.core.splashscreen)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
     implementation(libs.profileinstaller)
     baselineProfile(project(":benchmarks"))
     debugImplementation(libs.leakcanary)

@@ -77,6 +77,16 @@ subprojects {
                 targetCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
             }
 
+            @Suppress("UnstableApiUsage")
+            testOptions.managedDevices.localDevices {
+                create("pixel9Api35") {
+                    device = "Pixel 9"
+                    apiLevel = 35
+                    systemImageSource = "aosp"
+                    testedAbi = "x86_64"
+                }
+            }
+
             // oneui-design replaces these AOSP AndroidX modules with Samsung forks; exclude
             // AOSP originals from all com.android.application modules to prevent shadowing.
             // com.android.test modules (e.g. :benchmarks) are not matched and keep
