@@ -19,6 +19,7 @@
                     <option value="koverHtmlReportDebug" />
                     <option value="koverVerifyDebug" />
                     <option value="verifyRoborazziDebug" />
+                    <option value="pixel9Api35DebugAndroidTest" />
                     <option value="assembleRelease" />
                 </list>
             </option>
