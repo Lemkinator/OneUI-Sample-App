@@ -9,6 +9,7 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -155,7 +156,7 @@ class SettingsActivity : AppCompatActivity() {
                     try {
                         startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri()))
                     } catch (e: ActivityNotFoundException) {
-                        e.printStackTrace()
+                        Log.e("SettingsActivity", "ACTION_APP_LOCALE_SETTINGS not supported", e)
                         suggestiveSnackBar(getString(R.string.change_language_not_supported_by_device))
                     }
                 }
