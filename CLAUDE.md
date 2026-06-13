@@ -8,10 +8,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew assembleDebug      # build debug APK
 ./gradlew assembleRelease    # build release APK (falls back to debug signing if no signing props)
 ./gradlew build              # full build (used in CI)
-./gradlew lint
 ```
 
 Test suite: unit tests (Kotest/MockK), Robolectric integration tests, Roborazzi screenshot tests, Kover coverage. Run with `./gradlew testDebugUnitTest`.
+
+Instrumented tests run via Gradle Managed Device (no physical device needed):
+
+```powershell
+./gradlew pixel9Api35DebugAndroidTest   # downloads ~1 GB image on first run, cached after
+```
+
+The GMD device (`pixel9Api35`: Pixel 9 / API 35 / aosp / x86_64) is declared once in root
+`build.gradle.kts` and shared by `:app` instrumented tests and `:benchmarks` baseline profile generation.
 
 ## Private Dependencies (Required for Build)
 
@@ -41,11 +49,7 @@ State collected via `flowWithLifecycle(lifecycle).collectLatest { }` in `lifecyc
 
 ## Robolectric + JUnit 5
 
-**Do not migrate Robolectric tests to JUnit 5.** `org.robolectric.junit.jupiter.RobolectricExtension` does not exist — Robolectric has no
-native JUnit 5 support ([issue #3477](https://github.com/robolectric/robolectric/issues/3477)). The community extension
-`tech.apter.junit5.jupiter:robolectric-extension` only targets Robolectric 4.14.1, is pre-release, and has no Hilt/Roborazzi support.
-
-`@RunWith(RobolectricTestRunner::class)` + `junit-vintage-engine` is correct. Keep until Robolectric ships native JUnit 5.
+`@RunWith(RobolectricTestRunner::class)` + `junit-vintage-engine` is correct — Robolectric has no native JUnit 5 support. Keep until Robolectric ships native JUnit 5.
 
 ## Dependency Version Policy
 
@@ -65,8 +69,8 @@ Known exceptions:
 Four tools run as part of `./gradlew build`:
 
 - **Spotless** — enforces formatting via ktlint (sole ktlint driver; Detekt has no ktlint wrapper). Fix violations with `./gradlew spotlessApply`.
-- **Detekt** — static analysis; config at `config/detekt/detekt.yml`. `autoCorrect = false` so fixes are manual.
-- **Kover** — coverage; verify threshold with `./gradlew koverVerifyDebug`.
+- **Detekt** — static analysis; config at `config/detekt/detekt.yml`. `autoCorrect = false` — fixes are manual.
+- **Kover** — 95% INSTRUCTION + BRANCH coverage required. Verify: `./gradlew koverVerifyDebug`.
 - **Konsist** — architecture rules in `app/src/test/java/de/lemke/oneuisample/ArchitectureTest.kt`. Enforces `data/domain/ui` layering. Runs as part of `./gradlew test`.
 
 **Pre-commit hook** — blocks commits with formatting violations. Opt in once per clone:
@@ -98,10 +102,6 @@ Report at `build/reports/dependency-analysis/build-health-report.txt`. Review un
 
 - `ktlint_standard_annotation = disabled` — ktlint 1.7+ moves `@Inject` before `constructor` onto its own continuation line, doubly-indenting the class body (8 sp instead of 4 sp).
 - `ktlint_standard_class-signature = disabled` — in ktlint 1.7+, both rules together enforce the split form; disabling only `annotation` is insufficient.
-
-**Important**: when upgrading ktlint, files already formatted in the ktlint-native (8-space) style will NOT be automatically reverted by `spotlessApply` — ktlint only flags violations of *enabled* rules. If you re-enable these rules and then disable them again, you must manually restore the inline form and re-run `spotlessApply`. See git history for the migration pattern.
-
-**IDE formatter (Ctrl+Alt+L) vs spotlessApply** — these ARE in sync. The ktlint IntelliJ plugin (`.idea/ktlint-plugin.xml`, mode `DISTRACT_FREE`) runs ktlint as a **post-processor after** IntelliJ's native formatter. Flow: IntelliJ formats → plugin runs ktlint on the result → final output matches `spotlessApply` exactly. IntelliJ never "learns" ktlint rules; ktlint just fixes IntelliJ's output. If the plugin mode is changed to `MANUAL`, this breaks — keep `DISTRACT_FREE`.
 
 ## Key Patterns
 
