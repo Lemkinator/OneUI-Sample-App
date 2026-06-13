@@ -79,11 +79,11 @@ subprojects {
 
             @Suppress("UnstableApiUsage")
             testOptions.managedDevices.localDevices {
-                create("pixel9Api35") {
+                register("pixel9Api35") {
                     device = "Pixel 9"
                     apiLevel = 35
                     systemImageSource = "aosp"
-                    testedAbi = "x86_64"
+                    testedAbi = "x86_64" // preserve ABI selection before AGP 10.0 changes default to arm64-v8a
                 }
             }
 
