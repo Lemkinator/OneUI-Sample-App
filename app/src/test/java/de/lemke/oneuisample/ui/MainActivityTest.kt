@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_SEARCH
 import android.os.Looper
-import androidx.appcompat.view.menu.MenuBuilder
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -58,14 +57,14 @@ class MainActivityTest {
         }
     }
 
-    @Suppress("RestrictedApi")
     private fun withNavClick(itemId: Int) {
         launch {
             onActivity { activity ->
-                val navView = activity.findViewById<DrawerNavigationView>(R.id.navigationView)
-                val menuField = DrawerNavigationView::class.java.getDeclaredField("navDrawerMenu")
-                menuField.isAccessible = true
-                (menuField.get(navView) as MenuBuilder).performIdentifierAction(itemId, 0)
+                val item =
+                    activity
+                        .findViewById<DrawerNavigationView>(R.id.navigationView)
+                        .findMenuItem(itemId) ?: return@onActivity
+                activity.onNavigationItemSelected(item)
             }
             shadowOf(Looper.getMainLooper()).idle()
         }
@@ -134,18 +133,18 @@ class MainActivityTest {
         withNavClick(R.id.bottom_sheet_dest)
     }
 
-    @Suppress("RestrictedApi")
     @Test
     fun navItem_leaks_opensLeakCanary() {
         // LeakCanary auto-installs via ContentProvider which doesn't run in Robolectric;
         // catch the resulting ISE so the branch is still covered without crashing the suite.
         launch {
             onActivity { activity ->
-                val navView = activity.findViewById<DrawerNavigationView>(R.id.navigationView)
-                val menuField = DrawerNavigationView::class.java.getDeclaredField("navDrawerMenu")
-                menuField.isAccessible = true
+                val item =
+                    activity
+                        .findViewById<DrawerNavigationView>(R.id.navigationView)
+                        .findMenuItem(R.id.leaks_dest) ?: return@onActivity
                 try {
-                    (menuField.get(navView) as MenuBuilder).performIdentifierAction(R.id.leaks_dest, 0)
+                    activity.onNavigationItemSelected(item)
                 } catch (_: IllegalStateException) {
                 }
             }

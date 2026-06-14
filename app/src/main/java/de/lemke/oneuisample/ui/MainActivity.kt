@@ -3,6 +3,9 @@ package de.lemke.oneuisample.ui
 import android.content.Intent
 import android.content.Intent.ACTION_SEARCH
 import android.os.Bundle
+import android.view.MenuItem
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -66,18 +69,21 @@ class MainActivity : AppCompatActivity() {
             setupNavigation(binding.bottomTab, binding.navigationHost.getFragment())
         }
         binding.navigationView.findMenuItem(R.id.leaks_dest)?.isVisible = BuildConfig.DEBUG
-        binding.navigationView.onNavigationSingleClick { item ->
-            when (item.itemId) {
-                R.id.oobe_dest -> openOOBEAndFinish()
-                R.id.about_app_dest -> startActivity(Intent(this, AboutActivity::class.java))
-                R.id.about_custom_dest -> startActivity(Intent(this, CustomAboutActivity::class.java))
-                R.id.settings_dest -> startActivity(Intent(this, SettingsActivity::class.java))
-                R.id.bottom_sheet_dest -> BottomSheetFragment().show(supportFragmentManager, null)
-                R.id.leaks_dest -> openLeakCanary(this)
-                else -> return@onNavigationSingleClick false
-            }
-            true
+        binding.navigationView.onNavigationSingleClick { item -> onNavigationItemSelected(item) }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.oobe_dest -> openOOBEAndFinish()
+            R.id.about_app_dest -> startActivity(Intent(this, AboutActivity::class.java))
+            R.id.about_custom_dest -> startActivity(Intent(this, CustomAboutActivity::class.java))
+            R.id.settings_dest -> startActivity(Intent(this, SettingsActivity::class.java))
+            R.id.bottom_sheet_dest -> BottomSheetFragment().show(supportFragmentManager, null)
+            R.id.leaks_dest -> openLeakCanary(this)
+            else -> return false
         }
+        return true
     }
 
     private fun initPopupMenu() {
