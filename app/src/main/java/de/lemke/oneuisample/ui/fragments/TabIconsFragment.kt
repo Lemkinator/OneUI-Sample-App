@@ -7,6 +7,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.View.VISIBLE
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.toColorInt
@@ -102,12 +104,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                     menuInflater: MenuInflater,
                 ) = menuInflater.inflate(R.menu.icon_tab_menu, menu)
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
-                    when (menuItem.itemId) {
-                        R.id.menu_item_search -> startSearch().let { true }
-                        R.id.menu_item_settings -> showSettingsDialog().let { true }
-                        else -> false
-                    }
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean = onIconTabMenuItemSelected(menuItem)
             },
             viewLifecycleOwner,
             Lifecycle.State.RESUMED,
@@ -209,37 +206,47 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         drawerLayout.startActionMode(
             onInflateMenu = { menu, menuInflater -> menuInflater.inflate(R.menu.select, menu) },
             onEnd = { iconAdapter.toggleActionMode(false) },
-            onSelectMenuItem = {
-                when (it.itemId) {
-                    R.id.menu_item_1 -> {
-                        suggestiveSnackBar("Menu item 1 selected")
-                        drawerLayout.endActionMode()
-                        true
-                    }
-
-                    R.id.menu_item_2 -> {
-                        suggestiveSnackBar("Menu item 2 selected")
-                        drawerLayout.endActionMode()
-                        true
-                    }
-
-                    R.id.menu_item_3 -> {
-                        suggestiveSnackBar("Menu item 3 selected")
-                        drawerLayout.endActionMode()
-                        true
-                    }
-
-                    else -> {
-                        false
-                    }
-                }
-            },
+            onSelectMenuItem = { onActionModeMenuItemSelected(it) },
             onSelectAll = { isChecked: Boolean -> iconAdapter.onToggleSelectAll(isChecked) },
             allSelectorStateFlow = allSelectorStateFlow,
             searchOnActionMode = userSettings.searchOnActionMode.withListener(searchModeListener),
             showCancel = userSettings.actionModeShowCancel,
         )
     }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onIconTabMenuItemSelected(menuItem: MenuItem): Boolean =
+        when (menuItem.itemId) {
+            R.id.menu_item_search -> startSearch().let { true }
+            R.id.menu_item_settings -> showSettingsDialog().let { true }
+            else -> false
+        }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onActionModeMenuItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
+            R.id.menu_item_1 -> {
+                suggestiveSnackBar("Menu item 1 selected")
+                drawerLayout.endActionMode()
+                true
+            }
+
+            R.id.menu_item_2 -> {
+                suggestiveSnackBar("Menu item 2 selected")
+                drawerLayout.endActionMode()
+                true
+            }
+
+            R.id.menu_item_3 -> {
+                suggestiveSnackBar("Menu item 3 selected")
+                drawerLayout.endActionMode()
+                true
+            }
+
+            else -> {
+                false
+            }
+        }
 
     private fun showSettingsDialog() {
         val dialogBinding =

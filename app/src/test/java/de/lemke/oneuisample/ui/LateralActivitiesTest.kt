@@ -18,9 +18,13 @@ package de.lemke.oneuisample.ui
 
 import android.content.Intent
 import android.os.Looper
+import android.view.MenuItem
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
+import de.lemke.oneuisample.R
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -63,4 +67,39 @@ class LateralActivitiesTest {
 
     @Test
     fun appPickerActivity_launchesWithoutCrash() = launch<AppPickerActivity>()
+
+    @Test
+    fun aboutActivity_changeStatus_cyclesAllStatuses() {
+        ActivityScenario.launch<AboutActivity>(Intent(context, AboutActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            repeat(8) {
+                scenario.onActivity { it.changeStatus() }
+                shadowOf(Looper.getMainLooper()).idle()
+            }
+        }
+    }
+
+    @Test
+    fun appPickerActivity_onOptionsItemSelected_search_returnsTrue() {
+        ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                val item = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_search }
+                activity.onOptionsItemSelected(item)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun appPickerActivity_onOptionsItemSelected_unknown_returnsFalse() {
+        ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                val item = mockk<MenuItem> { every { itemId } returns -1 }
+                activity.onOptionsItemSelected(item)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
 }

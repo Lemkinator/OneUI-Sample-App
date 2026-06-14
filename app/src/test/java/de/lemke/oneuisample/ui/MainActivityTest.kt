@@ -158,6 +158,14 @@ class MainActivityTest {
     }
 
     @Test
+    fun onPopupMenuItemClick_drawerClosed_opensDrawer() {
+        launch {
+            onActivity { activity -> activity.onPopupMenuItemClick() }
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
     fun navigation_toIcons_loadsTabIconsFragment() {
         launch {
             onActivity { activity ->

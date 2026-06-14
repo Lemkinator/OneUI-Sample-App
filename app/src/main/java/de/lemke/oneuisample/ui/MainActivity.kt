@@ -87,27 +87,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initPopupMenu() {
-        binding.navigationView.findMenuItem(R.id.popup_menu)?.apply {
-            setOnMenuItemClickListener {
-                if (binding.drawerLayout.drawerOffset == 0f) {
-                    binding.drawerLayout.setDrawerOpen(true)
-                } else {
-                    PopupMenu(this@MainActivity, binding.navigationView.findViewById(R.id.popup_menu)).apply {
-                        seslSetOverlapAnchor(false)
-                        setForceShowIcon(true)
-                        seslSetOffset(140, 0)
-                        inflate(R.menu.menu_popup)
-                        setOnMenuItemClickListener { menuItem ->
-                            title = menuItem.title
-                            suggestiveSnackBar("${menuItem.title} clicked")
-                            true
-                        }
-                        show()
-                    }
+        binding.navigationView.findMenuItem(R.id.popup_menu)?.setOnMenuItemClickListener { onPopupMenuItemClick() }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onPopupMenuItemClick(): Boolean {
+        if (binding.drawerLayout.drawerOffset == 0f) {
+            binding.drawerLayout.setDrawerOpen(true)
+        } else {
+            PopupMenu(this, binding.navigationView.findViewById(R.id.popup_menu)).apply {
+                seslSetOverlapAnchor(false)
+                setForceShowIcon(true)
+                seslSetOffset(140, 0)
+                inflate(R.menu.menu_popup)
+                setOnMenuItemClickListener { menuItem ->
+                    title = menuItem.title
+                    suggestiveSnackBar("${menuItem.title} clicked")
+                    true
                 }
-                true
+                show()
             }
         }
+        return true
     }
 
     private fun createSuggestAppBarModel(): SuggestAppBarModel<SuggestAppBarView> =
