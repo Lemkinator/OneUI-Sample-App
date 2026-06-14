@@ -18,6 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with: { persist-credentials: false }
+      - name: Copy CI gradle.properties
+        run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
       - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
       - uses: gradle/actions/setup-gradle@v6
@@ -36,6 +38,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with: { persist-credentials: false }
+      - name: Copy CI gradle.properties
+        run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
       - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
       - uses: gradle/actions/setup-gradle@v6
@@ -54,6 +58,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with: { persist-credentials: false }
+      - name: Copy CI gradle.properties
+        run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
       - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
       - uses: gradle/actions/setup-gradle@v6
@@ -85,6 +91,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with: { persist-credentials: false }
+      - name: Copy CI gradle.properties
+        run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
       - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
       - uses: gradle/actions/setup-gradle@v6
@@ -103,6 +111,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with: { persist-credentials: false }
+      - name: Copy CI gradle.properties
+        run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
       - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
       - uses: gradle/actions/setup-gradle@v6
@@ -125,6 +135,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with: { persist-credentials: false }
+      - name: Copy CI gradle.properties
+        run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
       - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
       - uses: gradle/actions/setup-gradle@v6

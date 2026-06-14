@@ -212,6 +212,12 @@ class UserSettingsRepositoryTest {
     }
 
     @Test
+    fun `update does not write devModeEnabled when unchanged`() {
+        repo.update { copy(darkMode = true) }
+        repo.devModeEnabled shouldBe false
+    }
+
+    @Test
     fun `update applies all fields`() {
         repo.update {
             copy(

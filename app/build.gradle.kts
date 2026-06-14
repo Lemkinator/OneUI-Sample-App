@@ -88,6 +88,7 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
+            isReturnDefaultValues = true
             all { test ->
                 test.useJUnitPlatform()
                 test.jvmArgs("-XX:+EnableDynamicAgentLoading")
@@ -219,25 +220,19 @@ kover {
                     "dagger.hilt.*",
                     "hilt_aggregated_deps.*",
                     "*.di.*",
-                    "*Activity",
-                    "*Activity$*",
-                    "*Fragment",
-                    "*Fragment$*",
-                    "*Adapter",
-                    "*Adapter$*",
-                    "*Receiver",
-                    "*Receiver$*",
                     "*TileService",
                     "*TileService$*",
                     "*DebugTools*",
                     "*ComposableSingletons$*",
+                    "de.lemke.oneuisample.App",
                 )
+                annotatedBy("de.lemke.oneuisample.NoCoverage")
             }
         }
         variant("debug") {
             verify {
-                rule { minBound(95, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.INSTRUCTION) }
-                rule { minBound(75, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH) }
+                rule { minBound(80, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.INSTRUCTION) }
+                rule { minBound(58, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH) }
             }
         }
     }

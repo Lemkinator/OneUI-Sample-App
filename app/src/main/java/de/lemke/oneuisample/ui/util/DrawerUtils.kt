@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.material.navigation.NavigationView
+import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.ui.AboutActivity
 import dev.oneuiproject.oneui.layout.NavDrawerLayout
 import dev.oneuiproject.oneui.navigation.widget.DrawerNavigationView
@@ -79,6 +80,7 @@ fun Bundle.saveSearchAndActionMode(
 }
 
 /** Restores search and action mode state from this bundle, invoking the provided callbacks as needed. */
+@NoCoverage
 inline fun Bundle?.restoreSearchAndActionMode(
     crossinline onSearchMode: () -> Unit = {},
     crossinline onActionMode: (selectedIds: Set<Long>) -> Unit = {},

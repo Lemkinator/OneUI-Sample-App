@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Looper
+import android.view.View
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
@@ -11,6 +12,7 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.MainActivity
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.Before
 import org.junit.Test
@@ -18,6 +20,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import com.google.android.material.R as MaterialR
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = App::class, sdk = [36])
@@ -93,6 +96,40 @@ class SnackBarUtilsKtActivityTest {
         withActivity { activity ->
             val snackbar = activity.suggestiveSnackBar(R.string.app_name, actionText = "Ok", action = { dismiss() })
             snackbar shouldNotBe null
+        }
+    }
+
+    @Test
+    fun `suggestiveSnackBar String action button click invokes custom action`() {
+        withActivity { activity ->
+            var actionCalled = false
+            val snackbar = activity.suggestiveSnackBar("msg", actionText = "Act", action = { actionCalled = true })
+            shadowOf(Looper.getMainLooper()).idle()
+            snackbar.view.findViewById<View>(MaterialR.id.snackbar_action)?.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            actionCalled shouldBe true
+        }
+    }
+
+    @Test
+    fun `suggestiveSnackBar String action button click invokes default dismiss action`() {
+        withActivity { activity ->
+            val snackbar = activity.suggestiveSnackBar("msg", actionText = "Dismiss")
+            shadowOf(Looper.getMainLooper()).idle()
+            snackbar.view.findViewById<View>(MaterialR.id.snackbar_action)?.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            snackbar.isShown shouldBe false
+        }
+    }
+
+    @Test
+    fun `suggestiveSnackBar StringRes action button click invokes default dismiss action`() {
+        withActivity { activity ->
+            val snackbar = activity.suggestiveSnackBar(R.string.ok, actionText = "Dismiss")
+            shadowOf(Looper.getMainLooper()).idle()
+            snackbar.view.findViewById<View>(MaterialR.id.snackbar_action)?.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            snackbar.isShown shouldBe false
         }
     }
 }

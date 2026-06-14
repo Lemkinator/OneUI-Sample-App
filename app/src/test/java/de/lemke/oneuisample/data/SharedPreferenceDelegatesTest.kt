@@ -6,6 +6,8 @@ import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -273,5 +275,33 @@ class SharedPreferenceDelegatesTest {
                 var dm: Boolean by delegates.darkMode()
             }
         h.dm shouldBe false
+    }
+
+    // null-fallback branches: SharedPreferences.getString / getStringSet can return null even
+    // with a default argument (e.g. from a mock or a buggy implementation), so the ?: d path
+    // in the string() and stringSet() getters must be covered explicitly.
+
+    @Test
+    fun `string getter returns default when getString returns null`() {
+        val mockPrefs = mockk<SharedPreferences>()
+        every { mockPrefs.getString(any(), any()) } returns null
+        val d = SharedPreferenceDelegates(mockPrefs)
+        val h =
+            object {
+                var s: String by d.string(default = "fallback")
+            }
+        h.s shouldBe "fallback"
+    }
+
+    @Test
+    fun `stringSet getter returns default when getStringSet returns null`() {
+        val mockPrefs = mockk<SharedPreferences>()
+        every { mockPrefs.getStringSet(any(), any()) } returns null
+        val d = SharedPreferenceDelegates(mockPrefs)
+        val h =
+            object {
+                var ss: Set<String> by d.stringSet(default = setOf("x"))
+            }
+        h.ss shouldBe setOf("x")
     }
 }

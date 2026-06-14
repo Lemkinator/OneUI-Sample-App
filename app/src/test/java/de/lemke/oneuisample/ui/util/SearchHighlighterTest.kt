@@ -99,4 +99,11 @@ class SearchHighlighterTest {
         result.toString() shouldBe "hello world"
         result.getSpans(0, result.length, TextAppearanceSpan::class.java).size shouldBe 1
     }
+
+    @Test
+    fun `with non-negative lengthBefore and no match returns builder unchanged`() {
+        val result = highlighter("hello", "xyz", 5)
+        result.toString() shouldBe "hello"
+        result.getSpans(0, result.length, TextAppearanceSpan::class.java).isEmpty() shouldBe true
+    }
 }
