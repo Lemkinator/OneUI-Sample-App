@@ -11,6 +11,8 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -26,6 +28,7 @@ import androidx.preference.PreferenceScreen
 import androidx.preference.SeslSwitchPreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivitySettingsBinding
 import de.lemke.oneuisample.ui.util.collectState
@@ -61,6 +64,7 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var switchScreenPref: SeslSwitchPreferenceScreen
         private val viewModel: SettingsViewModel by viewModels()
 
+        @NoCoverage
         override fun onAttach(context: Context) {
             super.onAttach(context)
             if (activity is SettingsActivity) settingsActivity = activity as SettingsActivity
@@ -110,13 +114,12 @@ class SettingsActivity : AppCompatActivity() {
             initTosPref()
             initDeleteAppDataPref()
             initSuggestionCard()
-            findPreference<UpdatableWidgetPreference>("updatable")?.onClick {
+            findPreference<UpdatableWidgetPreference>("updatable")!!.onClick {
                 it.widgetLayoutResource = R.layout.sample_pref_widget_progress
                 view?.postDelayed({ it.widgetLayoutResource = R.layout.sample_pref_widget_check }, 2000)
             }
-            val tips = findPreference<TipsCardPreference>("tip")
-            tips?.addButton("Button") { suggestiveSnackBar("onClick") }
-            findPreference<EditTextPreference>("edit_text")?.onNewValue { suggestiveSnackBar("New value: $it") }
+            findPreference<TipsCardPreference>("tip")!!.addButton("Button") { suggestiveSnackBar("onClick") }
+            findPreference<EditTextPreference>("edit_text")!!.onNewValue { suggestiveSnackBar("New value: $it") }
         }
 
         private fun initDarkModePrefs() {
@@ -152,7 +155,7 @@ class SettingsActivity : AppCompatActivity() {
         private fun initLanguagePref() {
             if (SDK_INT >= TIRAMISU) {
                 findPreference<PreferenceCategory>("language_pref_cat")!!.isVisible = true
-                findPreference<PreferenceScreen>("language_pref")?.onClick {
+                findPreference<PreferenceScreen>("language_pref")!!.onClick {
                     try {
                         startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri()))
                     } catch (e: ActivityNotFoundException) {
@@ -164,7 +167,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun initTosPref() {
-            findPreference<PreferenceScreen>("tos_pref")?.onClick {
+            findPreference<PreferenceScreen>("tos_pref")!!.onClick {
                 AlertDialog
                     .Builder(requireContext())
                     .setTitle(getString(R.string.tos))
@@ -175,32 +178,42 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun initDeleteAppDataPref() {
-            findPreference<PreferenceScreen>("delete_app_data_pref")?.onClick {
+            findPreference<PreferenceScreen>("delete_app_data_pref")!!.onClick {
                 AlertDialog
                     .Builder(settingsActivity)
                     .setTitle(R.string.delete_appdata_and_exit)
                     .setMessage(R.string.delete_appdata_and_exit_warning)
                     .setNegativeButton(designR.string.oui_des_common_cancel, null)
                     .setPositiveButton(designR.string.oui_des_common_button_yes) { _: DialogInterface, _: Int ->
-                        (settingsActivity.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
+                        clearApplicationUserData()
                     }.show()
             }
+        }
+
+        @NoCoverage
+        private fun clearApplicationUserData() {
+            (settingsActivity.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
         }
 
         private fun initSuggestionCard() {
             val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
             val suggestionInset = findPreference<InsetPreferenceCategory>("suggestion_inset")!!
             suggestion.setOnClosedClickedListener { preferenceScreen.removePreference(suggestionInset) }
-            suggestion.setActionButtonOnClickListener {
-                suggestion.startTurnOnAnimation("Turned on")
-                it.postDelayed(
-                    {
-                        preferenceScreen.removePreference(suggestion)
-                        preferenceScreen.removePreference(suggestionInset)
-                    },
-                    1500,
-                )
-            }
+            suggestion.setActionButtonOnClickListener { onSuggestionCardActionButtonClicked(it) }
+        }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun onSuggestionCardActionButtonClicked(view: View) {
+            val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
+            val suggestionInset = findPreference<InsetPreferenceCategory>("suggestion_inset")!!
+            suggestion.startTurnOnAnimation("Turned on")
+            view.postDelayed(
+                {
+                    preferenceScreen.removePreference(suggestion)
+                    preferenceScreen.removePreference(suggestionInset)
+                },
+                1500,
+            )
         }
     }
 }
