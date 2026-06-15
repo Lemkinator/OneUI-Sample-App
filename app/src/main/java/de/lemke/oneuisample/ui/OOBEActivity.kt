@@ -16,6 +16,8 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout.LayoutParams
 import androidx.activity.viewModels
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -56,7 +58,8 @@ class OOBEActivity : AppCompatActivity() {
         }
     }
 
-    private fun navigateToMain() {
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun navigateToMain() {
         startActivity(Intent(this, MainActivity::class.java))
         finishWithFade()
     }
