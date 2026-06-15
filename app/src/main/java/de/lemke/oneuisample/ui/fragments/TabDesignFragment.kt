@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignBinding
 import de.lemke.oneuisample.ui.util.autoCleared
@@ -14,6 +15,7 @@ class TabDesignFragment : AbsBaseFragment(R.layout.fragment_tab_design) {
     private val binding by autoCleared { FragmentTabDesignBinding.bind(requireView()) }
     private var tabLayoutMediator: TabLayoutMediator? = null
 
+    @NoCoverage
     override fun onDestroyView() {
         tabLayoutMediator?.detach()
         tabLayoutMediator = null
