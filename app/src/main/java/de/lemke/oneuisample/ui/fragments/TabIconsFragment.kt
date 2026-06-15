@@ -24,6 +24,7 @@ import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.data.withListener
@@ -124,7 +125,8 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         }
     }
 
-    private fun updateList(iconsAndSearch: Pair<List<Icon>, String?>) {
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun updateList(iconsAndSearch: Pair<List<Icon>, String?>) {
         if (iconsAndSearch.first.isEmpty()) {
             binding.iconList.isVisible = false
             binding.noEntryLottie.cancelAnimation()
@@ -149,17 +151,26 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     }
 
     private fun IconAdapter.setupOnClickListeners() {
-        onClickItem = { position, icon, _ ->
-            if (isActionMode) {
-                toggleItem(icon.id, position)
-            } else {
-                suggestiveSnackBar(icon.beautifiedName, actionText = getString(R.string.ok))
-            }
+        onClickItem = { position, icon, _ -> onIconItemClicked(position, icon) }
+        onLongClickItem = { onIconItemLongClicked() }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onIconItemClicked(
+        position: Int,
+        icon: Icon,
+    ) {
+        if (iconAdapter.isActionMode) {
+            iconAdapter.toggleItem(icon.id, position)
+        } else {
+            suggestiveSnackBar(icon.beautifiedName, actionText = getString(R.string.ok))
         }
-        onLongClickItem = {
-            if (!isActionMode) launchActionMode()
-            binding.iconList.seslStartLongPressMultiSelection()
-        }
+    }
+
+    @NoCoverage
+    internal fun onIconItemLongClicked() {
+        if (!iconAdapter.isActionMode) launchActionMode()
+        binding.iconList.seslStartLongPressMultiSelection()
     }
 
     private fun configureItemSwipeAnimator() {
@@ -201,7 +212,8 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         }
     }
 
-    private fun launchActionMode(initialSelected: Set<Long>? = null) {
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun launchActionMode(initialSelected: Set<Long>? = null) {
         iconAdapter.toggleActionMode(true, initialSelected)
         drawerLayout.startActionMode(
             onInflateMenu = { menu, menuInflater -> menuInflater.inflate(R.menu.select, menu) },
@@ -248,7 +260,8 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             }
         }
 
-    private fun showSettingsDialog() {
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun showSettingsDialog() {
         val dialogBinding =
             DialogSettingsBinding.inflate(layoutInflater).apply {
                 actionModeShowCancel.isChecked = userSettings.actionModeShowCancel
@@ -263,8 +276,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                     is ToolbarLayout.SearchOnActionMode.Concurrent -> amsOptions.check(R.id.amsConcurrent)
                 }
                 showIndexScroll.onCheckedChangedListener = { _, isChecked ->
-                    indexScrollShowLetters.isEnabled = isChecked
-                    indexScrollAutoHide.isEnabled = isChecked
+                    onShowIndexScrollChanged(this, isChecked)
                 }
             }
         AlertDialog.Builder(requireContext()).apply {
@@ -272,22 +284,48 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             setView(dialogBinding.root)
             setNegativeButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_cancel), null)
             setPositiveButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_apply)) { _, _ ->
-                userSettings.update {
-                    copy(
-                        actionModeShowCancel = dialogBinding.actionModeShowCancel.isChecked,
-                        showIndexScroll = dialogBinding.showIndexScroll.isChecked,
-                        indexScrollShowLetters = dialogBinding.indexScrollShowLetters.isChecked,
-                        indexScrollAutoHide = dialogBinding.indexScrollAutoHide.isChecked,
-                        searchOnActionMode =
-                            when (dialogBinding.amsOptions.checkedRadioButtonId) {
-                                R.id.amsDismiss -> ToolbarLayout.SearchOnActionMode.Dismiss
-                                R.id.amsNoDismiss -> ToolbarLayout.SearchOnActionMode.NoDismiss
-                                else -> ToolbarLayout.SearchOnActionMode.Concurrent(null)
-                            },
-                    )
-                }
+                applySettings(
+                    actionModeShowCancel = dialogBinding.actionModeShowCancel.isChecked,
+                    showIndexScroll = dialogBinding.showIndexScroll.isChecked,
+                    indexScrollShowLetters = dialogBinding.indexScrollShowLetters.isChecked,
+                    indexScrollAutoHide = dialogBinding.indexScrollAutoHide.isChecked,
+                    checkedSearchOnActionModeId = dialogBinding.amsOptions.checkedRadioButtonId,
+                )
             }
             show()
         }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun applySettings(
+        actionModeShowCancel: Boolean,
+        showIndexScroll: Boolean,
+        indexScrollShowLetters: Boolean,
+        indexScrollAutoHide: Boolean,
+        checkedSearchOnActionModeId: Int,
+    ) {
+        userSettings.update {
+            copy(
+                actionModeShowCancel = actionModeShowCancel,
+                showIndexScroll = showIndexScroll,
+                indexScrollShowLetters = indexScrollShowLetters,
+                indexScrollAutoHide = indexScrollAutoHide,
+                searchOnActionMode =
+                    when (checkedSearchOnActionModeId) {
+                        R.id.amsDismiss -> ToolbarLayout.SearchOnActionMode.Dismiss
+                        R.id.amsNoDismiss -> ToolbarLayout.SearchOnActionMode.NoDismiss
+                        else -> ToolbarLayout.SearchOnActionMode.Concurrent(null)
+                    },
+            )
+        }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onShowIndexScrollChanged(
+        dialogBinding: DialogSettingsBinding,
+        isChecked: Boolean,
+    ) {
+        dialogBinding.indexScrollShowLetters.isEnabled = isChecked
+        dialogBinding.indexScrollAutoHide.isEnabled = isChecked
     }
 }

@@ -16,10 +16,12 @@
 
 package de.lemke.oneuisample.ui
 
+import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Looper
+import android.view.LayoutInflater
 import android.view.MenuItem
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ActivityScenario
@@ -28,7 +30,10 @@ import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.databinding.DialogSettingsBinding
+import de.lemke.oneuisample.domain.Icon
 import de.lemke.oneuisample.ui.fragments.TabIconsFragment
+import dev.oneuiproject.oneui.layout.ToolbarLayout
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Before
@@ -38,6 +43,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowAlertDialog
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = App::class, sdk = [36])
@@ -106,5 +112,131 @@ class TabIconsFragmentTest {
     @Test
     fun onActionModeMenuItemSelected_unknown_returnsFalse() {
         withFragment { onActionModeMenuItemSelected(mockMenuItem(-1)) }
+    }
+
+    @Test
+    fun updateList_emptyList_showsNoEntryView() {
+        withFragment {
+            updateList(Pair(emptyList(), null))
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        }
+    }
+
+    @Test
+    fun updateList_nonEmptyList_showsIconList() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon), null))
+        }
+    }
+
+    @Test
+    fun updateList_nonEmptyListWithHighlight_setsHighlight() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon), "set"))
+        }
+    }
+
+    @Test
+    fun onIconItemClicked_notInActionMode_showsSnackBar() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            onIconItemClicked(0, icon)
+        }
+    }
+
+    @Test
+    fun onIconItemClicked_inActionMode_togglesSelection() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon), null))
+            launchActionMode()
+            onIconItemClicked(0, icon)
+        }
+    }
+
+    @Test
+    fun launchActionMode_startsActionMode() {
+        withFragment { launchActionMode() }
+    }
+
+    @Test
+    fun settingsDialog_positiveButton_appliesSettings() {
+        ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
+                    .navController
+                    .navigate(R.id.icons_dest)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                val fragment =
+                    (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
+                        .childFragmentManager.primaryNavigationFragment as? TabIconsFragment
+                fragment?.onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_settings))
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity {
+                ShadowAlertDialog.getLatestAlertDialog()?.getButton(AlertDialog.BUTTON_POSITIVE)?.performClick()
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun applySettings_dismiss_updatesSearchOnActionMode() {
+        withFragment { applySettings(false, false, false, false, R.id.amsDismiss) }
+    }
+
+    @Test
+    fun applySettings_noDismiss_updatesSearchOnActionMode() {
+        withFragment { applySettings(true, true, true, true, R.id.amsNoDismiss) }
+    }
+
+    @Test
+    fun applySettings_concurrent_updatesSearchOnActionMode() {
+        withFragment { applySettings(false, true, false, true, -1) }
+    }
+
+    @Test
+    fun onShowIndexScrollChanged_true_enablesSubOptions() {
+        withFragment {
+            val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
+            onShowIndexScrollChanged(dialogBinding, true)
+        }
+    }
+
+    @Test
+    fun onShowIndexScrollChanged_false_disablesSubOptions() {
+        withFragment {
+            val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
+            onShowIndexScrollChanged(dialogBinding, false)
+        }
+    }
+
+    @Test
+    fun showSettingsDialog_withDismissSearchMode_checksCorrectRadio() {
+        withFragment {
+            userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.Dismiss
+            showSettingsDialog()
+        }
+    }
+
+    @Test
+    fun showSettingsDialog_withNoDismissSearchMode_checksCorrectRadio() {
+        withFragment {
+            userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.NoDismiss
+            showSettingsDialog()
+        }
+    }
+
+    @Test
+    fun showSettingsDialog_withConcurrentSearchMode_checksCorrectRadio() {
+        withFragment {
+            userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.Concurrent(null)
+            showSettingsDialog()
+        }
     }
 }
