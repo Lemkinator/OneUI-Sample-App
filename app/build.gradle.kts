@@ -222,9 +222,9 @@ kover {
                     "*.di.*",
                     "*TileService",
                     "*TileService$*",
-                    "*DebugTools*",
                     "*ComposableSingletons$*",
                     "de.lemke.oneuisample.App",
+                    "de.lemke.oneuisample.ui.LibsActivity*",
                 )
                 annotatedBy("de.lemke.oneuisample.NoCoverage")
             }
