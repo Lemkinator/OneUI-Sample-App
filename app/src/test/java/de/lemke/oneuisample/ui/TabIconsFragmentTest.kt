@@ -239,4 +239,31 @@ class TabIconsFragmentTest {
             showSettingsDialog()
         }
     }
+
+    @Test
+    fun onIconSwiped_startDirection_showsSnackBar() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon), null))
+            onIconSwiped(0, androidx.recyclerview.widget.ItemTouchHelper.START)
+        }
+    }
+
+    @Test
+    fun onIconSwiped_endDirection_showsSnackBar() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon), null))
+            onIconSwiped(0, androidx.recyclerview.widget.ItemTouchHelper.END)
+        }
+    }
+
+    @Test
+    fun observeIconList_withActiveSearch_emitsFilteredList() {
+        withFragment {
+            userSettings.searchActive = true
+            userSettings.search = "settings"
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
 }

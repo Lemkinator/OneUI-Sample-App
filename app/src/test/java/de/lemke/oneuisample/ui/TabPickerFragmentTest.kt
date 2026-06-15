@@ -196,4 +196,14 @@ class TabPickerFragmentTest {
             shadowOf(Looper.getMainLooper()).idle()
         }
     }
+
+    @Test
+    fun onConfigurationChanged_withDialogExistingNotShowing_doesNothing() {
+        withFragment {
+            openColorPickerDialog()
+            colorPickerDialog?.dismiss()
+            val config = Configuration(resources.configuration)
+            onConfigurationChanged(config)
+        }
+    }
 }

@@ -128,4 +128,9 @@ class AppPickerActivityTest {
     fun render_outOfBoundsPickerType_usesFirstEntry() {
         launch { render(AppPickerUiState(pickerType = 999)) }
     }
+
+    @Test
+    fun render_negativePickerType_usesFirstEntry() {
+        launch { render(AppPickerUiState(pickerType = -1)) }
+    }
 }

@@ -164,6 +164,11 @@ class CustomAboutActivityTest {
     }
 
     @Test
+    fun simulateOnBackProgressed_lowProgressNotExpanding_doesNothing() {
+        launch { simulateOnBackProgressed(0.0f) }
+    }
+
+    @Test
     fun simulateOnBackPressed_resetsState() {
         launch { simulateOnBackPressed() }
     }

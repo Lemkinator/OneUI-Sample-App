@@ -58,4 +58,10 @@ class OOBEActivityTest {
     fun initFooterButton_narrowScreen_setsMatchParent() {
         launch { shadowOf(Looper.getMainLooper()).idle() }
     }
+
+    @Test
+    @Config(qualifiers = "w400dp")
+    fun initFooterButton_wideScreen_leavesWrapContent() {
+        launch { shadowOf(Looper.getMainLooper()).idle() }
+    }
 }

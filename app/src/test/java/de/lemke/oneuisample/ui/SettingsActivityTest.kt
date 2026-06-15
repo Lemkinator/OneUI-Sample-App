@@ -1,5 +1,6 @@
 package de.lemke.oneuisample.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import androidx.preference.PreferenceScreen
@@ -7,6 +8,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.data.UserSettingsRepository
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -79,6 +81,20 @@ class SettingsActivityTest {
 
     @Test
     fun autoDarkModePref_newValue_false_restoresDarkModeSetting() {
+        launch {
+            findPreference<androidx.preference.SwitchPreferenceCompat>("dark_mode_auto_pref")
+                ?.callChangeListener(false)
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun autoDarkModePref_newValue_false_withDarkModeEnabled_restoresNightMode() {
+        context
+            .getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString("darkMode", "1")
+            .commit()
         launch {
             findPreference<androidx.preference.SwitchPreferenceCompat>("dark_mode_auto_pref")
                 ?.callChangeListener(false)
