@@ -13,6 +13,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.WindowInsets.Type.systemBars
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.animation.PathInterpolatorCompat
@@ -81,27 +83,10 @@ class CustomAboutActivity : AppCompatActivity() {
     private fun initOnBackPressed() {
         invokeOnBack(
             triggerStateFlow = callbackIsActive,
-            onBackPressed = {
-                binding.aboutAppBar.setExpanded(true)
-                isBackProgressing = false
-                isExpanding = false
-            },
-            onBackStarted = { isBackProgressing = true },
-            onBackProgressed = {
-                val interpolatedProgress = progressInterpolator.getInterpolation(it.progress)
-                if (interpolatedProgress > .5 && !isExpanding) {
-                    isExpanding = true
-                    binding.aboutAppBar.setExpanded(true, true)
-                } else if (interpolatedProgress < .3 && isExpanding) {
-                    isExpanding = false
-                    binding.aboutAppBar.setExpanded(false, true)
-                }
-            },
-            onBackCancelled = {
-                binding.aboutAppBar.setExpanded(false)
-                isBackProgressing = false
-                isExpanding = false
-            },
+            onBackPressed = { simulateOnBackPressed() },
+            onBackStarted = { simulateOnBackStarted() },
+            onBackProgressed = { simulateOnBackProgressed(it.progress) },
+            onBackCancelled = { simulateOnBackCancelled() },
         )
         updateCallbackState()
     }
@@ -185,6 +170,48 @@ class CustomAboutActivity : AppCompatActivity() {
             aboutBottomRelativeSeslMaterial.setOnClickListener { openURL(getString(R.string.link_sesl_material)) }
             aboutBottomRelativeDesign.setOnClickListener { openURL(getString(R.string.link_oneui_design)) }
         }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun simulateAppBarOffsetChanged(
+        appBarLayout: AppBarLayout,
+        verticalOffset: Int,
+    ) {
+        appBarListener.onOffsetChanged(appBarLayout, verticalOffset)
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun triggerUpdateCallbackState(enable: Boolean? = null) = updateCallbackState(enable)
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun simulateOnBackStarted() {
+        isBackProgressing = true
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun simulateOnBackProgressed(progress: Float) {
+        val interpolatedProgress = progressInterpolator.getInterpolation(progress)
+        if (interpolatedProgress > .5 && !isExpanding) {
+            isExpanding = true
+            binding.aboutAppBar.setExpanded(true, true)
+        } else if (interpolatedProgress < .3 && isExpanding) {
+            isExpanding = false
+            binding.aboutAppBar.setExpanded(false, true)
+        }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun simulateOnBackPressed() {
+        binding.aboutAppBar.setExpanded(true)
+        isBackProgressing = false
+        isExpanding = false
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun simulateOnBackCancelled() {
+        binding.aboutAppBar.setExpanded(false)
+        isBackProgressing = false
+        isExpanding = false
     }
 
     private inner class AboutAppBarListener : OnOffsetChangedListener {
