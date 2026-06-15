@@ -173,6 +173,19 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         binding.iconList.seslStartLongPressMultiSelection()
     }
 
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onIconSwiped(
+        position: Int,
+        swipeDirection: Int,
+    ): Boolean {
+        val icon = iconAdapter.getItemByPosition(position)
+        when (swipeDirection) {
+            START -> suggestiveSnackBar("${icon.name}: Right to Left")
+            END -> suggestiveSnackBar("${icon.name}: Left to Right")
+        }
+        return true
+    }
+
     private fun configureItemSwipeAnimator() {
         binding.iconList.configureItemSwipeAnimator(
             leftToRightLabel = "Left to Right",
@@ -183,14 +196,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             rightToLeftDrawableRes = iconsR.drawable.ic_oui_arrow_left,
             isLeftSwipeEnabled = { !drawerLayout.isActionMode },
             isRightSwipeEnabled = { !drawerLayout.isActionMode },
-            onSwiped = { position, swipeDirection, _ ->
-                val icon = iconAdapter.getItemByPosition(position)
-                when (swipeDirection) {
-                    START -> suggestiveSnackBar("${icon.name}: Right to Left")
-                    END -> suggestiveSnackBar("${icon.name}: Left to Right")
-                }
-                true
-            },
+            onSwiped = { position, swipeDirection, _ -> onIconSwiped(position, swipeDirection) },
         )
     }
 

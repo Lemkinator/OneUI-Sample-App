@@ -2,6 +2,7 @@ package de.lemke.oneuisample.domain
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.data.search
 import de.lemke.oneuisample.data.searchActive
@@ -15,7 +16,10 @@ class ObserveIconListUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val userSettings: UserSettingsRepository,
 ) {
-    val iconsId =
+    val iconsId = loadIcons()
+
+    @NoCoverage
+    private fun loadIcons(): List<Icon> =
         dev.oneuiproject.oneui.R.drawable::class.java.declaredFields
             .filter { it.type == Int::class.java }
             .mapNotNull { field ->

@@ -6,10 +6,12 @@ import androidx.picker.di.AppPickerContext
 import androidx.picker.model.AppData
 import androidx.picker.model.viewdata.AppInfoViewData
 import androidx.picker.model.viewdata.ViewData
+import de.lemke.oneuisample.NoCoverage
 
 @Suppress("unused")
 @Keep
 class AppPickerStrategy(appPickerContext: AppPickerContext) : AppItemStrategy(appPickerContext) {
+    @NoCoverage
     override fun convert(
         dataList: List<AppData>,
         comparator: Comparator<ViewData>?,

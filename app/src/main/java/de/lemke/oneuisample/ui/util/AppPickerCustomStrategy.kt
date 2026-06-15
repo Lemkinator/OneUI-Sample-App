@@ -15,11 +15,13 @@ import androidx.picker.model.AppData.Companion.TYPE_ITEM_RADIOBUTTON
 import androidx.picker.model.AppData.Companion.TYPE_ITEM_SWITCH
 import androidx.picker.model.viewdata.AppInfoViewData
 import androidx.picker.model.viewdata.ViewData
+import de.lemke.oneuisample.NoCoverage
 
 @Keep
 class AppPickerCustomStrategy : CustomStrategy() {
     override fun getCustomFrameList(): List<CustomFrame> = emptyList()
 
+    @NoCoverage
     override fun selectComposableType(viewData: ViewData) =
         if (viewData !is AppInfoViewData) {
             super.selectComposableType(viewData)

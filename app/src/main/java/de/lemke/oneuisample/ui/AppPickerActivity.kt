@@ -192,7 +192,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     internal fun updateAppPickerVisibility(visible: Boolean) {
         if (visible) {
             binding.noEntryScrollView.isVisible = false
-            currentPicker?.isVisible = true
+            currentPicker!!.isVisible = true
         } else {
             binding.noEntryLottie.cancelAnimation()
             binding.noEntryLottie.progress = 0f
@@ -200,7 +200,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             val callback = LottieValueCallback<ColorFilter>(SimpleColorFilter(getColor(R.color.primary_color_themed)))
             binding.noEntryLottie.addValueCallback(KeyPath("**"), COLOR_FILTER, callback)
             binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, 400)
-            currentPicker?.isVisible = false
+            currentPicker!!.isVisible = false
         }
     }
 }

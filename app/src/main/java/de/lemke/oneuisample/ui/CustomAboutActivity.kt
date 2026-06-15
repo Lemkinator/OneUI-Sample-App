@@ -25,6 +25,7 @@ import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.BuildConfig.APPLICATION_ID
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
+import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityCustomAboutBinding
 import de.lemke.oneuisample.ui.util.openURL
@@ -60,6 +61,7 @@ class CustomAboutActivity : AppCompatActivity() {
         initOnBackPressed()
     }
 
+    @NoCoverage
     private fun applyInsetIfNeeded() {
         if (SDK_INT >= 30 && !window.decorView.fitsSystemWindows) {
             binding.root.setOnApplyWindowInsetsListener { _, insets ->
@@ -117,6 +119,7 @@ class CustomAboutActivity : AppCompatActivity() {
         return false
     }
 
+    @NoCoverage
     @SuppressLint("RestrictedApi")
     private fun refreshAppBar(config: Configuration) {
         if (config.orientation != ORIENTATION_LANDSCAPE && !isInMultiWindowModeCompat) {
@@ -241,6 +244,7 @@ class CustomAboutActivity : AppCompatActivity() {
         }
     }
 
+    @NoCoverage
     private fun updateCallbackState(enable: Boolean? = null) {
         if (isBackProgressing) return
         callbackIsActive.value =

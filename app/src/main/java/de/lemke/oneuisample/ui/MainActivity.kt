@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
             // isImmersiveScroll = true
             setupNavigation(binding.bottomTab, binding.navigationHost.getFragment())
         }
-        binding.navigationView.findMenuItem(R.id.leaks_dest)?.isVisible = BuildConfig.DEBUG
+        binding.navigationView.findMenuItem(R.id.leaks_dest)!!.isVisible = BuildConfig.DEBUG
         binding.navigationView.onNavigationSingleClick { item -> onNavigationItemSelected(item) }
     }
 
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initPopupMenu() {
-        binding.navigationView.findMenuItem(R.id.popup_menu)?.setOnMenuItemClickListener { onPopupMenuItemClick() }
+        binding.navigationView.findMenuItem(R.id.popup_menu)!!.setOnMenuItemClickListener { onPopupMenuItemClick() }
     }
 
     @VisibleForTesting(otherwise = PRIVATE)

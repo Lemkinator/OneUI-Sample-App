@@ -41,7 +41,9 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     private val binding by autoCleared { FragmentTabPickerBinding.bind(requireView()) }
     private var currentColor = -16547330 // #0381fe
     private var recentColors: List<Int> = listOf(currentColor)
-    private var colorPickerDialog: SeslColorPickerDialog? = null
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal var colorPickerDialog: SeslColorPickerDialog? = null
 
     override fun onViewCreated(
         view: View,

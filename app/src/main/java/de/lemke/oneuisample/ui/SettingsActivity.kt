@@ -116,7 +116,7 @@ class SettingsActivity : AppCompatActivity() {
             initSuggestionCard()
             findPreference<UpdatableWidgetPreference>("updatable")!!.onClick {
                 it.widgetLayoutResource = R.layout.sample_pref_widget_progress
-                view?.postDelayed({ it.widgetLayoutResource = R.layout.sample_pref_widget_check }, 2000)
+                requireView().postDelayed({ it.widgetLayoutResource = R.layout.sample_pref_widget_check }, 2000)
             }
             findPreference<TipsCardPreference>("tip")!!.addButton("Button") { suggestiveSnackBar("onClick") }
             findPreference<EditTextPreference>("edit_text")!!.onNewValue { suggestiveSnackBar("New value: $it") }
@@ -144,7 +144,7 @@ class SettingsActivity : AppCompatActivity() {
 
         private fun initSwitchBarPref() {
             switchScreenPref.apply {
-                onClick { startActivity(Intent(settingsActivity, SwitchBarActivity::class.java)) }
+                onClick { startActivity(Intent(requireActivity(), SwitchBarActivity::class.java)) }
                 onNewValue { newValue ->
                     summary = if (newValue) "Enabled" else "Disabled"
                     viewModel.onSampleSwitchBarChanged(newValue)
@@ -155,14 +155,17 @@ class SettingsActivity : AppCompatActivity() {
         private fun initLanguagePref() {
             if (SDK_INT >= TIRAMISU) {
                 findPreference<PreferenceCategory>("language_pref_cat")!!.isVisible = true
-                findPreference<PreferenceScreen>("language_pref")!!.onClick {
-                    try {
-                        startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri()))
-                    } catch (e: ActivityNotFoundException) {
-                        Log.e("SettingsActivity", "ACTION_APP_LOCALE_SETTINGS not supported", e)
-                        suggestiveSnackBar(getString(R.string.change_language_not_supported_by_device))
-                    }
-                }
+                findPreference<PreferenceScreen>("language_pref")!!.onClick { openAppLocaleSettings() }
+            }
+        }
+
+        @NoCoverage
+        private fun openAppLocaleSettings() {
+            try {
+                startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri()))
+            } catch (e: ActivityNotFoundException) {
+                Log.e("SettingsActivity", "ACTION_APP_LOCALE_SETTINGS not supported", e)
+                suggestiveSnackBar(getString(R.string.change_language_not_supported_by_device))
             }
         }
 
