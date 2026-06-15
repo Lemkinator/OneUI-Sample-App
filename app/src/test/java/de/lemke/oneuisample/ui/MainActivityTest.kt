@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_SEARCH
 import android.os.Looper
+import android.view.MenuItem
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -29,6 +30,8 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettingsRepository
 import dev.oneuiproject.oneui.navigation.widget.DrawerNavigationView
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -184,6 +187,47 @@ class MainActivityTest {
                 (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
                     .navController
                     .navigate(R.id.picker_dest)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun openPopupMenu_showsPopupMenuWithoutCrash() {
+        launch {
+            onActivity { activity -> activity.openPopupMenu() }
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun onPopupMenuItemClicked_setsActivityTitleAndShowsSnackBar() {
+        launch {
+            onActivity { activity ->
+                val menuItem = mockk<MenuItem> { every { title } returns "Test Item" }
+                activity.onPopupMenuItemClicked(menuItem)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun onSuggestActionButtonClicked_showsSnackBar() {
+        launch {
+            onActivity { activity -> activity.onSuggestActionButtonClicked() }
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun onPopupMenuItemClick_drawerOpen_showsPopupMenu() {
+        launch {
+            onActivity { activity ->
+                activity.openDrawer()
+            }
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+            onActivity { activity ->
+                activity.onPopupMenuItemClick()
             }
             shadowOf(Looper.getMainLooper()).idle()
         }

@@ -95,19 +95,30 @@ class MainActivity : AppCompatActivity() {
         if (binding.drawerLayout.drawerOffset == 0f) {
             binding.drawerLayout.setDrawerOpen(true)
         } else {
-            PopupMenu(this, binding.navigationView.findViewById(R.id.popup_menu)).apply {
-                seslSetOverlapAnchor(false)
-                setForceShowIcon(true)
-                seslSetOffset(140, 0)
-                inflate(R.menu.menu_popup)
-                setOnMenuItemClickListener { menuItem ->
-                    title = menuItem.title
-                    suggestiveSnackBar("${menuItem.title} clicked")
-                    true
-                }
-                show()
-            }
+            openPopupMenu()
         }
+        return true
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun openDrawer() = binding.drawerLayout.setDrawerOpen(true)
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun openPopupMenu() {
+        PopupMenu(this, binding.navigationView.findViewById(R.id.popup_menu)).apply {
+            seslSetOverlapAnchor(false)
+            setForceShowIcon(true)
+            seslSetOffset(140, 0)
+            inflate(R.menu.menu_popup)
+            setOnMenuItemClickListener { menuItem -> onPopupMenuItemClicked(menuItem) }
+            show()
+        }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onPopupMenuItemClicked(menuItem: MenuItem): Boolean {
+        title = menuItem.title
+        suggestiveSnackBar("${menuItem.title} clicked")
         return true
     }
 
@@ -121,11 +132,14 @@ class MainActivity : AppCompatActivity() {
                     arrayListOf(
                         ButtonModel(
                             text = "Action Button",
-                            clickListener = { _, _ ->
-                                suggestiveSnackBar("Action button clicked!")
-                            },
+                            clickListener = { _, _ -> onSuggestActionButtonClicked() },
                         ),
                     ),
                 )
             }.build()
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onSuggestActionButtonClicked() {
+        suggestiveSnackBar("Action button clicked!")
+    }
 }
