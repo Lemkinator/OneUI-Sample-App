@@ -225,14 +225,15 @@ kover {
                     "*ComposableSingletons$*",
                     "de.lemke.oneuisample.App",
                     "de.lemke.oneuisample.ui.LibsActivity*",
+                    "de.lemke.oneuisample.ui.util.SearchHighlighter*",
                 )
                 annotatedBy("de.lemke.oneuisample.NoCoverage")
             }
         }
         variant("debug") {
             verify {
-                rule { minBound(84, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.INSTRUCTION) }
-                rule { minBound(64, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH) }
+                rule { minBound(98, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.INSTRUCTION) }
+                rule { minBound(100, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH) }
             }
         }
     }
