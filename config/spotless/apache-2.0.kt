@@ -1,5 +1,5 @@
 /*
- * Copyright 2024-2026 Leonard Lemke
+ * Copyright 2024-$YEAR Leonard Lemke
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.lemke.oneuisample
-
-import android.content.Context
-
-@Suppress("UnusedParameter")
-fun openLeakCanary(context: Context) = Unit
