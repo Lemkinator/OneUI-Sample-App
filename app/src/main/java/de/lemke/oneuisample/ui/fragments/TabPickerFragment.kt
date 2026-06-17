@@ -6,12 +6,10 @@ import android.graphics.Canvas
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.format.DateFormat.is24HourFormat
-import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.EditorInfo.IME_ACTION_NEXT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
-import android.widget.TextView
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.core.content.res.ResourcesCompat
@@ -68,9 +66,6 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
             maxValue = 2
             setTextSize(40f)
             displayedValues = arrayOf("A", "B", "C")
-            editText.setOnEditorActionListener { _: TextView?, actionId: Int, _: KeyEvent? ->
-                onNumberPicker3EditorAction(actionId)
-            }
         }
         binding.numberPicker2.apply {
             setTextTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL))
@@ -79,9 +74,6 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
             value = 8
             setTextSize(50f)
             editText.imeOptions = IME_FLAG_NO_FULLSCREEN or IME_ACTION_NEXT
-            editText.setOnEditorActionListener { _: TextView?, actionId: Int, _: KeyEvent? ->
-                onNumberPicker2EditorAction(actionId)
-            }
         }
         binding.numberPicker1.apply {
             minValue = 1
@@ -89,9 +81,15 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
             value = 50
             setTextSize(40f)
             editText.imeOptions = IME_FLAG_NO_FULLSCREEN or IME_ACTION_NEXT
-            editText.setOnEditorActionListener { _: TextView?, actionId: Int, _: KeyEvent? ->
-                onNumberPicker1EditorAction(actionId)
-            }
+        }
+        NumberPickerListenerSetup().setup()
+    }
+
+    private inner class NumberPickerListenerSetup {
+        fun setup() {
+            binding.numberPicker3.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker3EditorAction(actionId) }
+            binding.numberPicker2.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker2EditorAction(actionId) }
+            binding.numberPicker1.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker1EditorAction(actionId) }
         }
     }
 
@@ -188,9 +186,15 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun openStartEndTimePickerDialog() {
-        StartEndTimePickerDialog(requireContext(), 0, 600, is24HourFormat(requireContext())) { startTime, endTime ->
-            onStartEndTimePicked(startTime, endTime)
-        }.show()
+        StartEndTimePickerHelper().show()
+    }
+
+    private inner class StartEndTimePickerHelper {
+        fun show() {
+            StartEndTimePickerDialog(requireContext(), 0, 600, is24HourFormat(requireContext())) { startTime, endTime ->
+                onStartEndTimePicked(startTime, endTime)
+            }.show()
+        }
     }
 
     @VisibleForTesting(otherwise = PRIVATE)

@@ -72,13 +72,21 @@ class IconAdapter(
         ViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.icon_listview_item, parent, false),
         ).apply {
-            itemView.setOnClickListener {
-                bindingAdapterPosition.let { onClickItem(it, currentList[it], this@apply) }
-            }
-            itemView.setOnLongClickListener {
-                onLongClickItem()
-                true
-            }
+            itemView.setOnClickListener(
+                object : View.OnClickListener {
+                    override fun onClick(v: View) {
+                        bindingAdapterPosition.let { onClickItem(it, currentList[it], this@apply) }
+                    }
+                },
+            )
+            itemView.setOnLongClickListener(
+                object : View.OnLongClickListener {
+                    override fun onLongClick(v: View): Boolean {
+                        onLongClickItem()
+                        return true
+                    }
+                },
+            )
         }
 
     @NoCoverage

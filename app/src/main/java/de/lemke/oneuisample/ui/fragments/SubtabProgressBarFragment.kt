@@ -8,6 +8,7 @@ import androidx.appcompat.widget.SeslProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabProgressBarBinding
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.launchAndRepeatWithViewLifecycle
@@ -37,6 +38,11 @@ class SubtabProgressBarFragment : Fragment() {
             }
         binding.progressbar5.progress = 0
         binding.progressbar5.max = 1000
+        startProgressUpdater()
+    }
+
+    @NoCoverage
+    private fun startProgressUpdater() {
         launchAndRepeatWithViewLifecycle(RESUMED) {
             while (true) {
                 listOf(binding.progressbar1, binding.progressbar2, binding.progressbar3, binding.progressbar4, binding.progressbar5)

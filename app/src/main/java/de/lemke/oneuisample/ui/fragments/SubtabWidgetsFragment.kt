@@ -53,12 +53,7 @@ class SubtabWidgetsFragment : Fragment() {
         binding.bottomTipView.setOnLinkClickListener { suggestiveSnackBar("Bottom Tip View Link Clicked") }
         binding.relativeLink1.setOnClickListener { suggestiveSnackBar("Relative Link 1 Clicked") }
         binding.relativeLink2.setOnClickListener { suggestiveSnackBar("Relative Link 2 Clicked") }
-        binding.switchBar.apply {
-            addOnSwitchChangeListener { _, _ ->
-                setProgressBarVisible(true)
-                postDelayed({ setProgressBarVisible(false) }, 1_000)
-            }
-        }
+        SwitchBarSetup().setup()
         binding.fragmentSpinner.adapter =
             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, faceJsonNames).apply {
                 setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -78,5 +73,15 @@ class SubtabWidgetsFragment : Fragment() {
             seslSetOnUpButtonClickListener { suggestiveSnackBar("Search Up Button Clicked") }
         }
         if (SDK_INT >= Q) binding.root.seslSetGoToTopEnabled(true)
+    }
+
+    private inner class SwitchBarSetup {
+        fun setup() {
+            val switchBar = binding.switchBar
+            switchBar.addOnSwitchChangeListener { _, _ ->
+                switchBar.setProgressBarVisible(true)
+                switchBar.postDelayed({ switchBar.setProgressBarVisible(false) }, 1_000)
+            }
+        }
     }
 }

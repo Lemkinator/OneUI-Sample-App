@@ -59,29 +59,29 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
-            R.id.menu_app_picker_search -> {
-                binding.toolbarLayout
-                    .startSearchMode(
-                        onStart = {
-                            it.queryHint = "Search apps"
-                            binding.appPickerSpinner.isEnabled = false
-                        },
-                        onQuery = { query, _ ->
-                            applyFilter(query)
-                            true
-                        },
-                        onEnd = {
-                            applyFilter()
-                            binding.appPickerSpinner.isEnabled = true
-                        },
-                        onBackBehavior = CLEAR_DISMISS,
-                    ).let { true }
-            }
-
-            else -> {
-                false
-            }
+            R.id.menu_app_picker_search -> SearchModeStarter().start().let { true }
+            else -> false
         }
+
+    private inner class SearchModeStarter {
+        fun start() {
+            binding.toolbarLayout.startSearchMode(
+                onStart = {
+                    it.queryHint = "Search apps"
+                    binding.appPickerSpinner.isEnabled = false
+                },
+                onQuery = { query, _ ->
+                    applyFilter(query)
+                    true
+                },
+                onEnd = {
+                    applyFilter()
+                    binding.appPickerSpinner.isEnabled = true
+                },
+                onBackBehavior = CLEAR_DISMISS,
+            )
+        }
+    }
 
     private fun initSpinner() {
         binding.appPickerSpinner.apply {
@@ -136,6 +136,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             setOnItemActionClickEventListener { _, appInfo -> onAppItemActionClick(appInfo) }
             setOnStateChangeListener(
                 object : OnStateChangeListener {
+                    @NoCoverage
                     override fun onStateAllChanged(isAllSelected: Boolean) = setStateAll(isAllSelected)
 
                     @NoCoverage

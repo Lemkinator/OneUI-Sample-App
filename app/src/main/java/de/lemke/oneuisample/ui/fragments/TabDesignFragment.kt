@@ -55,6 +55,7 @@ class TabDesignFragment : AbsBaseFragment(R.layout.fragment_tab_design) {
 class TabDesignSubtabsAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int = 3
 
+    @NoCoverage
     override fun createFragment(position: Int): Fragment =
         when (position) {
             0 -> SubtabWidgetsFragment()

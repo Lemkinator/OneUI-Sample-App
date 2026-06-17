@@ -93,7 +93,7 @@ class SharedPreferenceDelegates(
 
     private fun <T> create(
         default: T,
-        key: String? = null,
+        key: String?,
         getter: (key: String, default: T) -> T,
         setter: (key: String, value: T) -> Unit,
     ) = object : ReadWriteProperty<Any, T> {

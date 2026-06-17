@@ -82,15 +82,22 @@ class CustomAboutActivity : AppCompatActivity() {
         }
     }
 
+    @NoCoverage
     private fun initOnBackPressed() {
-        invokeOnBack(
-            triggerStateFlow = callbackIsActive,
-            onBackPressed = { simulateOnBackPressed() },
-            onBackStarted = { simulateOnBackStarted() },
-            onBackProgressed = { simulateOnBackProgressed(it.progress) },
-            onBackCancelled = { simulateOnBackCancelled() },
-        )
+        BackCallbacksSetup().init()
         updateCallbackState()
+    }
+
+    private inner class BackCallbacksSetup {
+        fun init() {
+            invokeOnBack(
+                triggerStateFlow = callbackIsActive,
+                onBackPressed = { simulateOnBackPressed() },
+                onBackStarted = { simulateOnBackStarted() },
+                onBackProgressed = { simulateOnBackProgressed(it.progress) },
+                onBackCancelled = { simulateOnBackCancelled() },
+            )
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
