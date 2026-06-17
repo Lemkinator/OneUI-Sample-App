@@ -227,38 +227,29 @@ kover {
                     "de.lemke.oneuisample.ui.LibsActivity*",
                     "de.lemke.oneuisample.ui.util.SearchHighlighter*",
                     // SettingsActivity dialog button lambdas — DialogInterface.OnClickListener anonymous classes
-                    "de.lemke.oneuisample.ui.SettingsActivity\$SettingsFragment\$initTosPref$*",
-                    "de.lemke.oneuisample.ui.SettingsActivity\$SettingsFragment\$initDeleteAppDataPref$*",
-                    "de.lemke.oneuisample.ui.OOBEActivity\$initToSView$*",
+                    "*SettingsFragment*initTosPref*",
+                    "*SettingsFragment*initDeleteAppDataPref*",
+                    "*OOBEActivity*initToSView*",
                     // TabDesignFragment ViewPager2 callback noop overrides
-                    "de.lemke.oneuisample.ui.fragments.TabDesignFragment\$onViewCreated$*",
+                    "*TabDesignFragment*onViewCreated*",
                     // AppPickerActivity configureAppPicker anonymous OnStateChangeListener
-                    "de.lemke.oneuisample.ui.AppPickerActivity\$configureAppPicker$*",
+                    "*AppPickerActivity*configureAppPicker*",
                     // IconAdapter click/long-click listener anonymous classes
-                    "de.lemke.oneuisample.ui.util.IconAdapter\$onCreateViewHolder$*",
+                    "*IconAdapter*onCreateViewHolder*",
                     // SubtabProgressBarFragment — infinite coroutine loop with invokeSuspend on main class
                     "de.lemke.oneuisample.ui.fragments.SubtabProgressBarFragment*",
                     // iconAdapter lazy lambda — onAllSelectorStateChanged callback (infrastructure, not testable via public API)
-                    "de.lemke.oneuisample.ui.fragments.TabIconsFragment\$iconAdapter$*",
+                    "*TabIconsFragment*iconAdapter*",
                     // Inner classes wrapping inline/crossinline lambda bridges that can't be tested
-                    "de.lemke.oneuisample.ui.fragments.TabIconsFragment\$ActionModeLauncher",
-                    "de.lemke.oneuisample.ui.fragments.TabIconsFragment\$ActionModeLauncher$*",
-                    "de.lemke.oneuisample.ui.fragments.TabIconsFragment\$SwipeAnimatorSetup",
-                    "de.lemke.oneuisample.ui.fragments.TabIconsFragment\$SwipeAnimatorSetup$*",
-                    "de.lemke.oneuisample.ui.fragments.TabIconsFragment\$SettingsDialogSetup",
-                    "de.lemke.oneuisample.ui.fragments.TabIconsFragment\$SettingsDialogSetup$*",
-                    "de.lemke.oneuisample.ui.fragments.TabIconsFragment\$CoroutineSetup",
-                    "de.lemke.oneuisample.ui.fragments.TabIconsFragment\$CoroutineSetup$*",
-                    "de.lemke.oneuisample.ui.CustomAboutActivity\$BackCallbacksSetup",
-                    "de.lemke.oneuisample.ui.CustomAboutActivity\$BackCallbacksSetup$*",
-                    "de.lemke.oneuisample.ui.AppPickerActivity\$SearchModeStarter",
-                    "de.lemke.oneuisample.ui.AppPickerActivity\$SearchModeStarter$*",
-                    "de.lemke.oneuisample.ui.fragments.SubtabWidgetsFragment\$SwitchBarSetup",
-                    "de.lemke.oneuisample.ui.fragments.SubtabWidgetsFragment\$SwitchBarSetup$*",
-                    "de.lemke.oneuisample.ui.fragments.TabPickerFragment\$NumberPickerListenerSetup",
-                    "de.lemke.oneuisample.ui.fragments.TabPickerFragment\$NumberPickerListenerSetup$*",
-                    "de.lemke.oneuisample.ui.fragments.TabPickerFragment\$StartEndTimePickerHelper",
-                    "de.lemke.oneuisample.ui.fragments.TabPickerFragment\$StartEndTimePickerHelper$*",
+                    "*ActionModeLauncher*",
+                    "*SwipeAnimatorSetup*",
+                    "*SettingsDialogSetup*",
+                    "*CoroutineSetup*",
+                    "*BackCallbacksSetup*",
+                    "*SearchModeStarter*",
+                    "*SwitchBarSetup*",
+                    "*NumberPickerListenerSetup*",
+                    "*StartEndTimePickerHelper*",
                 )
                 annotatedBy("de.lemke.oneuisample.NoCoverage")
             }
