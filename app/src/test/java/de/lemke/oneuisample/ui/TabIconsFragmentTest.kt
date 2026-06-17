@@ -266,4 +266,25 @@ class TabIconsFragmentTest {
             shadowOf(Looper.getMainLooper()).idle()
         }
     }
+
+    @Test
+    fun applySettingsFromDialog_withDefaultDialogBinding_appliesSettings() {
+        withFragment {
+            val dialogBinding = DialogSettingsBinding.inflate(android.view.LayoutInflater.from(requireContext()))
+            applySettingsFromDialog(dialogBinding)
+        }
+    }
+
+    @Test
+    fun iconAdapter_toggleSelectAll_updatesAllSelectorState() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon), null))
+            shadowOf(Looper.getMainLooper()).idle()
+            launchActionMode()
+            shadowOf(Looper.getMainLooper()).idle()
+            iconAdapter.onToggleSelectAll(true)
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
 }

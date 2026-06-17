@@ -64,4 +64,12 @@ class OOBEActivityTest {
     fun initFooterButton_wideScreen_leavesWrapContent() {
         launch { shadowOf(Looper.getMainLooper()).idle() }
     }
+
+    @Test
+    fun footerButton_click_triggersAcceptTos() {
+        launch {
+            findViewById<android.view.View>(R.id.oobe_intro_footer_button)?.performClick()
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        }
+    }
 }
