@@ -1,5 +1,6 @@
 package de.lemke.oneuisample.ui
 
+import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -160,6 +161,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         @NoCoverage
+        @SuppressLint("InlinedApi")
         private fun openAppLocaleSettings() {
             try {
                 startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri()))
