@@ -15,12 +15,4 @@ abstract class AbsBaseFragment(
         reenterTransition = MaterialElevationScale(false)
         returnTransition = MaterialElevationScale(false)
     }
-
-    override fun onDestroyView() {
-        enterTransition = null
-        exitTransition = null
-        reenterTransition = null
-        returnTransition = null
-        super.onDestroyView()
-    }
 }

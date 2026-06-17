@@ -91,6 +91,14 @@ class AppPickerActivityTest {
     }
 
     @Test
+    fun applyFilter_withNullPicker_isNoOp() {
+        launch {
+            currentPicker = null
+            applyFilter("test")
+        }
+    }
+
+    @Test
     fun applyFilter_withQuery_noError() {
         launch {
             setAppPickerType(ListTypes.LIST_TYPE)

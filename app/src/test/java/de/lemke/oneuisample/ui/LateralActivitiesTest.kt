@@ -23,6 +23,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Test
@@ -85,7 +86,7 @@ class LateralActivitiesTest {
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
                 val item = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_search }
-                activity.onOptionsItemSelected(item)
+                activity.onOptionsItemSelected(item) shouldBe true
             }
             shadowOf(Looper.getMainLooper()).idle()
         }
@@ -97,7 +98,7 @@ class LateralActivitiesTest {
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
                 val item = mockk<MenuItem> { every { itemId } returns -1 }
-                activity.onOptionsItemSelected(item)
+                activity.onOptionsItemSelected(item) shouldBe false
             }
             shadowOf(Looper.getMainLooper()).idle()
         }

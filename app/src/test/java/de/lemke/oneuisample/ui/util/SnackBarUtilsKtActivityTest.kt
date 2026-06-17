@@ -105,7 +105,9 @@ class SnackBarUtilsKtActivityTest {
             var actionCalled = false
             val snackbar = activity.suggestiveSnackBar("msg", actionText = "Act", action = { actionCalled = true })
             shadowOf(Looper.getMainLooper()).idle()
-            snackbar.view.findViewById<View>(MaterialR.id.snackbar_action)?.performClick()
+            val actionButton = snackbar.view.findViewById<View>(MaterialR.id.snackbar_action)
+            actionButton shouldNotBe null
+            actionButton!!.performClick()
             shadowOf(Looper.getMainLooper()).idle()
             actionCalled shouldBe true
         }
@@ -116,7 +118,9 @@ class SnackBarUtilsKtActivityTest {
         withActivity { activity ->
             val snackbar = activity.suggestiveSnackBar("msg", actionText = "Dismiss")
             shadowOf(Looper.getMainLooper()).idle()
-            snackbar.view.findViewById<View>(MaterialR.id.snackbar_action)?.performClick()
+            val actionButton = snackbar.view.findViewById<View>(MaterialR.id.snackbar_action)
+            actionButton shouldNotBe null
+            actionButton!!.performClick()
             shadowOf(Looper.getMainLooper()).idle()
             snackbar.isShown shouldBe false
         }
@@ -127,7 +131,9 @@ class SnackBarUtilsKtActivityTest {
         withActivity { activity ->
             val snackbar = activity.suggestiveSnackBar(R.string.ok, actionText = "Dismiss")
             shadowOf(Looper.getMainLooper()).idle()
-            snackbar.view.findViewById<View>(MaterialR.id.snackbar_action)?.performClick()
+            val actionButton = snackbar.view.findViewById<View>(MaterialR.id.snackbar_action)
+            actionButton shouldNotBe null
+            actionButton!!.performClick()
             shadowOf(Looper.getMainLooper()).idle()
             snackbar.isShown shouldBe false
         }

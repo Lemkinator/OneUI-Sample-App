@@ -44,7 +44,9 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     private lateinit var binding: ActivityAppPickerBinding
     private val viewModel: AppPickerViewModel by viewModels()
     private val packageManagerHelper by lazy { AppPickerContext(this).packageManagerHelper }
-    private var currentPicker: SeslAppPickerView? = null
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal var currentPicker: SeslAppPickerView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,7 +125,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun applyFilter(query: String = "") {
-        currentPicker!!.setSearchFilter(query) { updateAppPickerVisibility(it > 0) }
+        currentPicker?.setSearchFilter(query) { updateAppPickerVisibility(it > 0) }
     }
 
     private fun configureAppPicker(appPicker: SeslAppPickerView) {

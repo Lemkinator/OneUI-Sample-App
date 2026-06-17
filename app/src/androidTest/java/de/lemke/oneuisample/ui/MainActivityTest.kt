@@ -89,7 +89,7 @@ class MainActivityTest {
             // @AndroidEntryPoint activities are destroyed. Runs even if assertions fail.
             launchedActivity?.let { act ->
                 instrumentation.runOnMainSync { act.finish() }
-                destroyedLatch.await(10, TimeUnit.SECONDS)
+                destroyedLatch.await(10, TimeUnit.SECONDS) shouldBe true
             }
         }
     }

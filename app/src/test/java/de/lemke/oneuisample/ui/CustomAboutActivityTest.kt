@@ -11,6 +11,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.android.material.appbar.AppBarLayout
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Test
@@ -38,7 +39,7 @@ class CustomAboutActivityTest {
     fun onOptionsItemSelected_appInfo_returnsTrue() {
         launch {
             val item = mockk<MenuItem> { every { itemId } returns R.id.menu_item_app_info }
-            onOptionsItemSelected(item)
+            onOptionsItemSelected(item) shouldBe true
         }
     }
 
@@ -46,7 +47,7 @@ class CustomAboutActivityTest {
     fun onOptionsItemSelected_unknown_returnsFalse() {
         launch {
             val item = mockk<MenuItem> { every { itemId } returns -1 }
-            onOptionsItemSelected(item)
+            onOptionsItemSelected(item) shouldBe false
         }
     }
 
