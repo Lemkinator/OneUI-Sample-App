@@ -23,7 +23,6 @@ import androidx.picker.model.viewdata.AppInfoViewData
 import androidx.picker.model.viewdata.ViewData
 import de.lemke.oneuisample.NoCoverage
 
-@Suppress("unused")
 @Keep
 class AppPickerStrategy(appPickerContext: AppPickerContext) : AppItemStrategy(appPickerContext) {
     @NoCoverage

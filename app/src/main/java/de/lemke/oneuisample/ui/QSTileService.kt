@@ -23,7 +23,7 @@ import android.widget.RemoteViews
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.ui.util.toast
 
-@Suppress("redundantOverride", "unused")
+@Suppress("redundantOverride", "unused", "EmptyMethod")
 class QSTileService : TileService() {
     override fun onCreate() {
         // Called by the system when the service is first created.
@@ -63,7 +63,7 @@ class QSTileService : TileService() {
 
     fun semGetSettingsIntent(): Intent = Intent(this, MainActivity::class.java)
 
-    @Suppress("FunctionOnlyReturningConstant")
+    @Suppress("FunctionOnlyReturningConstant", "SameReturnValue")
     fun semIsToggleButtonExists(): Boolean = true
 
     fun semIsToggleButtonChecked(): Boolean = qsTile.state == Tile.STATE_ACTIVE

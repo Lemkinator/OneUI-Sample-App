@@ -10,7 +10,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew build              # full build (used in CI)
 ```
 
-Test suite: unit tests (Kotest/MockK), Robolectric integration tests, Roborazzi screenshot tests, Kover coverage. Run with `./gradlew testDebugUnitTest`.
+Test suite: unit tests (Kotest/MockK), Robolectric integration tests, Roborazzi screenshot tests, Kover coverage. Run with
+`./gradlew testDebugUnitTest`.
 
 Instrumented tests run via Gradle Managed Device (no physical device needed):
 
@@ -49,7 +50,8 @@ State collected via `flowWithLifecycle(lifecycle).collectLatest { }` in `lifecyc
 
 ## Robolectric + JUnit 5
 
-`@RunWith(RobolectricTestRunner::class)` + `junit-vintage-engine` is correct — Robolectric has no native JUnit 5 support. Keep until Robolectric ships native JUnit 5.
+`@RunWith(RobolectricTestRunner::class)` + `junit-vintage-engine` is correct — Robolectric has no native JUnit 5 support. Keep until
+Robolectric ships native JUnit 5.
 
 ## Dependency Version Policy
 
@@ -68,10 +70,12 @@ Known exceptions:
 
 Four tools run as part of `./gradlew build`:
 
-- **Spotless** — enforces formatting via ktlint (sole ktlint driver; Detekt has no ktlint wrapper). Fix violations with `./gradlew spotlessApply`.
+- **Spotless** — enforces formatting via ktlint (sole ktlint driver; Detekt has no ktlint wrapper). Fix violations with
+  `./gradlew spotlessApply`.
 - **Detekt** — static analysis; config at `config/detekt/detekt.yml`. `autoCorrect = false` — fixes are manual.
 - **Kover** — 95% INSTRUCTION + BRANCH coverage required. Verify: `./gradlew koverVerifyDebug`.
-- **Konsist** — architecture rules in `app/src/test/java/de/lemke/oneuisample/ArchitectureTest.kt`. Enforces `data/domain/ui` layering. Runs as part of `./gradlew test`.
+- **Konsist** — architecture rules in `app/src/test/java/de/lemke/oneuisample/ArchitectureTest.kt`. Enforces `data/domain/ui` layering. Runs
+  as part of `./gradlew test`.
 
 **Pre-commit hook** — blocks commits with formatting violations. Opt in once per clone:
 
@@ -80,7 +84,8 @@ git config core.autocrlf input           # Windows: prevents CRLF violations
 git config core.hooksPath .githooks
 ```
 
-The hook runs `spotlessCheck` and exits 1 with a `./gradlew spotlessApply` reminder on failure. It also fails fast with a targeted message if `core.autocrlf=true` is detected.
+The hook runs `spotlessCheck` and exits 1 with a `./gradlew spotlessApply` reminder on failure. It also fails fast with a targeted message
+if `core.autocrlf=true` is detected.
 
 **After any change** — run the full local CI suite before declaring work done:
 
@@ -88,7 +93,8 @@ The hook runs `spotlessCheck` and exits 1 with a `./gradlew spotlessApply` remin
 ./gradlew spotlessCheck detekt lintDebug testDebugUnitTest koverVerifyDebug verifyRoborazziDebug
 ```
 
-If `spotlessCheck` fails, fix with `./gradlew spotlessApply` then re-run. Screenshot test failures (`verifyRoborazziDebug`) mean the code change broke a visual — do not analyze screenshots, ask the user to verify the changes.
+If `spotlessCheck` fails, fix with `./gradlew spotlessApply` then re-run. Screenshot test failures (`verifyRoborazziDebug`) mean the code
+change broke a visual — do not analyze screenshots, ask the user to verify the changes.
 
 **Dependency analysis** — manual hygiene tool (not in CI). Invoke with:
 
@@ -98,10 +104,13 @@ If `spotlessCheck` fails, fix with `./gradlew spotlessApply` then re-run. Screen
 
 Report at `build/reports/dependency-analysis/build-health-report.txt`. Review unused/misconfigured deps case-by-case.
 
-**ktlint rule overrides** — two rules disabled in `.editorconfig` to match community practice (NowInAndroid, Pokedex both use the inline form):
+**ktlint rule overrides** — two rules disabled in `.editorconfig` to match community practice (NowInAndroid, Pokedex both use the inline
+form):
 
-- `ktlint_standard_annotation = disabled` — ktlint 1.7+ moves `@Inject` before `constructor` onto its own continuation line, doubly-indenting the class body (8 sp instead of 4 sp).
-- `ktlint_standard_class-signature = disabled` — in ktlint 1.7+, both rules together enforce the split form; disabling only `annotation` is insufficient.
+- `ktlint_standard_annotation = disabled` — ktlint 1.7+ moves `@Inject` before `constructor` onto its own continuation line,
+  doubly-indenting the class body (8 sp instead of 4 sp).
+- `ktlint_standard_class-signature = disabled` — in ktlint 1.7+, both rules together enforce the split form; disabling only `annotation` is
+  insufficient.
 
 ## Key Patterns
 
