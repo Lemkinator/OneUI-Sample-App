@@ -66,10 +66,13 @@ class OOBEActivity : AppCompatActivity() {
             binding.oobeIntroFooterButton.isVisible = !isAccepting
             binding.oobeIntroFooterButtonProgress.isVisible = isAccepting
         }
-        collectEvents(viewModel.events) { event ->
-            when (event) {
-                OOBEEvent.NavigateToMain -> navigateToMain()
-            }
+        collectEvents(viewModel.events) { handleOOBEEvent(it) }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun handleOOBEEvent(event: OOBEEvent) {
+        when (event) {
+            OOBEEvent.NavigateToMain -> navigateToMain()
         }
     }
 

@@ -50,6 +50,11 @@ class OOBEActivityTest {
     }
 
     @Test
+    fun handleOOBEEvent_navigateToMain_callsNavigateToMain() {
+        launch { handleOOBEEvent(OOBEEvent.NavigateToMain) }
+    }
+
+    @Test
     fun tosSpan_onClick_showsDialog() {
         launch {
             val tosTextView = findViewById<TextView>(R.id.oobe_intro_footer_tos_text)
