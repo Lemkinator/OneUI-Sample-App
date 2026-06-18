@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.0
         with: { persist-credentials: false }
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
@@ -36,7 +36,7 @@ jobs:
     timeout-minutes: 30
     needs: check-formatting
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.0
         with: { persist-credentials: false }
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
@@ -56,7 +56,7 @@ jobs:
     timeout-minutes: 30
     needs: check-formatting
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.0
         with: { persist-credentials: false }
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
@@ -89,7 +89,7 @@ jobs:
     timeout-minutes: 30
     needs: check-formatting
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.0
         with: { persist-credentials: false }
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
@@ -133,7 +133,7 @@ jobs:
     timeout-minutes: 30
     needs: [ lint, unit-tests, screenshot-tests, instrumented-tests ]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.0
         with: { persist-credentials: false }
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
