@@ -99,12 +99,17 @@ class MainActivityTest {
                 (launchedActivity as LifecycleOwner).lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) shouldBe true
             }
         } finally {
-            ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(callback)
-            // Always finish before returning — HiltAndroidRule.after() blocks until all
-            // @AndroidEntryPoint activities are destroyed. Runs even if assertions fail.
-            launchedActivity?.let { act ->
-                instrumentation.runOnMainSync { act.finish() }
-                destroyedLatch.await(20, TimeUnit.SECONDS) shouldBe true
+            try {
+                // Always finish before returning — HiltAndroidRule.after() blocks until all
+                // @AndroidEntryPoint activities are destroyed. Runs even if assertions fail.
+                launchedActivity?.let { act ->
+                    instrumentation.runOnMainSync { act.finish() }
+                    destroyedLatch.await(20, TimeUnit.SECONDS) shouldBe true
+                }
+            } finally {
+                // Remove after the destroy wait — the callback must still be registered
+                // when DESTROYED fires so destroyedLatch.countDown() is actually called.
+                ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(callback)
             }
         }
     }
