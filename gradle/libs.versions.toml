@@ -19,15 +19,15 @@ androidx-test-rules = "1.7.0"
 androidx-test-runner = "1.7.0"
 arch-core-testing = "2.2.0"
 benchmark-macro = "1.5.0-alpha06"
-coroutines = "1.11.0"
 core-splashscreen = "1.2.0"
+coroutines = "1.11.0"
 dependency-analysis = "3.15.0"
 detekt = "2.0.0-alpha.5"
 hilt = "2.59.2"
 junit-android-framework = "2.0.1"
-junit4 = "4.13.2"
 junit-jupiter = "6.1.0"
 junit-platform = "6.1.0"
+junit4 = "4.13.2"
 konsist = "0.17.3"
 kotest = "6.2.0"
 # Hilt 2.59.2 does not support Kotlin 2.4.0 metadata, noinspection until a Hilt version ships with Kotlin 2.4 compatibility
@@ -64,20 +64,20 @@ androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
 arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "arch-core-testing" }
 benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "benchmark-macro" }
-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
-junit4 = { module = "junit:junit", version.ref = "junit4" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-jupiter" }
+junit4 = { module = "junit:junit", version.ref = "junit4" }
+konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
-konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
