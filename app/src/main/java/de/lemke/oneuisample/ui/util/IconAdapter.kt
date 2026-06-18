@@ -87,21 +87,20 @@ class IconAdapter(
         ViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.icon_listview_item, parent, false),
         ).apply {
-            itemView.setOnClickListener(
-                object : View.OnClickListener {
-                    override fun onClick(v: View) {
-                        bindingAdapterPosition.let { onClickItem(it, currentList[it], this@apply) }
-                    }
-                },
-            )
-            itemView.setOnLongClickListener(
-                object : View.OnLongClickListener {
-                    override fun onLongClick(v: View): Boolean {
-                        onLongClickItem()
-                        return true
-                    }
-                },
-            )
+            itemView.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onClickItem(position, currentList[position], this@apply)
+                }
+            }
+            itemView.setOnLongClickListener {
+                if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
+                    onLongClickItem()
+                    true
+                } else {
+                    false
+                }
+            }
         }
 
     @NoCoverage
