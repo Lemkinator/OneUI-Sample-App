@@ -28,6 +28,7 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.LottieProperty.COLOR_FILTER
 import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
@@ -40,6 +41,8 @@ import de.lemke.oneuisample.ui.MainActivity
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.setEntries
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SubtabWidgetsFragment : Fragment() {
@@ -95,7 +98,10 @@ class SubtabWidgetsFragment : Fragment() {
             val switchBar = binding.switchBar
             switchBar.addOnSwitchChangeListener { _, _ ->
                 switchBar.setProgressBarVisible(true)
-                switchBar.postDelayed({ switchBar.setProgressBarVisible(false) }, 1_000)
+                viewLifecycleOwner.lifecycleScope.launch {
+                    delay(1_000)
+                    switchBar.setProgressBarVisible(false)
+                }
             }
         }
     }
