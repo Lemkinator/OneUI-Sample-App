@@ -41,6 +41,7 @@ import de.lemke.oneuisample.ui.MainActivity
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.setEntries
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -99,7 +100,7 @@ class SubtabWidgetsFragment : Fragment() {
             switchBar.addOnSwitchChangeListener { _, _ ->
                 switchBar.setProgressBarVisible(true)
                 viewLifecycleOwner.lifecycleScope.launch {
-                    delay(1_000)
+                    delay(1.seconds)
                     switchBar.setProgressBarVisible(false)
                 }
             }
