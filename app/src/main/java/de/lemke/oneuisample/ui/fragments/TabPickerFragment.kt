@@ -249,7 +249,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     @NoCoverage
     internal fun captureScreenBitmap(): Bitmap {
         val rootView = requireActivity().window.decorView.rootView
-        val bitmap = createBitmap(rootView.width, rootView.height)
+        val bitmap = createBitmap(rootView.width.coerceAtLeast(1), rootView.height.coerceAtLeast(1))
         rootView.draw(Canvas(bitmap))
         return bitmap
     }
