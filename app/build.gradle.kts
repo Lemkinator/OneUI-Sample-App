@@ -252,8 +252,6 @@ kover {
                     "*TabDesignFragment*onViewCreated*",
                     // AppPickerActivity configureAppPicker anonymous OnStateChangeListener
                     "*AppPickerActivity*configureAppPicker*",
-                    // IconAdapter click/long-click listener anonymous classes
-                    "*IconAdapter*onCreateViewHolder*",
                     // SubtabProgressBarFragment — infinite coroutine loop with invokeSuspend on main class
                     "de.lemke.oneuisample.ui.fragments.SubtabProgressBarFragment*",
                     // iconAdapter lazy lambda — onAllSelectorStateChanged callback (infrastructure, not testable via public API)
