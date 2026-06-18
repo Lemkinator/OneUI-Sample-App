@@ -186,17 +186,41 @@ class TabIconsFragmentTest {
 
     @Test
     fun applySettings_dismiss_updatesSearchOnActionMode() {
-        withFragment { applySettings(false, false, false, false, R.id.amsDismiss) }
+        withFragment {
+            applySettings(
+                actionModeShowCancel = false,
+                showIndexScroll = false,
+                indexScrollShowLetters = false,
+                indexScrollAutoHide = false,
+                checkedSearchOnActionModeId = R.id.amsDismiss,
+            )
+        }
     }
 
     @Test
     fun applySettings_noDismiss_updatesSearchOnActionMode() {
-        withFragment { applySettings(true, true, true, true, R.id.amsNoDismiss) }
+        withFragment {
+            applySettings(
+                actionModeShowCancel = true,
+                showIndexScroll = true,
+                indexScrollShowLetters = true,
+                indexScrollAutoHide = true,
+                checkedSearchOnActionModeId = R.id.amsNoDismiss,
+            )
+        }
     }
 
     @Test
     fun applySettings_concurrent_updatesSearchOnActionMode() {
-        withFragment { applySettings(false, true, false, true, -1) }
+        withFragment {
+            applySettings(
+                actionModeShowCancel = false,
+                showIndexScroll = true,
+                indexScrollShowLetters = false,
+                indexScrollAutoHide = true,
+                checkedSearchOnActionModeId = -1,
+            )
+        }
     }
 
     @Test
@@ -269,7 +293,7 @@ class TabIconsFragmentTest {
     @Test
     fun applySettingsFromDialog_withDefaultDialogBinding_appliesSettings() {
         withFragment {
-            val dialogBinding = DialogSettingsBinding.inflate(android.view.LayoutInflater.from(requireContext()))
+            val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
             applySettingsFromDialog(dialogBinding)
         }
     }

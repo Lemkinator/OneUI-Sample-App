@@ -44,7 +44,7 @@ class SettingsActivityTest {
             scenario.onActivity { activity ->
                 val fragment =
                     activity.supportFragmentManager
-                        .findFragmentById(de.lemke.oneuisample.R.id.settings) as? SettingsActivity.SettingsFragment
+                        .findFragmentById(R.id.settings) as? SettingsActivity.SettingsFragment
                 fragment?.block()
             }
             shadowOf(Looper.getMainLooper()).idle()

@@ -17,7 +17,6 @@ package de.lemke.oneuisample.ui
 
 import android.content.Intent
 import android.os.Looper
-import androidx.appcompat.widget.SeslSwitchBar
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
