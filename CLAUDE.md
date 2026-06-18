@@ -90,7 +90,7 @@ if `core.autocrlf=true` is detected.
 **After any change** — run the full local CI suite before declaring work done:
 
 ```powershell
-./gradlew spotlessCheck detekt lintDebug testDebugUnitTest koverVerifyDebug verifyRoborazziDebug
+./gradlew spotlessCheck detekt lintDebug testDebugUnitTest koverVerifyDebug verifyRoborazziDebug pixel9Api35DebugAndroidTest assembleRelease
 ```
 
 If `spotlessCheck` fails, fix with `./gradlew spotlessApply` then re-run. Screenshot test failures (`verifyRoborazziDebug`) mean the code
