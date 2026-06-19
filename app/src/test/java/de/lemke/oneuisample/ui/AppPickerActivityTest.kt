@@ -40,7 +40,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 private fun View.findSearchView(): SearchView? =
-    (this as? SearchView) ?: (this as? ViewGroup)?.let { vg ->
+    this as? SearchView ?: (this as? ViewGroup)?.let { vg ->
         (0 until vg.childCount).firstNotNullOfOrNull { vg.getChildAt(it).findSearchView() }
     }
 
