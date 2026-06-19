@@ -16,54 +16,81 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7.0.0
-        with: { persist-credentials: false }
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
-      - uses: actions/setup-java@v5
-        with: { distribution: temurin, java-version: '21' }
-      - uses: gradle/actions/setup-gradle@v6
-      - run: chmod +x ./gradlew && ./gradlew spotlessCheck detekt --stacktrace
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: Run formatting checks
+        run: chmod +x ./gradlew && ./gradlew spotlessCheck detekt --stacktrace
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-      - if: always()
+      - name: Upload detekt report
+        if: always()
         uses: actions/upload-artifact@v7
-        with: { name: detekt-report, path: app/build/reports/detekt/ }
+        with:
+          name: detekt-report
+          path: app/build/reports/detekt/
 
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: check-formatting
     steps:
-      - uses: actions/checkout@v7.0.0
-        with: { persist-credentials: false }
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
-      - uses: actions/setup-java@v5
-        with: { distribution: temurin, java-version: '21' }
-      - uses: gradle/actions/setup-gradle@v6
-      - run: chmod +x ./gradlew && ./gradlew lintDebug --stacktrace
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: Run lint
+        run: chmod +x ./gradlew && ./gradlew lintDebug --stacktrace
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-      - if: always()
+      - name: Upload lint report
+        if: always()
         uses: actions/upload-artifact@v7
-        with: { name: lint-report, path: app/build/reports/lint-results-* }
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-*
 
   unit-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: check-formatting
     steps:
-      - uses: actions/checkout@v7.0.0
-        with: { persist-credentials: false }
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
-      - uses: actions/setup-java@v5
-        with: { distribution: temurin, java-version: '21' }
-      - uses: gradle/actions/setup-gradle@v6
-      - run: chmod +x ./gradlew && ./gradlew testDebugUnitTest koverXmlReportDebug koverHtmlReportDebug koverVerifyDebug --stacktrace
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: Run unit tests
+        run: chmod +x ./gradlew && ./gradlew testDebugUnitTest koverXmlReportDebug koverHtmlReportDebug koverVerifyDebug --stacktrace
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
@@ -78,7 +105,8 @@ jobs:
         with:
           files: app/build/test-results/testDebugUnitTest/*.xml
           flags: unittests
-      - if: failure()
+      - name: Upload coverage report on failure
+        if: failure()
         uses: actions/upload-artifact@v7
         with:
           name: kover-coverage-report
@@ -89,33 +117,49 @@ jobs:
     timeout-minutes: 30
     needs: check-formatting
     steps:
-      - uses: actions/checkout@v7.0.0
-        with: { persist-credentials: false }
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
-      - uses: actions/setup-java@v5
-        with: { distribution: temurin, java-version: '21' }
-      - uses: gradle/actions/setup-gradle@v6
-      - run: chmod +x ./gradlew && ./gradlew verifyRoborazziDebug --stacktrace
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: Verify screenshots
+        run: chmod +x ./gradlew && ./gradlew verifyRoborazziDebug --stacktrace
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-      - if: failure()
+      - name: Upload diff on failure
+        if: failure()
         uses: actions/upload-artifact@v7
-        with: { name: roborazzi-diff, path: app/build/reports/roborazzi/ }
+        with:
+          name: roborazzi-diff
+          path: app/build/reports/roborazzi/
 
   instrumented-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     needs: check-formatting
     steps:
-      - uses: actions/checkout@v6
-        with: { persist-credentials: false }
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
-      - uses: actions/setup-java@v5
-        with: { distribution: temurin, java-version: '21' }
-      - uses: gradle/actions/setup-gradle@v6
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
@@ -133,14 +177,21 @@ jobs:
     timeout-minutes: 30
     needs: [ lint, unit-tests, screenshot-tests, instrumented-tests ]
     steps:
-      - uses: actions/checkout@v7.0.0
-        with: { persist-credentials: false }
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Copy CI gradle.properties
         run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
-      - uses: actions/setup-java@v5
-        with: { distribution: temurin, java-version: '21' }
-      - uses: gradle/actions/setup-gradle@v6
-      - run: chmod +x ./gradlew && ./gradlew assembleRelease --stacktrace
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: Assemble
+        run: chmod +x ./gradlew && ./gradlew assembleRelease --stacktrace
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
