@@ -35,6 +35,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.ItemTouchHelper.END
 import androidx.recyclerview.widget.ItemTouchHelper.START
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieProperty.COLOR_FILTER
 import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
@@ -42,6 +43,7 @@ import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.data.withListener
 import de.lemke.oneuisample.databinding.DialogSettingsBinding
@@ -104,14 +106,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         setupMenuProvider()
         userSettings.searchActive = false
         launchAndRepeatWithViewLifecycle { observeIconList().collectLatest { updateList(it) } }
-        launchAndRepeatWithViewLifecycle {
-            userSettings.flow.collectLatest { settings ->
-                binding.iconList.seslSetFastScrollerEnabled(!settings.showIndexScroll)
-                binding.iconIndexScroll.isVisible = settings.showIndexScroll
-                binding.iconIndexScroll.setIndexBarTextMode(settings.indexScrollShowLetters)
-                binding.iconIndexScroll.setAutoHide(settings.indexScrollAutoHide)
-            }
-        }
+        launchAndRepeatWithViewLifecycle { userSettings.flow.collectLatest(::applyUserSettings) }
         binding.noEntryView.translateYWithAppBar(requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout).appBarLayout, this)
     }
 
@@ -205,6 +200,26 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         return true
     }
 
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun applyUserSettings(settings: UserSettings) {
+        binding.iconList.seslSetFastScrollerEnabled(!settings.showIndexScroll)
+        binding.iconIndexScroll.isVisible = settings.showIndexScroll
+        binding.iconIndexScroll.setIndexBarTextMode(settings.indexScrollShowLetters)
+        binding.iconIndexScroll.setAutoHide(settings.indexScrollAutoHide)
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun isSwipeEnabled(
+        @Suppress("UNUSED_PARAMETER") viewHolder: RecyclerView.ViewHolder,
+    ): Boolean = !drawerLayout.isActionMode
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onIconSwipeCallback(
+        position: Int,
+        direction: Int,
+        @Suppress("UNUSED_PARAMETER") actionState: Int,
+    ): Boolean = onIconSwiped(position, direction)
+
     private fun configureItemSwipeAnimator() {
         binding.iconList.configureItemSwipeAnimator(
             leftToRightLabel = "Left to Right",
@@ -213,9 +228,9 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             rightToLeftColor = "#31a5f3".toColorInt(),
             leftToRightDrawableRes = iconsR.drawable.ic_oui_arrow_right,
             rightToLeftDrawableRes = iconsR.drawable.ic_oui_arrow_left,
-            isLeftSwipeEnabled = { !drawerLayout.isActionMode },
-            isRightSwipeEnabled = { !drawerLayout.isActionMode },
-            onSwiped = { position, swipeDirection, _ -> onIconSwiped(position, swipeDirection) },
+            isLeftSwipeEnabled = ::isSwipeEnabled,
+            isRightSwipeEnabled = ::isSwipeEnabled,
+            onSwiped = ::onIconSwipeCallback,
         )
     }
 
@@ -246,7 +261,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         drawerLayout.startActionMode(
             onInflateMenu = { menu, menuInflater -> menuInflater.inflate(R.menu.select, menu) },
             onEnd = { iconAdapter.toggleActionMode(false) },
-            onSelectMenuItem = { onActionModeMenuItemSelected(it) },
+            onSelectMenuItem = ::onActionModeMenuItemSelected,
             onSelectAll = { isChecked: Boolean -> iconAdapter.onToggleSelectAll(isChecked) },
             allSelectorStateFlow = allSelectorStateFlow,
             searchOnActionMode = userSettings.searchOnActionMode.withListener(searchModeListener),

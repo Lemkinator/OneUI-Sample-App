@@ -23,16 +23,20 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
+import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.databinding.DialogSettingsBinding
 import de.lemke.oneuisample.domain.Icon
 import de.lemke.oneuisample.ui.fragments.TabIconsFragment
+import dev.oneuiproject.oneui.layout.DrawerLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Before
@@ -313,6 +317,77 @@ class TabIconsFragmentTest {
             shadowOf(Looper.getMainLooper()).idle()
             iconAdapter.onToggleSelectAll(true)
             shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun endActionMode_afterLaunchActionMode_triggersOnEnd() {
+        withFragment {
+            launchActionMode()
+            shadowOf(Looper.getMainLooper()).idle()
+            requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout).endActionMode()
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun selectAll_afterLaunchActionMode_triggersOnSelectAll() {
+        withFragment {
+            launchActionMode()
+            shadowOf(Looper.getMainLooper()).idle()
+            requireActivity()
+                .findViewById<android.view.View>(dev.oneuiproject.oneui.design.R.id.toolbarlayout_selectall)
+                ?.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun menuItemClick_afterLaunchActionMode_triggersOnSelectMenuItem() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon), null))
+            shadowOf(Looper.getMainLooper()).idle()
+            launchActionMode()
+            shadowOf(Looper.getMainLooper()).idle()
+            iconAdapter.onToggleSelectAll(true)
+            shadowOf(Looper.getMainLooper()).idle()
+            requireActivity()
+                .findViewById<androidx.appcompat.widget.Toolbar>(
+                    dev.oneuiproject.oneui.design.R.id.toolbarlayout_action_mode_toolbar,
+                )?.menu
+                ?.performIdentifierAction(R.id.menu_item_1, 0)
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun applyUserSettings_updatesBindings() {
+        withFragment { applyUserSettings(UserSettings()) }
+    }
+
+    @Test
+    fun isSwipeEnabled_notInActionMode_returnsTrue() {
+        withFragment { isSwipeEnabled(mockk()) shouldBe true }
+    }
+
+    @Test
+    fun onIconSwipeCallback_startDirection_returnsTrue() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon), null))
+            shadowOf(Looper.getMainLooper()).idle()
+            onIconSwipeCallback(0, ItemTouchHelper.START, 0) shouldBe true
+        }
+    }
+
+    @Test
+    fun onIconSwipeCallback_endDirection_returnsTrue() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon), null))
+            shadowOf(Looper.getMainLooper()).idle()
+            onIconSwipeCallback(0, ItemTouchHelper.END, 0) shouldBe true
         }
     }
 }

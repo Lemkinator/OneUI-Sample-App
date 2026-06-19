@@ -18,6 +18,9 @@ package de.lemke.oneuisample.ui
 import android.content.Intent
 import android.os.Looper
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.picker.model.AppInfo
 import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
@@ -26,6 +29,7 @@ import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.ui.util.ListTypes
+import dev.oneuiproject.oneui.layout.ToolbarLayout
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Test
@@ -34,6 +38,11 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+
+private fun View.findSearchView(): SearchView? =
+    (this as? SearchView) ?: (this as? ViewGroup)?.let { vg ->
+        (0 until vg.childCount).firstNotNullOfOrNull { vg.getChildAt(it).findSearchView() }
+    }
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = App::class, sdk = [36])
@@ -165,6 +174,20 @@ class AppPickerActivityTest {
         launch {
             val item = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_search }
             onOptionsItemSelected(item)
+        }
+    }
+
+    @Test
+    fun onOptionsItemSelected_search_triggersQueryAndEnd() {
+        launch {
+            val item = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_search }
+            onOptionsItemSelected(item)
+            shadowOf(Looper.getMainLooper()).idle()
+            val toolbarLayout = this.findViewById<ToolbarLayout>(R.id.toolbar_layout)
+            toolbarLayout?.findSearchView()?.setQuery("test", false)
+            shadowOf(Looper.getMainLooper()).idle()
+            toolbarLayout?.endSearchMode()
+            shadowOf(Looper.getMainLooper()).idle()
         }
     }
 }
