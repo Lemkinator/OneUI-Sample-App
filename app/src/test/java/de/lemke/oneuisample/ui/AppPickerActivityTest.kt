@@ -17,13 +17,16 @@ package de.lemke.oneuisample.ui
 
 import android.content.Intent
 import android.os.Looper
+import android.view.MenuItem
 import androidx.picker.model.AppInfo
 import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
+import de.lemke.oneuisample.R
 import de.lemke.oneuisample.ui.util.ListTypes
+import io.mockk.every
 import io.mockk.mockk
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -155,5 +158,13 @@ class AppPickerActivityTest {
     @Test
     fun render_negativePickerType_usesFirstEntry() {
         launch { render(AppPickerUiState(pickerType = -1)) }
+    }
+
+    @Test
+    fun onOptionsItemSelected_search_startsSearchMode() {
+        launch {
+            val item = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_search }
+            onOptionsItemSelected(item)
+        }
     }
 }

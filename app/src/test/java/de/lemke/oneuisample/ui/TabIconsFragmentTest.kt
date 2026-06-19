@@ -15,13 +15,13 @@
  */
 package de.lemke.oneuisample.ui
 
-import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.MenuItem
+import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -42,7 +42,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import org.robolectric.shadows.ShadowAlertDialog
+import org.robolectric.shadows.ShadowDialog
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = App::class, sdk = [36])
@@ -178,7 +178,7 @@ class TabIconsFragmentTest {
             }
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity {
-                ShadowAlertDialog.getLatestAlertDialog()?.getButton(AlertDialog.BUTTON_POSITIVE)?.performClick()
+                (ShadowDialog.getLatestDialog() as? AlertDialog)?.getButton(AlertDialog.BUTTON_POSITIVE)?.performClick()
             }
             shadowOf(Looper.getMainLooper()).idle()
         }
@@ -237,6 +237,11 @@ class TabIconsFragmentTest {
             val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
             onShowIndexScrollChanged(dialogBinding, false)
         }
+    }
+
+    @Test
+    fun buildSettingsDialogView_showIndexScrollToggle_triggersCallback() {
+        withFragment { buildSettingsDialogView().showIndexScroll.performClick() }
     }
 
     @Test

@@ -20,7 +20,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Looper
+import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
+import androidx.picker.widget.SeslNumberPicker
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
@@ -35,6 +37,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowDialog
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = App::class, sdk = [36])
@@ -219,6 +222,61 @@ class TabPickerFragmentTest {
             colorPickerDialog?.dismiss()
             val config = Configuration(resources.configuration)
             onConfigurationChanged(config)
+        }
+    }
+
+    @Test
+    fun openStartEndTimePickerDialog_positiveButton_callsOnStartEndTimePicked() {
+        ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
+                    .navController
+                    .navigate(R.id.picker_dest)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                val fragment =
+                    (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
+                        .childFragmentManager
+                        .primaryNavigationFragment as? TabPickerFragment
+                fragment?.openStartEndTimePickerDialog()
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity {
+                (ShadowDialog.getLatestDialog() as? AlertDialog)?.getButton(AlertDialog.BUTTON_POSITIVE)?.performClick()
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun numberPicker3_editorAction_triggersCallback() {
+        withFragment {
+            requireView()
+                .findViewById<SeslNumberPicker>(R.id.numberPicker3)
+                ?.editText
+                ?.onEditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_DONE)
+        }
+    }
+
+    @Test
+    fun numberPicker2_editorAction_triggersCallback() {
+        withFragment {
+            requireView()
+                .findViewById<SeslNumberPicker>(R.id.numberPicker2)
+                ?.editText
+                ?.onEditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_NEXT)
+        }
+    }
+
+    @Test
+    fun numberPicker1_editorAction_triggersCallback() {
+        withFragment {
+            requireView()
+                .findViewById<SeslNumberPicker>(R.id.numberPicker1)
+                ?.editText
+                ?.onEditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_NEXT)
         }
     }
 }

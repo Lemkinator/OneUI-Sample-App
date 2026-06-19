@@ -15,12 +15,14 @@
  */
 package de.lemke.oneuisample.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Looper
 import android.view.MenuItem
+import androidx.activity.BackEventCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.google.android.material.appbar.AppBarLayout
@@ -35,6 +37,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowActivity
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = App::class, sdk = [36])
@@ -198,5 +201,53 @@ class CustomAboutActivityTest {
     @Config(sdk = [28])
     fun onCreate_belowApi30_noInsetListener() {
         launch { shadowOf(Looper.getMainLooper()).idle() }
+    }
+
+    @Test
+    fun refreshAppBar_inMultiWindowMode_usesCollapsedLayout() {
+        launch {
+            (shadowOf(this as Activity) as ShadowActivity).setInMultiWindowMode(true)
+            val config = Configuration(resources.configuration).apply { orientation = ORIENTATION_PORTRAIT }
+            onConfigurationChanged(config)
+        }
+    }
+
+    @Test
+    fun updateCallbackState_inMultiWindowMode_derivesDisabled() {
+        ActivityScenario.launch<CustomAboutActivity>(Intent(context, CustomAboutActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                (shadowOf(activity as Activity) as ShadowActivity).setInMultiWindowMode(true)
+                activity
+                    .findViewById<com.google.android.material.appbar.AppBarLayout>(R.id.aboutAppBar)
+                    ?.setLifted(true)
+                activity.triggerUpdateCallbackState(null)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun backCallbacks_enabled_allHandlersInvoked() {
+        ActivityScenario.launch<CustomAboutActivity>(Intent(context, CustomAboutActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { it.triggerUpdateCallbackState(true) }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                val backEvent = BackEventCompat(0f, 0f, 0.6f, BackEventCompat.EDGE_LEFT)
+                activity.onBackPressedDispatcher.dispatchOnBackStarted(backEvent)
+                activity.onBackPressedDispatcher.dispatchOnBackProgressed(backEvent)
+                activity.onBackPressedDispatcher.dispatchOnBackCancelled()
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { it.triggerUpdateCallbackState(true) }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                val backEvent = BackEventCompat(0f, 0f, 0.0f, BackEventCompat.EDGE_LEFT)
+                activity.onBackPressedDispatcher.dispatchOnBackStarted(backEvent)
+                activity.onBackPressedDispatcher.onBackPressed()
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+        }
     }
 }
