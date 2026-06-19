@@ -29,7 +29,7 @@ junit-jupiter = "6.1.0"
 junit-platform = "6.1.0"
 junit4 = "4.13.2"
 konsist = "0.17.3"
-kotest = "6.2.0"
+kotest = "6.2.1"
 # Hilt 2.59.2 does not support Kotlin 2.4.0 metadata, noinspection until a Hilt version ships with Kotlin 2.4 compatibility
 #noinspection NewerVersionAvailable
 kotlin = "2.3.21"
