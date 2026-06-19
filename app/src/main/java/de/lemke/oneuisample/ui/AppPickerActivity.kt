@@ -76,29 +76,29 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
-            R.id.menu_app_picker_search -> SearchModeStarter().start().let { true }
-            else -> false
-        }
+            R.id.menu_app_picker_search -> {
+                binding.toolbarLayout.startSearchMode(
+                    onStart = {
+                        it.queryHint = "Search apps"
+                        binding.appPickerSpinner.isEnabled = false
+                    },
+                    onQuery = { query, _ ->
+                        applyFilter(query)
+                        true
+                    },
+                    onEnd = {
+                        applyFilter()
+                        binding.appPickerSpinner.isEnabled = true
+                    },
+                    onBackBehavior = CLEAR_DISMISS,
+                )
+                true
+            }
 
-    private inner class SearchModeStarter {
-        fun start() {
-            binding.toolbarLayout.startSearchMode(
-                onStart = {
-                    it.queryHint = "Search apps"
-                    binding.appPickerSpinner.isEnabled = false
-                },
-                onQuery = { query, _ ->
-                    applyFilter(query)
-                    true
-                },
-                onEnd = {
-                    applyFilter()
-                    binding.appPickerSpinner.isEnabled = true
-                },
-                onBackBehavior = CLEAR_DISMISS,
-            )
+            else -> {
+                false
+            }
         }
-    }
 
     private fun initSpinner() {
         binding.appPickerSpinner.apply {

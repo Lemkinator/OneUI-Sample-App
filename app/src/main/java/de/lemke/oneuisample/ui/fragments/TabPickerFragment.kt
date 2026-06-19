@@ -97,15 +97,9 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
             setTextSize(40f)
             editText.imeOptions = IME_FLAG_NO_FULLSCREEN or IME_ACTION_NEXT
         }
-        NumberPickerListenerSetup().setup()
-    }
-
-    private inner class NumberPickerListenerSetup {
-        fun setup() {
-            binding.numberPicker3.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker3EditorAction(actionId) }
-            binding.numberPicker2.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker2EditorAction(actionId) }
-            binding.numberPicker1.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker1EditorAction(actionId) }
-        }
+        binding.numberPicker3.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker3EditorAction(actionId) }
+        binding.numberPicker2.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker2EditorAction(actionId) }
+        binding.numberPicker1.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker1EditorAction(actionId) }
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
@@ -201,15 +195,9 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun openStartEndTimePickerDialog() {
-        StartEndTimePickerHelper().show()
-    }
-
-    private inner class StartEndTimePickerHelper {
-        fun show() {
-            StartEndTimePickerDialog(requireContext(), 0, 600, is24HourFormat(requireContext())) { startTime, endTime ->
-                onStartEndTimePicked(startTime, endTime)
-            }.show()
-        }
+        StartEndTimePickerDialog(requireContext(), 0, 600, is24HourFormat(requireContext())) { startTime, endTime ->
+            onStartEndTimePicked(startTime, endTime)
+        }.show()
     }
 
     @VisibleForTesting(otherwise = PRIVATE)

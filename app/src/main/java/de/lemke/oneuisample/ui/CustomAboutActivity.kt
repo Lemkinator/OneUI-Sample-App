@@ -97,22 +97,15 @@ class CustomAboutActivity : AppCompatActivity() {
         }
     }
 
-    @NoCoverage
     private fun initOnBackPressed() {
-        BackCallbacksSetup().init()
+        invokeOnBack(
+            triggerStateFlow = callbackIsActive,
+            onBackPressed = { simulateOnBackPressed() },
+            onBackStarted = { simulateOnBackStarted() },
+            onBackProgressed = { simulateOnBackProgressed(it.progress) },
+            onBackCancelled = { simulateOnBackCancelled() },
+        )
         updateCallbackState()
-    }
-
-    private inner class BackCallbacksSetup {
-        fun init() {
-            invokeOnBack(
-                triggerStateFlow = callbackIsActive,
-                onBackPressed = { simulateOnBackPressed() },
-                onBackStarted = { simulateOnBackStarted() },
-                onBackProgressed = { simulateOnBackProgressed(it.progress) },
-                onBackCancelled = { simulateOnBackCancelled() },
-            )
-        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -141,7 +134,6 @@ class CustomAboutActivity : AppCompatActivity() {
         return false
     }
 
-    @NoCoverage
     @SuppressLint("RestrictedApi")
     private fun refreshAppBar(config: Configuration) {
         if (config.orientation != ORIENTATION_LANDSCAPE && !isInMultiWindowModeCompat) {
@@ -267,9 +259,11 @@ class CustomAboutActivity : AppCompatActivity() {
     }
 
     @NoCoverage
+    private fun isCallbackEnabled(): Boolean =
+        binding.aboutAppBar.seslIsCollapsed() && isPortrait(resources.configuration) && !isInMultiWindowModeCompat
+
     private fun updateCallbackState(enable: Boolean? = null) {
         if (isBackProgressing) return
-        callbackIsActive.value =
-            enable ?: (binding.aboutAppBar.seslIsCollapsed() && isPortrait(resources.configuration) && !isInMultiWindowModeCompat)
+        callbackIsActive.value = enable ?: isCallbackEnabled()
     }
 }

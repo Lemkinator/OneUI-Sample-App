@@ -27,6 +27,8 @@ import android.view.View
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.LottieProperty.COLOR_FILTER
@@ -51,6 +53,7 @@ class SubtabWidgetsFragment : Fragment() {
     private val binding by autoCleared { FragmentTabDesignSubtabWidgetsBinding.bind(requireView()) }
     private val faceJsons = listOf("great_face.json", "good_face.json", "checking_face.json", "sad_face.json")
     private val faceJsonNames = listOf("Great Face", "Good Face", "Checking Face", "Sad Face")
+    private var progressJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -73,7 +76,7 @@ class SubtabWidgetsFragment : Fragment() {
         binding.bottomTipView.setOnLinkClickListener { suggestiveSnackBar("Bottom Tip View Link Clicked") }
         binding.relativeLink1.setOnClickListener { suggestiveSnackBar("Relative Link 1 Clicked") }
         binding.relativeLink2.setOnClickListener { suggestiveSnackBar("Relative Link 2 Clicked") }
-        SwitchBarSetup().setup()
+        binding.switchBar.addOnSwitchChangeListener { _, _ -> onSwitchToggled() }
         binding.fragmentSpinner.adapter =
             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, faceJsonNames).apply {
                 setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -95,20 +98,14 @@ class SubtabWidgetsFragment : Fragment() {
         if (SDK_INT >= Q) binding.root.seslSetGoToTopEnabled(true)
     }
 
-    private inner class SwitchBarSetup {
-        private var progressJob: Job? = null
-
-        fun setup() {
-            val switchBar = binding.switchBar
-            switchBar.addOnSwitchChangeListener { _, _ ->
-                switchBar.setProgressBarVisible(true)
-                progressJob?.cancel()
-                progressJob =
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        delay(1.seconds)
-                        switchBar.setProgressBarVisible(false)
-                    }
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onSwitchToggled() {
+        binding.switchBar.setProgressBarVisible(true)
+        progressJob?.cancel()
+        progressJob =
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(1.seconds)
+                binding.switchBar.setProgressBarVisible(false)
             }
-        }
     }
 }
