@@ -255,16 +255,14 @@ kover {
                     "de.lemke.oneuisample.ui.fragments.SubtabProgressBarFragment*",
                     // iconAdapter lazy lambda — onAllSelectorStateChanged callback (infrastructure, not testable via public API)
                     "*TabIconsFragment*iconAdapter*",
-                    // Inner classes wrapping inline/crossinline lambda bridges that can't be tested
-                    "*ActionModeLauncher*",
-                    "*SwipeAnimatorSetup*",
-                    "*SettingsDialogSetup*",
-                    "*CoroutineSetup*",
-                    "*BackCallbacksSetup*",
-                    "*SearchModeStarter*",
-                    "*SwitchBarSetup*",
-                    "*NumberPickerListenerSetup*",
-                    "*StartEndTimePickerHelper*",
+                    // SwipeActionListener — ItemTouchHelper callbacks not triggerable in Robolectric unit tests
+                    "*TabIconsFragment*configureItemSwipeAnimator*",
+                    // ActionModeListener — action mode menu/select callbacks not triggerable in Robolectric unit tests
+                    "*TabIconsFragment*launchActionMode*",
+                    // SearchModeListener — ToolbarLayout search callbacks not reliably triggerable in Robolectric unit tests
+                    "*AppPickerActivity*onOptionsItemSelected*",
+                    // invokeOnBack anonymous OnBackPressedCallback + coroutine classes — 0 instructions, method-only stubs
+                    "*CustomAboutActivity*initOnBackPressed*",
                 )
                 annotatedBy("de.lemke.oneuisample.NoCoverage")
             }
