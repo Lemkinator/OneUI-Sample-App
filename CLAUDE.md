@@ -50,8 +50,11 @@ State collected via `flowWithLifecycle(lifecycle).collectLatest { }` in `lifecyc
 
 ## Robolectric + JUnit 5
 
-`@RunWith(RobolectricTestRunner::class)` + `junit-vintage-engine` is correct — Robolectric has no native JUnit 5 support. Keep until
-Robolectric ships native JUnit 5.
+**Do not migrate Robolectric tests to JUnit 5.** `org.robolectric.junit.jupiter.RobolectricExtension` does not exist — Robolectric has no
+native JUnit 5 support ([issue #3477](https://github.com/robolectric/robolectric/issues/3477)). The community extension
+`tech.apter.junit5.jupiter:robolectric-extension` only targets Robolectric 4.14.1, is pre-release, and has no Hilt/Roborazzi support.
+
+`@RunWith(RobolectricTestRunner::class)` + `junit-vintage-engine` is correct. Keep until Robolectric ships native JUnit 5.
 
 ## Dependency Version Policy
 
@@ -72,8 +75,8 @@ Four tools run as part of `./gradlew build`:
 
 - **Spotless** — enforces formatting via ktlint (sole ktlint driver; Detekt has no ktlint wrapper). Fix violations with
   `./gradlew spotlessApply`.
-- **Detekt** — static analysis; config at `config/detekt/detekt.yml`. `autoCorrect = false` — fixes are manual.
-- **Kover** — 95% INSTRUCTION + BRANCH coverage required. Verify: `./gradlew koverVerifyDebug`.
+- **Detekt** — static analysis; config at `config/detekt/detekt.yml`. `autoCorrect = false`.
+- **Kover** — coverage; verify threshold with `./gradlew koverVerifyDebug`.
 - **Konsist** — architecture rules in `app/src/test/java/de/lemke/oneuisample/ArchitectureTest.kt`. Enforces `data/domain/ui` layering. Runs
   as part of `./gradlew test`.
 
