@@ -35,7 +35,7 @@ Release signing properties (`releaseStoreFile`, `releaseStorePassword`, `release
 
 ## Architecture
 
-Single-module (`:app`) Android app demonstrating OneUI-Design components. Layered architecture (data/domain/ui) without ViewModels -
+Single-module (`:app`) Android app demonstrating OneUI-Design components. Layered architecture (data/domain/ui) without ViewModels.
 Activities and Fragments inject use cases directly:
 
 - **`data/`** - `UserSettingsRepository`: DataStore Preferences CRUD
@@ -64,10 +64,10 @@ Renovate keeps minor/patch current; bump majors manually with release-note revie
 Known exceptions:
 
 1. Kotlin + KSP lockstep - Renovate's `kotlin` group enforces this
-2. Detekt on fresh Kotlin majors - may need alpha until stable catches up
-3. Plugin AGP compatibility windows - check before bumping AGP
-4. CI emulator images - pin to most stable, not newest
-5. benchmark-macro - use 1.5.0-alpha06+ with AGP 9.x until 1.5.0 stable
+2. Detekt on fresh Kotlin majors. May need alpha until stable catches up
+3. Plugin AGP compatibility windows, check before bumping AGP
+4. CI emulator images, pin to most stable, not newest
+5. benchmark-macro, use 1.5.0-alpha06+ with AGP 9.x until 1.5.0 stable
 
 ## Static Analysis
 
@@ -90,16 +90,16 @@ git config core.hooksPath .githooks
 The hook runs `spotlessCheck` and exits 1 with a `./gradlew spotlessApply` reminder on failure. It also fails fast with a targeted message
 if `core.autocrlf=true` is detected.
 
-**After any change** - run the full local CI suite before declaring work done:
+**After any change** run the full local CI suite before declaring work done:
 
 ```powershell
 ./gradlew spotlessCheck detekt lintDebug testDebugUnitTest koverVerifyDebug verifyRoborazziDebug pixel9Api35DebugAndroidTest assembleRelease
 ```
 
 If `spotlessCheck` fails, fix with `./gradlew spotlessApply` then re-run. Screenshot test failures (`verifyRoborazziDebug`) mean the code
-change broke a visual - do not analyze screenshots, ask the user to verify the changes.
+change broke a visual. Do not analyze screenshots, ask the user to verify the changes.
 
-**Dependency analysis** - manual hygiene tool (not in CI). Invoke with:
+**Dependency analysis**, manual hygiene tool (not in CI). Invoke with:
 
 ```powershell
 ./gradlew buildHealth
@@ -107,7 +107,7 @@ change broke a visual - do not analyze screenshots, ask the user to verify the c
 
 Report at `build/reports/dependency-analysis/build-health-report.txt`. Review unused/misconfigured deps case-by-case.
 
-**ktlint rule overrides** - two rules disabled in `.editorconfig` to match community practice (NowInAndroid, Pokedex both use the inline
+**ktlint rule overrides**: two rules disabled in `.editorconfig` to match community practice (NowInAndroid, Pokedex both use the inline
 form):
 
 - `ktlint_standard_annotation = disabled` - ktlint 1.7+ moves `@Inject` before `constructor` onto its own continuation line,
