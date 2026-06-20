@@ -1,3 +1,18 @@
+/*
+ * Copyright 2022-2026 Leonard Lemke
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.lemke.oneuisample.ui
 
 import android.annotation.SuppressLint
@@ -13,6 +28,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.WindowInsets.Type.systemBars
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.animation.PathInterpolatorCompat
@@ -23,6 +40,7 @@ import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.BuildConfig.APPLICATION_ID
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
+import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityCustomAboutBinding
 import de.lemke.oneuisample.ui.util.openURL
@@ -58,6 +76,7 @@ class CustomAboutActivity : AppCompatActivity() {
         initOnBackPressed()
     }
 
+    @NoCoverage
     private fun applyInsetIfNeeded() {
         if (SDK_INT >= 30 && !window.decorView.fitsSystemWindows) {
             binding.root.setOnApplyWindowInsetsListener { _, insets ->
@@ -81,27 +100,10 @@ class CustomAboutActivity : AppCompatActivity() {
     private fun initOnBackPressed() {
         invokeOnBack(
             triggerStateFlow = callbackIsActive,
-            onBackPressed = {
-                binding.aboutAppBar.setExpanded(true)
-                isBackProgressing = false
-                isExpanding = false
-            },
-            onBackStarted = { isBackProgressing = true },
-            onBackProgressed = {
-                val interpolatedProgress = progressInterpolator.getInterpolation(it.progress)
-                if (interpolatedProgress > .5 && !isExpanding) {
-                    isExpanding = true
-                    binding.aboutAppBar.setExpanded(true, true)
-                } else if (interpolatedProgress < .3 && isExpanding) {
-                    isExpanding = false
-                    binding.aboutAppBar.setExpanded(false, true)
-                }
-            },
-            onBackCancelled = {
-                binding.aboutAppBar.setExpanded(false)
-                isBackProgressing = false
-                isExpanding = false
-            },
+            onBackPressed = { simulateOnBackPressed() },
+            onBackStarted = { simulateOnBackStarted() },
+            onBackProgressed = { simulateOnBackProgressed(it.progress) },
+            onBackCancelled = { simulateOnBackCancelled() },
         )
         updateCallbackState()
     }
@@ -187,6 +189,48 @@ class CustomAboutActivity : AppCompatActivity() {
         }
     }
 
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun simulateAppBarOffsetChanged(
+        appBarLayout: AppBarLayout,
+        verticalOffset: Int,
+    ) {
+        appBarListener.onOffsetChanged(appBarLayout, verticalOffset)
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun triggerUpdateCallbackState(enable: Boolean? = null) = updateCallbackState(enable)
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun simulateOnBackStarted() {
+        isBackProgressing = true
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun simulateOnBackProgressed(progress: Float) {
+        val interpolatedProgress = progressInterpolator.getInterpolation(progress)
+        if (interpolatedProgress > .5 && !isExpanding) {
+            isExpanding = true
+            binding.aboutAppBar.setExpanded(true, true)
+        } else if (interpolatedProgress < .3 && isExpanding) {
+            isExpanding = false
+            binding.aboutAppBar.setExpanded(false, true)
+        }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun simulateOnBackPressed() {
+        binding.aboutAppBar.setExpanded(true)
+        isBackProgressing = false
+        isExpanding = false
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun simulateOnBackCancelled() {
+        binding.aboutAppBar.setExpanded(false)
+        isBackProgressing = false
+        isExpanding = false
+    }
+
     private inner class AboutAppBarListener : OnOffsetChangedListener {
         override fun onOffsetChanged(
             appBarLayout: AppBarLayout,
@@ -214,9 +258,12 @@ class CustomAboutActivity : AppCompatActivity() {
         }
     }
 
+    @NoCoverage
+    private fun isCallbackEnabled(): Boolean =
+        binding.aboutAppBar.seslIsCollapsed() && isPortrait(resources.configuration) && !isInMultiWindowModeCompat
+
     private fun updateCallbackState(enable: Boolean? = null) {
         if (isBackProgressing) return
-        callbackIsActive.value =
-            enable ?: (binding.aboutAppBar.seslIsCollapsed() && isPortrait(resources.configuration) && !isInMultiWindowModeCompat)
+        callbackIsActive.value = enable ?: isCallbackEnabled()
     }
 }

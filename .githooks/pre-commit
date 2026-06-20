@@ -8,7 +8,7 @@ if [ "$autocrlf" = "true" ]; then
   exit 1
 fi
 
-./gradlew staticAnalysis -q || {
+./gradlew spotlessCheck detekt -q || {
   echo "✘ Spotless/Detekt violations. Fix with: ./gradlew spotlessApply"
   exit 1
 }

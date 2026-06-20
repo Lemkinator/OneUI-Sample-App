@@ -3,6 +3,8 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.test) apply false
+    alias(libs.plugins.baselineprofile) apply false
     alias(libs.plugins.android.junit) apply false
     alias(libs.plugins.dependency.analysis)
     alias(libs.plugins.detekt) apply false
@@ -59,13 +61,6 @@ allprojects {
     }
 }
 
-tasks.register("staticAnalysis") {
-    group = "verification"
-    description = "Runs Spotless check + Detekt across all subprojects."
-    subprojects.forEach { sub ->
-        dependsOn(sub.tasks.matching { it.name in setOf("spotlessCheck", "detekt") })
-    }
-}
 
 subprojects {
     plugins.withId("com.android.base") {
@@ -73,6 +68,16 @@ subprojects {
             compileOptions.apply {
                 sourceCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
                 targetCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
+            }
+
+            @Suppress("UnstableApiUsage")
+            testOptions.managedDevices.localDevices {
+                register("pixel9Api35") {
+                    device = "Pixel 9"
+                    apiLevel = 35
+                    systemImageSource = "aosp"
+                    testedAbi = "x86_64" // preserve ABI selection before AGP 10.0 changes default to arm64-v8a
+                }
             }
 
             // oneui-design replaces these AOSP AndroidX modules with Samsung forks; exclude

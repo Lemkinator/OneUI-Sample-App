@@ -1,3 +1,18 @@
+/*
+ * Copyright 2022-2026 Leonard Lemke
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 @file:OptIn(ExperimentalRoborazziApi::class)
 
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
@@ -13,6 +28,7 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.roborazzi)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.baselineprofile)
 }
 
 fun String.toEnvVarStyle(): String = replace(Regex("([a-z])([A-Z])"), "$1_$2").uppercase()
@@ -109,21 +125,36 @@ android {
         disable += setOf("IconLocation", "IconMissingDensityFolder")
     }
 }
+androidComponents {
+    listOf("nonMinifiedRelease", "benchmarkRelease").forEach { buildType ->
+        onVariants(selector().withBuildType(buildType)) { variant ->
+            variant.buildConfigFields!!.put(
+                "FIRST_RUN_SKIPPABLE",
+                com.android.build.api.variant
+                    .BuildConfigField("boolean", "true", "Allow benchmarks to skip the first-run chain"),
+            )
+        }
+    }
+}
+
 spotless {
     kotlin {
         target("src/**/*.kt")
         targetExclude("**/build/**", "**/generated/**")
+        licenseHeaderFile(rootProject.file("config/spotless/apache-2.0.kt"))
         ktlint(libs.versions.ktlint.get())
         trimTrailingWhitespace()
         endWithNewline()
     }
     kotlinGradle {
         target("*.gradle.kts")
+        licenseHeaderFile(rootProject.file("config/spotless/apache-2.0.kt"), "(^(?![\\/ ]\\*).*$)")
         ktlint(libs.versions.ktlint.get())
     }
     format("xml") {
         target("src/**/*.xml")
         targetExclude("**/build/**")
+        licenseHeaderFile(rootProject.file("config/spotless/apache-2.0.xml"), "(<[^!?])")
         trimTrailingWhitespace()
         endWithNewline()
     }
@@ -154,6 +185,9 @@ dependencies {
     implementation(libs.core.splashscreen)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
+    implementation(libs.profileinstaller)
+    baselineProfile(project(":benchmarks"))
     debugImplementation(libs.leakcanary)
 
     testImplementation(libs.arch.core.testing)
@@ -175,6 +209,10 @@ dependencies {
     androidTestImplementation(libs.coroutines.test)
     androidTestImplementation(libs.hilt.android.testing)
     kspAndroidTest(libs.hilt.compiler)
+}
+
+baselineProfile {
+    dexLayoutOptimization = true
 }
 
 roborazzi {
@@ -199,24 +237,40 @@ kover {
                     "dagger.hilt.*",
                     "hilt_aggregated_deps.*",
                     "*.di.*",
-                    "*Activity",
-                    "*Activity$*",
-                    "*Fragment",
-                    "*Fragment$*",
-                    "*Adapter",
-                    "*Adapter$*",
-                    "*Receiver",
-                    "*Receiver$*",
                     "*TileService",
                     "*TileService$*",
-                    "*DebugTools*",
                     "*ComposableSingletons$*",
+                    "de.lemke.oneuisample.App",
+                    "de.lemke.oneuisample.ui.LibsActivity*",
+                    "de.lemke.oneuisample.ui.util.SearchHighlighter*",
+                    // SettingsActivity dialog button lambdas — DialogInterface.OnClickListener anonymous classes
+                    "*SettingsFragment*initTosPref*",
+                    "*SettingsFragment*initDeleteAppDataPref*",
+                    "*OOBEActivity*initToSView*",
+                    // TabDesignFragment ViewPager2 callback noop overrides
+                    "*TabDesignFragment*onViewCreated*",
+                    // AppPickerActivity configureAppPicker anonymous OnStateChangeListener
+                    "*AppPickerActivity*configureAppPicker*",
+                    // SubtabProgressBarFragment — infinite coroutine loop with invokeSuspend on main class
+                    "de.lemke.oneuisample.ui.fragments.SubtabProgressBarFragment*",
+                    // iconAdapter lazy lambda — onAllSelectorStateChanged callback (infrastructure, not testable via public API)
+                    "*TabIconsFragment*iconAdapter*",
+                    // SwipeActionListener — ItemTouchHelper callbacks not triggerable in Robolectric unit tests
+                    "*TabIconsFragment*configureItemSwipeAnimator*",
+                    // ActionModeListener — action mode menu/select callbacks not triggerable in Robolectric unit tests
+                    "*TabIconsFragment*launchActionMode*",
+                    // SearchModeListener — ToolbarLayout search callbacks not reliably triggerable in Robolectric unit tests
+                    "*AppPickerActivity*onOptionsItemSelected*",
+                    // invokeOnBack anonymous OnBackPressedCallback + coroutine classes — 0 instructions, method-only stubs
+                    "*CustomAboutActivity*initOnBackPressed*",
                 )
+                annotatedBy("de.lemke.oneuisample.NoCoverage")
             }
         }
         variant("debug") {
             verify {
-                rule { minBound(95) }
+                rule { minBound(100, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.INSTRUCTION) }
+                rule { minBound(100, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH) }
             }
         }
     }

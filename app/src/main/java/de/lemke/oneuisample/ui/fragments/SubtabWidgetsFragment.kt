@@ -1,3 +1,18 @@
+/*
+ * Copyright 2022-2026 Leonard Lemke
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.lemke.oneuisample.ui.fragments
 
 import android.app.SearchManager
@@ -12,7 +27,10 @@ import android.view.View
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.LottieProperty.COLOR_FILTER
 import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
@@ -25,12 +43,17 @@ import de.lemke.oneuisample.ui.MainActivity
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.setEntries
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SubtabWidgetsFragment : Fragment() {
     private val binding by autoCleared { FragmentTabDesignSubtabWidgetsBinding.bind(requireView()) }
     private val faceJsons = listOf("great_face.json", "good_face.json", "checking_face.json", "sad_face.json")
     private val faceJsonNames = listOf("Great Face", "Good Face", "Checking Face", "Sad Face")
+    private var progressJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,12 +76,7 @@ class SubtabWidgetsFragment : Fragment() {
         binding.bottomTipView.setOnLinkClickListener { suggestiveSnackBar("Bottom Tip View Link Clicked") }
         binding.relativeLink1.setOnClickListener { suggestiveSnackBar("Relative Link 1 Clicked") }
         binding.relativeLink2.setOnClickListener { suggestiveSnackBar("Relative Link 2 Clicked") }
-        binding.switchBar.apply {
-            addOnSwitchChangeListener { _, _ ->
-                setProgressBarVisible(true)
-                postDelayed({ setProgressBarVisible(false) }, 1_000)
-            }
-        }
+        binding.switchBar.addOnSwitchChangeListener { _, _ -> onSwitchToggled() }
         binding.fragmentSpinner.adapter =
             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, faceJsonNames).apply {
                 setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -78,5 +96,16 @@ class SubtabWidgetsFragment : Fragment() {
             seslSetOnUpButtonClickListener { suggestiveSnackBar("Search Up Button Clicked") }
         }
         if (SDK_INT >= Q) binding.root.seslSetGoToTopEnabled(true)
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onSwitchToggled() {
+        binding.switchBar.setProgressBarVisible(true)
+        progressJob?.cancel()
+        progressJob =
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(1.seconds)
+                binding.switchBar.setProgressBarVisible(false)
+            }
     }
 }

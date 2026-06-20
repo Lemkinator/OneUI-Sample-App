@@ -1,8 +1,26 @@
+/*
+ * Copyright 2022-2026 Leonard Lemke
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.lemke.oneuisample.ui
 
 import android.content.Intent
 import android.content.Intent.ACTION_SEARCH
 import android.os.Bundle
+import android.view.MenuItem
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -65,43 +83,58 @@ class MainActivity : AppCompatActivity() {
             // isImmersiveScroll = true
             setupNavigation(binding.bottomTab, binding.navigationHost.getFragment())
         }
-        binding.navigationView.findMenuItem(R.id.leaks_dest)?.isVisible = BuildConfig.DEBUG
-        binding.navigationView.onNavigationSingleClick { item ->
-            when (item.itemId) {
-                R.id.oobe_dest -> openOOBEAndFinish()
-                R.id.about_app_dest -> startActivity(Intent(this, AboutActivity::class.java))
-                R.id.about_custom_dest -> startActivity(Intent(this, CustomAboutActivity::class.java))
-                R.id.settings_dest -> startActivity(Intent(this, SettingsActivity::class.java))
-                R.id.bottom_sheet_dest -> BottomSheetFragment().show(supportFragmentManager, null)
-                R.id.leaks_dest -> openLeakCanary(this)
-                else -> return@onNavigationSingleClick false
-            }
-            true
+        binding.navigationView.findMenuItem(R.id.leaks_dest)!!.isVisible = BuildConfig.DEBUG
+        binding.navigationView.onNavigationSingleClick { item -> onNavigationItemSelected(item) }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.oobe_dest -> openOOBEAndFinish()
+            R.id.about_app_dest -> startActivity(Intent(this, AboutActivity::class.java))
+            R.id.about_custom_dest -> startActivity(Intent(this, CustomAboutActivity::class.java))
+            R.id.settings_dest -> startActivity(Intent(this, SettingsActivity::class.java))
+            R.id.bottom_sheet_dest -> BottomSheetFragment().show(supportFragmentManager, null)
+            R.id.leaks_dest -> openLeakCanary(this)
+            else -> return false
         }
+        return true
     }
 
     private fun initPopupMenu() {
-        binding.navigationView.findMenuItem(R.id.popup_menu)?.apply {
-            setOnMenuItemClickListener {
-                if (binding.drawerLayout.drawerOffset == 0f) {
-                    binding.drawerLayout.setDrawerOpen(true)
-                } else {
-                    PopupMenu(this@MainActivity, binding.navigationView.findViewById(R.id.popup_menu)).apply {
-                        seslSetOverlapAnchor(false)
-                        setForceShowIcon(true)
-                        seslSetOffset(140, 0)
-                        inflate(R.menu.menu_popup)
-                        setOnMenuItemClickListener { menuItem ->
-                            title = menuItem.title
-                            suggestiveSnackBar("${menuItem.title} clicked")
-                            true
-                        }
-                        show()
-                    }
-                }
-                true
-            }
+        binding.navigationView.findMenuItem(R.id.popup_menu)!!.setOnMenuItemClickListener { onPopupMenuItemClick() }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onPopupMenuItemClick(): Boolean {
+        if (binding.drawerLayout.drawerOffset == 0f) {
+            binding.drawerLayout.setDrawerOpen(true)
+        } else {
+            openPopupMenu()
         }
+        return true
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun openDrawer() = binding.drawerLayout.setDrawerOpen(true)
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun openPopupMenu() {
+        PopupMenu(this, binding.navigationView.findViewById(R.id.popup_menu)).apply {
+            seslSetOverlapAnchor(false)
+            setForceShowIcon(true)
+            seslSetOffset(140, 0)
+            inflate(R.menu.menu_popup)
+            setOnMenuItemClickListener { menuItem -> onPopupMenuItemClicked(menuItem) }
+            show()
+        }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onPopupMenuItemClicked(menuItem: MenuItem): Boolean {
+        title = menuItem.title
+        suggestiveSnackBar("${menuItem.title} clicked")
+        return true
     }
 
     private fun createSuggestAppBarModel(): SuggestAppBarModel<SuggestAppBarView> =
@@ -114,11 +147,14 @@ class MainActivity : AppCompatActivity() {
                     arrayListOf(
                         ButtonModel(
                             text = "Action Button",
-                            clickListener = { _, _ ->
-                                suggestiveSnackBar("Action button clicked!")
-                            },
+                            clickListener = { _, _ -> onSuggestActionButtonClicked() },
                         ),
                     ),
                 )
             }.build()
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onSuggestActionButtonClicked() {
+        suggestiveSnackBar("Action button clicked!")
+    }
 }

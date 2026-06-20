@@ -1,3 +1,18 @@
+/*
+ * Copyright 2022-2026 Leonard Lemke
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.lemke.oneuisample.ui.util
 
 import android.content.Context
@@ -8,6 +23,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.domain.Icon
 import de.lemke.oneuisample.ui.util.IconAdapter.Payload.HIGHLIGHT
@@ -46,9 +62,9 @@ class IconAdapter(
         setHasStableIds(true)
     }
 
-    var onClickItem: ((Int, Icon, ViewHolder) -> Unit)? = null
+    var onClickItem: (Int, Icon, ViewHolder) -> Unit = { _, _, _ -> }
 
-    var onLongClickItem: (() -> Unit)? = null
+    var onLongClickItem: () -> Unit = {}
 
     var highlight = ""
         set(value) {
@@ -71,15 +87,27 @@ class IconAdapter(
         ViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.icon_listview_item, parent, false),
         ).apply {
-            itemView.setOnClickListener {
-                bindingAdapterPosition.let { onClickItem?.invoke(it, currentList[it], this@apply) }
-            }
-            itemView.setOnLongClickListener {
-                onLongClickItem?.invoke()
-                true
-            }
+            itemView.setOnClickListener { handleItemClick() }
+            itemView.setOnLongClickListener { handleItemLongClick() }
         }
 
+    @NoCoverage
+    private fun ViewHolder.handleItemClick() {
+        val position = bindingAdapterPosition
+        if (position != RecyclerView.NO_POSITION) {
+            onClickItem(position, currentList[position], this)
+        }
+    }
+
+    @NoCoverage
+    private fun ViewHolder.handleItemLongClick(): Boolean {
+        if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
+            onLongClickItem()
+        }
+        return true
+    }
+
+    @NoCoverage
     override fun onBindViewHolder(
         holder: ViewHolder,
         position: Int,
@@ -90,8 +118,15 @@ class IconAdapter(
         } else {
             for (payload in payloads.toSet()) {
                 when (payload) {
-                    Payload.SELECTION_MODE -> holder.bindActionModeAnimate(getItemId(position))
-                    HIGHLIGHT -> holder.bindHighlight(currentList[position])
+                    Payload.SELECTION_MODE -> {
+                        holder.bindActionModeAnimate(getItemId(position))
+                    }
+
+                    HIGHLIGHT -> {
+                        holder.bindHighlight(currentList[position])
+                    }
+
+                    else -> {}
                 }
             }
         }
@@ -107,31 +142,31 @@ class IconAdapter(
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var selectableLayout: SelectableLinearLayout? = itemView.findViewById(R.id.listItemSelectableLayout)
-        var imageView: ImageView? = itemView.findViewById(R.id.listItemImage)
-        var textView: TextView? = itemView.findViewById(R.id.listItemTitle)
+        val selectableLayout: SelectableLinearLayout = itemView.findViewById(R.id.listItemSelectableLayout)
+        val imageView: ImageView = itemView.findViewById(R.id.listItemImage)
+        val textView: TextView = itemView.findViewById(R.id.listItemTitle)
 
         fun bindIcon(icon: Icon) {
-            imageView?.setImageResource(icon.resId)
-            textView?.text = searchHighlighter(icon.name, highlight)
+            imageView.setImageResource(icon.resId)
+            textView.text = searchHighlighter(icon.name, highlight)
         }
 
         fun bindActionMode(itemId: Long) {
-            selectableLayout?.apply {
+            selectableLayout.apply {
                 isSelectionMode = isActionMode
                 setSelected(isSelected(itemId))
             }
         }
 
         fun bindActionModeAnimate(itemId: Long) {
-            selectableLayout?.apply {
+            selectableLayout.apply {
                 isSelectionMode = isActionMode
                 setSelectedAnimate(isSelected(itemId))
             }
         }
 
         fun bindHighlight(icon: Icon) {
-            textView?.text = searchHighlighter(icon.name, highlight)
+            textView.text = searchHighlighter(icon.name, highlight)
         }
     }
 

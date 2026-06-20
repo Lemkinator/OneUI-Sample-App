@@ -1,3 +1,18 @@
+/*
+ * Copyright 2022-2026 Leonard Lemke
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.lemke.oneuisample.ui
 
 import android.content.Context
@@ -6,6 +21,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -23,6 +40,7 @@ import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
 import de.lemke.oneuisample.ui.util.ListTypes
@@ -41,7 +59,9 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     private lateinit var binding: ActivityAppPickerBinding
     private val viewModel: AppPickerViewModel by viewModels()
     private val packageManagerHelper by lazy { AppPickerContext(this).packageManagerHelper }
-    private var currentPicker: SeslAppPickerView? = null
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal var currentPicker: SeslAppPickerView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,22 +77,22 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
             R.id.menu_app_picker_search -> {
-                binding.toolbarLayout
-                    .startSearchMode(
-                        onStart = {
-                            it.queryHint = "Search apps"
-                            binding.appPickerSpinner.isEnabled = false
-                        },
-                        onQuery = { query, _ ->
-                            applyFilter(query)
-                            true
-                        },
-                        onEnd = {
-                            applyFilter()
-                            binding.appPickerSpinner.isEnabled = true
-                        },
-                        onBackBehavior = CLEAR_DISMISS,
-                    ).let { true }
+                binding.toolbarLayout.startSearchMode(
+                    onStart = {
+                        it.queryHint = "Search apps"
+                        binding.appPickerSpinner.isEnabled = false
+                    },
+                    onQuery = { query, _ ->
+                        applyFilter(query)
+                        true
+                    },
+                    onEnd = {
+                        applyFilter()
+                        binding.appPickerSpinner.isEnabled = true
+                    },
+                    onBackBehavior = CLEAR_DISMISS,
+                )
+                true
             }
 
             else -> {
@@ -91,10 +111,36 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     private var renderedPickerType = -1
 
-    private fun render(state: AppPickerUiState) {
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun render(state: AppPickerUiState) {
         if (renderedPickerType == state.pickerType) return
         renderedPickerType = state.pickerType
         setAppPickerType(ListTypes.entries.getOrElse(state.pickerType) { ListTypes.entries.first() })
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onAppItemClick(
+        appPicker: SeslAppPickerView,
+        appInfo: AppInfo,
+    ): Boolean {
+        suggestiveSnackBar("${packageManagerHelper.getAppLabel(appInfo)} clicked!")
+        return if (appPicker is SeslAppPickerGridView) {
+            appPicker.setState(appInfo, !appPicker.getState(appInfo))
+            true
+        } else {
+            false
+        }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onAppItemActionClick(appInfo: AppInfo): Boolean {
+        suggestiveSnackBar("${packageManagerHelper.getAppLabel(appInfo)} action clicked!")
+        return true
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun applyFilter(query: String = "") {
+        currentPicker?.setSearchFilter(query) { updateAppPickerVisibility(it > 0) }
     }
 
     private fun configureAppPicker(appPicker: SeslAppPickerView) {
@@ -103,23 +149,14 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             seslSetIndexTipEnabled(true)
             seslSetFillHorizontalPaddingEnabled(true)
             seslSetFastScrollerAdditionalPadding(10.dpToPx(resources))
-            setOnItemClickEventListener { _, appInfo ->
-                suggestiveSnackBar("${packageManagerHelper.getAppLabel(appInfo)} clicked!")
-                if (appPicker is SeslAppPickerGridView) {
-                    setState(appInfo, !getState(appInfo))
-                    true
-                } else {
-                    false
-                }
-            }
-            setOnItemActionClickEventListener { _, appInfo ->
-                suggestiveSnackBar("${packageManagerHelper.getAppLabel(appInfo)} action clicked!")
-                true
-            }
+            setOnItemClickEventListener { _, appInfo -> onAppItemClick(this, appInfo) }
+            setOnItemActionClickEventListener { _, appInfo -> onAppItemActionClick(appInfo) }
             setOnStateChangeListener(
                 object : OnStateChangeListener {
+                    @NoCoverage
                     override fun onStateAllChanged(isAllSelected: Boolean) = setStateAll(isAllSelected)
 
+                    @NoCoverage
                     override fun onStateChanged(
                         appInfo: AppInfo,
                         isSelected: Boolean,
@@ -132,7 +169,8 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         }
     }
 
-    private fun setAppPickerType(listType: ListTypes) {
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun setAppPickerType(listType: ListTypes) {
         binding.appPickerProgress.isVisible = true
         currentPicker =
             when (listType) {
@@ -168,10 +206,11 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         }
     }
 
-    private fun updateAppPickerVisibility(visible: Boolean) {
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun updateAppPickerVisibility(visible: Boolean) {
         if (visible) {
             binding.noEntryScrollView.isVisible = false
-            currentPicker?.isVisible = true
+            currentPicker!!.isVisible = true
         } else {
             binding.noEntryLottie.cancelAnimation()
             binding.noEntryLottie.progress = 0f
@@ -179,11 +218,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             val callback = LottieValueCallback<ColorFilter>(SimpleColorFilter(getColor(R.color.primary_color_themed)))
             binding.noEntryLottie.addValueCallback(KeyPath("**"), COLOR_FILTER, callback)
             binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, 400)
-            currentPicker?.isVisible = false
+            currentPicker!!.isVisible = false
         }
-    }
-
-    private fun applyFilter(query: String = "") {
-        currentPicker!!.setSearchFilter(query) { updateAppPickerVisibility(it > 0) }
     }
 }
