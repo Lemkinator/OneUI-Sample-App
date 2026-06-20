@@ -30,6 +30,7 @@ class ScrollBenchmark {
             setupBlock = {
                 pressHome()
                 startActivityAndSkipOnboarding()
+                device.findObject(By.text("Icons"))?.click()
                 device.waitAndFindObject(
                     By.res(PACKAGE_NAME, "iconList").hasDescendant(By.clazz("android.widget.TextView")),
                     TIMEOUT_MS,
