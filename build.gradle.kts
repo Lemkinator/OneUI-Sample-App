@@ -84,9 +84,9 @@ subprojects {
             // com.android.test modules (e.g. :benchmarks) are not matched and keep
             // genuine AOSP AndroidX for UiAutomator and benchmark dependencies.
             plugins.withId("com.android.application") {
-                // Exclude from production AND androidTest* configs (not unit-test* which need
-                // real AOSP AndroidX for Robolectric).
-                configurations.matching { !it.name.startsWith("test", ignoreCase = true) }.configureEach {
+                // Exclude from production configs only — unit-test* and androidTest* both need
+                // genuine AOSP AndroidX (Robolectric and Espresso depend on it).
+                configurations.matching { !it.name.contains("test", ignoreCase = true) }.configureEach {
                     exclude(group = "androidx.core", module = "core")
                     exclude(group = "androidx.core", module = "core-ktx")
                     exclude(group = "androidx.customview", module = "customview")
