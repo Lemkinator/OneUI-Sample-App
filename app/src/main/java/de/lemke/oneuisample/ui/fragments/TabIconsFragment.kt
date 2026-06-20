@@ -81,7 +81,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     private val allSelectorStateFlow: MutableStateFlow<AllSelectorState> = MutableStateFlow(AllSelectorState())
 
     @VisibleForTesting(otherwise = PRIVATE)
-    internal val iconAdapter: IconAdapter by lazy {
+    internal val iconAdapter: IconAdapter by autoCleared {
         IconAdapter(
             requireContext(),
             onAllSelectorStateChanged = { allSelectorStateFlow.value = it },
@@ -236,7 +236,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
 
     private fun startSearch() = drawerLayout.startSearchMode(searchModeListener, DISMISS)
 
-    val searchModeListener by lazy {
+    val searchModeListener by autoCleared {
         getSearchListener(userSettings) {
             seslSetOverflowMenuButtonIcon(AppCompatResources.getDrawable(requireContext(), iconsR.drawable.ic_oui_list_filter))
             seslSetOverflowMenuButtonVisibility(VISIBLE)
