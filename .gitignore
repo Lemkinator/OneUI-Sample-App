@@ -1,4 +1,4 @@
-# .idea/ — whitelist: ignore all, allow only project-required files
+# .idea/ — ignore contents, whitelist only what the project needs
 /.idea/*
 !/.idea/.gitignore
 !/.idea/.name
@@ -28,11 +28,11 @@ build/
 .externalNativeBuild
 .cxx
 
-# Credentials / local config
 local.properties
 keystore.properties
 github.properties
-google-services.json
+
 *.jks
 *.keystore
 *.p12
+google-services.json
