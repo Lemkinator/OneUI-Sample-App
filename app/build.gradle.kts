@@ -95,9 +95,10 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            excludes += "/META-INF/LICENSE*"
-            excludes += "/META-INF/licenses/**"
+            excludes += "META-INF/AL2.0"
+            excludes += "META-INF/LGPL2.1"
+            excludes += "META-INF/LICENSE*"
+            excludes += "META-INF/licenses/**"
         }
         jniLibs.useLegacyPackaging = true // sets extractNativeLibs=true; affects only APK install-time .so extraction, not AAB publishing
     }
