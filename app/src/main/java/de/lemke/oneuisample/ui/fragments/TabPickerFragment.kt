@@ -52,8 +52,12 @@ import java.util.Locale
 @AndroidEntryPoint
 class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     private val binding by autoCleared { FragmentTabPickerBinding.bind(requireView()) }
-    private var currentColor = -16547330 // #0381fe
-    private var recentColors: List<Int> = listOf(currentColor)
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal var currentColor = -16547330
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal var recentColors: List<Int> = listOf(currentColor)
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal var colorPickerDialog: SeslColorPickerDialog? = null
