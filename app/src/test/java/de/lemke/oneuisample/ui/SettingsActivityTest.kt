@@ -18,19 +18,21 @@ package de.lemke.oneuisample.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Looper
+import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceScreen
+import androidx.preference.SeslSwitchPreferenceScreen
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettingsRepository
+import io.kotest.matchers.shouldBe
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import org.robolectric.shadows.ShadowAlertDialog
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = App::class, sdk = [36])
@@ -53,6 +55,7 @@ class SettingsActivityTest {
 
     @Test
     fun tosPref_click_showsDialog() {
+        // dialog code is Kover-excluded (*SettingsFragment*initTosPref*); verifies no crash on click
         launch {
             findPreference<PreferenceScreen>("tos_pref")?.performClick()
             shadowOf(Looper.getMainLooper()).idle()
@@ -61,6 +64,7 @@ class SettingsActivityTest {
 
     @Test
     fun deleteAppDataPref_click_showsConfirmationDialog() {
+        // dialog code is Kover-excluded (*SettingsFragment*initDeleteAppDataPref*); verifies no crash
         launch {
             findPreference<PreferenceScreen>("delete_app_data_pref")?.performClick()
             shadowOf(Looper.getMainLooper()).idle()
@@ -120,26 +124,36 @@ class SettingsActivityTest {
     @Test
     fun switchScreenPref_click_startsActivity() {
         launch {
-            findPreference<androidx.preference.SeslSwitchPreferenceScreen>("switch_screen")?.performClick()
+            findPreference<SeslSwitchPreferenceScreen>("switch_screen")?.performClick()
             shadowOf(Looper.getMainLooper()).idle()
+            requireActivity().let { activity ->
+                shadowOf(activity)
+                    .nextStartedActivity
+                    ?.component
+                    ?.className shouldBe SwitchBarActivity::class.java.name
+            }
         }
     }
 
     @Test
     fun switchScreenPref_newValue_true_updatesSummary() {
         launch {
-            findPreference<androidx.preference.SeslSwitchPreferenceScreen>("switch_screen")
+            findPreference<SeslSwitchPreferenceScreen>("switch_screen")
                 ?.callChangeListener(true)
             shadowOf(Looper.getMainLooper()).idle()
+            findPreference<SeslSwitchPreferenceScreen>("switch_screen")
+                ?.summary shouldBe "Enabled"
         }
     }
 
     @Test
     fun switchScreenPref_newValue_false_updatesSummary() {
         launch {
-            findPreference<androidx.preference.SeslSwitchPreferenceScreen>("switch_screen")
+            findPreference<SeslSwitchPreferenceScreen>("switch_screen")
                 ?.callChangeListener(false)
             shadowOf(Looper.getMainLooper()).idle()
+            findPreference<SeslSwitchPreferenceScreen>("switch_screen")
+                ?.summary shouldBe "Disabled"
         }
     }
 
@@ -173,7 +187,7 @@ class SettingsActivityTest {
             }
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity {
-                ShadowAlertDialog
+                org.robolectric.shadows.ShadowAlertDialog
                     .getLatestAlertDialog()
                     ?.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
                     ?.performClick()
@@ -185,7 +199,10 @@ class SettingsActivityTest {
     @Test
     @Config(sdk = [28])
     fun languagePref_belowTiramisu_prefCatNotVisible() {
-        launch { shadowOf(Looper.getMainLooper()).idle() }
+        launch {
+            // language_pref_cat starts hidden in XML; only shown on SDK >= TIRAMISU
+            findPreference<PreferenceCategory>("language_pref_cat")?.isVisible shouldBe false
+        }
     }
 
     @Test

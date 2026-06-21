@@ -15,14 +15,19 @@
  */
 package de.lemke.oneuisample.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Looper
 import android.text.style.ClickableSpan
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -46,50 +51,81 @@ class OOBEActivityTest {
 
     @Test
     fun navigateToMain_startsMainActivity() {
-        launch { navigateToMain() }
+        launch {
+            navigateToMain()
+            shadowOf(this as Activity).nextStartedActivity?.component?.className shouldBe MainActivity::class.java.name
+        }
     }
 
     @Test
     fun handleOOBEEvent_navigateToMain_callsNavigateToMain() {
-        launch { handleOOBEEvent(OOBEEvent.NavigateToMain) }
+        launch {
+            handleOOBEEvent(OOBEEvent.NavigateToMain)
+            shadowOf(this as Activity).nextStartedActivity?.component?.className shouldBe MainActivity::class.java.name
+        }
     }
 
     @Test
     fun tosSpan_onClick_showsDialog() {
         launch {
-            val tosTextView = findViewById<TextView>(R.id.oobe_intro_footer_tos_text)
+            val tosTextView = findViewById<TextView>(R.id.oobe_intro_footer_tos_text)!!
             val spanned = tosTextView.text as android.text.Spanned
             val spans = spanned.getSpans(0, spanned.length, ClickableSpan::class.java)
-            if (spans.isNotEmpty()) {
-                spans[0].onClick(tosTextView)
-                shadowOf(Looper.getMainLooper()).idle()
-            }
+            spans.size shouldBe 1 // initToSView sets exactly one TOS ClickableSpan
+            // clicking exercises dialog code (Kover-excluded; AppCompat dialog not tracked by ShadowAlertDialog)
+            spans[0].onClick(tosTextView)
+            shadowOf(Looper.getMainLooper()).idle()
         }
     }
 
     @Test
     @Config(sdk = [28])
     fun onCreate_belowApi34_noTransitionOverride() {
-        launch { shadowOf(Looper.getMainLooper()).idle() }
+        // Verifies the activity launches without crash on pre-API-34 (no overrideActivityTransition)
+        launch()
     }
 
     @Test
     @Config(qualifiers = "w320dp")
     fun initFooterButton_narrowScreen_setsMatchParent() {
-        launch { shadowOf(Looper.getMainLooper()).idle() }
+        launch {
+            // screenWidthDp (320) < 360 → button width forced to MATCH_PARENT
+            window.decorView
+                .findViewById<View>(R.id.oobe_intro_footer_button)!!
+                .layoutParams.width shouldBe ViewGroup.LayoutParams.MATCH_PARENT
+        }
     }
 
     @Test
     @Config(qualifiers = "w400dp")
     fun initFooterButton_wideScreen_leavesWrapContent() {
-        launch { shadowOf(Looper.getMainLooper()).idle() }
+        launch {
+            // screenWidthDp (400) >= 360 → button keeps XML width (296dp), not MATCH_PARENT
+            window.decorView
+                .findViewById<View>(R.id.oobe_intro_footer_button)!!
+                .layoutParams.width shouldNotBe ViewGroup.LayoutParams.MATCH_PARENT
+        }
     }
 
     @Test
     fun footerButton_click_triggersAcceptTos() {
-        launch {
-            findViewById<android.view.View>(R.id.oobe_intro_footer_button)?.performClick()
+        ActivityScenario.launch<OOBEActivity>(Intent(context, OOBEActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                activity.window.decorView
+                    .findViewById<View>(R.id.oobe_intro_footer_button)
+                    ?.performClick()
+            }
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+            scenario.onActivity { activity ->
+                // _isAccepting = true → oobeIntroFooterButtonProgress shown, button hidden
+                activity.window.decorView
+                    .findViewById<View>(R.id.oobe_intro_footer_button_progress)
+                    ?.visibility shouldBe View.VISIBLE
+                activity.window.decorView
+                    .findViewById<View>(R.id.oobe_intro_footer_button)
+                    ?.visibility shouldBe View.GONE
+            }
         }
     }
 }

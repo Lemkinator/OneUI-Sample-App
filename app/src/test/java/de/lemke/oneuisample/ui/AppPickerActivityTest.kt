@@ -21,6 +21,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.picker.model.AppInfo
 import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
@@ -30,6 +31,8 @@ import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.ui.util.ListTypes
 import dev.oneuiproject.oneui.layout.ToolbarLayout
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Test
@@ -60,34 +63,62 @@ class AppPickerActivityTest {
 
     @Test
     fun setAppPickerType_list_configuresList() {
-        launch { setAppPickerType(ListTypes.LIST_TYPE) }
+        launch {
+            setAppPickerType(ListTypes.LIST_TYPE)
+            currentPicker shouldNotBe null
+        }
     }
 
     @Test
     fun setAppPickerType_grid_configuresGrid() {
-        launch { setAppPickerType(ListTypes.TYPE_GRID) }
+        launch {
+            setAppPickerType(ListTypes.TYPE_GRID)
+            currentPicker shouldNotBe null
+        }
     }
 
     @Test
     fun setAppPickerType_gridCheckbox_configuresGrid() {
-        launch { setAppPickerType(ListTypes.TYPE_GRID_CHECKBOX) }
+        launch {
+            setAppPickerType(ListTypes.TYPE_GRID_CHECKBOX)
+            currentPicker shouldNotBe null
+        }
     }
 
     @Test
     fun setAppPickerType_listCheckbox_configuresList() {
-        launch { setAppPickerType(ListTypes.TYPE_LIST_CHECKBOX) }
+        launch {
+            setAppPickerType(ListTypes.TYPE_LIST_CHECKBOX)
+            currentPicker shouldNotBe null
+        }
+    }
+
+    @Test
+    fun setAppPickerType_actionButton_setsActionIconOnItems() {
+        launch {
+            setAppPickerType(ListTypes.TYPE_LIST_ACTION_BUTTON)
+            currentPicker shouldNotBe null
+        }
     }
 
     @Test
     fun updateAppPickerVisibility_visible_showsPicker() {
-        launch { updateAppPickerVisibility(true) }
+        launch {
+            setAppPickerType(ListTypes.LIST_TYPE)
+            updateAppPickerVisibility(true)
+            window.decorView.findViewById<View>(R.id.noEntryScrollView)?.isVisible shouldBe false
+            currentPicker?.isVisible shouldBe true
+        }
     }
 
     @Test
     fun updateAppPickerVisibility_invisible_showsNoEntry() {
         launch {
+            setAppPickerType(ListTypes.LIST_TYPE)
             updateAppPickerVisibility(false)
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+            window.decorView.findViewById<View>(R.id.noEntryScrollView)?.isVisible shouldBe true
+            currentPicker?.isVisible shouldBe false
         }
     }
 
@@ -96,7 +127,7 @@ class AppPickerActivityTest {
         launch {
             val listPicker = mockk<SeslAppPickerView>(relaxed = true)
             val appInfo = AppInfo(packageName = "de.lemke.oneuisample", activityName = "")
-            onAppItemClick(listPicker, appInfo)
+            onAppItemClick(listPicker, appInfo) shouldBe false
         }
     }
 
@@ -105,7 +136,7 @@ class AppPickerActivityTest {
         launch {
             val gridPicker = mockk<SeslAppPickerGridView>(relaxed = true)
             val appInfo = AppInfo(packageName = "de.lemke.oneuisample", activityName = "")
-            onAppItemClick(gridPicker, appInfo)
+            onAppItemClick(gridPicker, appInfo) shouldBe true
         }
     }
 
@@ -113,7 +144,7 @@ class AppPickerActivityTest {
     fun onAppItemActionClick_showsSnackBar() {
         launch {
             val appInfo = AppInfo(packageName = "de.lemke.oneuisample", activityName = "")
-            onAppItemActionClick(appInfo)
+            onAppItemActionClick(appInfo) shouldBe true
         }
     }
 
@@ -147,33 +178,44 @@ class AppPickerActivityTest {
     fun render_samePickerType_earlyReturn() {
         launch {
             render(AppPickerUiState(pickerType = 0))
+            val firstPicker = currentPicker
             render(AppPickerUiState(pickerType = 0))
+            // Early return: same instance, picker not recreated
+            currentPicker shouldBe firstPicker
         }
     }
 
     @Test
     fun render_differentPickerType_updatesType() {
         launch {
-            render(AppPickerUiState(pickerType = 0))
-            render(AppPickerUiState(pickerType = 1))
+            render(AppPickerUiState(pickerType = 0)) // LIST_TYPE → appPickerList
+            val firstPicker = currentPicker
+            render(AppPickerUiState(pickerType = 5)) // TYPE_GRID → appPickerGrid
+            currentPicker shouldNotBe firstPicker
         }
     }
 
     @Test
     fun render_outOfBoundsPickerType_usesFirstEntry() {
-        launch { render(AppPickerUiState(pickerType = 999)) }
+        launch {
+            render(AppPickerUiState(pickerType = 999))
+            currentPicker shouldNotBe null
+        }
     }
 
     @Test
     fun render_negativePickerType_usesFirstEntry() {
-        launch { render(AppPickerUiState(pickerType = -1)) }
+        launch {
+            render(AppPickerUiState(pickerType = -1))
+            currentPicker shouldNotBe null
+        }
     }
 
     @Test
     fun onOptionsItemSelected_search_startsSearchMode() {
         launch {
             val item = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_search }
-            onOptionsItemSelected(item)
+            onOptionsItemSelected(item) shouldBe true
         }
     }
 

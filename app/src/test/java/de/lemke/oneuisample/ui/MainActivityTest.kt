@@ -15,6 +15,7 @@
  */
 package de.lemke.oneuisample.ui
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
@@ -29,6 +30,7 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettingsRepository
 import dev.oneuiproject.oneui.navigation.widget.DrawerNavigationView
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Before
@@ -117,17 +119,62 @@ class MainActivityTest {
 
     @Test
     fun navItem_aboutApp_startsAboutActivity() {
-        withNavClick(R.id.about_app_dest)
+        launch {
+            onActivity { activity ->
+                val item =
+                    activity
+                        .findViewById<DrawerNavigationView>(R.id.navigationView)
+                        .findMenuItem(R.id.about_app_dest) ?: return@onActivity
+                activity.onNavigationItemSelected(item)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            onActivity { activity ->
+                shadowOf(activity as Activity)
+                    .nextStartedActivity
+                    ?.component
+                    ?.className shouldBe AboutActivity::class.java.name
+            }
+        }
     }
 
     @Test
     fun navItem_aboutCustom_startsCustomAboutActivity() {
-        withNavClick(R.id.about_custom_dest)
+        launch {
+            onActivity { activity ->
+                val item =
+                    activity
+                        .findViewById<DrawerNavigationView>(R.id.navigationView)
+                        .findMenuItem(R.id.about_custom_dest) ?: return@onActivity
+                activity.onNavigationItemSelected(item)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            onActivity { activity ->
+                shadowOf(activity as Activity)
+                    .nextStartedActivity
+                    ?.component
+                    ?.className shouldBe CustomAboutActivity::class.java.name
+            }
+        }
     }
 
     @Test
     fun navItem_settings_startsSettingsActivity() {
-        withNavClick(R.id.settings_dest)
+        launch {
+            onActivity { activity ->
+                val item =
+                    activity
+                        .findViewById<DrawerNavigationView>(R.id.navigationView)
+                        .findMenuItem(R.id.settings_dest) ?: return@onActivity
+                activity.onNavigationItemSelected(item)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            onActivity { activity ->
+                shadowOf(activity as Activity)
+                    .nextStartedActivity
+                    ?.component
+                    ?.className shouldBe SettingsActivity::class.java.name
+            }
+        }
     }
 
     @Test
