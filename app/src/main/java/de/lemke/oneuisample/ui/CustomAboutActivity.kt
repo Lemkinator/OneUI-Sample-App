@@ -121,10 +121,10 @@ class CustomAboutActivity : AppCompatActivity() {
 
     private fun applyBackProgress(progress: Float) {
         val interpolatedProgress = progressInterpolator.getInterpolation(progress)
-        if (interpolatedProgress > .5 && !isExpanding) {
+        if (interpolatedProgress > 0.5f && !isExpanding) {
             isExpanding = true
             binding.aboutAppBar.setExpanded(true, true)
-        } else if (interpolatedProgress < .3 && isExpanding) {
+        } else if (interpolatedProgress < 0.3f && isExpanding) {
             isExpanding = false
             binding.aboutAppBar.setExpanded(false, true)
         }

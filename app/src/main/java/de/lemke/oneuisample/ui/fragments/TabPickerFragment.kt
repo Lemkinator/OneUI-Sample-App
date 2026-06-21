@@ -54,7 +54,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     private val binding by autoCleared { FragmentTabPickerBinding.bind(requireView()) }
 
     @VisibleForTesting(otherwise = PRIVATE)
-    internal var currentColor = -16547330
+    internal var currentColor = 0xFF0381FE.toInt()
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal var recentColors: List<Int> = listOf(currentColor)
