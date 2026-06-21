@@ -141,12 +141,12 @@ class MainActivity : AppCompatActivity() {
         SuggestAppBarModel
             .Builder(this)
             .apply {
-                setTitle("This is an a suggestion view")
+                setTitle(getString(R.string.suggestion_title))
                 setCloseClickListener { _, _ -> binding.drawerLayout.setAppBarSuggestView(null) }
                 setButtons(
                     arrayListOf(
                         ButtonModel(
-                            text = "Action Button",
+                            text = getString(R.string.action_button),
                             clickListener = { _, _ -> onSuggestActionButtonClicked() },
                         ),
                     ),
@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity() {
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun onSuggestActionButtonClicked() {
-        suggestiveSnackBar("Action button clicked!")
+        suggestiveSnackBar(getString(R.string.action_button_clicked))
     }
 
     companion object {

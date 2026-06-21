@@ -52,9 +52,9 @@ class AboutActivity : AppCompatActivity() {
         setContentView(binding.root)
         versionTextView = binding.appInfoLayout.findViewById(designR.id.app_info_version)
         binding.appInfoLayout.apply {
-            addOptionalText("Extra 1")
-            addOptionalText("Extra 2")
-            setMainButtonClickListener { suggestiveSnackBar("Main button clicked! updateState: $updateStatus") }
+            addOptionalText(getString(R.string.extra_1))
+            addOptionalText(getString(R.string.extra_2))
+            setMainButtonClickListener { suggestiveSnackBar(getString(R.string.main_button_clicked, updateStatus)) }
         }
         versionTextView.onMultiClick { viewModel.onToggleDevMode() }
         binding.aboutButtonStatus.setOnClickListener { changeStatus() }
@@ -77,8 +77,8 @@ class AboutActivity : AppCompatActivity() {
                 UpdateDownloaded -> NoUpdate
                 NoUpdate -> NotUpdatable
                 NotUpdatable -> NoConnection
-                NoConnection -> Failed("Failed!")
-                Failed("Failed!") -> Unset
+                NoConnection -> Failed(getString(R.string.failed))
+                Failed(getString(R.string.failed)) -> Unset
                 else -> Loading
             }
     }

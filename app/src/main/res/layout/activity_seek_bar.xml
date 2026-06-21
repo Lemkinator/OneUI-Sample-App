@@ -34,8 +34,7 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Horizontal"
-            tools:ignore="HardcodedText" />
+            android:text="@string/horizontal" />
 
         <dev.oneuiproject.oneui.widget.RoundedLinearLayout
             android:layout_width="match_parent"
@@ -86,8 +85,7 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Vertical"
-            tools:ignore="HardcodedText" />
+            android:text="@string/vertical" />
 
         <dev.oneuiproject.oneui.widget.RoundedLinearLayout
             android:layout_width="match_parent"

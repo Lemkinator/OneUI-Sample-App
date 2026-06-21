@@ -51,10 +51,10 @@ class QSTileService : TileService() {
         super.onClick()
         if (qsTile.state == Tile.STATE_ACTIVE) {
             qsTile.state = Tile.STATE_INACTIVE
-            toast("Tile clicked: inactive")
+            toast(getString(R.string.tile_clicked_inactive))
         } else {
             qsTile.state = Tile.STATE_ACTIVE
-            toast("Tile clicked: active")
+            toast(getString(R.string.tile_clicked_active))
         }
         qsTile.updateTile()
     }
@@ -73,7 +73,7 @@ class QSTileService : TileService() {
     fun semGetDetailView(): RemoteViews = RemoteViews(packageName, R.layout.qs_detail_view)
 
     fun semSetToggleButtonChecked(checked: Boolean) {
-        toast("Toggle Button: $checked")
+        toast(getString(R.string.toggle_button_state, checked))
         qsTile.state = if (checked) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
         qsTile.updateTile()
     }

@@ -36,8 +36,7 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Compound Buttons"
-            tools:ignore="HardcodedText" />
+            android:text="@string/compound_buttons" />
 
         <dev.oneuiproject.oneui.widget.RoundedLinearLayout
             android:layout_width="match_parent"
@@ -52,16 +51,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="6dp"
                 android:checked="true"
-                android:text="Switch"
-                tools:ignore="HardcodedText" />
+                android:text="@string/switch_label" />
 
             <androidx.appcompat.widget.AppCompatCheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="6dp"
                 android:checked="true"
-                android:text="CheckBox"
-                tools:ignore="HardcodedText" />
+                android:text="@string/checkbox_label" />
 
             <RadioGroup
                 android:layout_width="match_parent"
@@ -72,15 +69,13 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="RadioButton"
-                    tools:ignore="HardcodedText" />
+                    android:text="@string/radio_button" />
 
                 <androidx.appcompat.widget.AppCompatRadioButton
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="RadioButton"
-                    tools:ignore="HardcodedText" />
+                    android:text="@string/radio_button" />
 
             </RadioGroup>
 
@@ -89,8 +84,7 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Spinner"
-            tools:ignore="HardcodedText" />
+            android:text="@string/spinner_label" />
 
         <dev.oneuiproject.oneui.widget.RoundedLinearLayout
             android:layout_width="match_parent"
@@ -137,8 +131,7 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Custom item views"
-            tools:ignore="HardcodedText" />
+            android:text="@string/custom_item_views" />
 
         <dev.oneuiproject.oneui.widget.RoundedLinearLayout
             android:layout_width="match_parent"
@@ -208,8 +201,7 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Buttons"
-            tools:ignore="HardcodedText" />
+            android:text="@string/buttons_section" />
 
         <dev.oneuiproject.oneui.widget.RoundedLinearLayout
             android:layout_width="match_parent"
@@ -224,8 +216,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="Colored"
-                tools:ignore="HardcodedText" />
+                android:text="@string/colored" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/buttonFilled"
@@ -233,8 +224,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="Filled"
-                tools:ignore="HardcodedText" />
+                android:text="@string/filled" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/buttonTransparent"
@@ -242,8 +232,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="Transparent"
-                tools:ignore="HardcodedText" />
+                android:text="@string/transparent" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/buttonTransparentColored"
@@ -251,8 +240,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="Transparent Colored"
-                tools:ignore="HardcodedText" />
+                android:text="@string/transparent_colored" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/buttonTransparentThemed"
@@ -260,8 +248,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="Transparent Themed"
-                tools:ignore="HardcodedText" />
+                android:text="@string/transparent_themed" />
 
         </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
 
@@ -269,9 +256,9 @@
             android:id="@+id/bottomTipView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:linkText="More details"
-            app:summary="This is a sample bottom tip description."
-            app:title="Tip" />
+            app:linkText="@string/more_details"
+            app:summary="@string/bottom_tip_description"
+            app:title="@string/tip_title" />
 
         <dev.oneuiproject.oneui.widget.RelativeLinksCard
             android:id="@+id/relativeLinksCard"
@@ -282,15 +269,13 @@
                 android:id="@+id/relativeLink1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Relative link 1"
-                tools:ignore="HardcodedText" />
+                android:text="@string/relative_link_1" />
 
             <TextView
                 android:id="@+id/relativeLink2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Relative link 2"
-                tools:ignore="HardcodedText" />
+                android:text="@string/relative_link_2" />
 
         </dev.oneuiproject.oneui.widget.RelativeLinksCard>
 

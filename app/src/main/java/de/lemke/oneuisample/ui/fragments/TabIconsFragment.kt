@@ -222,8 +222,8 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
 
     private fun configureItemSwipeAnimator() {
         binding.iconList.configureItemSwipeAnimator(
-            leftToRightLabel = "Left to Right",
-            rightToLeftLabel = "Right to Left",
+            leftToRightLabel = getString(R.string.left_to_right),
+            rightToLeftLabel = getString(R.string.right_to_left),
             leftToRightColor = "#11a85f".toColorInt(),
             rightToLeftColor = "#31a5f3".toColorInt(),
             leftToRightDrawableRes = iconsR.drawable.ic_oui_arrow_right,
@@ -281,19 +281,19 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     internal fun onActionModeMenuItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
             R.id.menu_item_1 -> {
-                suggestiveSnackBar("Menu item 1 selected")
+                suggestiveSnackBar(getString(R.string.menu_item_1_selected))
                 drawerLayout.endActionMode()
                 true
             }
 
             R.id.menu_item_2 -> {
-                suggestiveSnackBar("Menu item 2 selected")
+                suggestiveSnackBar(getString(R.string.menu_item_2_selected))
                 drawerLayout.endActionMode()
                 true
             }
 
             R.id.menu_item_3 -> {
-                suggestiveSnackBar("Menu item 3 selected")
+                suggestiveSnackBar(getString(R.string.menu_item_3_selected))
                 drawerLayout.endActionMode()
                 true
             }

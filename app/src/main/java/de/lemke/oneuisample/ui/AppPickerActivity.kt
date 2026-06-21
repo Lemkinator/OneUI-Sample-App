@@ -79,7 +79,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             R.id.menu_app_picker_search -> {
                 binding.toolbarLayout.startSearchMode(
                     onStart = {
-                        it.queryHint = "Search apps"
+                        it.queryHint = getString(R.string.search_apps)
                         binding.appPickerSpinner.isEnabled = false
                     },
                     onQuery = { query, _ ->

@@ -36,8 +36,7 @@
             <dev.oneuiproject.oneui.widget.Separator
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Indeterminate"
-                tools:ignore="HardcodedText" />
+                android:text="@string/indeterminate" />
 
             <dev.oneuiproject.oneui.widget.RoundedLinearLayout
                 android:layout_width="match_parent"
@@ -95,8 +94,7 @@
             <dev.oneuiproject.oneui.widget.Separator
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Determinate"
-                tools:ignore="HardcodedText" />
+                android:text="@string/determinate" />
 
             <dev.oneuiproject.oneui.widget.RoundedLinearLayout
                 android:layout_width="match_parent"

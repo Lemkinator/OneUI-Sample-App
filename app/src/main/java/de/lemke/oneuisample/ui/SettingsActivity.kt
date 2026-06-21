@@ -117,7 +117,7 @@ class SettingsActivity : AppCompatActivity() {
             darkModePref.value = if (state.darkMode) "1" else "0"
             switchScreenPref.apply {
                 isChecked = state.sampleSwitchBar
-                summary = if (isChecked) "Enabled" else "Disabled"
+                summary = if (isChecked) getString(R.string.enabled) else getString(R.string.disabled)
             }
         }
 
@@ -134,8 +134,10 @@ class SettingsActivity : AppCompatActivity() {
                 it.widgetLayoutResource = R.layout.sample_pref_widget_progress
                 requireView().postDelayed({ it.widgetLayoutResource = R.layout.sample_pref_widget_check }, WIDGET_RESET_DELAY_MS)
             }
-            findPreference<TipsCardPreference>("tip")!!.addButton("Button") { suggestiveSnackBar("onClick") }
-            findPreference<EditTextPreference>("edit_text")!!.onNewValue { suggestiveSnackBar("New value: $it") }
+            findPreference<TipsCardPreference>(
+                "tip",
+            )!!.addButton(getString(R.string.button)) { suggestiveSnackBar(getString(R.string.on_click)) }
+            findPreference<EditTextPreference>("edit_text")!!.onNewValue { suggestiveSnackBar(getString(R.string.new_value, it)) }
         }
 
         private fun initDarkModePrefs() {
@@ -162,7 +164,7 @@ class SettingsActivity : AppCompatActivity() {
             switchScreenPref.apply {
                 onClick { startActivity(Intent(requireActivity(), SwitchBarActivity::class.java)) }
                 onNewValue { newValue ->
-                    summary = if (newValue) "Enabled" else "Disabled"
+                    summary = if (newValue) getString(R.string.enabled) else getString(R.string.disabled)
                     viewModel.onSampleSwitchBarChanged(newValue)
                 }
             }
@@ -226,7 +228,7 @@ class SettingsActivity : AppCompatActivity() {
         internal fun onSuggestionCardActionButtonClicked(view: View) {
             val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
             val suggestionInset = findPreference<InsetPreferenceCategory>("suggestion_inset")!!
-            suggestion.startTurnOnAnimation("Turned on")
+            suggestion.startTurnOnAnimation(getString(R.string.turned_on))
             view.postDelayed(
                 {
                     preferenceScreen.removePreference(suggestion)

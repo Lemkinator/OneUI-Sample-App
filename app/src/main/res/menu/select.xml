@@ -16,30 +16,28 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="AppCompatResource">
+    tools:ignore="AppCompatResource"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <item
         android:id="@+id/menu_item_1"
         android:icon="@drawable/ic_oui_delete_outline"
-        android:title="Item 1"
+        android:title="@string/select_item_1"
         app:iconTint="?actionMenuTextColor"
         app:showAsAction="always"
-        tools:ignore="AlwaysShowAction,HardcodedText" />
+        tools:ignore="AlwaysShowAction" />
 
     <item
         android:id="@+id/menu_item_2"
         android:icon="@drawable/ic_oui_add"
-        android:title="Item 2"
+        android:title="@string/select_item_2"
         app:iconTint="?actionMenuTextColor"
-        app:showAsAction="always"
-        tools:ignore="HardcodedText" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/menu_item_3"
         android:icon="@drawable/ic_oui_samsung_one"
-        android:title="Item 3"
+        android:title="@string/select_item_3"
         app:iconTint="?actionMenuTextColor"
-        app:showAsAction="never"
-        tools:ignore="HardcodedText" />
+        app:showAsAction="never" />
 </menu>

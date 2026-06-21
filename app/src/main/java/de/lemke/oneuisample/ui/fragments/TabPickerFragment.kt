@@ -211,7 +211,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     ) {
         val startFormatted = String.format(Locale.getDefault(), "%02d:%02d", startTime / 60, startTime % 60)
         val endFormatted = String.format(Locale.getDefault(), "%02d:%02d", endTime / 60, endTime % 60)
-        suggestiveSnackBar("Start time: $startFormatted\nEnd time: $endFormatted")
+        suggestiveSnackBar(getString(R.string.start_end_time_result, startFormatted, endFormatted))
     }
 
     @VisibleForTesting(otherwise = PRIVATE)

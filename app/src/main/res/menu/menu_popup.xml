@@ -14,29 +14,24 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<menu xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu1"
         android:icon="@drawable/ic_oui_category_location"
-        android:title="Pop-up menu item 1"
-        tools:ignore="HardcodedText" />
+        android:title="@string/popup_menu_item_1" />
 
     <item
         android:id="@+id/menu2"
         android:icon="@drawable/ic_oui_category_location"
-        android:title="Pop-up menu item 2"
-        tools:ignore="HardcodedText" />
+        android:title="@string/popup_menu_item_2" />
 
     <item
         android:id="@+id/menu3"
         android:icon="@drawable/ic_oui_category_location"
-        android:title="Pop-up menu item 3"
-        tools:ignore="HardcodedText" />
+        android:title="@string/popup_menu_item_3" />
 
     <item
         android:id="@+id/menu4"
         android:icon="@drawable/ic_oui_category_location"
-        android:title="Pop-up menu item 4"
-        tools:ignore="HardcodedText" />
+        android:title="@string/popup_menu_item_4" />
 </menu>
