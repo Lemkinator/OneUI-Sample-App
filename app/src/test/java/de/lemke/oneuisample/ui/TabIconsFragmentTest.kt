@@ -309,6 +309,15 @@ class TabIconsFragmentTest {
     }
 
     @Test
+    fun onIconSwiped_unknownDirection_returnsTrue() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon), null))
+            onIconSwiped(0, -1) shouldBe true
+        }
+    }
+
+    @Test
     fun observeIconList_withActiveSearch_emitsFilteredList() {
         withFragment {
             userSettings.searchActive = true

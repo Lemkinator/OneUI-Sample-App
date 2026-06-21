@@ -167,6 +167,23 @@ class CustomAboutActivityTest {
     }
 
     @Test
+    fun appBarOffsetChanged_withZeroCtlHeight_usesZeroBottomAlpha() {
+        launch {
+            // Force CTL height to 0 so alphaRange == 0f, hitting the else { 0f } guard
+            window.decorView.findViewById<android.view.View>(R.id.aboutCTL)?.layout(0, 0, 1000, 0)
+            val appBarLayout =
+                mockk<AppBarLayout>(relaxed = true) {
+                    every { totalScrollRange } returns 200
+                    every { getTotalScrollRange() } returns 200
+                    every { y } returns -200f
+                    every { top } returns -200
+                    every { height } returns 400
+                }
+            appBarListener.onOffsetChanged(appBarLayout, -200)
+        }
+    }
+
+    @Test
     @Config(sdk = [28])
     fun onCreate_belowApi30_noInsetListener() {
         launch { shadowOf(Looper.getMainLooper()).idle() }
