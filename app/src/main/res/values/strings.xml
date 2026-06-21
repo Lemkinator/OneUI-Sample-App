@@ -156,7 +156,7 @@
     <!--Section headers-->
     <string name="horizontal">Horizontal</string>
     <string name="vertical">Vertical</string>
-    <string name="indeterminate">Indeterminate</string>
+    <string name="progress_indeterminate">Indeterminate</string>
     <string name="determinate">Determinate</string>
     <string name="compound_buttons">Compound Buttons</string>
     <string name="spinner_label">Spinner</string>

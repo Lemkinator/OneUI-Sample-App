@@ -73,7 +73,7 @@ class QSTileService : TileService() {
     fun semGetDetailView(): RemoteViews = RemoteViews(packageName, R.layout.qs_detail_view)
 
     fun semSetToggleButtonChecked(checked: Boolean) {
-        toast(getString(R.string.toggle_button_state, checked))
+        toast(getString(R.string.toggle_button_state, checked.toString()))
         qsTile.state = if (checked) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
         qsTile.updateTile()
     }
