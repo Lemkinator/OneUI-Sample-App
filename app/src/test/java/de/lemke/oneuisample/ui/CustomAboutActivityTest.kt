@@ -86,7 +86,7 @@ class CustomAboutActivityTest {
     }
 
     @Test
-    fun simulateAppBarOffsetChanged_collapsed_enablesBottomContent() {
+    fun appBarOffsetChanged_collapsed_setsCallbackActive() {
         launch {
             val appBarLayout =
                 mockk<AppBarLayout>(relaxed = true) {
@@ -96,13 +96,15 @@ class CustomAboutActivityTest {
                     every { top } returns 0
                     every { height } returns 400
                 }
-            // abs(verticalOffset) >= totalScrollRange / 2 → alpha=0, setBottomContentEnabled(true)
-            simulateAppBarOffsetChanged(appBarLayout, -100)
+            // abs(-200) >= 200/2 → alpha=0, setBottomContentEnabled(true)
+            // updateCallbackState(200 + (-200) == 0) = updateCallbackState(true)
+            appBarListener.onOffsetChanged(appBarLayout, -200)
+            callbackIsActive.value shouldBe true
         }
     }
 
     @Test
-    fun simulateAppBarOffsetChanged_expanded_disablesBottomContent() {
+    fun appBarOffsetChanged_expanded_setsCallbackInactive() {
         launch {
             val appBarLayout =
                 mockk<AppBarLayout>(relaxed = true) {
@@ -112,13 +114,16 @@ class CustomAboutActivityTest {
                     every { top } returns 0
                     every { height } returns 400
                 }
-            // abs(verticalOffset) == 0 → alpha=1, setBottomContentEnabled(false)
-            simulateAppBarOffsetChanged(appBarLayout, 0)
+            callbackIsActive.value = true
+            // abs(0) == 0 → alpha=1, setBottomContentEnabled(false)
+            // updateCallbackState(200 + 0 == 0) = updateCallbackState(false)
+            appBarListener.onOffsetChanged(appBarLayout, 0)
+            callbackIsActive.value shouldBe false
         }
     }
 
     @Test
-    fun simulateAppBarOffsetChanged_partial_setsOffsetAlpha() {
+    fun appBarOffsetChanged_partial_setsOffsetAlpha() {
         launch {
             val appBarLayout =
                 mockk<AppBarLayout>(relaxed = true) {
@@ -128,73 +133,37 @@ class CustomAboutActivityTest {
                     every { top } returns -20
                     every { height } returns 400
                 }
-            // 0 < abs(verticalOffset) < totalScrollRange / 2 → calculate offset alpha
-            simulateAppBarOffsetChanged(appBarLayout, -20)
+            // 0 < abs(-20) = 20 < 100 → calculate offset alpha
+            // updateCallbackState(200 + (-20) == 0) = updateCallbackState(false)
+            appBarListener.onOffsetChanged(appBarLayout, -20)
+            callbackIsActive.value shouldBe false
         }
-    }
-
-    @Test
-    fun triggerUpdateCallbackState_withExplicitTrue_setsCallbackActive() {
-        launch { triggerUpdateCallbackState(true) }
-    }
-
-    @Test
-    fun triggerUpdateCallbackState_withExplicitFalse_setsCallbackInactive() {
-        launch { triggerUpdateCallbackState(false) }
-    }
-
-    @Test
-    fun triggerUpdateCallbackState_withNull_derivesFromAppBarState() {
-        launch { triggerUpdateCallbackState(null) }
     }
 
     @Test
     fun updateCallbackState_whenBackProgressing_returnsEarly() {
-        launch {
-            simulateOnBackStarted()
-            triggerUpdateCallbackState(true)
+        ActivityScenario.launch<CustomAboutActivity>(Intent(context, CustomAboutActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { it.callbackIsActive.value = true }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                activity.onBackPressedDispatcher.dispatchOnBackStarted(BackEventCompat(0f, 0f, 0f, BackEventCompat.EDGE_LEFT))
+                val mockAppBar =
+                    mockk<AppBarLayout>(relaxed = true) {
+                        every { totalScrollRange } returns 200
+                        every { getTotalScrollRange() } returns 200
+                        every { y } returns -20f
+                        every { top } returns -20
+                        every { height } returns 400
+                    }
+                // Would set callbackIsActive=false, but isBackProgressing=true blocks updateCallbackState
+                activity.appBarListener.onOffsetChanged(mockAppBar, -100)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                activity.callbackIsActive.value shouldBe true
+            }
         }
-    }
-
-    @Test
-    fun simulateOnBackProgressed_highProgress_setsExpanding() {
-        launch { simulateOnBackProgressed(1.0f) }
-    }
-
-    @Test
-    fun simulateOnBackProgressed_lowProgressAfterExpanding_collapsesBack() {
-        launch {
-            simulateOnBackProgressed(1.0f)
-            simulateOnBackProgressed(0.0f)
-        }
-    }
-
-    @Test
-    fun simulateOnBackProgressed_midProgress_noStateChange() {
-        launch { simulateOnBackProgressed(0.4f) }
-    }
-
-    @Test
-    fun simulateOnBackProgressed_highProgressWhileExpanding_skipsSetExpanded() {
-        launch {
-            simulateOnBackProgressed(1.0f)
-            simulateOnBackProgressed(1.0f)
-        }
-    }
-
-    @Test
-    fun simulateOnBackProgressed_lowProgressNotExpanding_doesNothing() {
-        launch { simulateOnBackProgressed(0.0f) }
-    }
-
-    @Test
-    fun simulateOnBackPressed_resetsState() {
-        launch { simulateOnBackPressed() }
-    }
-
-    @Test
-    fun simulateOnBackCancelled_resetsState() {
-        launch { simulateOnBackCancelled() }
     }
 
     @Test
@@ -218,12 +187,15 @@ class CustomAboutActivityTest {
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
                 (shadowOf(activity as Activity) as ShadowActivity).setInMultiWindowMode(true)
-                activity
-                    .findViewById<com.google.android.material.appbar.AppBarLayout>(R.id.aboutAppBar)
-                    ?.setLifted(true)
-                activity.triggerUpdateCallbackState(null)
+                activity.callbackIsActive.value = true
+                activity.onConfigurationChanged(Configuration(activity.resources.configuration))
             }
             shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                // onConfigurationChanged → updateCallbackState(null) → isCallbackEnabled()
+                // → isInMultiWindowModeCompat=true → false → callbackIsActive=false
+                activity.callbackIsActive.value shouldBe false
+            }
         }
     }
 
@@ -231,20 +203,28 @@ class CustomAboutActivityTest {
     fun backCallbacks_enabled_allHandlersInvoked() {
         ActivityScenario.launch<CustomAboutActivity>(Intent(context, CustomAboutActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { it.triggerUpdateCallbackState(true) }
+            scenario.onActivity { it.callbackIsActive.value = true }
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
-                val backEvent = BackEventCompat(0f, 0f, 0.6f, BackEventCompat.EDGE_LEFT)
-                activity.onBackPressedDispatcher.dispatchOnBackStarted(backEvent)
-                activity.onBackPressedDispatcher.dispatchOnBackProgressed(backEvent)
+                val high = BackEventCompat(0f, 0f, 0.6f, BackEventCompat.EDGE_LEFT)
+                val low = BackEventCompat(0f, 0f, 0.0f, BackEventCompat.EDGE_LEFT)
+                activity.onBackPressedDispatcher.dispatchOnBackStarted(high)
+                // isExpanding=false: > .5 FALSE, < .3 TRUE, isExpanding FALSE → skip (all FALSE branches)
+                activity.onBackPressedDispatcher.dispatchOnBackProgressed(low)
+                // isExpanding=false: > .5 TRUE, !isExpanding TRUE → IF body → isExpanding=true
+                activity.onBackPressedDispatcher.dispatchOnBackProgressed(high)
+                // isExpanding=true: > .5 TRUE, !isExpanding FALSE → else-if, < .3 FALSE → skip
+                activity.onBackPressedDispatcher.dispatchOnBackProgressed(high)
+                // isExpanding=true: > .5 FALSE, < .3 TRUE, isExpanding TRUE → ELSE-IF body → isExpanding=false
+                activity.onBackPressedDispatcher.dispatchOnBackProgressed(low)
                 activity.onBackPressedDispatcher.dispatchOnBackCancelled()
             }
             shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { it.triggerUpdateCallbackState(true) }
+            scenario.onActivity { it.callbackIsActive.value = true }
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
-                val backEvent = BackEventCompat(0f, 0f, 0.0f, BackEventCompat.EDGE_LEFT)
-                activity.onBackPressedDispatcher.dispatchOnBackStarted(backEvent)
+                val high = BackEventCompat(0f, 0f, 0.6f, BackEventCompat.EDGE_LEFT)
+                activity.onBackPressedDispatcher.dispatchOnBackStarted(high)
                 activity.onBackPressedDispatcher.onBackPressed()
             }
             shadowOf(Looper.getMainLooper()).idle()

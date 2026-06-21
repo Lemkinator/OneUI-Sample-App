@@ -55,16 +55,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 @AndroidEntryPoint
 class CustomAboutActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityCustomAboutBinding
-    private val appBarListener = AboutAppBarListener()
+    private val binding by lazy { ActivityCustomAboutBinding.inflate(layoutInflater) }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal val appBarListener: OnOffsetChangedListener = AboutAppBarListener()
     private val progressInterpolator = PathInterpolatorCompat.create(0f, 0f, 0f, 1f)
-    private val callbackIsActive = MutableStateFlow(false)
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal val callbackIsActive = MutableStateFlow(false)
     private var isBackProgressing = false
     private var isExpanding = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCustomAboutBinding.inflate(layoutInflater)
         binding.root.configureAdaptiveMargin(MARGIN_PROVIDER_ADP_DEFAULT, binding.aboutBottomContainer)
         setContentView(binding.root)
         applyInsetIfNeeded()
@@ -100,12 +103,31 @@ class CustomAboutActivity : AppCompatActivity() {
     private fun initOnBackPressed() {
         invokeOnBack(
             triggerStateFlow = callbackIsActive,
-            onBackPressed = { simulateOnBackPressed() },
-            onBackStarted = { simulateOnBackStarted() },
-            onBackProgressed = { simulateOnBackProgressed(it.progress) },
-            onBackCancelled = { simulateOnBackCancelled() },
+            onBackPressed = {
+                binding.aboutAppBar.setExpanded(true)
+                isBackProgressing = false
+                isExpanding = false
+            },
+            onBackStarted = { isBackProgressing = true },
+            onBackProgressed = { applyBackProgress(it.progress) },
+            onBackCancelled = {
+                binding.aboutAppBar.setExpanded(false)
+                isBackProgressing = false
+                isExpanding = false
+            },
         )
         updateCallbackState()
+    }
+
+    private fun applyBackProgress(progress: Float) {
+        val interpolatedProgress = progressInterpolator.getInterpolation(progress)
+        if (interpolatedProgress > .5 && !isExpanding) {
+            isExpanding = true
+            binding.aboutAppBar.setExpanded(true, true)
+        } else if (interpolatedProgress < .3 && isExpanding) {
+            isExpanding = false
+            binding.aboutAppBar.setExpanded(false, true)
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -187,48 +209,6 @@ class CustomAboutActivity : AppCompatActivity() {
             aboutBottomRelativeSeslMaterial.setOnClickListener { openURL(getString(R.string.link_sesl_material)) }
             aboutBottomRelativeDesign.setOnClickListener { openURL(getString(R.string.link_oneui_design)) }
         }
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun simulateAppBarOffsetChanged(
-        appBarLayout: AppBarLayout,
-        verticalOffset: Int,
-    ) {
-        appBarListener.onOffsetChanged(appBarLayout, verticalOffset)
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun triggerUpdateCallbackState(enable: Boolean? = null) = updateCallbackState(enable)
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun simulateOnBackStarted() {
-        isBackProgressing = true
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun simulateOnBackProgressed(progress: Float) {
-        val interpolatedProgress = progressInterpolator.getInterpolation(progress)
-        if (interpolatedProgress > .5 && !isExpanding) {
-            isExpanding = true
-            binding.aboutAppBar.setExpanded(true, true)
-        } else if (interpolatedProgress < .3 && isExpanding) {
-            isExpanding = false
-            binding.aboutAppBar.setExpanded(false, true)
-        }
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun simulateOnBackPressed() {
-        binding.aboutAppBar.setExpanded(true)
-        isBackProgressing = false
-        isExpanding = false
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun simulateOnBackCancelled() {
-        binding.aboutAppBar.setExpanded(false)
-        isBackProgressing = false
-        isExpanding = false
     }
 
     private inner class AboutAppBarListener : OnOffsetChangedListener {
