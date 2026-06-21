@@ -31,7 +31,7 @@ konsist = "0.17.3"
 kotest = "6.2.1"
 # Hilt 2.59.2 does not support Kotlin 2.4.0 metadata, noinspection until a Hilt version ships with Kotlin 2.4 compatibility
 #noinspection NewerVersionAvailable
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 kover = "0.9.8"
 ksp = "2.3.9"
 # Used via spotless { kotlin { ktlint(libs.versions.ktlint.get()) } } — version-only ref, no library/plugin alias
