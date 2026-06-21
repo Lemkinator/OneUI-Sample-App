@@ -49,10 +49,10 @@ class SubtabProgressBarFragment : Fragment() {
             .forEach {
                 it.setMode(SeslProgressBar.MODE_CIRCLE)
                 it.progress = 0
-                it.max = 1000
+                it.max = PROGRESS_MAX
             }
         binding.progressbar5.progress = 0
-        binding.progressbar5.max = 1000
+        binding.progressbar5.max = PROGRESS_MAX
         startProgressUpdater()
     }
 
@@ -61,9 +61,13 @@ class SubtabProgressBarFragment : Fragment() {
         launchAndRepeatWithViewLifecycle(RESUMED) {
             while (true) {
                 listOf(binding.progressbar1, binding.progressbar2, binding.progressbar3, binding.progressbar4, binding.progressbar5)
-                    .forEach { bar -> bar.progress = (bar.progress + 1) % 1000 }
+                    .forEach { bar -> bar.progress = (bar.progress + 1) % PROGRESS_MAX }
                 delay(16.milliseconds)
             }
         }
+    }
+
+    companion object {
+        private const val PROGRESS_MAX = 1_000
     }
 }

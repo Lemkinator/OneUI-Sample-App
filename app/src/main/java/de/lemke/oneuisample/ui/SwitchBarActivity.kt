@@ -69,7 +69,7 @@ class SwitchBarActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     private fun update(enabled: Boolean) {
         binding.root.switchBar.apply {
             setProgressBarVisible(true)
-            postDelayed({ setProgressBarVisible(false) }, 1_000)
+            postDelayed({ setProgressBarVisible(false) }, PROGRESS_HIDE_DELAY_MS)
         }
         binding.lottie.apply {
             cancelAnimation()
@@ -77,7 +77,12 @@ class SwitchBarActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             progress = 0f
             isVisible = true
             addValueCallback(KeyPath("**"), COLOR_FILTER, LottieValueCallback(SimpleColorFilter(getColor(R.color.primary_color_themed))))
-            postDelayed({ playAnimation() }, 400)
+            postDelayed({ playAnimation() }, LOTTIE_PLAY_DELAY_MS)
         }
+    }
+
+    companion object {
+        private const val PROGRESS_HIDE_DELAY_MS = 1_000L
+        private const val LOTTIE_PLAY_DELAY_MS = 400L
     }
 }

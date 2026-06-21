@@ -148,7 +148,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             binding.noEntryScrollView.isVisible = true
             val valueCallback = LottieValueCallback<ColorFilter>(SimpleColorFilter(requireContext().getColor(R.color.primary_color_themed)))
             binding.noEntryLottie.addValueCallback(KeyPath("**"), COLOR_FILTER, valueCallback)
-            binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, 400)
+            binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, LOTTIE_PLAY_DELAY_MS)
         } else {
             binding.noEntryScrollView.isVisible = false
             binding.iconList.isVisible = true
@@ -377,5 +377,9 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     ) {
         dialogBinding.indexScrollShowLetters.isEnabled = isChecked
         dialogBinding.indexScrollAutoHide.isEnabled = isChecked
+    }
+
+    companion object {
+        private const val LOTTIE_PLAY_DELAY_MS = 400L
     }
 }

@@ -51,7 +51,7 @@ class OOBEActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= 34) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, fade_in, fade_out)
             overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, fade_in, fade_out)
         }
@@ -126,7 +126,13 @@ class OOBEActivity : AppCompatActivity() {
     }
 
     private fun initFooterButton() {
-        if (resources.configuration.screenWidthDp < 360) binding.oobeIntroFooterButton.layoutParams.width = MATCH_PARENT
+        if (resources.configuration.screenWidthDp < MIN_FULL_BUTTON_WIDTH_DP) {
+            binding.oobeIntroFooterButton.layoutParams.width = MATCH_PARENT
+        }
         binding.oobeIntroFooterButton.setOnClickListener { viewModel.onAcceptTos() }
+    }
+
+    companion object {
+        private const val MIN_FULL_BUTTON_WIDTH_DP = 360
     }
 }

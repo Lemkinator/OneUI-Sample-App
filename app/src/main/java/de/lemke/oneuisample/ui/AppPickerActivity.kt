@@ -217,8 +217,12 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             binding.noEntryScrollView.isVisible = true
             val callback = LottieValueCallback<ColorFilter>(SimpleColorFilter(getColor(R.color.primary_color_themed)))
             binding.noEntryLottie.addValueCallback(KeyPath("**"), COLOR_FILTER, callback)
-            binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, 400)
+            binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, LOTTIE_PLAY_DELAY_MS)
             currentPicker!!.isVisible = false
         }
+    }
+
+    companion object {
+        private const val LOTTIE_PLAY_DELAY_MS = 400L
     }
 }

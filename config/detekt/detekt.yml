@@ -34,8 +34,8 @@ complexity:
 style:
   active: true
   MagicNumber:
-    active: false   # re-enable after extracting magic numbers to named constants
-    ignoreNumbers: [ '-1', '0', '1', '2', '0.5' ]   # 0.5 for alpha/opacity
+    active: true
+    ignoreNumbers: [ '-1', '0', '1', '2', '0.5' ]
     ignorePropertyDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
   MaxLineLength:

@@ -132,7 +132,7 @@ class SettingsActivity : AppCompatActivity() {
             initSuggestionCard()
             findPreference<UpdatableWidgetPreference>("updatable")!!.onClick {
                 it.widgetLayoutResource = R.layout.sample_pref_widget_progress
-                requireView().postDelayed({ it.widgetLayoutResource = R.layout.sample_pref_widget_check }, 2000)
+                requireView().postDelayed({ it.widgetLayoutResource = R.layout.sample_pref_widget_check }, WIDGET_RESET_DELAY_MS)
             }
             findPreference<TipsCardPreference>("tip")!!.addButton("Button") { suggestiveSnackBar("onClick") }
             findPreference<EditTextPreference>("edit_text")!!.onNewValue { suggestiveSnackBar("New value: $it") }
@@ -222,6 +222,11 @@ class SettingsActivity : AppCompatActivity() {
             suggestion.setActionButtonOnClickListener { onSuggestionCardActionButtonClicked(it) }
         }
 
+        companion object {
+            private const val WIDGET_RESET_DELAY_MS = 2_000L
+            private const val SUGGESTION_DISMISS_DELAY_MS = 1_500L
+        }
+
         @VisibleForTesting(otherwise = PRIVATE)
         internal fun onSuggestionCardActionButtonClicked(view: View) {
             val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
@@ -232,7 +237,7 @@ class SettingsActivity : AppCompatActivity() {
                     preferenceScreen.removePreference(suggestion)
                     preferenceScreen.removePreference(suggestionInset)
                 },
-                1500,
+                SUGGESTION_DISMISS_DELAY_MS,
             )
         }
     }

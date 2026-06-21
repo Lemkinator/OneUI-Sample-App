@@ -80,6 +80,8 @@ inline fun <T> Fragment.collectEvents(
     flow.collect { onEach(it) }
 }
 
+private const val FLOW_STOP_TIMEOUT_MS = 5_000L
+
 /**
  * Returns a [StateFlow] backed by this flow, using [SharingStarted.WhileSubscribed] with a
  * 5-second timeout. Intended for ViewModel state derived from a repository flow.
@@ -90,6 +92,6 @@ fun <T> Flow<T>.stateInViewModel(
 ): StateFlow<T> =
     stateIn(
         scope = scope,
-        started = SharingStarted.WhileSubscribed(5_000),
+        started = SharingStarted.WhileSubscribed(FLOW_STOP_TIMEOUT_MS),
         initialValue = initialValue,
     )

@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         PopupMenu(this, binding.navigationView.findViewById(R.id.popup_menu)).apply {
             seslSetOverlapAnchor(false)
             setForceShowIcon(true)
-            seslSetOffset(140, 0)
+            seslSetOffset(POPUP_MENU_OFFSET_X, 0)
             inflate(R.menu.menu_popup)
             setOnMenuItemClickListener { menuItem -> onPopupMenuItemClicked(menuItem) }
             show()
@@ -156,5 +156,9 @@ class MainActivity : AppCompatActivity() {
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun onSuggestActionButtonClicked() {
         suggestiveSnackBar("Action button clicked!")
+    }
+
+    companion object {
+        private const val POPUP_MENU_OFFSET_X = 140
     }
 }
