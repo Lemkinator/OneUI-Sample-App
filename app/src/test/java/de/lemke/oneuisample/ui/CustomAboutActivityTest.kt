@@ -180,6 +180,7 @@ class CustomAboutActivityTest {
                     every { height } returns 400
                 }
             appBarListener.onOffsetChanged(appBarLayout, -200)
+            window.decorView.findViewById<android.view.View>(R.id.aboutBottomContainer)?.alpha shouldBe 0f
         }
     }
 

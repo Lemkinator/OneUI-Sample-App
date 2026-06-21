@@ -74,8 +74,6 @@ class IconAdapter(
             }
         }
 
-    fun getItemByPosition(position: Int): Icon = currentList[position]
-
     override fun getItemId(position: Int) = currentList[position].id
 
     override fun getItemViewType(position: Int): Int = 0
@@ -90,22 +88,6 @@ class IconAdapter(
             itemView.setOnClickListener { handleItemClick() }
             itemView.setOnLongClickListener { handleItemLongClick() }
         }
-
-    @NoCoverage
-    private fun ViewHolder.handleItemClick() {
-        val position = bindingAdapterPosition
-        if (position != RecyclerView.NO_POSITION) {
-            onClickItem(position, currentList[position], this)
-        }
-    }
-
-    @NoCoverage
-    private fun ViewHolder.handleItemLongClick(): Boolean {
-        if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
-            onLongClickItem()
-        }
-        return true
-    }
 
     @NoCoverage
     override fun onBindViewHolder(
@@ -139,6 +121,24 @@ class IconAdapter(
         val iconResId = currentList[position]
         holder.bindIcon(iconResId)
         holder.bindActionMode(getItemId(position))
+    }
+
+    fun getItemByPosition(position: Int): Icon = currentList[position]
+
+    @NoCoverage
+    private fun ViewHolder.handleItemClick() {
+        val position = bindingAdapterPosition
+        if (position != RecyclerView.NO_POSITION) {
+            onClickItem(position, currentList[position], this)
+        }
+    }
+
+    @NoCoverage
+    private fun ViewHolder.handleItemLongClick(): Boolean {
+        if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
+            onLongClickItem()
+        }
+        return true
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

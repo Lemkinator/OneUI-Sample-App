@@ -78,6 +78,22 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         binding.colorButton.setOnClickListener { openColorPickerDialog() }
     }
 
+    override fun onDestroyView() {
+        colorPickerDialog?.dismiss()
+        colorPickerDialog = null
+        super.onDestroyView()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        colorPickerDialog?.apply {
+            if (isShowing) {
+                dismiss()
+                openColorPickerDialog()
+            }
+        }
+    }
+
     private fun initNumberPicker() {
         binding.numberPicker3.apply {
             setTextTypeface(ResourcesCompat.getFont(requireContext(), R.font.samsungsharpsans_bold))
@@ -245,22 +261,6 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         val bitmap = createBitmap(rootView.width.coerceAtLeast(1), rootView.height.coerceAtLeast(1))
         rootView.draw(Canvas(bitmap))
         return bitmap
-    }
-
-    override fun onDestroyView() {
-        colorPickerDialog?.dismiss()
-        colorPickerDialog = null
-        super.onDestroyView()
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        colorPickerDialog?.apply {
-            if (isShowing) {
-                dismiss()
-                openColorPickerDialog()
-            }
-        }
     }
 
     companion object {

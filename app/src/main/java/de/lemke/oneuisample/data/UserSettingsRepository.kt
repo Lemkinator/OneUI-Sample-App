@@ -67,25 +67,6 @@ class UserSettingsRepository(
     var search: String by preferences.delegates.string("")
     var searchActive: Boolean by preferences.delegates.boolean(false)
 
-    private fun snapshot() =
-        UserSettings(
-            darkMode = darkMode,
-            autoDarkMode = autoDarkMode,
-            lastVersionCode = lastVersionCode,
-            lastVersionName = lastVersionName,
-            acceptedTosVersion = acceptedTosVersion,
-            devModeEnabled = devModeEnabled,
-            appPickerType = appPickerType,
-            sampleSwitchBar = sampleSwitchBar,
-            showIndexScroll = showIndexScroll,
-            indexScrollShowLetters = indexScrollShowLetters,
-            indexScrollAutoHide = indexScrollAutoHide,
-            actionModeShowCancel = actionModeShowCancel,
-            searchOnActionMode = searchOnActionMode,
-            search = search,
-            searchActive = searchActive,
-        )
-
     /**
      * A [StateFlow] of the current [UserSettings] snapshot.
      *
@@ -109,6 +90,25 @@ class UserSettingsRepository(
             awaitClose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
         }.distinctUntilChanged()
             .stateIn(scope, SharingStarted.Eagerly, snapshot())
+
+    private fun snapshot() =
+        UserSettings(
+            darkMode = darkMode,
+            autoDarkMode = autoDarkMode,
+            lastVersionCode = lastVersionCode,
+            lastVersionName = lastVersionName,
+            acceptedTosVersion = acceptedTosVersion,
+            devModeEnabled = devModeEnabled,
+            appPickerType = appPickerType,
+            sampleSwitchBar = sampleSwitchBar,
+            showIndexScroll = showIndexScroll,
+            indexScrollShowLetters = indexScrollShowLetters,
+            indexScrollAutoHide = indexScrollAutoHide,
+            actionModeShowCancel = actionModeShowCancel,
+            searchOnActionMode = searchOnActionMode,
+            search = search,
+            searchActive = searchActive,
+        )
 
     /**
      * Atomically reads the current snapshot, applies [transform], and writes back only the changed

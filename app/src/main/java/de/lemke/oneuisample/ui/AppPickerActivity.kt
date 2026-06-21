@@ -62,6 +62,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal var currentPicker: SeslAppPickerView? = null
+    private var renderedPickerType = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,8 +109,6 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             setSelection(viewModel.state.value.pickerType)
         }
     }
-
-    private var renderedPickerType = -1
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun render(state: AppPickerUiState) {

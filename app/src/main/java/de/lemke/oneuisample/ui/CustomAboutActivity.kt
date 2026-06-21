@@ -80,6 +80,32 @@ class CustomAboutActivity : AppCompatActivity() {
         initOnBackPressed()
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        refreshAppBar(newConfig)
+        updateCallbackState()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.about, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.menu_item_app_info) {
+            val intent =
+                Intent(
+                    "android.settings.APPLICATION_DETAILS_SETTINGS",
+                    Uri.fromParts("package", APPLICATION_ID, null),
+                )
+            intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            return true
+        }
+        return false
+    }
+
     @NoCoverage
     private fun applyInsetIfNeeded() {
         if (SDK_INT >= VERSION_CODES.R && !window.decorView.fitsSystemWindows) {
@@ -129,32 +155,6 @@ class CustomAboutActivity : AppCompatActivity() {
             isExpanding = false
             binding.aboutAppBar.setExpanded(false, true)
         }
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        refreshAppBar(newConfig)
-        updateCallbackState()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater: MenuInflater = menuInflater
-        inflater.inflate(R.menu.about, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_item_app_info) {
-            val intent =
-                Intent(
-                    "android.settings.APPLICATION_DETAILS_SETTINGS",
-                    Uri.fromParts("package", APPLICATION_ID, null),
-                )
-            intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            return true
-        }
-        return false
     }
 
     @SuppressLint("RestrictedApi")

@@ -95,6 +95,14 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     @Inject
     lateinit var userSettings: UserSettingsRepository
 
+    val searchModeListener by autoCleared {
+        getSearchListener(userSettings) {
+            seslSetOverflowMenuButtonIcon(AppCompatResources.getDrawable(requireContext(), iconsR.drawable.ic_oui_list_filter))
+            seslSetOverflowMenuButtonVisibility(VISIBLE)
+            seslSetOnOverflowMenuButtonClickListener { onSearchOverflowClicked() }
+        }
+    }
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
@@ -235,14 +243,6 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     }
 
     private fun startSearch() = drawerLayout.startSearchMode(searchModeListener, DISMISS)
-
-    val searchModeListener by autoCleared {
-        getSearchListener(userSettings) {
-            seslSetOverflowMenuButtonIcon(AppCompatResources.getDrawable(requireContext(), iconsR.drawable.ic_oui_list_filter))
-            seslSetOverflowMenuButtonVisibility(VISIBLE)
-            seslSetOnOverflowMenuButtonClickListener { onSearchOverflowClicked() }
-        }
-    }
 
     @NoCoverage
     private fun SearchView.onSearchOverflowClicked() {
