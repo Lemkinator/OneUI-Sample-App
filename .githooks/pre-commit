@@ -1,14 +1,24 @@
-#!/usr/bin/env bash
+#!/bin/sh
+# Runs static analysis (Spotless + Detekt) before allowing a commit.
+# Opt in: `git config core.hooksPath .githooks` (one-time per clone).
+
 set -e
 
 autocrlf=$(git config --bool core.autocrlf 2>/dev/null || echo "false")
 if [ "$autocrlf" = "true" ]; then
-  echo "✘ core.autocrlf=true breaks formatting checks."
-  echo "  Run: git config core.autocrlf input"
-  exit 1
+    echo ""
+    echo "ERROR: core.autocrlf=true causes CRLF line-ending violations in Spotless."
+    echo "Fix with: git config core.autocrlf input"
+    echo ""
+    exit 1
 fi
 
-./gradlew spotlessCheck detekt -q || {
-  echo "✘ Spotless/Detekt violations. Fix with: ./gradlew spotlessApply"
-  exit 1
+echo "Running static analysis..."
+./gradlew spotlessCheck detekt --quiet || {
+    echo ""
+    echo "ERROR: Static analysis failed."
+    echo "Fix formatting with: ./gradlew spotlessApply"
+    echo "Check Detekt report:  ./gradlew detekt"
+    echo ""
+    exit 1
 }
