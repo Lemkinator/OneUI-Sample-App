@@ -52,14 +52,14 @@ import kotlinx.coroutines.launch
 class SubtabWidgetsFragment : Fragment() {
     private val binding by autoCleared { FragmentTabDesignSubtabWidgetsBinding.bind(requireView()) }
     private val faceJsons = listOf("great_face.json", "good_face.json", "checking_face.json", "sad_face.json")
-    private val faceJsonNames by lazy {
-        listOf(
-            getString(R.string.face_great),
-            getString(R.string.face_good),
-            getString(R.string.face_checking),
-            getString(R.string.face_sad),
-        )
-    }
+    private val faceJsonNames: List<String>
+        get() =
+            listOf(
+                getString(R.string.face_great),
+                getString(R.string.face_good),
+                getString(R.string.face_checking),
+                getString(R.string.face_sad),
+            )
     private var progressJob: Job? = null
 
     override fun onCreateView(

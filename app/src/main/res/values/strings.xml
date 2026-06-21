@@ -133,7 +133,7 @@
 
     <!--Suggestion bar-->
     <string name="suggestion_title">This is a suggestion view</string>
-    <string name="action_button">Action Button</string>
+    <string name="action_button" translatable="false">Action Button</string>
     <string name="action_button_clicked">Action button clicked!</string>
 
     <!--Demo feedback snackbars-->
@@ -147,7 +147,7 @@
     <string name="menu_item_2_selected">Menu item 2 selected</string>
     <string name="menu_item_3_selected">Menu item 3 selected</string>
     <string name="start_end_time_result">Start time: %1$s\nEnd time: %2$s</string>
-    <string name="on_click">onClick</string>
+    <string name="on_click" translatable="false">onClick</string>
     <string name="new_value">New value: %1$s</string>
     <string name="tile_clicked_inactive">Tile clicked: inactive</string>
     <string name="tile_clicked_active">Tile clicked: active</string>
@@ -158,11 +158,11 @@
     <string name="vertical">Vertical</string>
     <string name="progress_indeterminate">Indeterminate</string>
     <string name="determinate">Determinate</string>
-    <string name="compound_buttons">Compound Buttons</string>
-    <string name="spinner_label">Spinner</string>
-    <string name="switch_label">Switch</string>
-    <string name="checkbox_label">CheckBox</string>
-    <string name="radio_button">RadioButton</string>
+    <string name="compound_buttons" translatable="false">Compound Buttons</string>
+    <string name="spinner_label" translatable="false">Spinner</string>
+    <string name="switch_label" translatable="false">Switch</string>
+    <string name="checkbox_label" translatable="false">CheckBox</string>
+    <string name="radio_button" translatable="false">RadioButton</string>
     <string name="custom_item_views">Custom item views</string>
     <string name="buttons_section">Buttons</string>
     <string name="relative_link_1">Relative link 1</string>
@@ -179,10 +179,10 @@
     <string name="transparent_themed">Transparent Themed</string>
 
     <!--Face widget names-->
-    <string name="face_great">Great Face</string>
-    <string name="face_good">Good Face</string>
-    <string name="face_checking">Checking Face</string>
-    <string name="face_sad">Sad Face</string>
+    <string name="face_great" translatable="false">Great Face</string>
+    <string name="face_good" translatable="false">Good Face</string>
+    <string name="face_checking" translatable="false">Checking Face</string>
+    <string name="face_sad" translatable="false">Sad Face</string>
 
     <!--Menus-->
     <string name="popup_menu">Pop-up Menu</string>

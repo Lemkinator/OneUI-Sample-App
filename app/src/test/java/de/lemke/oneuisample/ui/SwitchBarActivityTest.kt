@@ -49,6 +49,7 @@ class SwitchBarActivityTest {
 
     @Test
     fun onSwitchChanged_true_updatesViewModel() {
+        prefs.edit().putBoolean("sampleSwitchBar", false).commit()
         launch {
             onSwitchChanged(mockk(relaxed = true), true)
         }

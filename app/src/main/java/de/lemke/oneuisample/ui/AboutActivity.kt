@@ -78,7 +78,7 @@ class AboutActivity : AppCompatActivity() {
                 NoUpdate -> NotUpdatable
                 NotUpdatable -> NoConnection
                 NoConnection -> Failed(getString(R.string.failed))
-                Failed(getString(R.string.failed)) -> Unset
+                is Failed -> Unset
                 else -> Loading
             }
     }

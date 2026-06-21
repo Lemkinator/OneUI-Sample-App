@@ -71,6 +71,83 @@
 
     <string name="switch_bar_example">Das ist ein SwitchBar-Beispiel.</string>
 
+    <!--General-->
+    <string name="enabled">Aktiviert</string>
+    <string name="disabled">Deaktiviert</string>
+    <string name="turned_on">Eingeschaltet</string>
+    <string name="button">Schaltfläche</string>
+    <string name="failed">Fehlgeschlagen!</string>
+    <string name="extra_1">Extra 1</string>
+    <string name="extra_2">Extra 2</string>
+    <string name="left_to_right">Von links nach rechts</string>
+    <string name="right_to_left">Von rechts nach links</string>
+    <string name="left_label">Links</string>
+    <string name="right_label">Rechts</string>
+
+    <!--About-->
+    <string name="main_button_clicked">Hauptschaltfläche geklickt! updateState: %1$s</string>
+
+    <!--Suggestion bar-->
+    <string name="suggestion_title">Dies ist eine Suggestion View</string>
+    <string name="action_button_clicked">Action Button geklickt!</string>
+
+    <!--Demo feedback snackbars-->
+    <string name="card_item_view_clicked">Card Item View geklickt</string>
+    <string name="bottom_tip_view_clicked">Bottom Tip View geklickt</string>
+    <string name="bottom_tip_view_link_clicked">Bottom Tip View Link geklickt</string>
+    <string name="relative_link_1_clicked">Relativer Link 1 geklickt</string>
+    <string name="relative_link_2_clicked">Relativer Link 2 geklickt</string>
+    <string name="search_up_button_clicked">Such-Button geklickt</string>
+    <string name="menu_item_1_selected">Menüpunkt 1 ausgewählt</string>
+    <string name="menu_item_2_selected">Menüpunkt 2 ausgewählt</string>
+    <string name="menu_item_3_selected">Menüpunkt 3 ausgewählt</string>
+    <string name="start_end_time_result">Startzeit: %1$s\nEndzeit: %2$s</string>
+    <string name="new_value">Neuer Wert: %1$s</string>
+    <string name="tile_clicked_inactive">Kachel geklickt: inaktiv</string>
+    <string name="tile_clicked_active">Kachel geklickt: aktiv</string>
+    <string name="toggle_button_state">Umschalter: %1$s</string>
+
+    <!--Section headers-->
+    <string name="horizontal">Horizontal</string>
+    <string name="vertical">Vertikal</string>
+    <string name="progress_indeterminate">Unbestimmt</string>
+    <string name="determinate">Bestimmt</string>
+    <string name="custom_item_views">Benutzerdefinierte Ansichten</string>
+    <string name="buttons_section">Schaltflächen</string>
+    <string name="relative_link_1">Relativer Link 1</string>
+    <string name="relative_link_2">Relativer Link 2</string>
+    <string name="more_details">Weitere Details</string>
+    <string name="bottom_tip_description">Dies ist eine Beispiel-Beschreibung für den unteren Tipp.</string>
+    <string name="tip_title">Tipp</string>
+
+    <!--Button styles-->
+    <string name="colored">Farbig</string>
+    <string name="filled">Gefüllt</string>
+    <string name="transparent">Transparent</string>
+    <string name="transparent_colored">Transparent Farbig</string>
+    <string name="transparent_themed">Transparent Themed</string>
+
+    <!--Menus-->
+    <string name="popup_menu">Pop-up-Menü</string>
+    <string name="popup_menu_item_1">Pop-up-Menüpunkt 1</string>
+    <string name="popup_menu_item_2">Pop-up-Menüpunkt 2</string>
+    <string name="popup_menu_item_3">Pop-up-Menüpunkt 3</string>
+    <string name="popup_menu_item_4">Pop-up-Menüpunkt 4</string>
+    <string name="select_item_1">Element 1</string>
+    <string name="select_item_2">Element 2</string>
+    <string name="select_item_3">Element 3</string>
+
+    <!--Preferences-->
+    <string name="tips_card_summary">Hier beginnen die Einstellungsplatzhalter.</string>
+    <string name="suggestion_card_summary">Nur ein Vorschlag: Du kannst mich jederzeit einschalten.</string>
+    <string name="suggestion_pref_title">Vorschlag</string>
+    <string name="turn_on">Einschalten</string>
+    <string name="updatable_widget">Aktualisierbares Widget</string>
+    <string name="click_me">Klick mich</string>
+    <string name="checkbox_pref_summary">Nutzt das hier noch jemand?</string>
+    <string name="summary_placeholder">Zusammenfassung</string>
+    <string name="seekbar_expanded">Erweitert</string>
+
     <string name="list">Liste</string>
     <string name="list_action_button">Liste, Action Button</string>
     <string name="list_checkbox">Liste, CheckBox</string>

@@ -234,8 +234,12 @@ class CustomAboutActivity : AppCompatActivity() {
             val alphaRange = binding.aboutCTL.height * 0.143f
             val layoutPosition = abs(appBarLayout.top).toFloat()
             val bottomAlpha =
-                (BOTTOM_ALPHA_SCALE / alphaRange * (layoutPosition - binding.aboutCTL.height * BOTTOM_FADE_START_FRACTION))
-                    .coerceIn(0f, ALPHA_RANGE)
+                if (alphaRange > 0f) {
+                    (BOTTOM_ALPHA_SCALE / alphaRange * (layoutPosition - binding.aboutCTL.height * BOTTOM_FADE_START_FRACTION))
+                        .coerceIn(0f, ALPHA_RANGE)
+                } else {
+                    0f
+                }
             binding.aboutBottomContainer.alpha = bottomAlpha / ALPHA_RANGE
             updateCallbackState(appBarLayout.getTotalScrollRange() + verticalOffset == 0)
         }
