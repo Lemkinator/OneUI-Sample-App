@@ -51,10 +51,6 @@ class UserSettingsRepository(
     private val preferences: SharedPreferences,
     scope: CoroutineScope,
 ) {
-    companion object {
-        const val PREFS_NAME = "user_settings"
-    }
-
     var darkMode: Boolean by preferences.delegates.darkMode(false)
     var autoDarkMode: Boolean by preferences.delegates.boolean(true)
     var lastVersionCode: Int by preferences.delegates.int(-1)
@@ -143,6 +139,10 @@ class UserSettingsRepository(
         if (new.searchOnActionMode != current.searchOnActionMode) searchOnActionMode = new.searchOnActionMode
         if (new.search != current.search) search = new.search
         if (new.searchActive != current.searchActive) searchActive = new.searchActive
+    }
+
+    companion object {
+        const val PREFS_NAME = "user_settings"
     }
 }
 

@@ -222,11 +222,6 @@ class SettingsActivity : AppCompatActivity() {
             suggestion.setActionButtonOnClickListener { onSuggestionCardActionButtonClicked(it) }
         }
 
-        companion object {
-            private const val WIDGET_RESET_DELAY_MS = 2_000L
-            private const val SUGGESTION_DISMISS_DELAY_MS = 1_500L
-        }
-
         @VisibleForTesting(otherwise = PRIVATE)
         internal fun onSuggestionCardActionButtonClicked(view: View) {
             val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
@@ -239,6 +234,11 @@ class SettingsActivity : AppCompatActivity() {
                 },
                 SUGGESTION_DISMISS_DELAY_MS,
             )
+        }
+
+        companion object {
+            private const val WIDGET_RESET_DELAY_MS = 2_000L
+            private const val SUGGESTION_DISMISS_DELAY_MS = 1_500L
         }
     }
 }

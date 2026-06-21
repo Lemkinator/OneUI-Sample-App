@@ -15,9 +15,11 @@
  */
 package de.lemke.oneuisample
 
+import com.lemonappdev.konsist.api.KoModifier
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.ext.list.withPackage
 import com.lemonappdev.konsist.api.verify.assertFalse
+import com.lemonappdev.konsist.api.verify.assertTrue
 import org.junit.jupiter.api.Test
 
 class ArchitectureTest {
@@ -42,5 +44,22 @@ class ArchitectureTest {
         scope.files
             .withPackage("de.lemke.oneuisample.data..")
             .assertFalse { it.hasImport { import -> import.name.startsWith("de.lemke.oneuisample.domain.") } }
+    }
+
+    @Test
+    fun `companion object is last declaration in class body`() {
+        scope
+            .classes()
+            .assertTrue {
+                val companion =
+                    it.objects(includeNested = false).lastOrNull { obj ->
+                        obj.hasModifier(KoModifier.COMPANION)
+                    }
+                if (companion != null) {
+                    it.declarations(includeNested = false, includeLocal = false).last() == companion
+                } else {
+                    true
+                }
+            }
     }
 }

@@ -247,19 +247,6 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         return bitmap
     }
 
-    companion object {
-        private const val PICKER_TEXT_SIZE_SP = 40f
-        private const val PICKER2_TEXT_SIZE_SP = 50f
-        private const val PICKER2_MAX_VALUE = 10
-        private const val PICKER2_DEFAULT_VALUE = 8
-        private const val PICKER1_MAX_VALUE = 100
-        private const val PICKER1_DEFAULT_VALUE = 50
-        private const val SPINNER_SPINNING_DATE_PICKER = 3
-        private const val SPINNER_SLEEP_PICKER = 4
-        private const val DEFAULT_END_TIME_MINUTES = 600
-        private const val MAX_RECENT_COLORS = 6
-    }
-
     override fun onDestroyView() {
         colorPickerDialog?.dismiss()
         colorPickerDialog = null
@@ -274,5 +261,18 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
                 openColorPickerDialog()
             }
         }
+    }
+
+    companion object {
+        private const val PICKER_TEXT_SIZE_SP = 40f
+        private const val PICKER2_TEXT_SIZE_SP = 50f
+        private const val PICKER2_MAX_VALUE = 10
+        private const val PICKER2_DEFAULT_VALUE = 8
+        private const val PICKER1_MAX_VALUE = 100
+        private const val PICKER1_DEFAULT_VALUE = 50
+        private const val SPINNER_SPINNING_DATE_PICKER = 3
+        private const val SPINNER_SLEEP_PICKER = 4
+        private const val DEFAULT_END_TIME_MINUTES = 600
+        private const val MAX_RECENT_COLORS = 6
     }
 }
