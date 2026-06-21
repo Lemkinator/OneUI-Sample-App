@@ -20,46 +20,47 @@ import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.ext.list.withPackage
 import com.lemonappdev.konsist.api.verify.assertFalse
 import com.lemonappdev.konsist.api.verify.assertTrue
-import org.junit.jupiter.api.Test
+import io.kotest.core.spec.style.ShouldSpec
 
-class ArchitectureTest {
-    private val scope = Konsist.scopeFromProduction()
+class ArchitectureTest : ShouldSpec() {
+    private val codeScope = Konsist.scopeFromProduction()
 
-    @Test
-    fun `data layer does not depend on ui`() {
-        scope.files
-            .withPackage("de.lemke.oneuisample.data..")
-            .assertFalse { it.hasImport { import -> import.name.startsWith("de.lemke.oneuisample.ui.") } }
-    }
-
-    @Test
-    fun `domain layer does not depend on ui`() {
-        scope.files
-            .withPackage("de.lemke.oneuisample.domain..")
-            .assertFalse { it.hasImport { import -> import.name.startsWith("de.lemke.oneuisample.ui.") } }
-    }
-
-    @Test
-    fun `data layer does not depend on domain`() {
-        scope.files
-            .withPackage("de.lemke.oneuisample.data..")
-            .assertFalse { it.hasImport { import -> import.name.startsWith("de.lemke.oneuisample.domain.") } }
-    }
-
-    @Test
-    fun `companion object is last declaration in class body`() {
-        scope
-            .classes()
-            .assertTrue {
-                val companion =
-                    it.objects(includeNested = false).lastOrNull { obj ->
-                        obj.hasModifier(KoModifier.COMPANION)
-                    }
-                if (companion != null) {
-                    it.declarations(includeNested = false, includeLocal = false).last() == companion
-                } else {
-                    true
+    init {
+        should("data layer does not depend on ui") {
+            codeScope.files
+                .withPackage("de.lemke.oneuisample.data..")
+                .assertFalse(testName = this.testCase.name.toString()) {
+                    it.hasImport { import -> import.name.startsWith("de.lemke.oneuisample.ui.") }
                 }
-            }
+        }
+        should("domain layer does not depend on ui") {
+            codeScope.files
+                .withPackage("de.lemke.oneuisample.domain..")
+                .assertFalse(testName = this.testCase.name.toString()) {
+                    it.hasImport { import -> import.name.startsWith("de.lemke.oneuisample.ui.") }
+                }
+        }
+        should("data layer does not depend on domain") {
+            codeScope.files
+                .withPackage("de.lemke.oneuisample.data..")
+                .assertFalse(testName = this.testCase.name.toString()) {
+                    it.hasImport { import -> import.name.startsWith("de.lemke.oneuisample.domain.") }
+                }
+        }
+        should("companion object is last declaration in class body") {
+            codeScope
+                .classes()
+                .assertTrue(testName = this.testCase.name.toString()) {
+                    val companion =
+                        it.objects(includeNested = false).lastOrNull { obj ->
+                            obj.hasModifier(KoModifier.COMPANION)
+                        }
+                    if (companion != null) {
+                        it.declarations(includeNested = false, includeLocal = false).last() == companion
+                    } else {
+                        true
+                    }
+                }
+        }
     }
 }
