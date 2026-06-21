@@ -94,7 +94,7 @@
             <dev.oneuiproject.oneui.widget.Separator
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/determinate" />
+                android:text="@string/progress_determinate" />
 
             <dev.oneuiproject.oneui.widget.RoundedLinearLayout
                 android:layout_width="match_parent"
