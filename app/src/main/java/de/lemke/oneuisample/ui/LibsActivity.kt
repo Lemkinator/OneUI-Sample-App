@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
+import com.mikepenz.aboutlibraries.ui.compose.variant.LibraryBadges
 import com.mikepenz.aboutlibraries.util.withContext
 import de.lemke.oneuisample.R
 import dev.oneuiproject.oneui.R as iconsR
@@ -82,8 +83,7 @@ class LibsActivity : AppCompatActivity() {
                         LibrariesContainer(
                             Libs.Builder().withContext(this@LibsActivity).build(),
                             modifier = Modifier.fillMaxSize(),
-                            showDescription = true,
-                            showFundingBadges = true,
+                            badges = LibraryBadges(description = true, funding = true),
                         )
                     }
                 }
