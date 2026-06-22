@@ -158,9 +158,9 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun onSpinnerItemSelected(position: Int?) {
         position?.let {
-            binding.numberPicker.isVisible = position == 0
-            binding.timePicker.isVisible = position == 1
-            binding.datePicker.isVisible = position == 2
+            binding.numberPicker.isVisible = position == SPINNER_NUMBER_PICKER
+            binding.timePicker.isVisible = position == SPINNER_TIME_PICKER
+            binding.datePicker.isVisible = position == SPINNER_DATE_PICKER
             binding.spinningDatePicker.isVisible = position == SPINNER_SPINNING_DATE_PICKER
             binding.sleepPicker.isVisible = position == SPINNER_SLEEP_PICKER
         }
@@ -270,6 +270,9 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         private const val PICKER2_DEFAULT_VALUE = 8
         private const val PICKER1_MAX_VALUE = 100
         private const val PICKER1_DEFAULT_VALUE = 50
+        private const val SPINNER_NUMBER_PICKER = 0
+        private const val SPINNER_TIME_PICKER = 1
+        private const val SPINNER_DATE_PICKER = 2
         private const val SPINNER_SPINNING_DATE_PICKER = 3
         private const val SPINNER_SLEEP_PICKER = 4
         private const val DEFAULT_END_TIME_MINUTES = 600
