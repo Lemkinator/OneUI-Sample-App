@@ -30,4 +30,15 @@ abstract class AbsBaseFragment(
         reenterTransition = MaterialElevationScale(false)
         returnTransition = MaterialElevationScale(false)
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Release transition references so that captured mEndValuesList views (including child
+        // fragment views from ViewPager2) are not held alive via the ThreadLocal AnimationInfo
+        // chain after the view hierarchy is destroyed.
+        enterTransition = null
+        exitTransition = null
+        reenterTransition = null
+        returnTransition = null
+    }
 }

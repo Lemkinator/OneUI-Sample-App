@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -37,6 +38,7 @@ import de.lemke.oneuisample.ui.fragments.TabIconsFragment
 import dev.oneuiproject.oneui.layout.DrawerLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Before
@@ -84,37 +86,40 @@ class TabIconsFragmentTest {
 
     @Test
     fun onIconTabMenuItemSelected_search_startsSearchMode() {
-        withFragment { onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_search)) }
+        withFragment { onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_search)) shouldBe true }
     }
 
     @Test
     fun onIconTabMenuItemSelected_settings_showsDialog() {
-        withFragment { onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_settings)) }
+        withFragment {
+            onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_settings)) shouldBe true
+            ShadowDialog.getLatestDialog() shouldNotBe null
+        }
     }
 
     @Test
     fun onIconTabMenuItemSelected_unknown_returnsFalse() {
-        withFragment { onIconTabMenuItemSelected(mockMenuItem(-1)) }
+        withFragment { onIconTabMenuItemSelected(mockMenuItem(-1)) shouldBe false }
     }
 
     @Test
     fun onActionModeMenuItemSelected_item1_showsSnackbar() {
-        withFragment { onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_1)) }
+        withFragment { onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_1)) shouldBe true }
     }
 
     @Test
     fun onActionModeMenuItemSelected_item2_showsSnackbar() {
-        withFragment { onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_2)) }
+        withFragment { onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_2)) shouldBe true }
     }
 
     @Test
     fun onActionModeMenuItemSelected_item3_showsSnackbar() {
-        withFragment { onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_3)) }
+        withFragment { onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_3)) shouldBe true }
     }
 
     @Test
     fun onActionModeMenuItemSelected_unknown_returnsFalse() {
-        withFragment { onActionModeMenuItemSelected(mockMenuItem(-1)) }
+        withFragment { onActionModeMenuItemSelected(mockMenuItem(-1)) shouldBe false }
     }
 
     @Test
@@ -122,6 +127,8 @@ class TabIconsFragmentTest {
         withFragment {
             updateList(Pair(emptyList(), null))
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+            requireView().findViewById<View>(R.id.noEntryScrollView)?.visibility shouldBe View.VISIBLE
+            requireView().findViewById<View>(R.id.iconList)?.visibility shouldBe View.GONE
         }
     }
 
@@ -130,6 +137,8 @@ class TabIconsFragmentTest {
         withFragment {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
+            requireView().findViewById<View>(R.id.iconList)?.visibility shouldBe View.VISIBLE
+            requireView().findViewById<View>(R.id.noEntryScrollView)?.visibility shouldBe View.GONE
         }
     }
 
@@ -198,6 +207,8 @@ class TabIconsFragmentTest {
                 indexScrollAutoHide = false,
                 checkedSearchOnActionModeId = R.id.amsDismiss,
             )
+            userSettings.searchOnActionMode shouldBe ToolbarLayout.SearchOnActionMode.Dismiss
+            userSettings.showIndexScroll shouldBe false
         }
     }
 
@@ -211,6 +222,8 @@ class TabIconsFragmentTest {
                 indexScrollAutoHide = true,
                 checkedSearchOnActionModeId = R.id.amsNoDismiss,
             )
+            userSettings.searchOnActionMode shouldBe ToolbarLayout.SearchOnActionMode.NoDismiss
+            userSettings.actionModeShowCancel shouldBe true
         }
     }
 
@@ -224,6 +237,7 @@ class TabIconsFragmentTest {
                 indexScrollAutoHide = true,
                 checkedSearchOnActionModeId = -1,
             )
+            userSettings.searchOnActionMode shouldBe ToolbarLayout.SearchOnActionMode.Concurrent(null)
         }
     }
 
@@ -232,6 +246,8 @@ class TabIconsFragmentTest {
         withFragment {
             val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
             onShowIndexScrollChanged(dialogBinding, true)
+            dialogBinding.indexScrollShowLetters.isEnabled shouldBe true
+            dialogBinding.indexScrollAutoHide.isEnabled shouldBe true
         }
     }
 
@@ -240,6 +256,8 @@ class TabIconsFragmentTest {
         withFragment {
             val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
             onShowIndexScrollChanged(dialogBinding, false)
+            dialogBinding.indexScrollShowLetters.isEnabled shouldBe false
+            dialogBinding.indexScrollAutoHide.isEnabled shouldBe false
         }
     }
 
@@ -287,6 +305,15 @@ class TabIconsFragmentTest {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
             onIconSwiped(0, androidx.recyclerview.widget.ItemTouchHelper.END)
+        }
+    }
+
+    @Test
+    fun onIconSwiped_unknownDirection_returnsTrue() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon), null))
+            onIconSwiped(0, -1) shouldBe true
         }
     }
 

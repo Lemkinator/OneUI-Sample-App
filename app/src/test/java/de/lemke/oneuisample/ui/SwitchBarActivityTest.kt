@@ -15,11 +15,14 @@
  */
 package de.lemke.oneuisample.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
+import de.lemke.oneuisample.data.UserSettingsRepository
+import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,6 +36,7 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class SwitchBarActivityTest {
     private val context get() = ApplicationProvider.getApplicationContext<android.app.Application>()
+    private val prefs get() = context.getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
 
     private fun launch(block: SwitchBarActivity.() -> Unit = {}) {
         ActivityScenario.launch<SwitchBarActivity>(Intent(context, SwitchBarActivity::class.java)).use { scenario ->
@@ -45,17 +49,21 @@ class SwitchBarActivityTest {
 
     @Test
     fun onSwitchChanged_true_updatesViewModel() {
+        prefs.edit().putBoolean("sampleSwitchBar", false).commit()
         launch {
-            val switchCompat = mockk<androidx.appcompat.widget.SwitchCompat>(relaxed = true)
-            onSwitchChanged(switchCompat, true)
+            onSwitchChanged(mockk(relaxed = true), true)
         }
+        // onSwitchChanged → viewModel.onSwitchChanged(true) → userSettings.sampleSwitchBar = true
+        prefs.getBoolean("sampleSwitchBar", false) shouldBe true
     }
 
     @Test
     fun onSwitchChanged_false_updatesViewModel() {
+        // Pre-set to true so toggling to false produces a meaningful observable change
+        prefs.edit().putBoolean("sampleSwitchBar", true).commit()
         launch {
-            val switchCompat = mockk<androidx.appcompat.widget.SwitchCompat>(relaxed = true)
-            onSwitchChanged(switchCompat, false)
+            onSwitchChanged(mockk(relaxed = true), false)
         }
+        prefs.getBoolean("sampleSwitchBar", true) shouldBe false
     }
 }

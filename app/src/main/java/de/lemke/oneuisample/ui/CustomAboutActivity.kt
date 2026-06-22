@@ -23,6 +23,7 @@ import android.content.res.Configuration
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.net.Uri
 import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -55,16 +56,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 @AndroidEntryPoint
 class CustomAboutActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityCustomAboutBinding
-    private val appBarListener = AboutAppBarListener()
+    private val binding by lazy { ActivityCustomAboutBinding.inflate(layoutInflater) }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal val appBarListener: OnOffsetChangedListener = AboutAppBarListener()
     private val progressInterpolator = PathInterpolatorCompat.create(0f, 0f, 0f, 1f)
-    private val callbackIsActive = MutableStateFlow(false)
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal val callbackIsActive = MutableStateFlow(false)
     private var isBackProgressing = false
     private var isExpanding = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCustomAboutBinding.inflate(layoutInflater)
         binding.root.configureAdaptiveMargin(MARGIN_PROVIDER_ADP_DEFAULT, binding.aboutBottomContainer)
         setContentView(binding.root)
         applyInsetIfNeeded()
@@ -74,38 +78,6 @@ class CustomAboutActivity : AppCompatActivity() {
         refreshAppBar(resources.configuration)
         setupOnClickListeners()
         initOnBackPressed()
-    }
-
-    @NoCoverage
-    private fun applyInsetIfNeeded() {
-        if (SDK_INT >= 30 && !window.decorView.fitsSystemWindows) {
-            binding.root.setOnApplyWindowInsetsListener { _, insets ->
-                val systemBarsInsets = insets.getInsets(systemBars())
-                binding.root.setPadding(systemBarsInsets.left, systemBarsInsets.top, systemBarsInsets.right, systemBarsInsets.bottom)
-                insets
-            }
-        }
-    }
-
-    private fun setupToolbar() {
-        setSupportActionBar(binding.aboutToolbar)
-        // Should be called after setSupportActionBar
-        binding.aboutToolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
-        supportActionBar!!.apply {
-            setDisplayHomeAsUpEnabled(true)
-            setDisplayShowTitleEnabled(false)
-        }
-    }
-
-    private fun initOnBackPressed() {
-        invokeOnBack(
-            triggerStateFlow = callbackIsActive,
-            onBackPressed = { simulateOnBackPressed() },
-            onBackStarted = { simulateOnBackStarted() },
-            onBackProgressed = { simulateOnBackProgressed(it.progress) },
-            onBackCancelled = { simulateOnBackCancelled() },
-        )
-        updateCallbackState()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -132,6 +104,57 @@ class CustomAboutActivity : AppCompatActivity() {
             return true
         }
         return false
+    }
+
+    @NoCoverage
+    private fun applyInsetIfNeeded() {
+        if (SDK_INT >= VERSION_CODES.R && !window.decorView.fitsSystemWindows) {
+            binding.root.setOnApplyWindowInsetsListener { _, insets ->
+                val systemBarsInsets = insets.getInsets(systemBars())
+                binding.root.setPadding(systemBarsInsets.left, systemBarsInsets.top, systemBarsInsets.right, systemBarsInsets.bottom)
+                insets
+            }
+        }
+    }
+
+    private fun setupToolbar() {
+        setSupportActionBar(binding.aboutToolbar)
+        // Should be called after setSupportActionBar
+        binding.aboutToolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        supportActionBar!!.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowTitleEnabled(false)
+        }
+    }
+
+    private fun initOnBackPressed() {
+        invokeOnBack(
+            triggerStateFlow = callbackIsActive,
+            onBackPressed = {
+                binding.aboutAppBar.setExpanded(true)
+                isBackProgressing = false
+                isExpanding = false
+            },
+            onBackStarted = { isBackProgressing = true },
+            onBackProgressed = { applyBackProgress(it.progress) },
+            onBackCancelled = {
+                binding.aboutAppBar.setExpanded(false)
+                isBackProgressing = false
+                isExpanding = false
+            },
+        )
+        updateCallbackState()
+    }
+
+    private fun applyBackProgress(progress: Float) {
+        val interpolatedProgress = progressInterpolator.getInterpolation(progress)
+        if (interpolatedProgress > 0.5f && !isExpanding) {
+            isExpanding = true
+            binding.aboutAppBar.setExpanded(true, true)
+        } else if (interpolatedProgress < BACK_COLLAPSE_THRESHOLD && isExpanding) {
+            isExpanding = false
+            binding.aboutAppBar.setExpanded(false, true)
+        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -189,48 +212,6 @@ class CustomAboutActivity : AppCompatActivity() {
         }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun simulateAppBarOffsetChanged(
-        appBarLayout: AppBarLayout,
-        verticalOffset: Int,
-    ) {
-        appBarListener.onOffsetChanged(appBarLayout, verticalOffset)
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun triggerUpdateCallbackState(enable: Boolean? = null) = updateCallbackState(enable)
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun simulateOnBackStarted() {
-        isBackProgressing = true
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun simulateOnBackProgressed(progress: Float) {
-        val interpolatedProgress = progressInterpolator.getInterpolation(progress)
-        if (interpolatedProgress > .5 && !isExpanding) {
-            isExpanding = true
-            binding.aboutAppBar.setExpanded(true, true)
-        } else if (interpolatedProgress < .3 && isExpanding) {
-            isExpanding = false
-            binding.aboutAppBar.setExpanded(false, true)
-        }
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun simulateOnBackPressed() {
-        binding.aboutAppBar.setExpanded(true)
-        isBackProgressing = false
-        isExpanding = false
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun simulateOnBackCancelled() {
-        binding.aboutAppBar.setExpanded(false)
-        isBackProgressing = false
-        isExpanding = false
-    }
-
     private inner class AboutAppBarListener : OnOffsetChangedListener {
         override fun onOffsetChanged(
             appBarLayout: AppBarLayout,
@@ -247,13 +228,19 @@ class CustomAboutActivity : AppCompatActivity() {
                 setBottomContentEnabled(false)
             } else {
                 val offsetAlpha = appBarLayout.y / totalScrollRange
-                binding.aboutSwipeUpContainer.alpha = (1 - offsetAlpha * -3).coerceIn(0f, 1f)
+                binding.aboutSwipeUpContainer.alpha = (1 + offsetAlpha * SWIPE_UP_ALPHA_SPEED).coerceIn(0f, 1f)
             }
             // Handle the bottom part of the UI
             val alphaRange = binding.aboutCTL.height * 0.143f
             val layoutPosition = abs(appBarLayout.top).toFloat()
-            val bottomAlpha = (150.0f / alphaRange * (layoutPosition - binding.aboutCTL.height * 0.35f)).coerceIn(0f, 255f)
-            binding.aboutBottomContainer.alpha = bottomAlpha / 255
+            val bottomAlpha =
+                if (alphaRange > 0f) {
+                    (BOTTOM_ALPHA_SCALE / alphaRange * (layoutPosition - binding.aboutCTL.height * BOTTOM_FADE_START_FRACTION))
+                        .coerceIn(0f, ALPHA_RANGE)
+                } else {
+                    0f
+                }
+            binding.aboutBottomContainer.alpha = bottomAlpha / ALPHA_RANGE
             updateCallbackState(appBarLayout.getTotalScrollRange() + verticalOffset == 0)
         }
     }
@@ -265,5 +252,13 @@ class CustomAboutActivity : AppCompatActivity() {
     private fun updateCallbackState(enable: Boolean? = null) {
         if (isBackProgressing) return
         callbackIsActive.value = enable ?: isCallbackEnabled()
+    }
+
+    companion object {
+        private const val BACK_COLLAPSE_THRESHOLD = 0.3f
+        private const val SWIPE_UP_ALPHA_SPEED = 3f
+        private const val BOTTOM_ALPHA_SCALE = 150f
+        private const val BOTTOM_FADE_START_FRACTION = 0.35f
+        private const val ALPHA_RANGE = 255f
     }
 }

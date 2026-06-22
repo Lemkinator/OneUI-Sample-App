@@ -29,7 +29,11 @@ class SeekBarActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySeekBarBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.seekbarOverlap.updateDualColorRange(70)
+        binding.seekbarOverlap.updateDualColorRange(DUAL_COLOR_RANGE)
         binding.seekbarLevelSeamless.setSeamless(true)
+    }
+
+    companion object {
+        private const val DUAL_COLOR_RANGE = 70
     }
 }

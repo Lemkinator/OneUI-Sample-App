@@ -62,6 +62,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal var currentPicker: SeslAppPickerView? = null
+    private var renderedPickerType = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +80,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             R.id.menu_app_picker_search -> {
                 binding.toolbarLayout.startSearchMode(
                     onStart = {
-                        it.queryHint = "Search apps"
+                        it.queryHint = getString(R.string.search_apps)
                         binding.appPickerSpinner.isEnabled = false
                     },
                     onQuery = { query, _ ->
@@ -108,8 +109,6 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             setSelection(viewModel.state.value.pickerType)
         }
     }
-
-    private var renderedPickerType = -1
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun render(state: AppPickerUiState) {
@@ -217,8 +216,12 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             binding.noEntryScrollView.isVisible = true
             val callback = LottieValueCallback<ColorFilter>(SimpleColorFilter(getColor(R.color.primary_color_themed)))
             binding.noEntryLottie.addValueCallback(KeyPath("**"), COLOR_FILTER, callback)
-            binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, 400)
+            binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, LOTTIE_PLAY_DELAY_MS)
             currentPicker!!.isVisible = false
         }
+    }
+
+    companion object {
+        private const val LOTTIE_PLAY_DELAY_MS = 400L
     }
 }

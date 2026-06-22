@@ -34,7 +34,8 @@ complexity:
 style:
   active: true
   MagicNumber:
-    active: false # re-enable in Step 3 after extracting constants
+    active: true
+    ignoreNumbers: [ '-1', '0', '1', '2', '0.5' ]
     ignorePropertyDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
   MaxLineLength:

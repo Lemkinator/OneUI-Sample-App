@@ -241,7 +241,6 @@ kover {
                     "*_MembersInjector",
                     "dagger.hilt.*",
                     "hilt_aggregated_deps.*",
-                    "*.di.*",
                     "*TileService",
                     "*TileService$*",
                     "*ComposableSingletons$*",

@@ -20,6 +20,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Looper
+import android.view.View
+import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
 import androidx.picker.widget.SeslNumberPicker
@@ -30,6 +32,8 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.fragments.TabPickerFragment
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -88,7 +92,10 @@ class TabPickerFragmentTest {
 
     @Test
     fun onColorPicked_updatesCurrentColor() {
-        withFragment { onColorPicked(0xFF0000) }
+        withFragment {
+            onColorPicked(0xFF0000)
+            currentColor shouldBe 0xFF0000
+        }
     }
 
     @Test
@@ -96,6 +103,8 @@ class TabPickerFragmentTest {
         withFragment {
             onColorPicked(0xFF0000)
             onColorPicked(0xFF0000)
+            // Picked color deduped: list stays at 2 (0xFF0000 + initial default), not 3
+            recentColors.count { it == 0xFF0000 } shouldBe 1
         }
     }
 
@@ -103,27 +112,34 @@ class TabPickerFragmentTest {
     fun onColorPicked_keepsAtMostSixRecentColors() {
         withFragment {
             repeat(8) { i -> onColorPicked(i) }
+            recentColors.size shouldBe 6
         }
     }
 
     @Test
     fun openDatePickerDialog_showsDialog() {
         withFragment { openDatePickerDialog() }
+        ShadowDialog.getLatestDialog() shouldNotBe null
     }
 
     @Test
     fun openTimePickerDialog_showsDialog() {
         withFragment { openTimePickerDialog() }
+        ShadowDialog.getLatestDialog() shouldNotBe null
     }
 
     @Test
     fun openStartEndTimePickerDialog_showsDialog() {
         withFragment { openStartEndTimePickerDialog() }
+        ShadowDialog.getLatestDialog() shouldNotBe null
     }
 
     @Test
     fun openColorPickerDialog_showsDialog() {
-        withFragment { openColorPickerDialog() }
+        withFragment {
+            openColorPickerDialog()
+            colorPickerDialog shouldNotBe null
+        }
     }
 
     @Test
@@ -142,37 +158,38 @@ class TabPickerFragmentTest {
             colorPickerDialog?.dismiss()
             val config = Configuration(resources.configuration)
             onConfigurationChanged(config)
+            colorPickerDialog?.isShowing shouldBe false
         }
     }
 
     @Test
     fun onNumberPicker3EditorAction_done_disablesEditTextMode() {
-        withFragment { onNumberPicker3EditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_DONE) }
+        withFragment { onNumberPicker3EditorAction(EditorInfo.IME_ACTION_DONE) shouldBe false }
     }
 
     @Test
     fun onNumberPicker3EditorAction_other_noChange() {
-        withFragment { onNumberPicker3EditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_GO) }
+        withFragment { onNumberPicker3EditorAction(EditorInfo.IME_ACTION_GO) shouldBe false }
     }
 
     @Test
     fun onNumberPicker2EditorAction_next_movesToPicker3() {
-        withFragment { onNumberPicker2EditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_NEXT) }
+        withFragment { onNumberPicker2EditorAction(EditorInfo.IME_ACTION_NEXT) shouldBe false }
     }
 
     @Test
     fun onNumberPicker2EditorAction_other_noChange() {
-        withFragment { onNumberPicker2EditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_GO) }
+        withFragment { onNumberPicker2EditorAction(EditorInfo.IME_ACTION_GO) shouldBe false }
     }
 
     @Test
     fun onNumberPicker1EditorAction_next_movesToPicker2() {
-        withFragment { onNumberPicker1EditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_NEXT) }
+        withFragment { onNumberPicker1EditorAction(EditorInfo.IME_ACTION_NEXT) shouldBe false }
     }
 
     @Test
     fun onNumberPicker1EditorAction_other_noChange() {
-        withFragment { onNumberPicker1EditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_GO) }
+        withFragment { onNumberPicker1EditorAction(EditorInfo.IME_ACTION_GO) shouldBe false }
     }
 
     @Test
@@ -182,27 +199,44 @@ class TabPickerFragmentTest {
 
     @Test
     fun onSpinnerItemSelected_position0_showsNumberPicker() {
-        withFragment { onSpinnerItemSelected(0) }
+        withFragment {
+            onSpinnerItemSelected(0)
+            requireView().findViewById<View>(R.id.numberPicker)?.visibility shouldBe View.VISIBLE
+            requireView().findViewById<View>(R.id.timePicker)?.visibility shouldBe View.GONE
+        }
     }
 
     @Test
     fun onSpinnerItemSelected_position1_showsTimePicker() {
-        withFragment { onSpinnerItemSelected(1) }
+        withFragment {
+            onSpinnerItemSelected(1)
+            requireView().findViewById<View>(R.id.timePicker)?.visibility shouldBe View.VISIBLE
+            requireView().findViewById<View>(R.id.numberPicker)?.visibility shouldBe View.GONE
+        }
     }
 
     @Test
     fun onSpinnerItemSelected_position2_showsDatePicker() {
-        withFragment { onSpinnerItemSelected(2) }
+        withFragment {
+            onSpinnerItemSelected(2)
+            requireView().findViewById<View>(R.id.datePicker)?.visibility shouldBe View.VISIBLE
+        }
     }
 
     @Test
     fun onSpinnerItemSelected_position3_showsSpinningDatePicker() {
-        withFragment { onSpinnerItemSelected(3) }
+        withFragment {
+            onSpinnerItemSelected(3)
+            requireView().findViewById<View>(R.id.spinningDatePicker)?.visibility shouldBe View.VISIBLE
+        }
     }
 
     @Test
     fun onSpinnerItemSelected_position4_showsSleepPicker() {
-        withFragment { onSpinnerItemSelected(4) }
+        withFragment {
+            onSpinnerItemSelected(4)
+            requireView().findViewById<View>(R.id.sleepPicker)?.visibility shouldBe View.VISIBLE
+        }
     }
 
     @Test
@@ -212,6 +246,7 @@ class TabPickerFragmentTest {
             val config = Configuration(resources.configuration)
             onConfigurationChanged(config)
             shadowOf(Looper.getMainLooper()).idle()
+            colorPickerDialog?.isShowing shouldBe true
         }
     }
 
@@ -222,6 +257,7 @@ class TabPickerFragmentTest {
             colorPickerDialog?.dismiss()
             val config = Configuration(resources.configuration)
             onConfigurationChanged(config)
+            colorPickerDialog?.isShowing shouldBe false
         }
     }
 
@@ -256,7 +292,7 @@ class TabPickerFragmentTest {
             requireView()
                 .findViewById<SeslNumberPicker>(R.id.numberPicker3)
                 ?.editText
-                ?.onEditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_DONE)
+                ?.onEditorAction(EditorInfo.IME_ACTION_DONE)
         }
     }
 
@@ -266,7 +302,7 @@ class TabPickerFragmentTest {
             requireView()
                 .findViewById<SeslNumberPicker>(R.id.numberPicker2)
                 ?.editText
-                ?.onEditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_NEXT)
+                ?.onEditorAction(EditorInfo.IME_ACTION_NEXT)
         }
     }
 
@@ -276,7 +312,7 @@ class TabPickerFragmentTest {
             requireView()
                 .findViewById<SeslNumberPicker>(R.id.numberPicker1)
                 ?.editText
-                ?.onEditorAction(android.view.inputmethod.EditorInfo.IME_ACTION_NEXT)
+                ?.onEditorAction(EditorInfo.IME_ACTION_NEXT)
         }
     }
 }

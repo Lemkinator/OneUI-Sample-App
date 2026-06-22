@@ -36,17 +36,20 @@
     <string name="error_loading_apps">Error loading apps</string>
 
     <!--About-->
-    <string name="about_app">About OneUI Sample</string>
     <string name="version">Version %1$s</string>
+    <string name="about_app">About OneUI Sample</string>
+    <string name="open_source_licenses">Open source licenses</string>
     <string name="about_custom" translatable="false">Custom About OneUI Sample</string>
     <string name="status" translatable="false">Status</string>
     <string name="oneui_project_team" translatable="false">OneUI Project Team</string>
-    <string name="open_source_licenses">Open source licenses</string>
     <string name="android_jetpack" translatable="false">Android Jetpack</string>
     <string name="material_components" translatable="false">Material Components</string>
     <string name="sesl_android_jetpack_unofficial" translatable="false">SESL Android Jetpack (Unofficial)</string>
     <string name="sesl_material_components_for_android_unofficial" translatable="false">SESL Material Components for Android (Unofficial)</string>
     <string name="oneui_design_lib" translatable="false">OneUI Design Lib</string>
+    <string name="yanndroid" translatable="false">Yanndroid</string>
+    <string name="salvo_giangreco" translatable="false">Salvo Giangreco</string>
+    <string name="tribalfs" translatable="false">Tribalfs</string>
 
     <!--Settings-->
     <string name="design">Design</string>
@@ -104,7 +107,6 @@
 
     <string name="memory_leaks" translatable="false">Memory leaks</string>
     <string name="switch_bar_example">This is a SwitchBar example.</string>
-
     <string name="list">List</string>
     <string name="list_action_button">List, Action Button</string>
     <string name="list_checkbox">List, CheckBox</string>
@@ -114,5 +116,95 @@
     <string name="list_switch_all_apps">List, Switch, All apps</string>
     <string name="grid">Grid</string>
     <string name="grid_checkbox">Grid, CheckBox</string>
+
+    <!--General-->
+    <string name="button" translatable="false">Button</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="turned_on">Turned on</string>
+    <string name="failed">Failed!</string>
+    <string name="extra_1">Extra 1</string>
+    <string name="extra_2">Extra 2</string>
+    <string name="left_to_right">Left to Right</string>
+    <string name="right_to_left">Right to Left</string>
+    <string name="left_label">Left</string>
+    <string name="right_label">Right</string>
+
+    <!--About-->
+    <string name="main_button_clicked">Main button clicked! updateState: %1$s</string>
+
+    <!--Suggestion bar-->
+    <string name="suggestion_title">This is a suggestion view</string>
+    <string name="action_button" translatable="false">Action Button</string>
+    <string name="action_button_clicked">Action button clicked!</string>
+
+    <!--Demo feedback snackbars-->
+    <string name="card_item_view_clicked">Card Item View Clicked</string>
+    <string name="bottom_tip_view_clicked">Bottom Tip View Clicked</string>
+    <string name="bottom_tip_view_link_clicked">Bottom Tip View Link Clicked</string>
+    <string name="relative_link_1_clicked">Relative Link 1 Clicked</string>
+    <string name="relative_link_2_clicked">Relative Link 2 Clicked</string>
+    <string name="search_up_button_clicked">Search Up Button Clicked</string>
+    <string name="menu_item_1_selected">Menu item 1 selected</string>
+    <string name="menu_item_2_selected">Menu item 2 selected</string>
+    <string name="menu_item_3_selected">Menu item 3 selected</string>
+    <string name="start_end_time_result">Start time: %1$s\nEnd time: %2$s</string>
+    <string name="on_click" translatable="false">onClick</string>
+    <string name="new_value">New value: %1$s</string>
+    <string name="tile_clicked_inactive">Tile clicked: inactive</string>
+    <string name="tile_clicked_active">Tile clicked: active</string>
+    <string name="toggle_button_state">Toggle Button: %1$s</string>
+
+    <!--Section headers-->
+    <string name="horizontal">Horizontal</string>
+    <string name="vertical">Vertical</string>
+    <string name="progress_indeterminate" translatable="false">Indeterminate</string>
+    <string name="progress_determinate" translatable="false">Determinate</string>
+    <string name="compound_buttons" translatable="false">Compound Buttons</string>
+    <string name="spinner_label" translatable="false">Spinner</string>
+    <string name="switch_label" translatable="false">Switch</string>
+    <string name="checkbox_label" translatable="false">CheckBox</string>
+    <string name="radio_button" translatable="false">RadioButton</string>
+    <string name="custom_item_views" translatable="false">Custom item views</string>
+    <string name="buttons_section" translatable="false">Buttons</string>
+    <string name="relative_link_1" translatable="false">Relative link 1</string>
+    <string name="relative_link_2" translatable="false">Relative link 2</string>
+    <string name="more_details">More details</string>
+    <string name="bottom_tip_description">This is a sample bottom tip description.</string>
+    <string name="tip_title">Tip</string>
+
+    <!--Button styles (shared with snackbar feedback)-->
+    <string name="colored">Colored</string>
+    <string name="filled">Filled</string>
+    <string name="transparent">Transparent</string>
+    <string name="transparent_colored">Transparent Colored</string>
+    <string name="transparent_themed">Transparent Themed</string>
+
+    <!--Face widget names-->
+    <string name="face_great" translatable="false">Great Face</string>
+    <string name="face_good" translatable="false">Good Face</string>
+    <string name="face_checking" translatable="false">Checking Face</string>
+    <string name="face_sad" translatable="false">Sad Face</string>
+
+    <!--Menus-->
+    <string name="popup_menu">Pop-up Menu</string>
+    <string name="popup_menu_item_1">Pop-up menu item 1</string>
+    <string name="popup_menu_item_2">Pop-up menu item 2</string>
+    <string name="popup_menu_item_3">Pop-up menu item 3</string>
+    <string name="popup_menu_item_4">Pop-up menu item 4</string>
+    <string name="select_item_1">Item 1</string>
+    <string name="select_item_2">Item 2</string>
+    <string name="select_item_3">Item 3</string>
+
+    <!--Preferences-->
+    <string name="tips_card_summary">From here the preference dummies start.</string>
+    <string name="suggestion_card_summary">Just a suggestion: you can turn me on anytime.</string>
+    <string name="suggestion_pref_title">Suggestion</string>
+    <string name="turn_on">Turn on</string>
+    <string name="updatable_widget">Updatable widget</string>
+    <string name="click_me">Click me</string>
+    <string name="checkbox_pref_summary">Someone\'s still using this one?</string>
+    <string name="summary_placeholder">Summary</string>
+    <string name="seekbar_expanded">Expanded</string>
 
 </resources>

@@ -56,16 +56,16 @@
 
     <dev.oneuiproject.oneui.preference.TipsCardPreference
         android:key="tip"
-        android:summary="From here the preference dummies start."
+        android:summary="@string/tips_card_summary"
         android:title="TipsCardPreference" />
 
     <dev.oneuiproject.oneui.preference.InsetPreferenceCategory />
 
     <dev.oneuiproject.oneui.preference.SuggestionCardPreference
         android:key="suggestion"
-        android:summary="Just a suggestion: you can turn me on anytime."
-        android:title="Suggestion"
-        app:actionButtonText="Turn on" />
+        android:summary="@string/suggestion_card_summary"
+        android:title="@string/suggestion_pref_title"
+        app:actionButtonText="@string/turn_on" />
 
     <dev.oneuiproject.oneui.preference.InsetPreferenceCategory android:key="suggestion_inset" />
 
@@ -74,9 +74,9 @@
     <PreferenceCategory>
         <dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
             android:key="updatable"
-            android:title="Updatable widget"
+            android:title="@string/updatable_widget"
             android:widgetLayout="@layout/sample_pref_widget_check"
-            app:summary="Click me" />
+            app:summary="@string/click_me" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
@@ -90,7 +90,7 @@
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="checkbox"
-            android:summary="Someone's still using this one?"
+            android:summary="@string/checkbox_pref_summary"
             android:title="CheckBoxPreference" />
     </PreferenceCategory>
 
@@ -121,7 +121,7 @@
             android:entries="@array/preferences_test_entries"
             android:entryValues="@array/preferences_test_values"
             android:key="multiselect_list"
-            android:summary="Summary"
+            android:summary="@string/summary_placeholder"
             android:title="MultiSelectListPreference" />
     </PreferenceCategory>
 
@@ -129,7 +129,7 @@
         <dev.oneuiproject.oneui.preference.ColorPickerPreference
             android:defaultValue="#0381FE"
             android:key="color_picker"
-            android:summary="Summary"
+            android:summary="@string/summary_placeholder"
             android:title="ColorPickerPreference"
             app:showAlphaSlider="true" />
 
@@ -137,15 +137,14 @@
             android:defaultValue="30"
             android:key="seekbar"
             android:max="50"
-            android:summary="Summary"
+            android:summary="@string/summary_placeholder"
             android:title="SeekBarPreference"
             app:min="0" />
-
 
         <dev.oneuiproject.oneui.preference.SeekBarPreferencePro
             android:key="seekbar_pro"
             android:max="100"
-            android:summary="Expanded"
+            android:summary="@string/seekbar_expanded"
             android:title="SeekBarPreference"
             app:adjustable="false"
             app:seekBarMode="expand"
@@ -170,8 +169,8 @@
             android:title="SeekBarPreference"
             app:adjustable="false"
             app:centerBasedSeekBar="true"
-            app:leftLabelName="Left"
-            app:rightLabelName="Right"
+            app:leftLabelName="@string/left_label"
+            app:rightLabelName="@string/right_label"
             app:seamlessSeekBar="true"
             app:showSeekBarValue="false"
             app:showTickMark="false"

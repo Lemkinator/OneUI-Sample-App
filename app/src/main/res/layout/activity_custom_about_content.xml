@@ -45,7 +45,7 @@
                 android:layout_height="wrap_content"
                 app:icon="@drawable/about_page_avatar_yann"
                 app:showTopDivider="false"
-                app:title="Yanndroid" />
+                app:title="@string/yanndroid" />
 
             <dev.oneuiproject.oneui.widget.CardItemView
                 android:id="@+id/aboutBottomDevMesa"
@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 app:icon="@drawable/about_page_avatar_salvo"
                 app:showTopDivider="true"
-                app:title="Salvo Giangreco" />
+                app:title="@string/salvo_giangreco" />
 
             <dev.oneuiproject.oneui.widget.CardItemView
                 android:id="@+id/aboutBottomDevTribalfs"
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 app:icon="@drawable/about_page_avatar_tribalfs"
                 app:showTopDivider="true"
-                app:title="Tribalfs" />
+                app:title="@string/tribalfs" />
 
         </dev.oneuiproject.oneui.widget.RoundedLinearLayout>
 

@@ -17,12 +17,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="AppCompatResource,HardcodedText,AlwaysShowAction">
+    tools:ignore="AppCompatResource,AlwaysShowAction">
 
     <item
         android:id="@+id/popup_menu"
         android:icon="@drawable/ic_oui_category_location"
-        android:title="Pop-up Menu"
+        android:title="@string/popup_menu"
         app:actionViewClass="dev.oneuiproject.oneui.navigation.widget.DrawerCategoryItemView" />
 
     <group android:id="@+id/navigation_general_group">

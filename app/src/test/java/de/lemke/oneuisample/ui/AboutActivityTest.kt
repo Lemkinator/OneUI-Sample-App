@@ -17,15 +17,24 @@ package de.lemke.oneuisample.ui
 
 import android.content.Intent
 import android.os.Looper
+import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
+import de.lemke.oneuisample.BuildConfig.VERSION_NAME
+import de.lemke.oneuisample.R
+import dev.oneuiproject.oneui.layout.AppInfoLayout
+import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Loading
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import dev.oneuiproject.oneui.design.R as designR
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = App::class, sdk = [36])
@@ -43,19 +52,39 @@ class AboutActivityTest {
 
     @Test
     fun render_devModeDisabled_showsVersionOnly() {
-        launch { render(AboutUiState(devModeEnabled = false)) }
+        launch {
+            render(AboutUiState(devModeEnabled = false))
+            window.decorView
+                .findViewById<TextView>(designR.id.app_info_version)!!
+                .text
+                .toString()
+                .let { text ->
+                    text shouldContain VERSION_NAME
+                    text shouldNotContain " (dev)"
+                }
+        }
     }
 
     @Test
     fun render_devModeEnabled_showsDevSuffix() {
-        launch { render(AboutUiState(devModeEnabled = true)) }
+        launch {
+            render(AboutUiState(devModeEnabled = true))
+            window.decorView
+                .findViewById<TextView>(designR.id.app_info_version)!!
+                .text
+                .toString() shouldContain " (dev)"
+        }
     }
 
     @Test
     fun changeStatus_cyclesThroughAllStatuses() {
         launch {
+            // Unset→Loading→UpdateAvailable→UpdateDownloaded→NoUpdate→NotUpdatable→NoConnection→Failed→Unset→Loading
             repeat(9) { changeStatus() }
             shadowOf(Looper.getMainLooper()).idle()
+            window.decorView
+                .findViewById<AppInfoLayout>(R.id.appInfoLayout)!!
+                .updateStatus shouldBe Loading
         }
     }
 }

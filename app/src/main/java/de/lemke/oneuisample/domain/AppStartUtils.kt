@@ -47,13 +47,13 @@ class AppStart(
     /** `true` if OOBE should be shown (first install or TOS not accepted). */
     val shouldShowOOBE get() = isFirstTime || !tosAccepted
 
-    /** `true` if [threshold] falls within the range of version codes updated across on this launch. */
-    fun versionThresholdPassed(threshold: Int) = lastVersionCode >= 0 && threshold in lastVersionCode..<versionCode
-
     override fun toString(): String =
         "AppStart(result=$result, versionCode=$versionCode, versionName='$versionName', " +
             "lastVersionCode=$lastVersionCode, lastVersionName='$lastVersionName', " +
             "tosVersion=$tosVersion, acceptedTosVersion=$acceptedTosVersion)"
+
+    /** `true` if [threshold] falls within the range of version codes updated across on this launch. */
+    fun versionThresholdPassed(threshold: Int) = lastVersionCode >= 0 && threshold in lastVersionCode..<versionCode
 }
 
 /** Checks whether this is the first run, a version upgrade, or a normal start. Version info is committed by the caller. */

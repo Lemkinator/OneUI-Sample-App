@@ -26,7 +26,6 @@ detekt = "2.0.0-alpha.5"
 hilt = "2.59.2"
 junit-android-framework = "2.0.1"
 junit-jupiter = "6.1.0"
-junit-platform = "6.1.0"
 junit4 = "4.13.2"
 konsist = "0.17.3"
 kotest = "6.2.1"
@@ -71,7 +70,7 @@ hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", vers
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-jupiter" }
 junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-jupiter" }
 junit4 = { module = "junit:junit", version.ref = "junit4" }
 konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
