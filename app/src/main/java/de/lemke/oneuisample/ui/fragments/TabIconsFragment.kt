@@ -32,6 +32,7 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.indexscroll.widget.SeslArrayIndexer
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper.END
 import androidx.recyclerview.widget.ItemTouchHelper.START
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -70,8 +71,11 @@ import dev.oneuiproject.oneui.utils.ItemDecorRule.ALL
 import dev.oneuiproject.oneui.utils.ItemDecorRule.NONE
 import dev.oneuiproject.oneui.utils.SemItemDecoration
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import dev.oneuiproject.oneui.R as iconsR
 
 @AndroidEntryPoint
@@ -156,7 +160,10 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             binding.noEntryScrollView.isVisible = true
             val valueCallback = LottieValueCallback<ColorFilter>(SimpleColorFilter(requireContext().getColor(R.color.primary_color_themed)))
             binding.noEntryLottie.addValueCallback(KeyPath("**"), COLOR_FILTER, valueCallback)
-            binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, LOTTIE_PLAY_DELAY_MS)
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(LOTTIE_PLAY_DELAY_MS.milliseconds)
+                binding.noEntryLottie.playAnimation()
+            }
         } else {
             binding.noEntryScrollView.isVisible = false
             binding.iconList.isVisible = true
@@ -257,10 +264,11 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun launchActionMode(initialSelected: Set<Long>? = null) {
-        iconAdapter.toggleActionMode(true, initialSelected)
+        val adapter = iconAdapter
+        adapter.toggleActionMode(true, initialSelected)
         drawerLayout.startActionMode(
             onInflateMenu = { menu, menuInflater -> menuInflater.inflate(R.menu.select, menu) },
-            onEnd = { iconAdapter.toggleActionMode(false) },
+            onEnd = { adapter.toggleActionMode(false) },
             onSelectMenuItem = ::onActionModeMenuItemSelected,
             onSelectAll = { isChecked: Boolean -> iconAdapter.onToggleSelectAll(isChecked) },
             allSelectorStateFlow = allSelectorStateFlow,
