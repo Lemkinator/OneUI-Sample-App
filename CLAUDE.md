@@ -35,18 +35,27 @@ Release signing properties (`releaseStoreFile`, `releaseStorePassword`, `release
 
 ## Architecture
 
-Single-module (`:app`) Android app demonstrating OneUI-Design components. Layered architecture (data/domain/ui) without ViewModels.
-Activities and Fragments inject use cases directly:
+Single-module (`:app`) Android app demonstrating OneUI-Design components. Layered architecture (data/domain/ui):
 
-- **`data/`** - `UserSettingsRepository`: DataStore Preferences CRUD
-- **`domain/`** - `suspend operator fun invoke()` use cases; each switches to `Dispatchers.Default`. `UpdateUserSettingsUseCase` takes
-  `(UserSettings) -> UserSettings`; callers use `.copy(field = value)`
+- **`data/`** - `UserSettingsRepository`: SharedPreferences-backed store for user settings. Exposes per-field property delegates and a
+  `StateFlow<UserSettings>`. Multi-field batch updates via `userSettings.update { copy(field = value) }` (synchronized). Single-field writes
+  assign directly: `userSettings.search = "query"`.
+- **`domain/`** - Use cases with `operator fun invoke()`. Suspend use cases (e.g. `CompleteOnboardingUseCase`) switch to
+  `Dispatchers.Default`; flow-based use cases (e.g. `ObserveIconListUseCase`) return a `Flow` directly.
 - **`ui/`** - Activities for settings/about/OOBE/pickers; Fragments for main tabs (`TabDesign`, `TabIcons`, `TabPicker`) with nested subtabs
-  via ViewPager2
-- **`App.kt`** - `@HiltAndroidApp` entry point; `PersistenceModule.kt` - Hilt singleton providing `DataStore<Preferences>`
+  via ViewPager2. Screens with non-trivial async state use ViewModels (`AboutViewModel`, `SettingsViewModel`, `OOBEViewModel`,
+  `SwitchBarViewModel`, `AppPickerViewModel`); simpler screens inject use cases or the repository directly.
+- **`App.kt`** - `@HiltAndroidApp` entry point; `PersistenceModule.kt` - Hilt singleton providing `SharedPreferences` and
+  `UserSettingsRepository` (with an `@ApplicationScope` `CoroutineScope` for the `StateFlow`).
 
-State collected via `flowWithLifecycle(lifecycle).collectLatest { }` in `lifecycleScope`. ViewBinding uses the `autoCleared` delegate (
-`ui/util/AutoClearedUtils.kt`) to prevent leaks.
+State collection patterns:
+
+- Fragments: `launchAndRepeatWithViewLifecycle { flow.collectLatest { } }`, or the `collectState` / `collectEvents` shortcuts from
+  `ui/util/LifecycleUtils.kt`
+- Activities: `collectState(viewModel.state) { }` / `collectEvents(viewModel.events) { }`
+- One-shot delayed UI work: `viewLifecycleOwner.lifecycleScope.launch { delay(ms); ... }` (canceled automatically on `onDestroyView`)
+
+ViewBinding uses the `autoCleared` delegate (`ui/util/AutoClearedUtils.kt`) to prevent leaks.
 
 ## Robolectric + JUnit 5
 
