@@ -105,23 +105,11 @@ class CodingConventionsTest : ShouldSpec() {
                     val declarations = it.declarations(includeNested = false, includeLocal = false)
                     val firstNonPrivateClassTypeIndex =
                         declarations.indexOfFirst { decl ->
-                            when {
-                                decl is KoClassDeclaration -> {
-                                    !decl.hasModifier(KoModifier.PRIVATE)
-                                }
-
-                                decl is KoInterfaceDeclaration -> {
-                                    !decl.hasModifier(KoModifier.PRIVATE)
-                                }
-
-                                decl is KoObjectDeclaration -> {
-                                    !decl.hasModifier(KoModifier.COMPANION) &&
-                                        !decl.hasModifier(KoModifier.PRIVATE)
-                                }
-
-                                else -> {
-                                    false
-                                }
+                            when (decl) {
+                                is KoClassDeclaration -> !decl.hasModifier(KoModifier.PRIVATE)
+                                is KoInterfaceDeclaration -> !decl.hasModifier(KoModifier.PRIVATE)
+                                is KoObjectDeclaration -> !decl.hasModifier(KoModifier.COMPANION) && !decl.hasModifier(KoModifier.PRIVATE)
+                                else -> false
                             }
                         }
                     val lastNonClassTypeIndex =
@@ -139,23 +127,11 @@ class CodingConventionsTest : ShouldSpec() {
                     val declarations = it.declarations(includeNested = false, includeLocal = false)
                     val firstNonPrivateClassTypeIndex =
                         declarations.indexOfFirst { decl ->
-                            when {
-                                decl is KoClassDeclaration -> {
-                                    !decl.hasModifier(KoModifier.PRIVATE)
-                                }
-
-                                decl is KoInterfaceDeclaration -> {
-                                    !decl.hasModifier(KoModifier.PRIVATE)
-                                }
-
-                                decl is KoObjectDeclaration -> {
-                                    !decl.hasModifier(KoModifier.COMPANION) &&
-                                        !decl.hasModifier(KoModifier.PRIVATE)
-                                }
-
-                                else -> {
-                                    false
-                                }
+                            when (decl) {
+                                is KoClassDeclaration -> !decl.hasModifier(KoModifier.PRIVATE)
+                                is KoInterfaceDeclaration -> !decl.hasModifier(KoModifier.PRIVATE)
+                                is KoObjectDeclaration -> !decl.hasModifier(KoModifier.COMPANION) && !decl.hasModifier(KoModifier.PRIVATE)
+                                else -> false
                             }
                         }
                     val lastNonClassTypeIndex =
