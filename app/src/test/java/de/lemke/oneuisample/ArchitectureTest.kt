@@ -17,8 +17,11 @@ package de.lemke.oneuisample
 
 import com.lemonappdev.konsist.api.KoModifier
 import com.lemonappdev.konsist.api.Konsist
+import com.lemonappdev.konsist.api.declaration.KoClassDeclaration
 import com.lemonappdev.konsist.api.declaration.KoFunctionDeclaration
 import com.lemonappdev.konsist.api.declaration.KoInitBlockDeclaration
+import com.lemonappdev.konsist.api.declaration.KoInterfaceDeclaration
+import com.lemonappdev.konsist.api.declaration.KoObjectDeclaration
 import com.lemonappdev.konsist.api.declaration.KoPropertyDeclaration
 import com.lemonappdev.konsist.api.ext.list.withPackage
 import com.lemonappdev.konsist.api.verify.assertFalse
@@ -59,6 +62,14 @@ class ArchitectureTest : ShouldSpec() {
                     val firstFunctionIndex = declarations.indexOfFirst { it is KoFunctionDeclaration }
                     lastPropertyIndex == -1 || firstFunctionIndex == -1 || lastPropertyIndex < firstFunctionIndex
                 }
+            codeScope
+                .interfaces()
+                .assertTrue(testName = this.testCase.name.toString()) { koInterface ->
+                    val declarations = koInterface.declarations(includeNested = false, includeLocal = false)
+                    val lastPropertyIndex = declarations.indexOfLast { it is KoPropertyDeclaration }
+                    val firstFunctionIndex = declarations.indexOfFirst { it is KoFunctionDeclaration }
+                    lastPropertyIndex == -1 || firstFunctionIndex == -1 || lastPropertyIndex < firstFunctionIndex
+                }
         }
         should("init blocks declared before functions in class body") {
             codeScope
@@ -79,26 +90,105 @@ class ArchitectureTest : ShouldSpec() {
                     val firstNonOverrideIndex = functions.indexOfFirst { !it.hasModifier(KoModifier.OVERRIDE) }
                     lastOverrideIndex == -1 || firstNonOverrideIndex == -1 || firstNonOverrideIndex > lastOverrideIndex
                 }
+            codeScope
+                .interfaces()
+                .assertTrue(testName = this.testCase.name.toString()) { koInterface ->
+                    val functions = koInterface.functions(includeNested = false, includeLocal = false)
+                    val lastOverrideIndex = functions.indexOfLast { it.hasModifier(KoModifier.OVERRIDE) }
+                    val firstNonOverrideIndex = functions.indexOfFirst { !it.hasModifier(KoModifier.OVERRIDE) }
+                    lastOverrideIndex == -1 || firstNonOverrideIndex == -1 || firstNonOverrideIndex > lastOverrideIndex
+                }
         }
-        should("companion object is last declaration in class body") {
-            val testName = this.testCase.name.toString()
+        should("companion object is the last non-class member in class body") {
             codeScope
                 .classes()
-                .assertTrue(testName = testName) {
-                    val companion =
-                        it.objects(includeNested = false).lastOrNull { obj ->
-                            obj.hasModifier(KoModifier.COMPANION)
+                .assertTrue(testName = this.testCase.name.toString()) {
+                    val declarations = it.declarations(includeNested = false, includeLocal = false)
+                    val companion = it.objects(includeNested = false).lastOrNull { obj -> obj.hasModifier(KoModifier.COMPANION) }
+                    companion == null ||
+                        declarations.drop(declarations.indexOf(companion) + 1).none { decl ->
+                            decl is KoPropertyDeclaration || decl is KoFunctionDeclaration || decl is KoInitBlockDeclaration
                         }
-                    companion == null || it.declarations(includeNested = false, includeLocal = false).last() == companion
                 }
             codeScope
                 .interfaces()
-                .assertTrue(testName = testName) {
-                    val companion =
-                        it.objects(includeNested = false).lastOrNull { obj ->
-                            obj.hasModifier(KoModifier.COMPANION)
+                .assertTrue(testName = this.testCase.name.toString()) {
+                    val declarations = it.declarations(includeNested = false, includeLocal = false)
+                    val companion = it.objects(includeNested = false).lastOrNull { obj -> obj.hasModifier(KoModifier.COMPANION) }
+                    companion == null ||
+                        declarations.drop(declarations.indexOf(companion) + 1).none { decl ->
+                            decl is KoPropertyDeclaration || decl is KoFunctionDeclaration || decl is KoInitBlockDeclaration
                         }
-                    companion == null || it.declarations(includeNested = false, includeLocal = false).last() == companion
+                }
+        }
+        should("non-private nested class declarations are last in class body") {
+            codeScope
+                .classes()
+                .assertTrue(testName = this.testCase.name.toString()) {
+                    val declarations = it.declarations(includeNested = false, includeLocal = false)
+                    val firstNonPrivateClassTypeIndex =
+                        declarations.indexOfFirst { decl ->
+                            when {
+                                decl is KoClassDeclaration -> {
+                                    !decl.hasModifier(KoModifier.PRIVATE)
+                                }
+
+                                decl is KoInterfaceDeclaration -> {
+                                    !decl.hasModifier(KoModifier.PRIVATE)
+                                }
+
+                                decl is KoObjectDeclaration -> {
+                                    !decl.hasModifier(KoModifier.COMPANION) &&
+                                        !decl.hasModifier(KoModifier.PRIVATE)
+                                }
+
+                                else -> {
+                                    false
+                                }
+                            }
+                        }
+                    val lastNonClassTypeIndex =
+                        declarations.indexOfLast { decl ->
+                            decl is KoPropertyDeclaration || decl is KoFunctionDeclaration ||
+                                decl is KoInitBlockDeclaration ||
+                                (decl is KoObjectDeclaration && decl.hasModifier(KoModifier.COMPANION))
+                        }
+                    firstNonPrivateClassTypeIndex == -1 || lastNonClassTypeIndex == -1 ||
+                        firstNonPrivateClassTypeIndex > lastNonClassTypeIndex
+                }
+            codeScope
+                .interfaces()
+                .assertTrue(testName = this.testCase.name.toString()) {
+                    val declarations = it.declarations(includeNested = false, includeLocal = false)
+                    val firstNonPrivateClassTypeIndex =
+                        declarations.indexOfFirst { decl ->
+                            when {
+                                decl is KoClassDeclaration -> {
+                                    !decl.hasModifier(KoModifier.PRIVATE)
+                                }
+
+                                decl is KoInterfaceDeclaration -> {
+                                    !decl.hasModifier(KoModifier.PRIVATE)
+                                }
+
+                                decl is KoObjectDeclaration -> {
+                                    !decl.hasModifier(KoModifier.COMPANION) &&
+                                        !decl.hasModifier(KoModifier.PRIVATE)
+                                }
+
+                                else -> {
+                                    false
+                                }
+                            }
+                        }
+                    val lastNonClassTypeIndex =
+                        declarations.indexOfLast { decl ->
+                            decl is KoPropertyDeclaration || decl is KoFunctionDeclaration ||
+                                decl is KoInitBlockDeclaration ||
+                                (decl is KoObjectDeclaration && decl.hasModifier(KoModifier.COMPANION))
+                        }
+                    firstNonPrivateClassTypeIndex == -1 || lastNonClassTypeIndex == -1 ||
+                        firstNonPrivateClassTypeIndex > lastNonClassTypeIndex
                 }
         }
     }
