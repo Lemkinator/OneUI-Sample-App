@@ -231,17 +231,24 @@ class CustomAboutActivity : AppCompatActivity() {
                 binding.aboutSwipeUpContainer.alpha = (1 + offsetAlpha * SWIPE_UP_ALPHA_SPEED).coerceIn(0f, 1f)
             }
             // Handle the bottom part of the UI
-            val alphaRange = binding.aboutCTL.height * 0.143f
             val layoutPosition = abs(appBarLayout.top).toFloat()
-            val bottomAlpha =
-                if (alphaRange > 0f) {
-                    (BOTTOM_ALPHA_SCALE / alphaRange * (layoutPosition - binding.aboutCTL.height * BOTTOM_FADE_START_FRACTION))
-                        .coerceIn(0f, ALPHA_RANGE)
-                } else {
-                    0f
-                }
-            binding.aboutBottomContainer.alpha = bottomAlpha / ALPHA_RANGE
+            binding.aboutBottomContainer.alpha =
+                this@CustomAboutActivity.computeBottomAlpha(binding.aboutCTL.height, layoutPosition) / ALPHA_RANGE
             updateCallbackState(appBarLayout.getTotalScrollRange() + verticalOffset == 0)
+        }
+    }
+
+    @VisibleForTesting
+    internal fun computeBottomAlpha(
+        ctlHeight: Int,
+        layoutPosition: Float,
+    ): Float {
+        val alphaRange = ctlHeight * BOTTOM_ALPHA_RANGE_FRACTION
+        return if (alphaRange > 0f) {
+            (BOTTOM_ALPHA_SCALE / alphaRange * (layoutPosition - ctlHeight * BOTTOM_FADE_START_FRACTION))
+                .coerceIn(0f, ALPHA_RANGE)
+        } else {
+            0f
         }
     }
 
@@ -258,6 +265,7 @@ class CustomAboutActivity : AppCompatActivity() {
         private const val BACK_COLLAPSE_THRESHOLD = 0.3f
         private const val SWIPE_UP_ALPHA_SPEED = 3f
         private const val BOTTOM_ALPHA_SCALE = 150f
+        private const val BOTTOM_ALPHA_RANGE_FRACTION = 0.143f
         private const val BOTTOM_FADE_START_FRACTION = 0.35f
         private const val ALPHA_RANGE = 255f
     }

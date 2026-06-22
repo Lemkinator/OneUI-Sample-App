@@ -141,6 +141,17 @@ class CustomAboutActivityTest {
     }
 
     @Test
+    fun computeBottomAlpha_withPositiveCtlHeight_computesAlpha() {
+        // ctlHeight=700, layoutPosition=350: alphaRange=100.1f → positive via if-branch
+        launch { computeBottomAlpha(700, 350f) shouldBe (150f / (700 * 0.143f) * (350f - 700 * 0.35f)).coerceIn(0f, 255f) }
+    }
+
+    @Test
+    fun computeBottomAlpha_withZeroCtlHeight_returnsZero() {
+        launch { computeBottomAlpha(0, 350f) shouldBe 0f }
+    }
+
+    @Test
     fun updateCallbackState_whenBackProgressing_returnsEarly() {
         ActivityScenario.launch<CustomAboutActivity>(Intent(context, CustomAboutActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()

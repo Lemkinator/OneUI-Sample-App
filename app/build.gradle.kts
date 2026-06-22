@@ -251,8 +251,6 @@ kover {
                     "*SettingsFragment*initTosPref*",
                     "*SettingsFragment*initDeleteAppDataPref*",
                     "*OOBEActivity*initToSView*",
-                    // TabDesignFragment ViewPager2 callback noop overrides
-                    "*TabDesignFragment*onViewCreated*",
                     // AppPickerActivity configureAppPicker anonymous OnStateChangeListener
                     "*AppPickerActivity*configureAppPicker*",
                     // SubtabProgressBarFragment — infinite coroutine loop with invokeSuspend on main class
