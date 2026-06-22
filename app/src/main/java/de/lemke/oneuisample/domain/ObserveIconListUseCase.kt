@@ -16,6 +16,7 @@
 package de.lemke.oneuisample.domain
 
 import android.content.Context
+import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.data.UserSettingsRepository
@@ -41,7 +42,8 @@ class ObserveIconListUseCase @Inject constructor(
                 runCatching {
                     field.isAccessible = true
                     field.getInt(null).let { Icon(it, context.resources.getResourceEntryName(it)) }
-                }.getOrNull()
+                }.onFailure { Log.w(TAG, "Could not load icon for field ${field.name}", it) }
+                    .getOrNull()
             }
 
     operator fun invoke() =
@@ -49,8 +51,12 @@ class ObserveIconListUseCase @Inject constructor(
             if (!active || search.isBlank()) {
                 iconsId to null
             } else {
-                val keywords = search.trim().split(" ").toSet()
+                val keywords = search.trim().split(Regex("\\s+")).toSet()
                 iconsId.filter { it.containsKeywords(keywords) } to search
             }
         }.distinctUntilChanged()
+
+    private companion object {
+        private const val TAG = "ObserveIconListUseCase"
+    }
 }
