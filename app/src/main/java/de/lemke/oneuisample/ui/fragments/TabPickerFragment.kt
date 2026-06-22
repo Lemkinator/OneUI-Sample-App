@@ -95,36 +95,40 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     }
 
     private fun initNumberPicker() {
-        binding.numberPicker3.apply {
-            setTextTypeface(ResourcesCompat.getFont(requireContext(), R.font.samsungsharpsans_bold))
-            minValue = 0
-            maxValue = 2
-            setTextSize(PICKER_TEXT_SIZE_SP)
-            displayedValues = arrayOf("A", "B", "C")
-        }
-        binding.numberPicker2.apply {
-            setTextTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL))
-            minValue = 0
-            maxValue = PICKER2_MAX_VALUE
-            value = PICKER2_DEFAULT_VALUE
-            setTextSize(PICKER2_TEXT_SIZE_SP)
-            editText.imeOptions = IME_FLAG_NO_FULLSCREEN or IME_ACTION_NEXT
-        }
         binding.numberPicker1.apply {
-            minValue = 1
+            minValue = PICKER1_MIN_VALUE
             maxValue = PICKER1_MAX_VALUE
             value = PICKER1_DEFAULT_VALUE
             setTextSize(PICKER_TEXT_SIZE_SP)
             editText.imeOptions = IME_FLAG_NO_FULLSCREEN or IME_ACTION_NEXT
         }
-        binding.numberPicker3.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker3EditorAction(actionId) }
-        binding.numberPicker2.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker2EditorAction(actionId) }
+        binding.numberPicker2.apply {
+            setTextTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL))
+            minValue = PICKER2_MIN_VALUE
+            maxValue = PICKER2_MAX_VALUE
+            value = PICKER2_DEFAULT_VALUE
+            setTextSize(PICKER2_TEXT_SIZE_SP)
+            editText.imeOptions = IME_FLAG_NO_FULLSCREEN or IME_ACTION_NEXT
+        }
+        binding.numberPicker3.apply {
+            setTextTypeface(ResourcesCompat.getFont(requireContext(), R.font.samsungsharpsans_bold))
+            minValue = PICKER3_MIN_VALUE
+            maxValue = PICKER3_MAX_VALUE
+            setTextSize(PICKER_TEXT_SIZE_SP)
+            displayedValues = arrayOf("A", "B", "C")
+        }
         binding.numberPicker1.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker1EditorAction(actionId) }
+        binding.numberPicker2.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker2EditorAction(actionId) }
+        binding.numberPicker3.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker3EditorAction(actionId) }
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onNumberPicker3EditorAction(actionId: Int): Boolean {
-        if (actionId == EditorInfo.IME_ACTION_DONE) binding.numberPicker3.isEditTextMode = false
+    internal fun onNumberPicker1EditorAction(actionId: Int): Boolean {
+        if (actionId == IME_ACTION_NEXT) {
+            binding.numberPicker1.isEditTextMode = false
+            binding.numberPicker2.isEditTextMode = true
+            binding.numberPicker2.requestFocus()
+        }
         return false
     }
 
@@ -139,12 +143,8 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onNumberPicker1EditorAction(actionId: Int): Boolean {
-        if (actionId == IME_ACTION_NEXT) {
-            binding.numberPicker1.isEditTextMode = false
-            binding.numberPicker2.isEditTextMode = true
-            binding.numberPicker2.requestFocus()
-        }
+    internal fun onNumberPicker3EditorAction(actionId: Int): Boolean {
+        if (actionId == EditorInfo.IME_ACTION_DONE) binding.numberPicker3.isEditTextMode = false
         return false
     }
 
@@ -215,7 +215,12 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun openStartEndTimePickerDialog() {
-        StartEndTimePickerDialog(requireContext(), 0, DEFAULT_END_TIME_MINUTES, is24HourFormat(requireContext())) { startTime, endTime ->
+        StartEndTimePickerDialog(
+            requireContext(),
+            DEFAULT_START_TIME_MINUTES,
+            DEFAULT_END_TIME_MINUTES,
+            is24HourFormat(requireContext()),
+        ) { startTime, endTime ->
             onStartEndTimePicked(startTime, endTime)
         }.show()
     }
@@ -265,16 +270,21 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
 
     companion object {
         private const val PICKER_TEXT_SIZE_SP = 40f
-        private const val PICKER2_TEXT_SIZE_SP = 50f
-        private const val PICKER2_MAX_VALUE = 10
-        private const val PICKER2_DEFAULT_VALUE = 8
+        private const val PICKER1_MIN_VALUE = 1
         private const val PICKER1_MAX_VALUE = 100
         private const val PICKER1_DEFAULT_VALUE = 50
+        private const val PICKER2_TEXT_SIZE_SP = 50f
+        private const val PICKER2_MIN_VALUE = 0
+        private const val PICKER2_MAX_VALUE = 10
+        private const val PICKER2_DEFAULT_VALUE = 8
+        private const val PICKER3_MIN_VALUE = 0
+        private const val PICKER3_MAX_VALUE = 2
         private const val SPINNER_NUMBER_PICKER = 0
         private const val SPINNER_TIME_PICKER = 1
         private const val SPINNER_DATE_PICKER = 2
         private const val SPINNER_SPINNING_DATE_PICKER = 3
         private const val SPINNER_SLEEP_PICKER = 4
+        private const val DEFAULT_START_TIME_MINUTES = 0
         private const val DEFAULT_END_TIME_MINUTES = 600
         private const val MAX_RECENT_COLORS = 6
     }
