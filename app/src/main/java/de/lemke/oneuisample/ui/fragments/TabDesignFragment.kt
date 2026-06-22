@@ -46,20 +46,6 @@ class TabDesignFragment : AbsBaseFragment(R.layout.fragment_tab_design) {
         binding.viewPager2Design.adapter = TabDesignSubtabsAdapter(this)
         binding.viewPager2Design.seslSetSuggestionPaging(true)
         binding.viewPager2Design.offscreenPageLimit = 2
-        binding.viewPager2Design.registerOnPageChangeCallback(
-            object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageScrolled(
-                    position: Int,
-                    positionOffset: Float,
-                    positionOffsetPixels: Int,
-                ) {
-                }
-
-                override fun onPageSelected(position: Int) {}
-
-                override fun onPageScrollStateChanged(state: Int) {}
-            },
-        )
         tabLayoutMediator =
             TabLayoutMediator(binding.fragmentDesignSubTabs, binding.viewPager2Design) { tab, position ->
                 tab.text = arrayOf(getString(R.string.widgets), getString(R.string.progress_bar), getString(R.string.qr))[position]
