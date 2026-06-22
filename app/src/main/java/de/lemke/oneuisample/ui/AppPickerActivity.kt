@@ -160,7 +160,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
                         appInfo: AppInfo,
                         isSelected: Boolean,
                     ) {
-                        val allItemsSelected = appPicker.appDataList.count { !(it as AppInfoData).selected } == 0
+                        val allItemsSelected = appPicker.appDataList.filterIsInstance<AppInfoData>().none { !it.selected }
                         (headerFooterAdapter.getItem(0) as? AllAppsViewData)?.selectableItem?.setValueSilence(allItemsSelected)
                     }
                 },
