@@ -86,7 +86,7 @@ class SubtabWidgetsFragment : Fragment() {
             }
         binding.fragmentSpinner.setEntries(faceJsonNames) { position, _ ->
             position?.let {
-                binding.faceIconLottie.play(faceJsons[position], delay = 0.seconds)
+                binding.faceIconLottie.play(faceJsons[position])
             }
         }
         binding.searchView.apply {

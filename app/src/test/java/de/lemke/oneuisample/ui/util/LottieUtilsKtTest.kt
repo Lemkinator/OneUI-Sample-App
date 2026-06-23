@@ -18,6 +18,7 @@ package de.lemke.oneuisample.ui.util
 import androidx.test.core.app.ApplicationProvider
 import com.airbnb.lottie.LottieAnimationView
 import de.lemke.oneuisample.App
+import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -39,5 +40,10 @@ class LottieUtilsKtTest {
     @Test
     fun play_cancelFirstFalse_doesNotCrash() {
         view.play(cancelFirst = false)
+    }
+
+    @Test
+    fun play_withDelay_noLifecycleOwner_doesNotCrash() {
+        view.play(delay = DEFAULT_LOTTIE_DELAY)
     }
 }

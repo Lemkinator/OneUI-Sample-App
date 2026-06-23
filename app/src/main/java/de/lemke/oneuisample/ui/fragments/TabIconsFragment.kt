@@ -45,6 +45,7 @@ import de.lemke.oneuisample.databinding.DialogSettingsBinding
 import de.lemke.oneuisample.databinding.FragmentTabIconsBinding
 import de.lemke.oneuisample.domain.Icon
 import de.lemke.oneuisample.domain.ObserveIconListUseCase
+import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
 import de.lemke.oneuisample.ui.util.IconAdapter
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.getSearchListener
@@ -148,7 +149,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         if (iconsAndSearch.first.isEmpty()) {
             binding.iconList.isVisible = false
             binding.noEntryScrollView.isVisible = true
-            binding.noEntryLottie.play()
+            binding.noEntryLottie.play(delay = DEFAULT_LOTTIE_DELAY)
         } else {
             binding.noEntryScrollView.isVisible = false
             binding.iconList.isVisible = true

@@ -38,6 +38,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
+import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
 import de.lemke.oneuisample.ui.util.ListTypes
 import de.lemke.oneuisample.ui.util.collectState
 import de.lemke.oneuisample.ui.util.play
@@ -208,7 +209,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             currentPicker!!.isVisible = true
         } else {
             binding.noEntryScrollView.isVisible = true
-            binding.noEntryLottie.play()
+            binding.noEntryLottie.play(delay = DEFAULT_LOTTIE_DELAY)
             currentPicker!!.isVisible = false
         }
     }

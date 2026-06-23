@@ -28,17 +28,18 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private val DEFAULT_LOTTIE_DELAY = 400.milliseconds
+val DEFAULT_LOTTIE_DELAY = 400.milliseconds
 
 /**
- * Optionally sets [animation], applies the theme color, and plays after [delay].
+ * Optionally sets [animation], applies the theme color, and plays.
  * If [cancelFirst] is true (default), the current animation is canceled and reset to frame 0 first.
- * Requires an attached view tree lifecycle owner; does nothing if none is found.
+ * When [delay] is [Duration.ZERO] (default), plays immediately on the calling thread.
+ * Otherwise requires an attached view tree lifecycle owner; does nothing if none is found.
  */
 fun LottieAnimationView.play(
     animation: String? = null,
     cancelFirst: Boolean = true,
-    delay: Duration = DEFAULT_LOTTIE_DELAY,
+    delay: Duration = Duration.ZERO,
 ) {
     if (cancelFirst) {
         cancelAnimation()
@@ -50,10 +51,14 @@ fun LottieAnimationView.play(
         LottieProperty.COLOR_FILTER,
         LottieValueCallback(SimpleColorFilter(context.getColor(primary_color_themed))),
     )
-    findViewTreeLifecycleOwner()?.let { owner ->
-        owner.lifecycleScope.launch {
-            delay(delay)
-            playAnimation()
+    if (delay == Duration.ZERO) {
+        playAnimation()
+    } else {
+        findViewTreeLifecycleOwner()?.let { owner ->
+            owner.lifecycleScope.launch {
+                delay(delay)
+                playAnimation()
+            }
         }
     }
 }
