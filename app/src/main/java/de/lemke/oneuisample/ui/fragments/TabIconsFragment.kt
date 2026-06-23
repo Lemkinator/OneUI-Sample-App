@@ -148,7 +148,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         if (iconsAndSearch.first.isEmpty()) {
             binding.iconList.isVisible = false
             binding.noEntryScrollView.isVisible = true
-            binding.noEntryLottie.resetAndPlay(requireContext(), viewLifecycleOwner, LOTTIE_PLAY_DELAY_MS)
+            binding.noEntryLottie.resetAndPlay()
         } else {
             binding.noEntryScrollView.isVisible = false
             binding.iconList.isVisible = true
@@ -370,9 +370,5 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     ) {
         dialogBinding.indexScrollShowLetters.isEnabled = isChecked
         dialogBinding.indexScrollAutoHide.isEnabled = isChecked
-    }
-
-    companion object {
-        private const val LOTTIE_PLAY_DELAY_MS = 400L
     }
 }

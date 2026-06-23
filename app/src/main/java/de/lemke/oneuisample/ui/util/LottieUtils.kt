@@ -15,8 +15,7 @@
  */
 package de.lemke.oneuisample.ui.util
 
-import android.content.Context
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieProperty.COLOR_FILTER
@@ -24,32 +23,48 @@ import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import de.lemke.oneuisample.R
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+private val DEFAULT_LOTTIE_DELAY = 400.milliseconds
+
 /** Applies the app theme's primary color to all Lottie layers. */
-fun LottieAnimationView.applyThemeColor(context: Context) {
-    addValueCallback(KeyPath("**"), COLOR_FILTER, LottieValueCallback(SimpleColorFilter(context.getColor(R.color.primary_color_themed))))
+fun LottieAnimationView.applyThemeColor() {
+    addValueCallback(
+        KeyPath("**"),
+        COLOR_FILTER,
+        LottieValueCallback(SimpleColorFilter(context.getColor(R.color.primary_color_themed))),
+    )
 }
 
-/** Applies the theme color and plays the animation immediately. */
-fun LottieAnimationView.playWithThemeColor(context: Context) {
-    applyThemeColor(context)
+/** Optionally switches to [animation], applies the theme color, and plays immediately. */
+fun LottieAnimationView.playWithThemeColor(animation: String? = null) {
+    animation?.let { setAnimation(it) }
+    applyThemeColor()
     playAnimation()
 }
 
-/** Cancels the current animation, resets to frame 0, applies the theme color, and plays after [delayMs]. */
+/**
+ * Optionally switches to [animation], applies the theme color, and plays after [delay].
+ * If [cancelFirst] is true (default), the current animation is cancelled and reset to frame 0 first.
+ * Requires an attached view tree lifecycle owner; does nothing if none is found.
+ */
 fun LottieAnimationView.resetAndPlay(
-    context: Context,
-    lifecycleOwner: LifecycleOwner,
-    delayMs: Long,
+    animation: String? = null,
+    cancelFirst: Boolean = true,
+    delay: Duration = DEFAULT_LOTTIE_DELAY,
 ) {
-    cancelAnimation()
-    progress = 0f
-    applyThemeColor(context)
+    animation?.let { setAnimation(it) }
+    if (cancelFirst) {
+        cancelAnimation()
+        progress = 0f
+    }
+    applyThemeColor()
+    val lifecycleOwner = findViewTreeLifecycleOwner() ?: return
     lifecycleOwner.lifecycleScope.launch {
-        delay(delayMs.milliseconds)
+        delay(delay)
         playAnimation()
     }
 }

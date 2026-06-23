@@ -86,8 +86,7 @@ class SubtabWidgetsFragment : Fragment() {
             }
         binding.fragmentSpinner.setEntries(faceJsonNames) { position, _ ->
             position?.let {
-                binding.faceIconLottie.setAnimation(faceJsons[position])
-                binding.faceIconLottie.playWithThemeColor(requireContext())
+                binding.faceIconLottie.playWithThemeColor(faceJsons[position])
             }
         }
         binding.searchView.apply {

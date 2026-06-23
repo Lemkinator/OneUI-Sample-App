@@ -208,12 +208,8 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             currentPicker!!.isVisible = true
         } else {
             binding.noEntryScrollView.isVisible = true
-            binding.noEntryLottie.resetAndPlay(this, this, LOTTIE_PLAY_DELAY_MS)
+            binding.noEntryLottie.resetAndPlay()
             currentPicker!!.isVisible = false
         }
-    }
-
-    companion object {
-        private const val LOTTIE_PLAY_DELAY_MS = 400L
     }
 }
