@@ -40,7 +40,7 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
 import de.lemke.oneuisample.ui.util.ListTypes
 import de.lemke.oneuisample.ui.util.collectState
-import de.lemke.oneuisample.ui.util.resetAndPlay
+import de.lemke.oneuisample.ui.util.play
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
@@ -208,7 +208,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             currentPicker!!.isVisible = true
         } else {
             binding.noEntryScrollView.isVisible = true
-            binding.noEntryLottie.resetAndPlay()
+            binding.noEntryLottie.play()
             currentPicker!!.isVisible = false
         }
     }

@@ -36,7 +36,7 @@ import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabWidgetsBinding
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabWidgetsBinding.inflate
 import de.lemke.oneuisample.ui.MainActivity
 import de.lemke.oneuisample.ui.util.autoCleared
-import de.lemke.oneuisample.ui.util.playWithThemeColor
+import de.lemke.oneuisample.ui.util.play
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.setEntries
 import kotlin.time.Duration.Companion.seconds
@@ -86,7 +86,7 @@ class SubtabWidgetsFragment : Fragment() {
             }
         binding.fragmentSpinner.setEntries(faceJsonNames) { position, _ ->
             position?.let {
-                binding.faceIconLottie.playWithThemeColor(faceJsons[position])
+                binding.faceIconLottie.play(faceJsons[position], delay = 0.seconds)
             }
         }
         binding.searchView.apply {

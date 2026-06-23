@@ -49,7 +49,7 @@ import de.lemke.oneuisample.ui.util.IconAdapter
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.getSearchListener
 import de.lemke.oneuisample.ui.util.launchAndRepeatWithViewLifecycle
-import de.lemke.oneuisample.ui.util.resetAndPlay
+import de.lemke.oneuisample.ui.util.play
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
@@ -148,7 +148,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         if (iconsAndSearch.first.isEmpty()) {
             binding.iconList.isVisible = false
             binding.noEntryScrollView.isVisible = true
-            binding.noEntryLottie.resetAndPlay()
+            binding.noEntryLottie.play()
         } else {
             binding.noEntryScrollView.isVisible = false
             binding.iconList.isVisible = true

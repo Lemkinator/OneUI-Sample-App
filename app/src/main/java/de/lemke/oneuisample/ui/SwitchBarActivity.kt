@@ -26,7 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivitySwitchbarBinding
 import de.lemke.oneuisample.ui.util.collectState
-import de.lemke.oneuisample.ui.util.resetAndPlay
+import de.lemke.oneuisample.ui.util.play
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
 
@@ -69,7 +69,7 @@ class SwitchBarActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             postDelayed({ setProgressBarVisible(false) }, PROGRESS_HIDE_DELAY_MS)
         }
         binding.lottie.isVisible = true
-        binding.lottie.resetAndPlay(if (enabled) "good_face.json" else "sad_face.json")
+        binding.lottie.play(if (enabled) "good_face.json" else "sad_face.json")
     }
 
     companion object {
