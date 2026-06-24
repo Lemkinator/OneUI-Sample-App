@@ -15,15 +15,21 @@
  */
 package de.lemke.oneuisample.ui.util
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import com.airbnb.lottie.LottieAnimationView
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
+import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowLooper
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = App::class, sdk = [36])
@@ -45,5 +51,22 @@ class LottieUtilsKtTest {
     @Test
     fun play_withDelay_noLifecycleOwner_doesNotCrash() {
         view.play(delay = DEFAULT_LOTTIE_DELAY)
+    }
+
+    @Test
+    fun play_withDelay_withLifecycleOwner_playsAfterDelay() {
+        val owner =
+            SimpleLifecycleOwner().also {
+                it.registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            }
+        val v = view
+        v.setViewTreeLifecycleOwner(owner)
+        v.play(delay = DEFAULT_LOTTIE_DELAY)
+        ShadowLooper.shadowMainLooper().idleFor(DEFAULT_LOTTIE_DELAY.inWholeMilliseconds + 100, TimeUnit.MILLISECONDS)
+    }
+
+    private class SimpleLifecycleOwner : LifecycleOwner {
+        val registry = LifecycleRegistry(this)
+        override val lifecycle: Lifecycle get() = registry
     }
 }
