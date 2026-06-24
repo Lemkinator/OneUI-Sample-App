@@ -23,9 +23,28 @@ import de.lemke.oneuisample.data.UserSettingsRepository
 private const val TAG = "AppStart"
 
 /** Result category of an app launch relative to the previously recorded version. */
-enum class AppStartResult { FIRST_TIME, FIRST_TIME_VERSION, NORMAL }
+enum class AppStartResult {
+    /** No previous installation was recorded (version code -1). */
+    FIRST_TIME,
 
-/** Snapshot of version and TOS state captured at app launch. */
+    /** The app was upgraded since the last launch (current version code > last version code). */
+    FIRST_TIME_VERSION,
+
+    /** Version code unchanged since last launch, or a downgrade (treated as normal). */
+    NORMAL,
+}
+
+/**
+ * Snapshot of version and TOS state captured at app launch.
+ *
+ * @property result The categorized outcome of this launch.
+ * @property versionCode The current app version code.
+ * @property versionName The current human-readable version string.
+ * @property lastVersionCode The version code recorded on the previous launch, or -1 if never set.
+ * @property lastVersionName The version name recorded on the previous launch.
+ * @property tosVersion The TOS version required by the current build.
+ * @property acceptedTosVersion The highest TOS version the user has accepted, or -1 if never set.
+ */
 class AppStart(
     val result: AppStartResult,
     val versionCode: Int,
