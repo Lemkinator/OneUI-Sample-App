@@ -173,15 +173,16 @@ class DrawerUtilsKtTest {
         every { navView.setNavigationItemSelectedListener(capture(listenerSlot)) } answers { }
         val item = mockk<MenuItem>()
         var delegateCallCount = 0
-        // interval = 1_000_000L ms (1000 seconds): any two calls within 1000 s are blocked
-        // but first call (lastClick=0, currentTime≈1.7e12) is always allowed since 1.7e12 > 1_000_000
+        // Advance the monotonic clock so elapsedRealtime() >> interval before the first click.
+        // SystemClock.elapsedRealtime() starts at 0 in Robolectric; sleep() advances it.
+        android.os.SystemClock.sleep(1_000_001L)
         navView.onNavigationSingleClick(interval = 1_000_000L) {
             delegateCallCount++
             true
         }
-        listenerSlot.captured.onNavigationItemSelected(item) // first: allowed
+        listenerSlot.captured.onNavigationItemSelected(item) // first: allowed (elapsed >> interval)
         delegateCallCount shouldBe 1
-        listenerSlot.captured.onNavigationItemSelected(item) // immediate repeat: blocked
+        listenerSlot.captured.onNavigationItemSelected(item) // immediate repeat: blocked (elapsed unchanged)
         delegateCallCount shouldBe 1
     }
 }
