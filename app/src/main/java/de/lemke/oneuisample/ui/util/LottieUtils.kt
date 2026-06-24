@@ -23,12 +23,17 @@ import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import de.lemke.oneuisample.R.color.primary_color_themed
+import java.util.WeakHashMap
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/** Default delay before a Lottie animation starts playing, to avoid flicker on fast data loads. */
 val DEFAULT_LOTTIE_DELAY = 400.milliseconds
+
+private val pendingPlayJobs = WeakHashMap<LottieAnimationView, Job>()
 
 /**
  * Optionally sets [animation], applies the theme color, and plays.
@@ -41,6 +46,7 @@ fun LottieAnimationView.play(
     cancelFirst: Boolean = true,
     delay: Duration = Duration.ZERO,
 ) {
+    pendingPlayJobs.remove(this)?.cancel()
     if (cancelFirst) {
         cancelAnimation()
         progress = 0f
@@ -55,10 +61,11 @@ fun LottieAnimationView.play(
         playAnimation()
     } else {
         findViewTreeLifecycleOwner()?.let { owner ->
-            owner.lifecycleScope.launch {
-                delay(delay)
-                playAnimation()
-            }
+            pendingPlayJobs[this] =
+                owner.lifecycleScope.launch {
+                    delay(delay)
+                    playAnimation()
+                }
         }
     }
 }

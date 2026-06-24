@@ -49,6 +49,11 @@ class LottieUtilsKtTest {
     }
 
     @Test
+    fun play_withAnimation_doesNotCrash() {
+        view.play(animation = "sad_face.json")
+    }
+
+    @Test
     fun play_withDelay_noLifecycleOwner_doesNotCrash() {
         view.play(delay = DEFAULT_LOTTIE_DELAY)
     }
@@ -62,6 +67,19 @@ class LottieUtilsKtTest {
         val v = view
         v.setViewTreeLifecycleOwner(owner)
         v.play(delay = DEFAULT_LOTTIE_DELAY)
+        ShadowLooper.shadowMainLooper().idleFor(DEFAULT_LOTTIE_DELAY.inWholeMilliseconds + 100, TimeUnit.MILLISECONDS)
+    }
+
+    @Test
+    fun play_secondCall_cancelsPendingJob() {
+        val owner =
+            SimpleLifecycleOwner().also {
+                it.registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            }
+        val v = view
+        v.setViewTreeLifecycleOwner(owner)
+        v.play(delay = DEFAULT_LOTTIE_DELAY)
+        v.play(delay = DEFAULT_LOTTIE_DELAY) // cancels the first pending job
         ShadowLooper.shadowMainLooper().idleFor(DEFAULT_LOTTIE_DELAY.inWholeMilliseconds + 100, TimeUnit.MILLISECONDS)
     }
 
