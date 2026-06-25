@@ -23,8 +23,11 @@ import androidx.test.core.app.ApplicationProvider
 import com.airbnb.lottie.LottieAnimationView
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
+import io.mockk.every
+import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
+import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -72,6 +75,14 @@ class LottieUtilsKtTest {
         verify(exactly = 0) { v.playAnimation() } // not yet — delay has not elapsed
         ShadowLooper.shadowMainLooper().idleFor(DEFAULT_LOTTIE_DELAY.inWholeMilliseconds + 100, TimeUnit.MILLISECONDS)
         verify(exactly = 1) { v.playAnimation() } // fired once after delay
+    }
+
+    @Test
+    fun launchDelayedPlay_withNullWeakReference_skipsPlayAnimation() {
+        val owner = SimpleLifecycleOwner().also { it.registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME) }
+        val nullRef = mockk<WeakReference<LottieAnimationView>> { every { get() } returns null }
+        launchDelayedPlay(owner, nullRef, DEFAULT_LOTTIE_DELAY)
+        ShadowLooper.shadowMainLooper().idleFor(DEFAULT_LOTTIE_DELAY.inWholeMilliseconds + 100, TimeUnit.MILLISECONDS)
     }
 
     @Test

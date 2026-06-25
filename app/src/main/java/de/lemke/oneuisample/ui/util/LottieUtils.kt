@@ -15,6 +15,7 @@
  */
 package de.lemke.oneuisample.ui.util
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.LottieAnimationView
@@ -61,12 +62,17 @@ fun LottieAnimationView.play(
         playAnimation()
     } else {
         findViewTreeLifecycleOwner()?.let { owner ->
-            val weakView = java.lang.ref.WeakReference(this)
-            pendingPlayJobs[this] =
-                owner.lifecycleScope.launch {
-                    delay(delay)
-                    weakView.get()?.playAnimation()
-                }
+            pendingPlayJobs[this] = launchDelayedPlay(owner, java.lang.ref.WeakReference(this), delay)
         }
     }
 }
+
+internal fun launchDelayedPlay(
+    owner: LifecycleOwner,
+    weakView: java.lang.ref.WeakReference<LottieAnimationView>,
+    delayDuration: Duration,
+): Job =
+    owner.lifecycleScope.launch {
+        delay(delayDuration)
+        weakView.get()?.playAnimation()
+    }
