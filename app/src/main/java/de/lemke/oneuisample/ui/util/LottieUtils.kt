@@ -61,10 +61,11 @@ fun LottieAnimationView.play(
         playAnimation()
     } else {
         findViewTreeLifecycleOwner()?.let { owner ->
+            val weakView = java.lang.ref.WeakReference(this)
             pendingPlayJobs[this] =
                 owner.lifecycleScope.launch {
                     delay(delay)
-                    playAnimation()
+                    weakView.get()?.playAnimation()
                 }
         }
     }
