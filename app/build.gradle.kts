@@ -265,6 +265,9 @@ kover {
                     "*AppPickerActivity*onOptionsItemSelected*",
                     // invokeOnBack anonymous OnBackPressedCallback + coroutine classes — 0 instructions, method-only stubs
                     "*CustomAboutActivity*initOnBackPressed*",
+                    // LottieUtilsKt$play coroutine: WeakReference.get()?.playAnimation() null-check
+                    // branch is untestable — GC cannot be forced deterministically in JVM unit tests.
+                    $$"*LottieUtilsKt$play*",
                 )
                 annotatedBy("de.lemke.oneuisample.NoCoverage")
             }
