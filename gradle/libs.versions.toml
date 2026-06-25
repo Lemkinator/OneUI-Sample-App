@@ -109,5 +109,5 @@ spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 [bundles]
 android-test = ["androidx-test-core", "androidx-test-core-ktx", "androidx-test-runner", "androidx-test-rules", "androidx-test-ext-junit", "androidx-test-espresso-core", "androidx-test-espresso-intents"]
 oneui = ["oneui-icons", "oneui-design"]
-robolectric-test = ["robolectric", "roborazzi", "roborazzi-rule", "androidx-test-core", "androidx-test-core-ktx", "androidx-test-ext-junit"]
+robolectric-test = ["robolectric", "roborazzi", "roborazzi-rule", "androidx-test-core", "androidx-test-core-ktx", "androidx-test-ext-junit", "androidx-test-espresso-core"]
 unit-test = ["kotest-runner-junit5", "kotest-assertions-core", "kotest-property", "mockk", "turbine", "coroutines-test"]
