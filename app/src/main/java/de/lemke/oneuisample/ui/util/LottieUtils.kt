@@ -24,6 +24,7 @@ import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import de.lemke.oneuisample.R.color.primary_color_themed
+import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -62,14 +63,14 @@ fun LottieAnimationView.play(
         playAnimation()
     } else {
         findViewTreeLifecycleOwner()?.let { owner ->
-            pendingPlayJobs[this] = launchDelayedPlay(owner, java.lang.ref.WeakReference(this), delay)
+            pendingPlayJobs[this] = launchDelayedPlay(owner, WeakReference(this), delay)
         }
     }
 }
 
 internal fun launchDelayedPlay(
     owner: LifecycleOwner,
-    weakView: java.lang.ref.WeakReference<LottieAnimationView>,
+    weakView: WeakReference<LottieAnimationView>,
     delayDuration: Duration,
 ): Job =
     owner.lifecycleScope.launch {
