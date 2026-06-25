@@ -23,8 +23,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.airbnb.lottie.LottieAnimationView
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
-import io.mockk.every
-import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import java.lang.ref.WeakReference
@@ -80,7 +78,7 @@ class LottieUtilsKtTest {
     @Test
     fun launchDelayedPlay_withNullWeakReference_skipsPlayAnimation() {
         val owner = SimpleLifecycleOwner().also { it.registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME) }
-        val nullRef = mockk<WeakReference<LottieAnimationView>> { every { get() } returns null }
+        val nullRef: WeakReference<LottieAnimationView> = WeakReference(null)
         launchDelayedPlay(owner, nullRef, DEFAULT_LOTTIE_DELAY)
         ShadowLooper.shadowMainLooper().idleFor(DEFAULT_LOTTIE_DELAY.inWholeMilliseconds + 100, TimeUnit.MILLISECONDS)
     }
