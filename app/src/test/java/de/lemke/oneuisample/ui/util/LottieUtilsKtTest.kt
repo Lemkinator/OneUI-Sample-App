@@ -23,6 +23,8 @@ import androidx.test.core.app.ApplicationProvider
 import com.airbnb.lottie.LottieAnimationView
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
+import io.mockk.spyk
+import io.mockk.verify
 import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,10 +66,12 @@ class LottieUtilsKtTest {
             SimpleLifecycleOwner().also {
                 it.registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
             }
-        val v = view
+        val v = spyk(view)
         v.setViewTreeLifecycleOwner(owner)
         v.play(delay = DEFAULT_LOTTIE_DELAY)
+        verify(exactly = 0) { v.playAnimation() } // not yet — delay has not elapsed
         ShadowLooper.shadowMainLooper().idleFor(DEFAULT_LOTTIE_DELAY.inWholeMilliseconds + 100, TimeUnit.MILLISECONDS)
+        verify(exactly = 1) { v.playAnimation() } // fired once after delay
     }
 
     @Test
@@ -76,11 +80,13 @@ class LottieUtilsKtTest {
             SimpleLifecycleOwner().also {
                 it.registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
             }
-        val v = view
+        val v = spyk(view)
         v.setViewTreeLifecycleOwner(owner)
         v.play(delay = DEFAULT_LOTTIE_DELAY)
         v.play(delay = DEFAULT_LOTTIE_DELAY) // cancels the first pending job
+        verify(exactly = 0) { v.playAnimation() } // neither job has fired yet
         ShadowLooper.shadowMainLooper().idleFor(DEFAULT_LOTTIE_DELAY.inWholeMilliseconds + 100, TimeUnit.MILLISECONDS)
+        verify(exactly = 1) { v.playAnimation() } // exactly one play — first job was cancelled
     }
 
     private class SimpleLifecycleOwner : LifecycleOwner {
