@@ -150,6 +150,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.core.splashscreen)
     implementation(libs.hilt.android)
+    implementation(libs.kotlin.metadata.jvm)
     ksp(libs.hilt.compiler)
 
     implementation(libs.profileinstaller)
