@@ -30,7 +30,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
@@ -49,13 +48,13 @@ class OOBEViewModel @Inject constructor(
     private val _events = Channel<OOBEEvent>(Channel.BUFFERED)
     val events: Flow<OOBEEvent> = _events.receiveAsFlow()
 
-    private val _isAccepting = MutableStateFlow(false)
-    val isAccepting: StateFlow<Boolean> = _isAccepting.asStateFlow()
+    val isAccepting: StateFlow<Boolean>
+        field = MutableStateFlow(false)
 
     fun onAcceptTos() {
-        if (_isAccepting.value) return
+        if (isAccepting.value) return
         viewModelScope.launch {
-            _isAccepting.value = true
+            isAccepting.value = true
             completeOnboarding(versionCode, versionName)
             delay(500.milliseconds)
             _events.send(OOBEEvent.NavigateToMain)
