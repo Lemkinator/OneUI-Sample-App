@@ -19,6 +19,7 @@ package de.lemke.oneuisample.ui.util
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.SystemClock
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.material.navigation.NavigationView
 import de.lemke.oneuisample.NoCoverage
@@ -48,7 +49,7 @@ fun DrawerNavigationView.onNavigationSingleClick(
 ) {
     var lastClick = 0L
     setNavigationItemSelectedListener { item ->
-        val currentTime = System.currentTimeMillis()
+        val currentTime = SystemClock.elapsedRealtime()
         if (currentTime - lastClick < interval) return@setNavigationItemSelectedListener false
         lastClick = currentTime
         listener.onNavigationItemSelected(item)

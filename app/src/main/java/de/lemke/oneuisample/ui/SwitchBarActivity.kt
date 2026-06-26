@@ -22,14 +22,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SeslSwitchBar
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.isVisible
-import com.airbnb.lottie.LottieProperty.COLOR_FILTER
-import com.airbnb.lottie.SimpleColorFilter
-import com.airbnb.lottie.model.KeyPath
-import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivitySwitchbarBinding
+import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
 import de.lemke.oneuisample.ui.util.collectState
+import de.lemke.oneuisample.ui.util.play
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
 
@@ -71,18 +69,11 @@ class SwitchBarActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             setProgressBarVisible(true)
             postDelayed({ setProgressBarVisible(false) }, PROGRESS_HIDE_DELAY_MS)
         }
-        binding.lottie.apply {
-            cancelAnimation()
-            setAnimation(if (enabled) "good_face.json" else "sad_face.json")
-            progress = 0f
-            isVisible = true
-            addValueCallback(KeyPath("**"), COLOR_FILTER, LottieValueCallback(SimpleColorFilter(getColor(R.color.primary_color_themed))))
-            postDelayed({ playAnimation() }, LOTTIE_PLAY_DELAY_MS)
-        }
+        binding.lottie.isVisible = true
+        binding.lottie.play(if (enabled) "good_face.json" else "sad_face.json", delay = DEFAULT_LOTTIE_DELAY)
     }
 
     companion object {
         private const val PROGRESS_HIDE_DELAY_MS = 1_000L
-        private const val LOTTIE_PLAY_DELAY_MS = 400L
     }
 }

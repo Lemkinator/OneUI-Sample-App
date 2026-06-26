@@ -18,7 +18,6 @@ package de.lemke.oneuisample.ui.fragments
 import android.app.SearchManager
 import android.content.ComponentName
 import android.content.Context.SEARCH_SERVICE
-import android.graphics.ColorFilter
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.Q
 import android.os.Bundle
@@ -31,16 +30,13 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.airbnb.lottie.LottieProperty.COLOR_FILTER
-import com.airbnb.lottie.SimpleColorFilter
-import com.airbnb.lottie.model.KeyPath
-import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabWidgetsBinding
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabWidgetsBinding.inflate
 import de.lemke.oneuisample.ui.MainActivity
 import de.lemke.oneuisample.ui.util.autoCleared
+import de.lemke.oneuisample.ui.util.play
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.setEntries
 import kotlin.time.Duration.Companion.seconds
@@ -90,10 +86,7 @@ class SubtabWidgetsFragment : Fragment() {
             }
         binding.fragmentSpinner.setEntries(faceJsonNames) { position, _ ->
             position?.let {
-                binding.faceIconLottie.setAnimation(faceJsons[position])
-                val callback = LottieValueCallback<ColorFilter>(SimpleColorFilter(requireContext().getColor(R.color.primary_color_themed)))
-                binding.faceIconLottie.addValueCallback(KeyPath("**"), COLOR_FILTER, callback)
-                binding.faceIconLottie.playAnimation()
+                binding.faceIconLottie.play(faceJsons[position])
             }
         }
         binding.searchView.apply {

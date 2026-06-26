@@ -37,6 +37,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
 import de.lemke.oneuisample.ui.util.collectEvents
@@ -99,28 +100,24 @@ class OOBEActivity : AppCompatActivity() {
         }
     }
 
+    @NoCoverage
     private fun initToSView() {
         val tos = getString(R.string.tos)
         val tosText = getString(R.string.oobe_tos_text, tos)
-        val tosIndex = tosText.lastIndexOf(tos)
-        binding.oobeIntroFooterTosText.text =
-            SpannableString(tosText).apply {
-                setSpan(
-                    object : ClickableSpan() {
-                        override fun onClick(widget: View) {
-                            AlertDialog
-                                .Builder(this@OOBEActivity)
-                                .setTitle(getString(R.string.tos))
-                                .setMessage(getString(R.string.tos_content))
-                                .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                                .show()
-                        }
-                    },
-                    tosIndex,
-                    tosIndex + tos.length,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-                )
+        val spanned =
+            buildTosSpannable(tosText, tos) {
+                AlertDialog
+                    .Builder(this)
+                    .setTitle(getString(R.string.tos))
+                    .setMessage(getString(R.string.tos_content))
+                    .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+                    .show()
             }
+        if (spanned == null) {
+            binding.oobeIntroFooterTosText.text = tosText
+            return
+        }
+        binding.oobeIntroFooterTosText.text = spanned
         binding.oobeIntroFooterTosText.movementMethod = LinkMovementMethod.getInstance()
         binding.oobeIntroFooterTosText.highlightColor = Color.TRANSPARENT
     }
@@ -134,5 +131,28 @@ class OOBEActivity : AppCompatActivity() {
 
     companion object {
         private const val MIN_FULL_BUTTON_WIDTH_DP = 360
+    }
+}
+
+/**
+ * Builds a [SpannableString] from [tosText] where the last occurrence of [tos] is a clickable span
+ * that invokes [onClick]. Returns `null` if [tos] does not appear in [tosText].
+ */
+internal fun buildTosSpannable(
+    tosText: String,
+    tos: String,
+    onClick: () -> Unit,
+): SpannableString? {
+    val tosIndex = tosText.lastIndexOf(tos)
+    if (tosIndex < 0) return null
+    return SpannableString(tosText).apply {
+        setSpan(
+            object : ClickableSpan() {
+                override fun onClick(widget: View) = onClick()
+            },
+            tosIndex,
+            tosIndex + tos.length,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+        )
     }
 }

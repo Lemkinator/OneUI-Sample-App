@@ -108,6 +108,23 @@ class OOBEActivityTest {
     }
 
     @Test
+    fun buildTosSpannable_returnsNull_whenTosAbsent() {
+        buildTosSpannable("By continuing, you agree to our terms.", "Terms of Service") {} shouldBe null
+    }
+
+    @Test
+    fun buildTosSpannable_wrapsLastOccurrence_inClickableSpan() {
+        val tos = context.getString(R.string.tos)
+        val tosText = context.getString(R.string.oobe_tos_text, tos)
+        val spanned = checkNotNull(buildTosSpannable(tosText, tos) {})
+        val spans = spanned.getSpans(0, spanned.length, ClickableSpan::class.java)
+        spans.size shouldBe 1
+        val expectedStart = tosText.lastIndexOf(tos)
+        spanned.getSpanStart(spans[0]) shouldBe expectedStart
+        spanned.getSpanEnd(spans[0]) shouldBe expectedStart + tos.length
+    }
+
+    @Test
     fun footerButton_click_triggersAcceptTos() {
         ActivityScenario.launch<OOBEActivity>(Intent(context, OOBEActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()

@@ -21,10 +21,12 @@ import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-/**
+/*
  * Advanced delegation, allowing for custom keys and defaults, and type safety. A little more verbose at the usage site.
  * https://www.youtube.com/watch?v=KFgb6l1PUJI&t=600s
  */
+
+/** Returns a [SharedPreferenceDelegates] factory backed by this [SharedPreferences] instance. */
 val SharedPreferences.delegates get() = SharedPreferenceDelegates(this)
 
 /** Factory for type-safe [ReadWriteProperty] delegates backed by [SharedPreferences]. */

@@ -29,8 +29,6 @@ junit-jupiter = "6.1.0"
 junit4 = "4.13.2"
 konsist = "0.17.3"
 kotest = "6.2.1"
-# Hilt 2.59.2 does not support Kotlin 2.4.0 metadata, noinspection until a Hilt version ships with Kotlin 2.4 compatibility
-#noinspection NewerVersionAvailable
 kotlin = "2.4.0"
 kover = "0.9.8"
 ksp = "2.3.9"
@@ -109,5 +107,5 @@ spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 [bundles]
 android-test = ["androidx-test-core", "androidx-test-core-ktx", "androidx-test-runner", "androidx-test-rules", "androidx-test-ext-junit", "androidx-test-espresso-core", "androidx-test-espresso-intents"]
 oneui = ["oneui-icons", "oneui-design"]
-robolectric-test = ["robolectric", "roborazzi", "roborazzi-rule", "androidx-test-core", "androidx-test-core-ktx", "androidx-test-ext-junit"]
+robolectric-test = ["robolectric", "roborazzi", "roborazzi-rule", "androidx-test-core", "androidx-test-core-ktx", "androidx-test-ext-junit", "androidx-test-espresso-core"]
 unit-test = ["kotest-runner-junit5", "kotest-assertions-core", "kotest-property", "mockk", "turbine", "coroutines-test"]

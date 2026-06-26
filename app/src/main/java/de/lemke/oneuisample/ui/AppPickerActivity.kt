@@ -16,7 +16,6 @@
 package de.lemke.oneuisample.ui
 
 import android.content.Context
-import android.graphics.ColorFilter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -35,16 +34,14 @@ import androidx.picker.widget.AppPickerState.OnStateChangeListener
 import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
 import androidx.picker.widget.SeslAppPickerView.Companion.ORDER_ASCENDING
-import com.airbnb.lottie.LottieProperty.COLOR_FILTER
-import com.airbnb.lottie.SimpleColorFilter
-import com.airbnb.lottie.model.KeyPath
-import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
+import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
 import de.lemke.oneuisample.ui.util.ListTypes
 import de.lemke.oneuisample.ui.util.collectState
+import de.lemke.oneuisample.ui.util.play
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
@@ -211,17 +208,9 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             binding.noEntryScrollView.isVisible = false
             currentPicker!!.isVisible = true
         } else {
-            binding.noEntryLottie.cancelAnimation()
-            binding.noEntryLottie.progress = 0f
             binding.noEntryScrollView.isVisible = true
-            val callback = LottieValueCallback<ColorFilter>(SimpleColorFilter(getColor(R.color.primary_color_themed)))
-            binding.noEntryLottie.addValueCallback(KeyPath("**"), COLOR_FILTER, callback)
-            binding.noEntryLottie.postDelayed({ binding.noEntryLottie.playAnimation() }, LOTTIE_PLAY_DELAY_MS)
+            binding.noEntryLottie.play(delay = DEFAULT_LOTTIE_DELAY)
             currentPicker!!.isVisible = false
         }
-    }
-
-    companion object {
-        private const val LOTTIE_PLAY_DELAY_MS = 400L
     }
 }

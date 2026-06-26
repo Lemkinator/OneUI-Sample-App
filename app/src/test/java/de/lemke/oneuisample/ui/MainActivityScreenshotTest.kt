@@ -15,47 +15,53 @@
  */
 package de.lemke.oneuisample.ui
 
-import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.os.Looper
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import com.github.takahirom.roborazzi.captureRoboImage
-import de.lemke.oneuisample.App
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettingsRepository
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 // sdk = [36]: Robolectric 4.16.1 max supported SDK; bump when 4.17+ adds SDK 37.
-// App::class: uses the production Hilt component so App.onCreate() initializes all singletons.
+@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-@Config(application = App::class, sdk = [36])
+@Config(application = HiltTestApplication::class, sdk = [36])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MainActivityScreenshotTest {
+    @get:Rule
+    val hiltRule = HiltAndroidRule(this)
+
     @Before
     fun setup() {
+        hiltRule.inject()
+        setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
         ApplicationProvider
-            .getApplicationContext<Application>()
+            .getApplicationContext<HiltTestApplication>()
             .getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
             .bypassOobe()
     }
 
     private fun captureMainScreenshot(fileName: String) {
-        val context = ApplicationProvider.getApplicationContext<Application>()
+        val context = ApplicationProvider.getApplicationContext<HiltTestApplication>()
         ActivityScenario
             .launch<MainActivity>(Intent(context, MainActivity::class.java))
-            .use { scenario ->
-                shadowOf(Looper.getMainLooper()).idle()
-                scenario.onActivity { activity ->
-                    activity.window.decorView.captureRoboImage(fileName)
-                }
+            .use {
+                onView(isRoot()).captureRoboImage(fileName)
             }
     }
 

@@ -65,6 +65,8 @@ native JUnit 5 support ([issue #3477](https://github.com/robolectric/robolectric
 
 `@RunWith(RobolectricTestRunner::class)` + `junit-vintage-engine` is correct. Keep until Robolectric ships native JUnit 5.
 
+**Kover + inline functions**: JUnit 4 + `RobolectricTestRunner` enables JaCoCo SMAP attribution — inlined call-site coverage is mapped back to the original `inline fun` definition. Simple delegating `inline fun` therefore don't need `@NoCoverage` here (tests calling them cover the definition via SMAP). The exception is `crossinline` default-value lambdas: the default compiles to a definition-site private static method that is never invoked, so it always needs `@NoCoverage` regardless of test runner. That is why the `@NoCoverage` footprint here is smaller than in `common-utils` (which uses JUnit 5 + `RobolectricExtension`, where SMAP attribution doesn't fire).
+
 ## Dependency Version Policy
 
 Default: use the latest stable version of every dependency.
@@ -76,7 +78,6 @@ Known exceptions:
 2. Detekt on fresh Kotlin majors. May need alpha until stable catches up
 3. Plugin AGP compatibility windows, check before bumping AGP
 4. CI emulator images, pin to most stable, not newest
-5. benchmark-macro, use 1.5.0-alpha06+ with AGP 9.x until 1.5.0 stable
 
 ## Static Analysis
 

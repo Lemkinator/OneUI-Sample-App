@@ -15,7 +15,6 @@
  */
 package de.lemke.oneuisample.ui.fragments
 
-import android.graphics.ColorFilter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -32,15 +31,10 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.indexscroll.widget.SeslArrayIndexer
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper.END
 import androidx.recyclerview.widget.ItemTouchHelper.START
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.airbnb.lottie.LottieProperty.COLOR_FILTER
-import com.airbnb.lottie.SimpleColorFilter
-import com.airbnb.lottie.model.KeyPath
-import com.airbnb.lottie.value.LottieValueCallback
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
@@ -51,10 +45,12 @@ import de.lemke.oneuisample.databinding.DialogSettingsBinding
 import de.lemke.oneuisample.databinding.FragmentTabIconsBinding
 import de.lemke.oneuisample.domain.Icon
 import de.lemke.oneuisample.domain.ObserveIconListUseCase
+import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
 import de.lemke.oneuisample.ui.util.IconAdapter
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.getSearchListener
 import de.lemke.oneuisample.ui.util.launchAndRepeatWithViewLifecycle
+import de.lemke.oneuisample.ui.util.play
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
@@ -71,11 +67,8 @@ import dev.oneuiproject.oneui.utils.ItemDecorRule.ALL
 import dev.oneuiproject.oneui.utils.ItemDecorRule.NONE
 import dev.oneuiproject.oneui.utils.SemItemDecoration
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import dev.oneuiproject.oneui.R as iconsR
 
 @AndroidEntryPoint
@@ -155,15 +148,8 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     internal fun updateList(iconsAndSearch: Pair<List<Icon>, String?>) {
         if (iconsAndSearch.first.isEmpty()) {
             binding.iconList.isVisible = false
-            binding.noEntryLottie.cancelAnimation()
-            binding.noEntryLottie.progress = 0f
             binding.noEntryScrollView.isVisible = true
-            val valueCallback = LottieValueCallback<ColorFilter>(SimpleColorFilter(requireContext().getColor(R.color.primary_color_themed)))
-            binding.noEntryLottie.addValueCallback(KeyPath("**"), COLOR_FILTER, valueCallback)
-            viewLifecycleOwner.lifecycleScope.launch {
-                delay(LOTTIE_PLAY_DELAY_MS.milliseconds)
-                binding.noEntryLottie.playAnimation()
-            }
+            binding.noEntryLottie.play(delay = DEFAULT_LOTTIE_DELAY)
         } else {
             binding.noEntryScrollView.isVisible = false
             binding.iconList.isVisible = true
@@ -385,9 +371,5 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     ) {
         dialogBinding.indexScrollShowLetters.isEnabled = isChecked
         dialogBinding.indexScrollAutoHide.isEnabled = isChecked
-    }
-
-    companion object {
-        private const val LOTTIE_PLAY_DELAY_MS = 400L
     }
 }
