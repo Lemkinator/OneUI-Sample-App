@@ -13,9 +13,11 @@
 [![Issues](https://img.shields.io/github/issues-raw/Lemkinator/OneUI-Sample-App?color=%23ff4400)](https://github.com/Lemkinator/OneUI-Sample-App/issues)
 [![Pull Requests](https://img.shields.io/github/issues-pr-raw/Lemkinator/OneUI-Sample-App?color=%23bb00bb)](https://github.com/Lemkinator/OneUI-Sample-App/pulls)
 [![Contributors](https://img.shields.io/github/contributors/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App/graphs/contributors)
+
 [![Repo Size](https://img.shields.io/github/repo-size/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App)
-[![SLOC](https://sloc.xyz/github/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App)
+[![Lines of Code](https://sloc.xyz/github/Lemkinator/OneUI-Sample-App)](https://github.com/Lemkinator/OneUI-Sample-App)
 [![CodeFactor](https://www.codefactor.io/repository/github/lemkinator/oneui-sample-app/badge)](https://www.codefactor.io/repository/github/lemkinator/oneui-sample-app)
+[![codecov](https://codecov.io/gh/Lemkinator/OneUI-Sample-App/graph/badge.svg)](https://codecov.io/gh/Lemkinator/OneUI-Sample-App)
 
 # OneUI Sample App
 
@@ -46,7 +48,15 @@ git config core.hooksPath .githooks
 
 This enables LF line endings and the pre-commit hook (runs Spotless + Detekt before each commit).
 
+## Stats
+
 ![Alt](https://repobeats.axiom.co/api/embed/9c5efca56ef370169e709a04923cfcd6451fa62a.svg "Repobeats analytics image")
+
+<br>
+
+## Code Coverage
+
+[![Coverage Sunburst](https://codecov.io/gh/Lemkinator/OneUI-Sample-App/graphs/sunburst.svg)](https://codecov.io/gh/Lemkinator/OneUI-Sample-App)
 
 <br>
 
