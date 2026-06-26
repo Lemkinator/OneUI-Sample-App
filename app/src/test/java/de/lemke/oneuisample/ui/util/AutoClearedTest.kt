@@ -86,7 +86,7 @@ class AutoClearedTest {
         val fragment = Fragment()
         var initCount = 0
         val delegate = fragment.autoCleared { initCount++ }
-        val prop = mockk<KProperty<*>>()
+        val prop = mockk<KProperty<*>>(relaxed = true)
         assertThrows(IllegalStateException::class.java) { delegate.getValue(fragment, prop) }
         initCount shouldBe 0
     }
