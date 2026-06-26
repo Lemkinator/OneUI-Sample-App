@@ -21,11 +21,11 @@
 
 This is a sample app for the <a href="https://github.com/tribalfs/oneui-design">OneUI-Design lib</a>.
 
+<img loading="lazy" src="app/src/test/screenshots/oobe_dark.png" height="350" alt="OOBE"/>
 <img loading="lazy" src="app/src/test/screenshots/main_design_dark.png" height="350" alt="Design – Widgets"/>
 <img loading="lazy" src="app/src/test/screenshots/main_picker_dark.png" height="350" alt="Picker"/>
 <img loading="lazy" src="app/src/test/screenshots/main_icons_dark.png" height="350" alt="Icons"/>
 <img loading="lazy" src="app/src/test/screenshots/settings_dark.png" height="350" alt="Settings"/>
-<img loading="lazy" src="app/src/test/screenshots/oobe_dark.png" height="350" alt="OOBE"/>
 
 <br>
 
