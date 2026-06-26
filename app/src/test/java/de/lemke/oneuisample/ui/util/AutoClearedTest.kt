@@ -35,6 +35,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.reflect.KProperty
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -81,14 +82,13 @@ class AutoClearedTest {
     }
 
     @Test
-    fun `getValue skips caching and reinitializes when fragment has no view`() {
+    fun `getValue throws when fragment has no view`() {
         val fragment = Fragment()
         var initCount = 0
         val delegate = fragment.autoCleared { initCount++ }
         val prop = mockk<KProperty<*>>()
-        delegate.getValue(fragment, prop)
-        delegate.getValue(fragment, prop)
-        initCount shouldBe 2
+        assertThrows(IllegalStateException::class.java) { delegate.getValue(fragment, prop) }
+        initCount shouldBe 0
     }
 
     @Test
