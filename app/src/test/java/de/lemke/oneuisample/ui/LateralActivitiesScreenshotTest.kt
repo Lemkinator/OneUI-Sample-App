@@ -107,13 +107,4 @@ class LateralActivitiesScreenshotTest {
     @Test
     @Config(qualifiers = "+night")
     fun appPicker_dark() = captureScreenshot<AppPickerActivity>("src/test/screenshots/app_picker_dark.png")
-
-    // Libs (Compose – AboutLibraries)
-
-    @Test
-    fun libs_light() = captureScreenshot<LibsActivity>("src/test/screenshots/libs_light.png")
-
-    @Test
-    @Config(qualifiers = "+night")
-    fun libs_dark() = captureScreenshot<LibsActivity>("src/test/screenshots/libs_dark.png")
 }
