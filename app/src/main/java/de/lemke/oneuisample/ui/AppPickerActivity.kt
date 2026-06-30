@@ -188,13 +188,16 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
                     }
                 }
             }
-        configureAppPicker(currentPicker!!)
+        val picker = currentPicker!!
+        configureAppPicker(picker)
         lifecycleScope.launch(Dispatchers.IO) {
             val packages = getAppList(this@AppPickerActivity, listType)
             withContext(Dispatchers.Main) {
-                currentPicker!!.submitList(packages)
-                updateAppPickerVisibility(packages.isNotEmpty())
-                binding.appPickerProgress.isVisible = false
+                if (currentPicker == picker) {
+                    picker.submitList(packages)
+                    updateAppPickerVisibility(packages.isNotEmpty())
+                    binding.appPickerProgress.isVisible = false
+                }
             }
         }
     }
