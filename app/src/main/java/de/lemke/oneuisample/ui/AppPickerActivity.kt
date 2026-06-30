@@ -65,6 +65,9 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     internal var currentPicker: SeslAppPickerView? = null
     private var renderedPickerType = -1
 
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal var appPickerLoadGeneration = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAppPickerBinding.inflate(layoutInflater)
@@ -189,11 +192,12 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
                 }
             }
         val picker = currentPicker!!
+        val loadGeneration = ++appPickerLoadGeneration
         configureAppPicker(picker)
         lifecycleScope.launch(Dispatchers.IO) {
             val packages = getAppList(this@AppPickerActivity, listType)
             withContext(Dispatchers.Main) {
-                if (currentPicker == picker) {
+                if (loadGeneration == appPickerLoadGeneration) {
                     picker.submitList(packages)
                     updateAppPickerVisibility(packages.isNotEmpty())
                     binding.appPickerProgress.isVisible = false
