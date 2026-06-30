@@ -115,8 +115,8 @@ class AppPickerActivityTest {
     fun updateAppPickerVisibility_invisible_showsNoEntry() {
         launch {
             setAppPickerType(ListTypes.LIST_TYPE)
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks() // drain setAppPickerType's async completion
             updateAppPickerVisibility(false)
-            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
             window.decorView.findViewById<View>(R.id.noEntryScrollView)?.isVisible shouldBe true
             currentPicker?.isVisible shouldBe false
         }

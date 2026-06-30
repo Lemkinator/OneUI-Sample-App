@@ -25,6 +25,7 @@ import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.picker.di.AppPickerContext
 import androidx.picker.helper.SeslAppInfoDataHelper
 import androidx.picker.model.AppInfo
@@ -50,6 +51,9 @@ import dev.oneuiproject.oneui.ktx.setEntries
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
 import dev.oneuiproject.oneui.layout.startSearchMode
 import dev.oneuiproject.oneui.recyclerview.ktx.seslSetFastScrollerAdditionalPadding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator() {
@@ -185,10 +189,14 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
                 }
             }
         configureAppPicker(currentPicker!!)
-        val packages = getAppList(this, listType)
-        currentPicker!!.submitList(packages)
-        updateAppPickerVisibility(packages.isNotEmpty())
-        binding.appPickerProgress.isVisible = false
+        lifecycleScope.launch(Dispatchers.IO) {
+            val packages = getAppList(this@AppPickerActivity, listType)
+            withContext(Dispatchers.Main) {
+                currentPicker!!.submitList(packages)
+                updateAppPickerVisibility(packages.isNotEmpty())
+                binding.appPickerProgress.isVisible = false
+            }
+        }
     }
 
     fun getAppList(
