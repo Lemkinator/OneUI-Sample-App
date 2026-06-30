@@ -78,6 +78,8 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
         private lateinit var devOptionsPref: PreferenceCategory
         private lateinit var switchScreenPref: SeslSwitchPreferenceScreen
+        private lateinit var suggestionCardPref: SuggestionCardPreference
+        private lateinit var suggestionInsetPref: InsetPreferenceCategory
         private val viewModel: SettingsViewModel by viewModels()
 
         @NoCoverage
@@ -124,6 +126,8 @@ class SettingsActivity : AppCompatActivity() {
         private fun initPreferences() {
             devOptionsPref = findPreference("dev_options")!!
             switchScreenPref = findPreference("switch_screen")!!
+            suggestionCardPref = findPreference("suggestion")!!
+            suggestionInsetPref = findPreference("suggestion_inset")!!
             initDarkModePrefs()
             initSwitchBarPref()
             initLanguagePref()
@@ -218,21 +222,20 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun initSuggestionCard() {
-            val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
-            val suggestionInset = findPreference<InsetPreferenceCategory>("suggestion_inset")!!
-            suggestion.setOnClosedClickedListener { preferenceScreen.removePreference(suggestionInset) }
-            suggestion.setActionButtonOnClickListener { onSuggestionCardActionButtonClicked(it) }
+            suggestionCardPref.setOnClosedClickedListener {
+                preferenceScreen.removePreference(suggestionCardPref)
+                preferenceScreen.removePreference(suggestionInsetPref)
+            }
+            suggestionCardPref.setActionButtonOnClickListener { onSuggestionCardActionButtonClicked(it) }
         }
 
         @VisibleForTesting(otherwise = PRIVATE)
         internal fun onSuggestionCardActionButtonClicked(view: View) {
-            val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
-            val suggestionInset = findPreference<InsetPreferenceCategory>("suggestion_inset")!!
-            suggestion.startTurnOnAnimation(getString(R.string.turned_on))
+            suggestionCardPref.startTurnOnAnimation(getString(R.string.turned_on))
             view.postDelayed(
                 {
-                    preferenceScreen.removePreference(suggestion)
-                    preferenceScreen.removePreference(suggestionInset)
+                    preferenceScreen.removePreference(suggestionCardPref)
+                    preferenceScreen.removePreference(suggestionInsetPref)
                 },
                 SUGGESTION_DISMISS_DELAY_MS,
             )
