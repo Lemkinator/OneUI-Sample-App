@@ -102,6 +102,33 @@ class AppPickerActivityTest {
     }
 
     @Test
+    fun setAppPickerType_calledAgainBeforeCompletion_discardsStaleResult() {
+        launch {
+            setAppPickerType(ListTypes.LIST_TYPE)
+            val firstPicker = currentPicker
+            setAppPickerType(ListTypes.TYPE_GRID)
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+            // First call's coroutine result is discarded: load generation moved on
+            currentPicker shouldNotBe firstPicker
+            currentPicker?.isVisible shouldBe true
+        }
+    }
+
+    @Test
+    fun setAppPickerType_calledAgainWithSamePickerView_generationGuardDiscardsStaleResult() {
+        launch {
+            // LIST_TYPE and TYPE_LIST_CHECKBOX both resolve to appPickerList, so the old
+            // currentPicker-identity guard alone could not tell these loads apart.
+            setAppPickerType(ListTypes.LIST_TYPE)
+            val loadGenerationAfterFirstCall = appPickerLoadGeneration
+            setAppPickerType(ListTypes.TYPE_LIST_CHECKBOX)
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+            appPickerLoadGeneration shouldNotBe loadGenerationAfterFirstCall
+            currentPicker?.isVisible shouldBe true
+        }
+    }
+
+    @Test
     fun updateAppPickerVisibility_visible_showsPicker() {
         launch {
             setAppPickerType(ListTypes.LIST_TYPE)
