@@ -234,8 +234,10 @@ class SettingsActivity : AppCompatActivity() {
             suggestionCardPref.startTurnOnAnimation(getString(R.string.turned_on))
             view.postDelayed(
                 {
-                    preferenceScreen.removePreference(suggestionCardPref)
-                    preferenceScreen.removePreference(suggestionInsetPref)
+                    if (isAdded) {
+                        preferenceScreen.removePreference(suggestionCardPref)
+                        preferenceScreen.removePreference(suggestionInsetPref)
+                    }
                 },
                 SUGGESTION_DISMISS_DELAY_MS,
             )

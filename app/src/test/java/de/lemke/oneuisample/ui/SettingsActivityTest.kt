@@ -18,6 +18,7 @@ package de.lemke.oneuisample.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Looper
+import androidx.lifecycle.Lifecycle
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceScreen
 import androidx.preference.SeslSwitchPreferenceScreen
@@ -224,6 +225,20 @@ class SettingsActivityTest {
             onSuggestionCardActionButtonClicked(requireView())
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
         }
+    }
+
+    @Test
+    fun suggestionCard_actionButtonClicked_fragmentDetachedBeforeDelayFires_doesNotCrash() {
+        val scenario = ActivityScenario.launch<SettingsActivity>(Intent(context, SettingsActivity::class.java))
+        shadowOf(Looper.getMainLooper()).idle()
+        scenario.onActivity { activity ->
+            val fragment = activity.supportFragmentManager.findFragmentById(R.id.settings) as? SettingsActivity.SettingsFragment
+            fragment?.onSuggestionCardActionButtonClicked(fragment.requireView())
+        }
+        scenario.moveToState(Lifecycle.State.DESTROYED)
+        // isAdded guard must prevent the now-detached fragment's preferenceScreen from being touched
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        scenario.close()
     }
 
     @Test
