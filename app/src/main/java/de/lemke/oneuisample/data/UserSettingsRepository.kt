@@ -115,7 +115,6 @@ class UserSettingsRepository(
         callbackFlow {
             val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> trySend(snapshot()) }
             preferences.registerOnSharedPreferenceChangeListener(listener)
-            trySend(snapshot()) // close the gap between initial snapshot() and listener registration
             awaitClose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
         }.distinctUntilChanged()
             .stateIn(scope, SharingStarted.Eagerly, snapshot())
