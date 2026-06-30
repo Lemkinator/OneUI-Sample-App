@@ -15,8 +15,8 @@
  */
 package de.lemke.oneuisample.domain
 
+import android.content.Context
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettingsRepository
 
@@ -76,7 +76,7 @@ class AppStart(
 }
 
 /** Checks whether this is the first run, a version upgrade, or a normal start. Version info is committed by the caller. */
-internal fun AppCompatActivity.checkAppStart(
+internal fun Context.checkAppStart(
     userSettings: UserSettingsRepository,
     versionCode: Int,
     versionName: String,
