@@ -10,7 +10,7 @@ aboutlibraries = "15.0.3"
 # activity-compose 1.13.x requires androidx.core.app.PictureInPictureProvider, absent in the androidx.core
 # version bundled by oneui-design. Upgrading is blocked until oneui-design ships a compatible core.
 #noinspection GradleDependency
-activity-compose = "1.12.4"
+activity-compose = "1.13.0"
 agp = "9.2.1"
 androidx-test-core = "1.7.0"
 androidx-test-espresso = "3.7.0"
