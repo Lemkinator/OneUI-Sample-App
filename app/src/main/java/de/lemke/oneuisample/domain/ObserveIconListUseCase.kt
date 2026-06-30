@@ -51,12 +51,13 @@ class ObserveIconListUseCase @Inject constructor(
             if (!active || search.isBlank()) {
                 iconsId to null
             } else {
-                val keywords = search.trim().split(Regex("\\s+")).toSet()
+                val keywords = search.trim().split(WHITESPACE_REGEX).toSet()
                 iconsId.filter { it.containsKeywords(keywords) } to search
             }
         }.distinctUntilChanged()
 
     private companion object {
         private const val TAG = "ObserveIconListUseCase"
+        private val WHITESPACE_REGEX = Regex("\\s+")
     }
 }
