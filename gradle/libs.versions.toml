@@ -46,7 +46,7 @@ robolectric = "4.16.1"
 roborazzi = "1.64.0"
 spotless = "8.8.0"
 turbine = "1.2.1"
-uiautomator = "2.3.0"
+uiautomator = "2.4.0"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
