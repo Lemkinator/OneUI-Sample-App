@@ -209,10 +209,7 @@ class SettingsActivityTest {
     @Test
     fun suggestionCard_closeButton_removesBothPreferencesFromScreen() {
         launch {
-            val suggestionPref = findPreference<dev.oneuiproject.oneui.preference.SuggestionCardPreference>("suggestion")!!
-            val field = suggestionPref.javaClass.getDeclaredField("closedListener")
-            field.isAccessible = true
-            (field.get(suggestionPref) as? android.view.View.OnClickListener)?.onClick(requireView())
+            requireView().findViewById<android.widget.ImageView>(dev.oneuiproject.oneui.design.R.id.exit_button).performClick()
             shadowOf(Looper.getMainLooper()).idle()
             preferenceScreen.findPreference<dev.oneuiproject.oneui.preference.SuggestionCardPreference>("suggestion") shouldBe null
             preferenceScreen.findPreference<dev.oneuiproject.oneui.preference.InsetPreferenceCategory>("suggestion_inset") shouldBe null
