@@ -18,6 +18,7 @@ package de.lemke.oneuisample.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Looper
+import androidx.lifecycle.Lifecycle
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceScreen
 import androidx.preference.SeslSwitchPreferenceScreen
@@ -206,9 +207,33 @@ class SettingsActivityTest {
     }
 
     @Test
+    fun suggestionCard_closeButton_removesBothPreferencesFromScreen() {
+        launch {
+            requireView().findViewById<android.widget.ImageView>(dev.oneuiproject.oneui.design.R.id.exit_button).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            preferenceScreen.findPreference<dev.oneuiproject.oneui.preference.SuggestionCardPreference>("suggestion") shouldBe null
+            preferenceScreen.findPreference<dev.oneuiproject.oneui.preference.InsetPreferenceCategory>("suggestion_inset") shouldBe null
+        }
+    }
+
+    @Test
     fun suggestionCard_actionButtonClicked_startsAnimation() {
         launch {
             onSuggestionCardActionButtonClicked(requireView())
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        }
+    }
+
+    @Test
+    fun suggestionCard_actionButtonClicked_fragmentDetachedBeforeDelayFires_doesNotCrash() {
+        ActivityScenario.launch<SettingsActivity>(Intent(context, SettingsActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                val fragment = activity.supportFragmentManager.findFragmentById(R.id.settings) as? SettingsActivity.SettingsFragment
+                fragment?.onSuggestionCardActionButtonClicked(fragment.requireView())
+            }
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+            // isAdded guard must prevent the now-detached fragment's preferenceScreen from being touched
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
         }
     }

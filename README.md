@@ -37,17 +37,6 @@ This is a sample app for the <a href="https://github.com/tribalfs/oneui-design">
 
 <br><br>
 
-## Development Setup
-
-One-time setup per clone (Windows):
-
-```bash
-git config core.autocrlf input
-git config core.hooksPath .githooks
-```
-
-This enables LF line endings and the pre-commit hook (runs Spotless + Detekt before each commit).
-
 ## Stats
 
 ![Alt](https://repobeats.axiom.co/api/embed/9c5efca56ef370169e709a04923cfcd6451fa62a.svg "Repobeats analytics image")
