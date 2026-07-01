@@ -160,9 +160,9 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             val indexChars = LinkedHashSet<Char>()
             icons.forEach { icon ->
                 names.add(icon.name)
-                indexChars.add(icon.indexChar)
+                indexChars.add(icon.indexChar.uppercaseChar())
             }
-            val indexCharacterString = indexChars.joinToString("").uppercase()
+            val indexCharacterString = indexChars.joinToString("")
             binding.iconIndexScroll.setIndexer(SeslArrayIndexer(names, indexCharacterString))
         }
     }
