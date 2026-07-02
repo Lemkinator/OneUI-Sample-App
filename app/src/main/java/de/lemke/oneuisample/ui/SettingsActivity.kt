@@ -60,6 +60,7 @@ import dev.oneuiproject.oneui.preference.TipsCardPreference
 import dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
 import dev.oneuiproject.oneui.widget.RelativeLink
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import dev.oneuiproject.oneui.design.R as designR
@@ -85,6 +86,7 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var suggestionCardPref: SuggestionCardPreference
         private lateinit var suggestionInsetPref: InsetPreferenceCategory
         private val viewModel: SettingsViewModel by viewModels()
+        private var widgetResetJob: Job? = null
 
         @NoCoverage
         override fun onAttach(context: Context) {
@@ -139,11 +141,13 @@ class SettingsActivity : AppCompatActivity() {
             initDeleteAppDataPref()
             initSuggestionCard()
             findPreference<UpdatableWidgetPreference>("updatable")!!.onClick {
+                widgetResetJob?.cancel()
                 it.widgetLayoutResource = R.layout.sample_pref_widget_progress
-                viewLifecycleOwner.lifecycleScope.launch {
-                    delay(WIDGET_RESET_DELAY_MS.milliseconds)
-                    it.widgetLayoutResource = R.layout.sample_pref_widget_check
-                }
+                widgetResetJob =
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        delay(WIDGET_RESET_DELAY_MS.milliseconds)
+                        it.widgetLayoutResource = R.layout.sample_pref_widget_check
+                    }
             }
             findPreference<TipsCardPreference>(
                 "tip",
