@@ -35,6 +35,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -56,6 +57,10 @@ class AppPickerActivityTest {
     private fun launch(block: AppPickerActivity.() -> Unit = {}) {
         ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
+            // setAppPickerType hardcodes its background work behind an overridable dispatcher field so
+            // tests can run it synchronously instead of racing a real Dispatchers.IO thread against the
+            // Robolectric shadow looper.
+            scenario.onActivity { it.ioDispatcher = UnconfinedTestDispatcher() }
             scenario.onActivity { it.block() }
             shadowOf(Looper.getMainLooper()).idle()
         }
@@ -142,7 +147,7 @@ class AppPickerActivityTest {
     fun updateAppPickerVisibility_invisible_showsNoEntry() {
         launch {
             setAppPickerType(ListTypes.LIST_TYPE)
-            shadowOf(Looper.getMainLooper()).runToEndOfTasks() // drain setAppPickerType's async completion
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
             updateAppPickerVisibility(false)
             window.decorView.findViewById<View>(R.id.noEntryScrollView)?.isVisible shouldBe true
             currentPicker?.isVisible shouldBe false

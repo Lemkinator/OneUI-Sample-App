@@ -51,6 +51,7 @@ import dev.oneuiproject.oneui.ktx.setEntries
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
 import dev.oneuiproject.oneui.layout.startSearchMode
 import dev.oneuiproject.oneui.recyclerview.ktx.seslSetFastScrollerAdditionalPadding
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -67,6 +68,9 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal var appPickerLoadGeneration = 0
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal var ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -194,8 +198,8 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         val picker = currentPicker!!
         val loadGeneration = ++appPickerLoadGeneration
         configureAppPicker(picker)
-        lifecycleScope.launch(Dispatchers.IO) {
-            val packages = getAppList(this@AppPickerActivity, listType)
+        lifecycleScope.launch(ioDispatcher) {
+            val packages = getAppList(applicationContext, listType)
             withContext(Dispatchers.Main) {
                 if (loadGeneration == appPickerLoadGeneration) {
                     picker.submitList(packages)
