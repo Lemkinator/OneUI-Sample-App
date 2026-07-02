@@ -219,7 +219,7 @@ class SettingsActivityTest {
     @Test
     fun suggestionCard_actionButtonClicked_startsAnimation() {
         launch {
-            onSuggestionCardActionButtonClicked(requireView())
+            onSuggestionCardActionButtonClicked()
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
         }
     }
@@ -230,10 +230,11 @@ class SettingsActivityTest {
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
                 val fragment = activity.supportFragmentManager.findFragmentById(R.id.settings) as? SettingsActivity.SettingsFragment
-                fragment?.onSuggestionCardActionButtonClicked(fragment.requireView())
+                fragment?.onSuggestionCardActionButtonClicked()
             }
             scenario.moveToState(Lifecycle.State.DESTROYED)
-            // isAdded guard must prevent the now-detached fragment's preferenceScreen from being touched
+            // viewLifecycleOwner.lifecycleScope must cancel the pending delay so the destroyed
+            // fragment's preferenceScreen is never touched
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
         }
     }

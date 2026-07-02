@@ -37,6 +37,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.net.toUri
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -58,6 +59,9 @@ import dev.oneuiproject.oneui.preference.SuggestionCardPreference
 import dev.oneuiproject.oneui.preference.TipsCardPreference
 import dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
 import dev.oneuiproject.oneui.widget.RelativeLink
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint
@@ -136,7 +140,10 @@ class SettingsActivity : AppCompatActivity() {
             initSuggestionCard()
             findPreference<UpdatableWidgetPreference>("updatable")!!.onClick {
                 it.widgetLayoutResource = R.layout.sample_pref_widget_progress
-                requireView().postDelayed({ it.widgetLayoutResource = R.layout.sample_pref_widget_check }, WIDGET_RESET_DELAY_MS)
+                viewLifecycleOwner.lifecycleScope.launch {
+                    delay(WIDGET_RESET_DELAY_MS.milliseconds)
+                    it.widgetLayoutResource = R.layout.sample_pref_widget_check
+                }
             }
             findPreference<TipsCardPreference>(
                 "tip",
@@ -226,21 +233,17 @@ class SettingsActivity : AppCompatActivity() {
                 preferenceScreen.removePreference(suggestionCardPref)
                 preferenceScreen.removePreference(suggestionInsetPref)
             }
-            suggestionCardPref.setActionButtonOnClickListener { onSuggestionCardActionButtonClicked(it) }
+            suggestionCardPref.setActionButtonOnClickListener { onSuggestionCardActionButtonClicked() }
         }
 
         @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onSuggestionCardActionButtonClicked(view: View) {
+        internal fun onSuggestionCardActionButtonClicked() {
             suggestionCardPref.startTurnOnAnimation(getString(R.string.turned_on))
-            view.postDelayed(
-                {
-                    if (isAdded) {
-                        preferenceScreen.removePreference(suggestionCardPref)
-                        preferenceScreen.removePreference(suggestionInsetPref)
-                    }
-                },
-                SUGGESTION_DISMISS_DELAY_MS,
-            )
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(SUGGESTION_DISMISS_DELAY_MS.milliseconds)
+                preferenceScreen.removePreference(suggestionCardPref)
+                preferenceScreen.removePreference(suggestionInsetPref)
+            }
         }
 
         companion object {
