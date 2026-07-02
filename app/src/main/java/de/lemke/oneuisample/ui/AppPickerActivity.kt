@@ -25,7 +25,6 @@ import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
 import androidx.picker.di.AppPickerContext
 import androidx.picker.helper.SeslAppInfoDataHelper
 import androidx.picker.model.AppInfo
@@ -36,7 +35,6 @@ import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
 import androidx.picker.widget.SeslAppPickerView.Companion.ORDER_ASCENDING
 import dagger.hilt.android.AndroidEntryPoint
-import de.lemke.oneuisample.IoDispatcher
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
@@ -52,11 +50,6 @@ import dev.oneuiproject.oneui.ktx.setEntries
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
 import dev.oneuiproject.oneui.layout.startSearchMode
 import dev.oneuiproject.oneui.recyclerview.ktx.seslSetFastScrollerAdditionalPadding
-import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator() {
@@ -67,13 +60,6 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     @VisibleForTesting(otherwise = PRIVATE)
     internal var currentPicker: SeslAppPickerView? = null
     private var renderedPickerType = -1
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal var appPickerLoadGeneration = 0
-
-    @IoDispatcher
-    @Inject
-    internal lateinit var ioDispatcher: CoroutineDispatcher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -199,18 +185,11 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
                 }
             }
         val picker = currentPicker!!
-        val loadGeneration = ++appPickerLoadGeneration
         configureAppPicker(picker)
-        lifecycleScope.launch(ioDispatcher) {
-            val packages = getAppList(applicationContext, listType)
-            withContext(Dispatchers.Main) {
-                if (loadGeneration == appPickerLoadGeneration) {
-                    picker.submitList(packages)
-                    updateAppPickerVisibility(packages.isNotEmpty())
-                    binding.appPickerProgress.isVisible = false
-                }
-            }
-        }
+        val packages = getAppList(this, listType)
+        picker.submitList(packages)
+        updateAppPickerVisibility(packages.isNotEmpty())
+        binding.appPickerProgress.isVisible = false
     }
 
     fun getAppList(

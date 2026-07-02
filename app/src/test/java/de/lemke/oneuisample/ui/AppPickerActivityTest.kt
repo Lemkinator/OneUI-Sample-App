@@ -27,17 +27,9 @@ import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
-import dagger.hilt.android.testing.UninstallModules
-import dagger.hilt.components.SingletonComponent
-import de.lemke.oneuisample.DefaultDispatcher
-import de.lemke.oneuisample.DispatchersModule
-import de.lemke.oneuisample.IoDispatcher
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.ui.util.ListTypes
 import dev.oneuiproject.oneui.layout.ToolbarLayout
@@ -45,9 +37,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,8 +50,6 @@ private fun View.findSearchView(): SearchView? =
         (0 until vg.childCount).firstNotNullOfOrNull { vg.getChildAt(it).findSearchView() }
     }
 
-@OptIn(ExperimentalCoroutinesApi::class)
-@UninstallModules(DispatchersModule::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @Config(application = HiltTestApplication::class, sdk = [36])
@@ -70,18 +57,6 @@ private fun View.findSearchView(): SearchView? =
 class AppPickerActivityTest {
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
-
-    @Module
-    @InstallIn(SingletonComponent::class)
-    object TestDispatchersModule {
-        @Provides
-        @IoDispatcher
-        fun provideIoDispatcher(): CoroutineDispatcher = UnconfinedTestDispatcher()
-
-        @Provides
-        @DefaultDispatcher
-        fun provideDefaultDispatcher(): CoroutineDispatcher = UnconfinedTestDispatcher()
-    }
 
     private val context get() = ApplicationProvider.getApplicationContext<HiltTestApplication>()
 
@@ -130,33 +105,6 @@ class AppPickerActivityTest {
         launch {
             setAppPickerType(ListTypes.TYPE_LIST_ACTION_BUTTON)
             currentPicker shouldNotBe null
-        }
-    }
-
-    @Test
-    fun setAppPickerType_calledAgainBeforeCompletion_discardsStaleResult() {
-        launch {
-            setAppPickerType(ListTypes.LIST_TYPE)
-            val firstPicker = currentPicker
-            setAppPickerType(ListTypes.TYPE_GRID)
-            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
-            // First call's coroutine result is discarded: load generation moved on
-            currentPicker shouldNotBe firstPicker
-            currentPicker?.isVisible shouldBe true
-        }
-    }
-
-    @Test
-    fun setAppPickerType_calledAgainWithSamePickerView_generationGuardDiscardsStaleResult() {
-        launch {
-            // LIST_TYPE and TYPE_LIST_CHECKBOX both resolve to appPickerList, so the old
-            // currentPicker-identity guard alone could not tell these loads apart.
-            setAppPickerType(ListTypes.LIST_TYPE)
-            val loadGenerationAfterFirstCall = appPickerLoadGeneration
-            setAppPickerType(ListTypes.TYPE_LIST_CHECKBOX)
-            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
-            appPickerLoadGeneration shouldNotBe loadGenerationAfterFirstCall
-            currentPicker?.isVisible shouldBe true
         }
     }
 
