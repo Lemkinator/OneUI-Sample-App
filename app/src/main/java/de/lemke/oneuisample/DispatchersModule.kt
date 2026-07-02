@@ -15,39 +15,30 @@
  */
 package de.lemke.oneuisample
 
-import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import de.lemke.oneuisample.data.UserSettingsRepository
-import de.lemke.oneuisample.data.UserSettingsRepository.Companion.PREFS_NAME
 import javax.inject.Qualifier
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Dispatchers
 
 @Retention(AnnotationRetention.RUNTIME)
 @Qualifier
-annotation class ApplicationScope
+annotation class IoDispatcher
+
+@Retention(AnnotationRetention.RUNTIME)
+@Qualifier
+annotation class DefaultDispatcher
 
 @Module
 @InstallIn(SingletonComponent::class)
-object PersistenceModule {
+object DispatchersModule {
     @Provides
-    @Singleton
-    @ApplicationScope
-    fun providesApplicationScope(
-        @DefaultDispatcher dispatcher: CoroutineDispatcher,
-    ): CoroutineScope = CoroutineScope(SupervisorJob() + dispatcher)
+    @IoDispatcher
+    fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
     @Provides
-    @Singleton
-    fun provideUserSettingsRepository(
-        @ApplicationContext context: Context,
-        @ApplicationScope scope: CoroutineScope,
-    ): UserSettingsRepository = UserSettingsRepository(context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE), scope)
+    @DefaultDispatcher
+    fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
 }

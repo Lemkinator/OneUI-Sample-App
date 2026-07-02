@@ -25,6 +25,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 class CompleteOnboardingUseCaseTest : ShouldSpec(
     {
@@ -37,7 +38,7 @@ class CompleteOnboardingUseCaseTest : ShouldSpec(
             mockContext = mockk()
             mockResources = mockk()
             mockRepo = mockk(relaxed = true)
-            useCase = CompleteOnboardingUseCase(mockContext, mockRepo)
+            useCase = CompleteOnboardingUseCase(mockContext, mockRepo, UnconfinedTestDispatcher())
             every { mockContext.resources } returns mockResources
             every { mockResources.getInteger(R.integer.tos_version) } returns 2
         }

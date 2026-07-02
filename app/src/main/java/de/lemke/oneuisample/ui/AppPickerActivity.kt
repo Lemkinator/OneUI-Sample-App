@@ -36,6 +36,7 @@ import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
 import androidx.picker.widget.SeslAppPickerView.Companion.ORDER_ASCENDING
 import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisample.IoDispatcher
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
@@ -51,6 +52,7 @@ import dev.oneuiproject.oneui.ktx.setEntries
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
 import dev.oneuiproject.oneui.layout.startSearchMode
 import dev.oneuiproject.oneui.recyclerview.ktx.seslSetFastScrollerAdditionalPadding
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -69,8 +71,9 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     @VisibleForTesting(otherwise = PRIVATE)
     internal var appPickerLoadGeneration = 0
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal var ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    @IoDispatcher
+    @Inject
+    internal lateinit var ioDispatcher: CoroutineDispatcher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
