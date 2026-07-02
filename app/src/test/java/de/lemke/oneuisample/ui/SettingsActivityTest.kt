@@ -175,6 +175,17 @@ class SettingsActivityTest {
     }
 
     @Test
+    fun updatablePref_rapidDoubleClick_cancelsPriorResetJob() {
+        launch {
+            val updatablePref = findPreference<dev.oneuiproject.oneui.preference.UpdatableWidgetPreference>("updatable")
+            updatablePref?.performClick()
+            updatablePref?.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        }
+    }
+
+    @Test
     fun editTextPref_newValue_showsSnackBar() {
         launch {
             findPreference<androidx.preference.EditTextPreference>("edit_text")
