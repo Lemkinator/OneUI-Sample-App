@@ -27,7 +27,17 @@ import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import de.lemke.oneuisample.App
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.HiltTestApplication
+import dagger.hilt.android.testing.UninstallModules
+import dagger.hilt.components.SingletonComponent
+import de.lemke.oneuisample.DefaultDispatcher
+import de.lemke.oneuisample.DispatchersModule
+import de.lemke.oneuisample.IoDispatcher
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.ui.util.ListTypes
 import dev.oneuiproject.oneui.layout.ToolbarLayout
@@ -35,7 +45,10 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -48,19 +61,33 @@ private fun View.findSearchView(): SearchView? =
         (0 until vg.childCount).firstNotNullOfOrNull { vg.getChildAt(it).findSearchView() }
     }
 
+@OptIn(ExperimentalCoroutinesApi::class)
+@UninstallModules(DispatchersModule::class)
+@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-@Config(application = App::class, sdk = [36])
+@Config(application = HiltTestApplication::class, sdk = [36])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class AppPickerActivityTest {
-    private val context get() = ApplicationProvider.getApplicationContext<android.app.Application>()
+    @get:Rule(order = 0)
+    val hiltRule = HiltAndroidRule(this)
+
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object TestDispatchersModule {
+        @Provides
+        @IoDispatcher
+        fun provideIoDispatcher(): CoroutineDispatcher = UnconfinedTestDispatcher()
+
+        @Provides
+        @DefaultDispatcher
+        fun provideDefaultDispatcher(): CoroutineDispatcher = UnconfinedTestDispatcher()
+    }
+
+    private val context get() = ApplicationProvider.getApplicationContext<HiltTestApplication>()
 
     private fun launch(block: AppPickerActivity.() -> Unit = {}) {
         ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
-            // setAppPickerType hardcodes its background work behind an overridable dispatcher field so
-            // tests can run it synchronously instead of racing a real Dispatchers.IO thread against the
-            // Robolectric shadow looper.
-            scenario.onActivity { it.ioDispatcher = UnconfinedTestDispatcher() }
             scenario.onActivity { it.block() }
             shadowOf(Looper.getMainLooper()).idle()
         }
