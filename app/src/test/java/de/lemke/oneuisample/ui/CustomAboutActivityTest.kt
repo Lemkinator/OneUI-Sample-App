@@ -26,11 +26,14 @@ import androidx.activity.BackEventCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.google.android.material.appbar.AppBarLayout
-import de.lemke.oneuisample.App
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -39,10 +42,14 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowActivity
 
+@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-@Config(application = App::class, sdk = [36])
+@Config(application = HiltTestApplication::class, sdk = [36])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class CustomAboutActivityTest {
+    @get:Rule(order = 0)
+    val hiltRule = HiltAndroidRule(this)
+
     private val context get() = ApplicationProvider.getApplicationContext<android.app.Application>()
 
     private fun launch(block: CustomAboutActivity.() -> Unit = {}) {
