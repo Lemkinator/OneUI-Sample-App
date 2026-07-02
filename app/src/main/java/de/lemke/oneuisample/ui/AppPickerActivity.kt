@@ -217,10 +217,12 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         context: Context,
         listType: ListTypes,
     ): List<AppInfoData> {
-        val actionIcon by lazy { ContextCompat.getDrawable(context, dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline) }
+        val actionIconState by lazy {
+            ContextCompat.getDrawable(context, dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline)?.constantState
+        }
         return SeslAppInfoDataHelper(context, listType.builder).getPackages().onEach {
             it.subLabel = it.packageName
-            if (listType == ListTypes.TYPE_LIST_ACTION_BUTTON) it.actionIcon = actionIcon
+            if (listType == ListTypes.TYPE_LIST_ACTION_BUTTON) it.actionIcon = actionIconState?.newDrawable()
         }
     }
 
