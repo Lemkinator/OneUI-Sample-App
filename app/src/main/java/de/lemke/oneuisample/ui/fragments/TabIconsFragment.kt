@@ -153,15 +153,17 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         } else {
             binding.noEntryScrollView.isVisible = false
             binding.iconList.isVisible = true
+            val icons = iconsAndSearch.first
             iconAdapter.highlight = iconsAndSearch.second ?: ""
-            iconAdapter.submitList(iconsAndSearch.first)
-            val indexCharacterString =
-                iconsAndSearch.first
-                    .map { it.indexChar }
-                    .distinct()
-                    .joinToString("")
-                    .uppercase()
-            binding.iconIndexScroll.setIndexer(SeslArrayIndexer(iconsAndSearch.first.map { it.name }, indexCharacterString))
+            iconAdapter.submitList(icons)
+            val names = ArrayList<String>(icons.size)
+            val indexChars = LinkedHashSet<Char>()
+            icons.forEach { icon ->
+                names.add(icon.name)
+                indexChars.add(icon.indexChar.uppercaseChar())
+            }
+            val indexCharacterString = indexChars.joinToString("")
+            binding.iconIndexScroll.setIndexer(SeslArrayIndexer(names, indexCharacterString))
         }
     }
 

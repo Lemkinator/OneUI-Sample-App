@@ -18,15 +18,19 @@ package de.lemke.oneuisample.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Looper
+import androidx.lifecycle.Lifecycle
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceScreen
 import androidx.preference.SeslSwitchPreferenceScreen
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import de.lemke.oneuisample.App
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettingsRepository
 import io.kotest.matchers.shouldBe
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -34,10 +38,14 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
+@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-@Config(application = App::class, sdk = [36])
+@Config(application = HiltTestApplication::class, sdk = [36])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class SettingsActivityTest {
+    @get:Rule(order = 0)
+    val hiltRule = HiltAndroidRule(this)
+
     private val context get() = ApplicationProvider.getApplicationContext<android.app.Application>()
 
     private fun launch(block: SettingsActivity.SettingsFragment.() -> Unit = {}) {
@@ -167,6 +175,17 @@ class SettingsActivityTest {
     }
 
     @Test
+    fun updatablePref_rapidDoubleClick_cancelsPriorResetJob() {
+        launch {
+            val updatablePref = findPreference<dev.oneuiproject.oneui.preference.UpdatableWidgetPreference>("updatable")
+            updatablePref?.performClick()
+            updatablePref?.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        }
+    }
+
+    @Test
     fun editTextPref_newValue_showsSnackBar() {
         launch {
             findPreference<androidx.preference.EditTextPreference>("edit_text")
@@ -206,9 +225,34 @@ class SettingsActivityTest {
     }
 
     @Test
+    fun suggestionCard_closeButton_removesBothPreferencesFromScreen() {
+        launch {
+            requireView().findViewById<android.widget.ImageView>(dev.oneuiproject.oneui.design.R.id.exit_button).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            preferenceScreen.findPreference<dev.oneuiproject.oneui.preference.SuggestionCardPreference>("suggestion") shouldBe null
+            preferenceScreen.findPreference<dev.oneuiproject.oneui.preference.InsetPreferenceCategory>("suggestion_inset") shouldBe null
+        }
+    }
+
+    @Test
     fun suggestionCard_actionButtonClicked_startsAnimation() {
         launch {
-            onSuggestionCardActionButtonClicked(requireView())
+            onSuggestionCardActionButtonClicked()
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        }
+    }
+
+    @Test
+    fun suggestionCard_actionButtonClicked_fragmentDetachedBeforeDelayFires_doesNotCrash() {
+        ActivityScenario.launch<SettingsActivity>(Intent(context, SettingsActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                val fragment = activity.supportFragmentManager.findFragmentById(R.id.settings) as? SettingsActivity.SettingsFragment
+                fragment?.onSuggestionCardActionButtonClicked()
+            }
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+            // viewLifecycleOwner.lifecycleScope must cancel the pending delay so the destroyed
+            // fragment's preferenceScreen is never touched
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
         }
     }

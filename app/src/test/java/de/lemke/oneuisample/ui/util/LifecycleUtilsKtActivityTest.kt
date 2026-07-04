@@ -21,22 +21,29 @@ import android.content.Intent
 import android.os.Looper
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import de.lemke.oneuisample.App
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.MainActivity
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
+@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-@Config(application = App::class, sdk = [36])
+@Config(application = HiltTestApplication::class, sdk = [36])
 class LifecycleUtilsKtActivityTest {
+    @get:Rule(order = 0)
+    val hiltRule = HiltAndroidRule(this)
+
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
     private val prefs get() = context.getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
 

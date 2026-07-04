@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.lemke.oneuisample
+package de.lemke.oneuisample.di
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
@@ -26,8 +26,8 @@ import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.data.UserSettingsRepository.Companion.PREFS_NAME
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
 @Retention(AnnotationRetention.RUNTIME)
@@ -40,7 +40,9 @@ object PersistenceModule {
     @Provides
     @Singleton
     @ApplicationScope
-    fun providesApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    fun providesApplicationScope(
+        @DefaultDispatcher dispatcher: CoroutineDispatcher,
+    ): CoroutineScope = CoroutineScope(SupervisorJob() + dispatcher)
 
     @Provides
     @Singleton

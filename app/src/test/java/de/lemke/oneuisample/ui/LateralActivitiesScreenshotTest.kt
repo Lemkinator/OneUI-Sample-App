@@ -23,7 +23,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import com.github.takahirom.roborazzi.captureRoboImage
-import de.lemke.oneuisample.App
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.HiltTestApplication
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -32,11 +35,15 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 // sdk = [36]: Robolectric 4.16.1 max supported SDK; bump when 4.17+ adds SDK 37.
+@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-@Config(application = App::class, sdk = [36])
+@Config(application = HiltTestApplication::class, sdk = [36])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class LateralActivitiesScreenshotTest {
-    private val context get() = ApplicationProvider.getApplicationContext<App>()
+    @get:Rule(order = 0)
+    val hiltRule = HiltAndroidRule(this)
+
+    private val context get() = ApplicationProvider.getApplicationContext<HiltTestApplication>()
 
     private inline fun <reified T : Activity> captureScreenshot(fileName: String) {
         ActivityScenario.launch<T>(Intent(context, T::class.java)).use {

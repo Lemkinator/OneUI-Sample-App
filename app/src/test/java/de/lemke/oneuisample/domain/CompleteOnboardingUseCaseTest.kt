@@ -25,7 +25,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class CompleteOnboardingUseCaseTest : ShouldSpec(
     {
         lateinit var mockContext: Context
@@ -37,7 +40,7 @@ class CompleteOnboardingUseCaseTest : ShouldSpec(
             mockContext = mockk()
             mockResources = mockk()
             mockRepo = mockk(relaxed = true)
-            useCase = CompleteOnboardingUseCase(mockContext, mockRepo)
+            useCase = CompleteOnboardingUseCase(mockContext, mockRepo, UnconfinedTestDispatcher())
             every { mockContext.resources } returns mockResources
             every { mockResources.getInteger(R.integer.tos_version) } returns 2
         }

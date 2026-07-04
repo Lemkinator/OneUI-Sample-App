@@ -65,7 +65,11 @@ native JUnit 5 support ([issue #3477](https://github.com/robolectric/robolectric
 
 `@RunWith(RobolectricTestRunner::class)` + `junit-vintage-engine` is correct. Keep until Robolectric ships native JUnit 5.
 
-**Kover + inline functions**: JUnit 4 + `RobolectricTestRunner` enables JaCoCo SMAP attribution — inlined call-site coverage is mapped back to the original `inline fun` definition. Simple delegating `inline fun` therefore don't need `@NoCoverage` here (tests calling them cover the definition via SMAP). The exception is `crossinline` default-value lambdas: the default compiles to a definition-site private static method that is never invoked, so it always needs `@NoCoverage` regardless of test runner. That is why the `@NoCoverage` footprint here is smaller than in `common-utils` (which uses JUnit 5 + `RobolectricExtension`, where SMAP attribution doesn't fire).
+**Kover + inline functions**: JUnit 4 + `RobolectricTestRunner` enables JaCoCo SMAP attribution — inlined call-site coverage is mapped back
+to the original `inline fun` definition. Simple delegating `inline fun` therefore don't need `@NoCoverage` here (tests calling them cover
+the definition via SMAP). The exception is `crossinline` default-value lambdas: the default compiles to a definition-site private static
+method that is never invoked, so it always needs `@NoCoverage` regardless of test runner. That is why the `@NoCoverage` footprint here is
+smaller than in `common-utils` (which uses JUnit 5 + `RobolectricExtension`, where SMAP attribution doesn't fire).
 
 ## Dependency Version Policy
 
@@ -97,8 +101,8 @@ git config core.autocrlf input           # Windows: prevents CRLF violations
 git config core.hooksPath .githooks
 ```
 
-The hook runs `spotlessCheck` and exits 1 with a `./gradlew spotlessApply` reminder on failure. It also fails fast with a targeted message
-if `core.autocrlf=true` is detected.
+The hook runs `spotlessCheck detekt` and exits 1 with a `./gradlew spotlessApply` reminder on failure. It also fails fast with a targeted
+message if `core.autocrlf=true` is detected.
 
 **After any change** run the full local CI suite before declaring work done:
 

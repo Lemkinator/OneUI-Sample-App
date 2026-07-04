@@ -37,6 +37,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.net.toUri
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -58,6 +59,10 @@ import dev.oneuiproject.oneui.preference.SuggestionCardPreference
 import dev.oneuiproject.oneui.preference.TipsCardPreference
 import dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
 import dev.oneuiproject.oneui.widget.RelativeLink
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import dev.oneuiproject.oneui.design.R as designR
 
 @AndroidEntryPoint
@@ -78,7 +83,10 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
         private lateinit var devOptionsPref: PreferenceCategory
         private lateinit var switchScreenPref: SeslSwitchPreferenceScreen
+        private lateinit var suggestionCardPref: SuggestionCardPreference
+        private lateinit var suggestionInsetPref: InsetPreferenceCategory
         private val viewModel: SettingsViewModel by viewModels()
+        private var widgetResetJob: Job? = null
 
         @NoCoverage
         override fun onAttach(context: Context) {
@@ -124,6 +132,8 @@ class SettingsActivity : AppCompatActivity() {
         private fun initPreferences() {
             devOptionsPref = findPreference("dev_options")!!
             switchScreenPref = findPreference("switch_screen")!!
+            suggestionCardPref = findPreference("suggestion")!!
+            suggestionInsetPref = findPreference("suggestion_inset")!!
             initDarkModePrefs()
             initSwitchBarPref()
             initLanguagePref()
@@ -131,8 +141,13 @@ class SettingsActivity : AppCompatActivity() {
             initDeleteAppDataPref()
             initSuggestionCard()
             findPreference<UpdatableWidgetPreference>("updatable")!!.onClick {
+                widgetResetJob?.cancel()
                 it.widgetLayoutResource = R.layout.sample_pref_widget_progress
-                requireView().postDelayed({ it.widgetLayoutResource = R.layout.sample_pref_widget_check }, WIDGET_RESET_DELAY_MS)
+                widgetResetJob =
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        delay(WIDGET_RESET_DELAY_MS.milliseconds)
+                        it.widgetLayoutResource = R.layout.sample_pref_widget_check
+                    }
             }
             findPreference<TipsCardPreference>(
                 "tip",
@@ -218,24 +233,21 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun initSuggestionCard() {
-            val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
-            val suggestionInset = findPreference<InsetPreferenceCategory>("suggestion_inset")!!
-            suggestion.setOnClosedClickedListener { preferenceScreen.removePreference(suggestionInset) }
-            suggestion.setActionButtonOnClickListener { onSuggestionCardActionButtonClicked(it) }
+            suggestionCardPref.setOnClosedClickedListener {
+                preferenceScreen.removePreference(suggestionCardPref)
+                preferenceScreen.removePreference(suggestionInsetPref)
+            }
+            suggestionCardPref.setActionButtonOnClickListener { onSuggestionCardActionButtonClicked() }
         }
 
         @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onSuggestionCardActionButtonClicked(view: View) {
-            val suggestion = findPreference<SuggestionCardPreference>("suggestion")!!
-            val suggestionInset = findPreference<InsetPreferenceCategory>("suggestion_inset")!!
-            suggestion.startTurnOnAnimation(getString(R.string.turned_on))
-            view.postDelayed(
-                {
-                    preferenceScreen.removePreference(suggestion)
-                    preferenceScreen.removePreference(suggestionInset)
-                },
-                SUGGESTION_DISMISS_DELAY_MS,
-            )
+        internal fun onSuggestionCardActionButtonClicked() {
+            suggestionCardPref.startTurnOnAnimation(getString(R.string.turned_on))
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(SUGGESTION_DISMISS_DELAY_MS.milliseconds)
+                preferenceScreen.removePreference(suggestionCardPref)
+                preferenceScreen.removePreference(suggestionInsetPref)
+            }
         }
 
         companion object {

@@ -19,20 +19,22 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.di.DefaultDispatcher
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
 @Singleton
 class CompleteOnboardingUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val userSettings: UserSettingsRepository,
+    @param:DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         versionCode: Int,
         versionName: String,
-    ) = withContext(Dispatchers.Default) {
+    ) = withContext(defaultDispatcher) {
         userSettings.update {
             copy(
                 acceptedTosVersion = context.resources.getInteger(R.integer.tos_version),
