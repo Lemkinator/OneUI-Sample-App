@@ -17,9 +17,9 @@ package de.lemke.oneuisample.domain
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-import de.lemke.oneuisample.DefaultDispatcher
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.di.DefaultDispatcher
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
