@@ -118,6 +118,8 @@
     <string name="scan_qr">QR-Code scannen</string>
     <string name="scan_result_title">Scan-Ergebnis</string>
     <string name="tip_long_press_multiselect">Element gedrückt halten, um mehrere auszuwählen</string>
+    <string name="tip_design_tab">Dieser Tab zeigt OneUI-Buttons, Fortschrittsanzeigen und QR-Scanning.</string>
+    <string name="loading">Lädt…</string>
 
     <!--Section headers-->
     <string name="horizontal">Horizontal</string>

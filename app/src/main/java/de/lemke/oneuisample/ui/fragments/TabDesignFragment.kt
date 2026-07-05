@@ -17,6 +17,8 @@ package de.lemke.oneuisample.ui.fragments
 
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -25,6 +27,7 @@ import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignBinding
 import de.lemke.oneuisample.ui.util.autoCleared
+import de.lemke.oneuisample.ui.util.showTipPopup
 
 class TabDesignFragment : AbsBaseFragment(R.layout.fragment_tab_design) {
     private val binding by autoCleared { FragmentTabDesignBinding.bind(requireView()) }
@@ -50,6 +53,15 @@ class TabDesignFragment : AbsBaseFragment(R.layout.fragment_tab_design) {
             TabLayoutMediator(binding.fragmentDesignSubTabs, binding.viewPager2Design) { tab, position ->
                 tab.text = arrayOf(getString(R.string.widgets), getString(R.string.progress_bar), getString(R.string.qr))[position]
             }.also { it.attach() }
+        binding.fabDesign.setOnClickListener { showDesignTip() }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun showDesignTip() {
+        showTipPopup(
+            message = getString(R.string.tip_design_tab),
+            getAnchor = { binding.fabDesign },
+        )
     }
 }
 

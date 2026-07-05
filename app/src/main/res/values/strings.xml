@@ -157,6 +157,9 @@
     <string name="scan_qr">Scan QR code</string>
     <string name="scan_result_title">Scan result</string>
     <string name="tip_long_press_multiselect">Long-press an item to select multiple</string>
+    <string name="tip_design_tab">This tab showcases OneUI buttons, progress indicators, and QR scanning.</string>
+    <string name="progress_dialog" translatable="false">ProgressDialog</string>
+    <string name="loading">Loading…</string>
 
     <!--Section headers-->
     <string name="horizontal">Horizontal</string>
