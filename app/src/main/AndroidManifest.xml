@@ -21,6 +21,11 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
     <uses-permission android:name="com.samsung.systemui.permission.FACE_WIDGET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:name=".App"
@@ -54,6 +59,9 @@
             android:configChanges="orientation|screenLayout|screenSize" />
         <activity
             android:name=".ui.CustomAboutActivity"
+            android:configChanges="orientation|screenLayout|screenSize" />
+        <activity
+            android:name="dev.oneuiproject.oneui.qr.app.QrScanActivity"
             android:configChanges="orientation|screenLayout|screenSize" />
         <activity
             android:name=".ui.MainActivity"

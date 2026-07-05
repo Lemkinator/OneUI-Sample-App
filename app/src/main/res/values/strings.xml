@@ -154,6 +154,8 @@
     <string name="tile_clicked_inactive">Tile clicked: inactive</string>
     <string name="tile_clicked_active">Tile clicked: active</string>
     <string name="toggle_button_state">Toggle Button: %1$s</string>
+    <string name="scan_qr">Scan QR code</string>
+    <string name="scan_result_title">Scan result</string>
 
     <!--Section headers-->
     <string name="horizontal">Horizontal</string>

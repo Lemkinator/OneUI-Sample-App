@@ -115,6 +115,8 @@
     <string name="tile_clicked_inactive">Kachel geklickt: inaktiv</string>
     <string name="tile_clicked_active">Kachel geklickt: aktiv</string>
     <string name="toggle_button_state">Umschalter: %1$s</string>
+    <string name="scan_qr">QR-Code scannen</string>
+    <string name="scan_result_title">Scan-Ergebnis</string>
 
     <!--Section headers-->
     <string name="horizontal">Horizontal</string>
