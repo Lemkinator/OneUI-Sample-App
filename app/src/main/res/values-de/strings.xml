@@ -64,6 +64,8 @@
     <string name="auto_hide">Auto hide</string>
     <string name="action_mode_search_options">ActionModeSearch options</string>
     <string name="search_apps">Apps suchen</string>
+    <string name="select_layout_mode">Auswahl-Layout aktivieren</string>
+    <string name="simple_picker_mode">Einfacher Modus</string>
 
     <string name="qs_detail_view_text">Das ist der QS Detail View.</string>
     <string name="qs_tile_subtitle">Subtitle</string>

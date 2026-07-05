@@ -36,6 +36,7 @@ data class UserSettings(
     val acceptedTosVersion: Int = -1,
     val devModeEnabled: Boolean = false,
     val appPickerType: Int = 0,
+    val appPickerSelectLayoutMode: Boolean = false,
     val sampleSwitchBar: Boolean = false,
     val showIndexScroll: Boolean = true,
     val indexScrollShowLetters: Boolean = true,
@@ -71,6 +72,9 @@ class UserSettingsRepository(
 
     /** The selected app picker display type. */
     var appPickerType: Int by preferences.delegates.int(0)
+
+    /** Whether the app picker shows the dedicated selected-apps layout instead of the simple spinner-driven list. */
+    var appPickerSelectLayoutMode: Boolean by preferences.delegates.boolean(false)
 
     /** Whether the sample switch bar is enabled. */
     var sampleSwitchBar: Boolean by preferences.delegates.boolean(false)
@@ -129,6 +133,7 @@ class UserSettingsRepository(
             acceptedTosVersion = acceptedTosVersion,
             devModeEnabled = devModeEnabled,
             appPickerType = appPickerType,
+            appPickerSelectLayoutMode = appPickerSelectLayoutMode,
             sampleSwitchBar = sampleSwitchBar,
             showIndexScroll = showIndexScroll,
             indexScrollShowLetters = indexScrollShowLetters,
@@ -160,6 +165,9 @@ class UserSettingsRepository(
         if (new.acceptedTosVersion != current.acceptedTosVersion) acceptedTosVersion = new.acceptedTosVersion
         if (new.devModeEnabled != current.devModeEnabled) devModeEnabled = new.devModeEnabled
         if (new.appPickerType != current.appPickerType) appPickerType = new.appPickerType
+        if (new.appPickerSelectLayoutMode != current.appPickerSelectLayoutMode) {
+            appPickerSelectLayoutMode = new.appPickerSelectLayoutMode
+        }
         if (new.sampleSwitchBar != current.sampleSwitchBar) sampleSwitchBar = new.sampleSwitchBar
         if (new.showIndexScroll != current.showIndexScroll) showIndexScroll = new.showIndexScroll
         if (new.indexScrollShowLetters != current.indexScrollShowLetters) indexScrollShowLetters = new.indexScrollShowLetters

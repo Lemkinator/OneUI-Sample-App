@@ -65,6 +65,16 @@
                 android:visibility="gone"
                 app:strategy="de.lemke.oneuisample.ui.util.AppPickerStrategy" />
 
+            <androidx.picker.widget.SeslAppPickerSelectLayout
+                android:id="@+id/appPickerSelectLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?android:colorBackground"
+                android:clipToPadding="false"
+                android:visibility="gone"
+                app:layoutType="auto"
+                app:strategy="de.lemke.oneuisample.ui.util.AppPickerStrategy" />
+
             <androidx.core.widget.NestedScrollView
                 android:id="@+id/noEntryScrollView"
                 android:layout_width="match_parent"

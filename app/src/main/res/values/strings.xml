@@ -99,6 +99,8 @@
     <string name="auto_hide">Auto hide</string>
     <string name="action_mode_search_options">ActionModeSearch options</string>
     <string name="search_apps">Search apps</string>
+    <string name="select_layout_mode">Select layout mode</string>
+    <string name="simple_picker_mode">Simple mode</string>
 
     <string name="qs_detail_view_text">This is the QS Detail View.</string>
     <string name="qs_tile_subtitle">Subtitle</string>

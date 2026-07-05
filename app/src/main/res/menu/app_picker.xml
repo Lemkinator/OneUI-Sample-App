@@ -26,4 +26,10 @@
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction,AppCompatResource" />
 
+    <item
+        android:id="@+id/menu_app_picker_layout_mode"
+        android:title="@string/select_layout_mode"
+        app:showAsAction="never"
+        tools:ignore="AppCompatResource" />
+
 </menu>

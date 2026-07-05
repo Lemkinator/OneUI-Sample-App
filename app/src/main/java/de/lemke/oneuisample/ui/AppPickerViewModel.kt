@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.map
 
 data class AppPickerUiState(
     val pickerType: Int = 0,
+    val isSelectLayoutMode: Boolean = false,
 )
 
 @HiltViewModel
@@ -34,10 +35,17 @@ class AppPickerViewModel @Inject constructor(
 ) : ViewModel() {
     val state: StateFlow<AppPickerUiState> =
         userSettings.flow
-            .map { AppPickerUiState(pickerType = it.appPickerType) }
-            .stateInViewModel(viewModelScope, AppPickerUiState(pickerType = userSettings.appPickerType))
+            .map { AppPickerUiState(pickerType = it.appPickerType, isSelectLayoutMode = it.appPickerSelectLayoutMode) }
+            .stateInViewModel(
+                viewModelScope,
+                AppPickerUiState(pickerType = userSettings.appPickerType, isSelectLayoutMode = userSettings.appPickerSelectLayoutMode),
+            )
 
     fun onPickerTypeChanged(type: Int) {
         userSettings.appPickerType = type
+    }
+
+    fun onSelectLayoutModeToggled() {
+        userSettings.appPickerSelectLayoutMode = !userSettings.appPickerSelectLayoutMode
     }
 }

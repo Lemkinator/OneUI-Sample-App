@@ -73,6 +73,7 @@ class UserSettingsRepositoryTest {
         repo.acceptedTosVersion shouldBe -1
         repo.devModeEnabled shouldBe false
         repo.appPickerType shouldBe 0
+        repo.appPickerSelectLayoutMode shouldBe false
         repo.sampleSwitchBar shouldBe false
     }
 
@@ -185,6 +186,12 @@ class UserSettingsRepositoryTest {
     }
 
     @Test
+    fun `appPickerSelectLayoutMode round-trip`() {
+        repo.appPickerSelectLayoutMode = true
+        repo.appPickerSelectLayoutMode shouldBe true
+    }
+
+    @Test
     fun `showIndexScroll round-trip`() {
         repo.showIndexScroll = false
         repo.showIndexScroll shouldBe false
@@ -243,6 +250,7 @@ class UserSettingsRepositoryTest {
                 acceptedTosVersion = 5,
                 devModeEnabled = true,
                 appPickerType = 3,
+                appPickerSelectLayoutMode = true,
                 sampleSwitchBar = true,
                 showIndexScroll = false,
                 indexScrollShowLetters = false,
@@ -260,6 +268,7 @@ class UserSettingsRepositoryTest {
         repo.acceptedTosVersion shouldBe 5
         repo.devModeEnabled shouldBe true
         repo.appPickerType shouldBe 3
+        repo.appPickerSelectLayoutMode shouldBe true
         repo.sampleSwitchBar shouldBe true
         repo.showIndexScroll shouldBe false
         repo.indexScrollShowLetters shouldBe false
