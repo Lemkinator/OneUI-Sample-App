@@ -117,6 +117,7 @@
     <string name="toggle_button_state">Umschalter: %1$s</string>
     <string name="scan_qr">QR-Code scannen</string>
     <string name="scan_result_title">Scan-Ergebnis</string>
+    <string name="tip_long_press_multiselect">Element gedrückt halten, um mehrere auszuwählen</string>
 
     <!--Section headers-->
     <string name="horizontal">Horizontal</string>

@@ -25,6 +25,7 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -43,6 +44,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
+import java.util.concurrent.TimeUnit
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -422,6 +424,26 @@ class TabIconsFragmentTest {
             updateList(Pair(listOf(icon), null))
             shadowOf(Looper.getMainLooper()).idle()
             onIconSwipeCallback(0, ItemTouchHelper.END, 0) shouldBe true
+        }
+    }
+
+    @Test
+    fun showMultiSelectTip_withAnchorView_showsTip() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon, icon, icon), null))
+            shadowOf(Looper.getMainLooper()).idle()
+            showMultiSelectTip()
+            shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
+        }
+    }
+
+    @Test
+    fun showMultiSelectTip_noAnchorView_doesNothing() {
+        withFragment {
+            requireView().findViewById<RecyclerView>(R.id.iconList).layoutManager = null
+            showMultiSelectTip()
+            shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
         }
     }
 }

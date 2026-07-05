@@ -156,6 +156,7 @@
     <string name="toggle_button_state">Toggle Button: %1$s</string>
     <string name="scan_qr">Scan QR code</string>
     <string name="scan_result_title">Scan result</string>
+    <string name="tip_long_press_multiselect">Long-press an item to select multiple</string>
 
     <!--Section headers-->
     <string name="horizontal">Horizontal</string>

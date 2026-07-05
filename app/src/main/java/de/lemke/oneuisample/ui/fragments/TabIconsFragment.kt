@@ -51,10 +51,14 @@ import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.getSearchListener
 import de.lemke.oneuisample.ui.util.launchAndRepeatWithViewLifecycle
 import de.lemke.oneuisample.ui.util.play
+import de.lemke.oneuisample.ui.util.showTipPopup
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
+import dev.oneuiproject.oneui.ktx.clearBadge
 import dev.oneuiproject.oneui.ktx.dpToPx
+import dev.oneuiproject.oneui.ktx.setBadge
+import dev.oneuiproject.oneui.layout.Badge
 import dev.oneuiproject.oneui.layout.DrawerLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout.AllSelectorState
@@ -67,6 +71,7 @@ import dev.oneuiproject.oneui.utils.ItemDecorRule.ALL
 import dev.oneuiproject.oneui.utils.ItemDecorRule.NONE
 import dev.oneuiproject.oneui.utils.SemItemDecoration
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import dev.oneuiproject.oneui.R as iconsR
@@ -113,6 +118,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         launchAndRepeatWithViewLifecycle { observeIconList().collectLatest { updateList(it) } }
         launchAndRepeatWithViewLifecycle { userSettings.flow.collectLatest(::applyUserSettings) }
         binding.noEntryView.translateYWithAppBar(requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout).appBarLayout, this)
+        showMultiSelectTip()
     }
 
     @NoCoverage
@@ -122,7 +128,10 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                 override fun onCreateMenu(
                     menu: Menu,
                     menuInflater: MenuInflater,
-                ) = menuInflater.inflate(R.menu.icon_tab_menu, menu)
+                ) {
+                    menuInflater.inflate(R.menu.icon_tab_menu, menu)
+                    menu.findItem(R.id.menu_item_settings)?.setBadge(Badge.DOT)
+                }
 
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean = onIconTabMenuItemSelected(menuItem)
             },
@@ -269,9 +278,15 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     internal fun onIconTabMenuItemSelected(menuItem: MenuItem): Boolean =
         when (menuItem.itemId) {
             R.id.menu_item_search -> startSearch().let { true }
-            R.id.menu_item_settings -> showSettingsDialog().let { true }
+            R.id.menu_item_settings -> onSettingsMenuItemSelected(menuItem).let { true }
             else -> false
         }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onSettingsMenuItemSelected(menuItem: MenuItem) {
+        showSettingsDialog()
+        menuItem.clearBadge()
+    }
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun onActionModeMenuItemSelected(item: MenuItem): Boolean =
@@ -333,6 +348,15 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
+    internal fun showMultiSelectTip() {
+        showTipPopup(
+            message = getString(R.string.tip_long_press_multiselect),
+            delay = MULTISELECT_TIP_DELAY,
+            getAnchor = { binding.iconList.layoutManager?.findViewByPosition(MULTISELECT_TIP_ANCHOR_POSITION) },
+        )
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
     internal fun applySettingsFromDialog(dialogBinding: DialogSettingsBinding) =
         applySettings(
             actionModeShowCancel = dialogBinding.actionModeShowCancel.isChecked,
@@ -373,5 +397,10 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     ) {
         dialogBinding.indexScrollShowLetters.isEnabled = isChecked
         dialogBinding.indexScrollAutoHide.isEnabled = isChecked
+    }
+
+    companion object {
+        private const val MULTISELECT_TIP_ANCHOR_POSITION = 2
+        private val MULTISELECT_TIP_DELAY = 1.seconds
     }
 }
