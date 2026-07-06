@@ -43,7 +43,7 @@ inline fun Fragment.showTipPopup(
     crossinline getAnchor: () -> View?,
     crossinline onCreate: TipPopup.() -> Unit = {},
 ) {
-    lifecycleScope.launch {
+    viewLifecycleOwner.lifecycleScope.launch {
         delay(delay)
         if (!isActive || !isResumed) return@launch
         val anchor = getAnchor() ?: return@launch
