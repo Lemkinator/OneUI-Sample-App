@@ -321,7 +321,9 @@ class AppPickerActivityTest {
     @Test
     fun applyFilter_selectLayoutMode_noError() {
         launch {
-            render(AppPickerUiState(isSelectLayoutMode = true))
+            val toggleItem = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_layout_mode }
+            onOptionsItemSelected(toggleItem)
+            shadowOf(Looper.getMainLooper()).idle()
             applyFilter("test")
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
         }

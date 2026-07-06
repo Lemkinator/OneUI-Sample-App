@@ -81,6 +81,8 @@ class SubtabQrFragment : Fragment() {
         }
     }
 
+    /** The "camera available" branch triggers the real camera-backed flow — not exercised under Robolectric. */
+    @NoCoverage
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun onScanMenuItemSelected(menuItem: MenuItem): Boolean =
         when (menuItem.itemId) {
