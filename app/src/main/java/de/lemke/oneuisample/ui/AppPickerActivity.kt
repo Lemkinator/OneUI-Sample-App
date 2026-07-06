@@ -59,8 +59,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal var currentPicker: SeslAppPickerView? = null
-    private var renderedPickerType = -1
-    private var renderedSelectLayoutMode: Boolean? = null
+    private var renderedState: AppPickerUiState? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,13 +125,13 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun render(state: AppPickerUiState) {
-        if (renderedSelectLayoutMode != state.isSelectLayoutMode) {
-            renderedSelectLayoutMode = state.isSelectLayoutMode
-            renderedPickerType = -1
+        val previous = renderedState
+        renderedState = state
+        if (previous?.isSelectLayoutMode != state.isSelectLayoutMode) {
             showAppPickerMode(state.isSelectLayoutMode)
         }
-        if (state.isSelectLayoutMode || renderedPickerType == state.pickerType) return
-        renderedPickerType = state.pickerType
+        if (state.isSelectLayoutMode) return
+        if (previous?.isSelectLayoutMode == false && previous.pickerType == state.pickerType) return
         setAppPickerType(ListTypes.entries.getOrElse(state.pickerType) { ListTypes.entries.first() })
     }
 
@@ -179,7 +178,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun applyFilter(query: String = "") {
-        if (renderedSelectLayoutMode == true) {
+        if (renderedState?.isSelectLayoutMode == true) {
             binding.appPickerSelectLayout.setSearchFilter(query)
         } else {
             currentPicker?.setSearchFilter(query) { updateAppPickerVisibility(it > 0) }
