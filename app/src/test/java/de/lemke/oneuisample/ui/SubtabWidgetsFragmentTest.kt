@@ -92,4 +92,12 @@ class SubtabWidgetsFragmentTest {
             onSwitchToggled()
         }
     }
+
+    @Test
+    fun showDesignTip_showsTip() {
+        withFragment {
+            showDesignTip()
+            shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
+        }
+    }
 }

@@ -36,6 +36,7 @@ import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabWidgetsBinding.in
 import de.lemke.oneuisample.ui.MainActivity
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.play
+import de.lemke.oneuisample.ui.util.showTipPopup
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.ktx.setEntries
 import kotlin.time.Duration.Companion.seconds
@@ -90,7 +91,8 @@ class SubtabWidgetsFragment : Fragment() {
             seslSetUpButtonVisibility(VISIBLE)
             seslSetOnUpButtonClickListener { suggestiveSnackBar(getString(R.string.search_up_button_clicked)) }
         }
-        if (SDK_INT >= Q) binding.root.seslSetGoToTopEnabled(true)
+        if (SDK_INT >= Q) binding.widgetsScrollView.seslSetGoToTopEnabled(true)
+        binding.fabDesign.setOnClickListener { showDesignTip() }
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
@@ -102,5 +104,13 @@ class SubtabWidgetsFragment : Fragment() {
                 delay(1.seconds)
                 binding.switchBar.setProgressBarVisible(false)
             }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun showDesignTip() {
+        showTipPopup(
+            message = getString(R.string.tip_design_tab),
+            getAnchor = { binding.fabDesign },
+        )
     }
 }
