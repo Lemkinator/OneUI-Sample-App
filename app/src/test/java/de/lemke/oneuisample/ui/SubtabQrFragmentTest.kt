@@ -17,12 +17,8 @@ package de.lemke.oneuisample.ui
 
 import android.app.Application
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Looper
 import android.view.MenuItem
-import androidx.navigation.fragment.NavHostFragment
-import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -31,7 +27,6 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.fragments.SubtabQrFragment
-import de.lemke.oneuisample.ui.fragments.TabDesignFragment
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
@@ -62,28 +57,7 @@ class SubtabQrFragmentTest {
         prefs.bypassOobe()
     }
 
-    private fun withFragment(block: SubtabQrFragment.() -> Unit) {
-        ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                val tabDesignFragment =
-                    (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
-                        .childFragmentManager
-                        .primaryNavigationFragment as? TabDesignFragment
-                val viewPager = tabDesignFragment?.view?.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewPager2Design)
-                viewPager?.setCurrentItem(QR_SUBTAB_INDEX, false)
-                shadowOf(Looper.getMainLooper()).idle()
-                val fragment =
-                    tabDesignFragment
-                        ?.childFragmentManager
-                        ?.fragments
-                        ?.filterIsInstance<SubtabQrFragment>()
-                        ?.firstOrNull()
-                fragment?.block()
-            }
-            shadowOf(Looper.getMainLooper()).idle()
-        }
-    }
+    private fun withFragment(block: SubtabQrFragment.() -> Unit) = withDesignSubtabFragment(context, QR_SUBTAB_INDEX, block)
 
     @Test
     fun onQrScanResult_withDecodedString_showsDialog() {

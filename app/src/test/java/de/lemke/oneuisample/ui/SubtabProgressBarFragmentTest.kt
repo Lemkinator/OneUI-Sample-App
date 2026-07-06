@@ -61,28 +61,8 @@ class SubtabProgressBarFragmentTest {
         prefs.bypassOobe()
     }
 
-    private fun withFragment(block: SubtabProgressBarFragment.() -> Unit) {
-        ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                val tabDesignFragment =
-                    (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
-                        .childFragmentManager
-                        .primaryNavigationFragment as? TabDesignFragment
-                val viewPager = tabDesignFragment?.view?.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewPager2Design)
-                viewPager?.setCurrentItem(PROGRESS_BAR_SUBTAB_INDEX, false)
-                shadowOf(Looper.getMainLooper()).idle()
-                val fragment =
-                    tabDesignFragment
-                        ?.childFragmentManager
-                        ?.fragments
-                        ?.filterIsInstance<SubtabProgressBarFragment>()
-                        ?.firstOrNull()
-                fragment?.block()
-            }
-            shadowOf(Looper.getMainLooper()).idle()
-        }
-    }
+    private fun withFragment(block: SubtabProgressBarFragment.() -> Unit) =
+        withDesignSubtabFragment(context, PROGRESS_BAR_SUBTAB_INDEX, block)
 
     @Test
     fun showProgressDialogDemo_showsAndDismissesDialog() {
