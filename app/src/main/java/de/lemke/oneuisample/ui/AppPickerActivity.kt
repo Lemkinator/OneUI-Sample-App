@@ -180,7 +180,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun applyFilter(query: String = "") {
-        if (renderedState?.isSelectLayoutMode == true) {
+        if (viewModel.state.value.isSelectLayoutMode) {
             binding.appPickerSelectLayout.setSearchFilter(query)
         } else {
             currentPicker?.setSearchFilter(query) { updateAppPickerVisibility(it > 0) }
