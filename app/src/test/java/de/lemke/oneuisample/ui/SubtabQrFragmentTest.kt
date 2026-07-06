@@ -18,7 +18,9 @@ package de.lemke.oneuisample.ui
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Looper
+import android.view.MenuItem
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -30,7 +32,10 @@ import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.fragments.SubtabQrFragment
 import de.lemke.oneuisample.ui.fragments.TabDesignFragment
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -91,6 +96,35 @@ class SubtabQrFragmentTest {
     @Test
     fun onQrScanResult_null_doesNothing() {
         withFragment { onQrScanResult(null) }
+    }
+
+    @Test
+    fun hasCameraHardware_noCameraFeature_returnsFalse() {
+        withFragment { hasCameraHardware() shouldBe false }
+    }
+
+    @Test
+    fun hasCameraHardware_withCameraFeature_returnsTrue() {
+        withFragment {
+            shadowOf(requireContext().packageManager).setSystemFeature(PackageManager.FEATURE_CAMERA_ANY, true)
+            hasCameraHardware() shouldBe true
+        }
+    }
+
+    @Test
+    fun onScanMenuItemSelected_noCameraFeature_showsSnackBar() {
+        withFragment {
+            val item = mockk<MenuItem> { every { itemId } returns R.id.menu_item_scan_qr }
+            onScanMenuItemSelected(item) shouldBe true
+        }
+    }
+
+    @Test
+    fun onScanMenuItemSelected_unknownItem_returnsFalse() {
+        withFragment {
+            val item = mockk<MenuItem> { every { itemId } returns -1 }
+            onScanMenuItemSelected(item) shouldBe false
+        }
     }
 
     companion object {

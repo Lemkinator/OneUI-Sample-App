@@ -15,6 +15,7 @@
  */
 package de.lemke.oneuisample.ui.fragments
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -32,6 +33,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabQrBinding.inflate
+import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.qr.app.QrScanConfig
 import dev.oneuiproject.oneui.qr.app.QrScanContract
 
@@ -79,11 +81,25 @@ class SubtabQrFragment : Fragment() {
         }
     }
 
-    /** Triggers the real camera-backed [QrScanContract] flow — not exercised under Robolectric. */
-    @NoCoverage
+    @VisibleForTesting(otherwise = PRIVATE)
     internal fun onScanMenuItemSelected(menuItem: MenuItem): Boolean =
         when (menuItem.itemId) {
-            R.id.menu_item_scan_qr -> qrScanLauncher.launch(QrScanConfig()).let { true }
-            else -> false
+            R.id.menu_item_scan_qr -> {
+                if (hasCameraHardware()) launchQrScan() else suggestiveSnackBar(getString(R.string.no_camera_available))
+                true
+            }
+
+            else -> {
+                false
+            }
         }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun hasCameraHardware(): Boolean = requireContext().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
+
+    /** Triggers the real camera-backed [QrScanContract] flow — not exercised under Robolectric. */
+    @NoCoverage
+    private fun launchQrScan() {
+        qrScanLauncher.launch(QrScanConfig())
+    }
 }
