@@ -446,4 +446,12 @@ class TabIconsFragmentTest {
             shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
         }
     }
+
+    @Test
+    fun showFabTip_showsTip() {
+        withFragment {
+            showFabTip()
+            shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
+        }
+    }
 }

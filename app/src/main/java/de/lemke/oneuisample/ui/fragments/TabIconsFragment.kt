@@ -119,6 +119,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         launchAndRepeatWithViewLifecycle { userSettings.flow.collectLatest(::applyUserSettings) }
         binding.noEntryView.translateYWithAppBar(requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout).appBarLayout, this)
         showMultiSelectTip()
+        binding.fabIcons.setOnClickListener { showFabTip() }
     }
 
     @NoCoverage
@@ -150,6 +151,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             configureItemSwipeAnimator()
             iconAdapter.configureWith(this)
             binding.iconIndexScroll.attachToRecyclerView(this)
+            binding.fabIcons.hideOnScroll(this, binding.iconIndexScroll)
         }
     }
 
@@ -353,6 +355,14 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             message = getString(R.string.tip_long_press_multiselect),
             delay = MULTISELECT_TIP_DELAY,
             getAnchor = { binding.iconList.layoutManager?.findViewByPosition(MULTISELECT_TIP_ANCHOR_POSITION) },
+        )
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun showFabTip() {
+        showTipPopup(
+            message = getString(R.string.tip_icons_tab),
+            getAnchor = { binding.fabIcons },
         )
     }
 

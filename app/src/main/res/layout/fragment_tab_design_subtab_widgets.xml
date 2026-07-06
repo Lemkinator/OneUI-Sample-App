@@ -14,18 +14,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/widgetsScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:scrollbars="vertical">
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:scrollbars="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -286,16 +281,4 @@
 
     </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
-
-    <dev.oneuiproject.oneui.widget.ScrollAwareFloatingActionButton
-        android:id="@+id/fabDesign"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="24dp"
-        android:src="@drawable/ic_oui_info_outline"
-        app:fabSize="normal"
-        app:layout_behavior="@null" />
-
-</FrameLayout>
+</androidx.core.widget.NestedScrollView>
