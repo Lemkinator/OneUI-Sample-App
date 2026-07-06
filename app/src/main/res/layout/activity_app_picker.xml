@@ -117,7 +117,8 @@
                 style="@style/Widget.AppCompat.ProgressBar.Large"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:visibility="gone" />
 
         </dev.oneuiproject.oneui.widget.RoundedFrameLayout>
 
