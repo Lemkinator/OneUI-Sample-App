@@ -149,11 +149,13 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun configureSelectLayout() {
+        binding.appPickerProgress.isVisible = true
         binding.appPickerSelectLayout.apply {
             appPickerStateView.appListOrder = ORDER_ASCENDING
             enableSelectedAppPickerView(true)
             submitList(getAppList(this@AppPickerActivity, ListTypes.TYPE_LIST_CHECKBOX))
         }
+        binding.appPickerProgress.isVisible = false
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
