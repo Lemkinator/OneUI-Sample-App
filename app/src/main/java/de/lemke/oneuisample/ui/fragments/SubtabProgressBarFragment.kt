@@ -84,11 +84,14 @@ class SubtabProgressBarFragment : Fragment() {
                 show()
             }
         viewLifecycleOwner.lifecycleScope.launch {
-            for (p in 0..PROGRESS_DIALOG_MAX) {
-                dialog.progress = p
-                delay(PROGRESS_DIALOG_STEP_DELAY_MS)
+            try {
+                for (p in 0..PROGRESS_DIALOG_MAX) {
+                    dialog.progress = p
+                    delay(PROGRESS_DIALOG_STEP_DELAY_MS)
+                }
+            } finally {
+                dialog.dismiss()
             }
-            dialog.dismiss()
         }
     }
 
