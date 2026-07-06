@@ -52,7 +52,9 @@
         <activity android:name=".ui.OOBEActivity" />
         <activity android:name=".ui.AboutActivity" />
         <activity android:name=".ui.SeekBarActivity" />
-        <activity android:name=".ui.AppPickerActivity" />
+        <activity
+            android:name=".ui.AppPickerActivity"
+            android:configChanges="orientation|screenLayout|screenSize" />
         <activity android:name=".ui.SwitchBarActivity" />
         <activity
             android:name=".ui.SettingsActivity"

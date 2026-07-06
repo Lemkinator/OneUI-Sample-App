@@ -153,7 +153,6 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         binding.appPickerSelectLayout.apply {
             appPickerStateView.appListOrder = ORDER_ASCENDING
             enableSelectedAppPickerView(true)
-            setOnItemClickEventListener { _, appInfo -> onAppItemClick(appPickerStateView, appInfo) }
             submitList(getAppList(this@AppPickerActivity, ListTypes.TYPE_LIST_CHECKBOX))
         }
     }
