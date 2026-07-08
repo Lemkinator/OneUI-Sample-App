@@ -50,7 +50,7 @@ internal inline fun <reified F : Fragment> withDesignSubtabFragment(
                     ?.fragments
                     ?.filterIsInstance<F>()
                     ?.firstOrNull()
-            fragment?.block()
+            checkNotNull(fragment) { "Expected fragment of type ${F::class.simpleName} not found" }.block()
         }
         shadowOf(Looper.getMainLooper()).idle()
     }
