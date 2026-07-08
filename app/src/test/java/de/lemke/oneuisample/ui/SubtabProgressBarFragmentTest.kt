@@ -68,8 +68,10 @@ class SubtabProgressBarFragmentTest {
     fun showProgressDialogDemo_showsAndDismissesDialog() {
         withFragment {
             showProgressDialogDemo()
-            ShadowDialog.getLatestDialog() shouldNotBe null
+            val dialog = ShadowDialog.getLatestDialog()
+            dialog shouldNotBe null
             shadowOf(Looper.getMainLooper()).idleFor(5, TimeUnit.SECONDS)
+            dialog?.isShowing shouldBe false
         }
     }
 
