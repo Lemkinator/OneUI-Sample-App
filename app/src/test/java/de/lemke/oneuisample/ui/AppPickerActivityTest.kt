@@ -243,10 +243,13 @@ class AppPickerActivityTest {
     }
 
     @Test
-    fun onOptionsItemSelected_layoutMode_togglesSelectLayoutMode() {
+    fun onOptionsItemSelected_layoutMode_togglesSelectLayoutModeAndUpdatesTitle() {
         launch {
-            val item = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_layout_mode }
+            val item = mockk<MenuItem>(relaxed = true) { every { itemId } returns R.id.menu_app_picker_layout_mode }
             onOptionsItemSelected(item) shouldBe true
+            verify { item.title = getString(R.string.simple_picker_mode) }
+            onOptionsItemSelected(item) shouldBe true
+            verify { item.title = getString(R.string.select_layout_mode) }
         }
     }
 
@@ -263,7 +266,7 @@ class AppPickerActivityTest {
     @Test
     fun onPrepareOptionsMenu_selectLayoutMode_showsSimpleModeTitle() {
         launch {
-            val toggleItem = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_layout_mode }
+            val toggleItem = mockk<MenuItem>(relaxed = true) { every { itemId } returns R.id.menu_app_picker_layout_mode }
             onOptionsItemSelected(toggleItem)
             shadowOf(Looper.getMainLooper()).idle()
             val menuItem = mockk<MenuItem>(relaxed = true)
@@ -321,7 +324,7 @@ class AppPickerActivityTest {
     @Test
     fun applyFilter_selectLayoutMode_noError() {
         launch {
-            val toggleItem = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_layout_mode }
+            val toggleItem = mockk<MenuItem>(relaxed = true) { every { itemId } returns R.id.menu_app_picker_layout_mode }
             onOptionsItemSelected(toggleItem)
             shadowOf(Looper.getMainLooper()).idle()
             applyFilter("test")

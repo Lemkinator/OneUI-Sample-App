@@ -16,22 +16,17 @@
 package de.lemke.oneuisample.ui
 
 import android.app.Application
+import android.app.Dialog
 import android.content.Context
-import android.content.Intent
 import android.os.Looper
 import androidx.lifecycle.Lifecycle
-import androidx.navigation.fragment.NavHostFragment
-import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
-import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettingsRepository
 import de.lemke.oneuisample.ui.fragments.SubtabProgressBarFragment
-import de.lemke.oneuisample.ui.fragments.TabDesignFragment
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import java.util.concurrent.TimeUnit
@@ -77,38 +72,21 @@ class SubtabProgressBarFragmentTest {
 
     @Test
     fun showProgressDialogDemo_viewDestroyedMidAnimation_stillDismissesDialog() {
-        ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                val tabDesignFragment =
-                    (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
-                        .childFragmentManager
-                        .primaryNavigationFragment as? TabDesignFragment
-                tabDesignFragment
-                    ?.view
-                    ?.findViewById<ViewPager2>(R.id.viewPager2Design)
-                    ?.setCurrentItem(PROGRESS_BAR_SUBTAB_INDEX, false)
-            }
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                val tabDesignFragment =
-                    (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
-                        .childFragmentManager
-                        .primaryNavigationFragment as? TabDesignFragment
-                tabDesignFragment
-                    ?.childFragmentManager
-                    ?.fragments
-                    ?.filterIsInstance<SubtabProgressBarFragment>()
-                    ?.firstOrNull()
-                    ?.showProgressDialogDemo()
-            }
-            shadowOf(Looper.getMainLooper()).idle()
-            val dialog = ShadowDialog.getLatestDialog()
-            dialog shouldNotBe null
-            scenario.moveToState(Lifecycle.State.DESTROYED)
-            shadowOf(Looper.getMainLooper()).idle()
-            dialog?.isShowing shouldBe false
-        }
+        var dialog: Dialog? = null
+        withDesignSubtabFragment<SubtabProgressBarFragment>(
+            context,
+            PROGRESS_BAR_SUBTAB_INDEX,
+            block = {
+                showProgressDialogDemo()
+                dialog = ShadowDialog.getLatestDialog()
+                dialog shouldNotBe null
+            },
+            afterBlock = { scenario ->
+                scenario.moveToState(Lifecycle.State.DESTROYED)
+                shadowOf(Looper.getMainLooper()).idle()
+                dialog?.isShowing shouldBe false
+            },
+        )
     }
 
     companion object {

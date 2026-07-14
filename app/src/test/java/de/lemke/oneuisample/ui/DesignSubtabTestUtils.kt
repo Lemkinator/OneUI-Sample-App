@@ -28,12 +28,15 @@ import org.robolectric.Shadows.shadowOf
 
 /**
  * Launches [MainActivity], pages the Design tab's ViewPager2 to [subtabIndex], resolves the
- * live [F] subtab fragment instance, and runs [block] against it.
+ * live [F] subtab fragment instance, and runs [block] against it. [afterBlock] then runs with the
+ * still-open [ActivityScenario], outside the `onActivity` callback — needed for scenario-level
+ * calls like `moveToState` that must not run while already on the main thread inside `onActivity`.
  */
 internal inline fun <reified F : Fragment> withDesignSubtabFragment(
     context: Context,
     subtabIndex: Int,
     crossinline block: F.() -> Unit,
+    crossinline afterBlock: (ActivityScenario<MainActivity>) -> Unit = {},
 ) {
     ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
         shadowOf(Looper.getMainLooper()).idle()
@@ -53,5 +56,6 @@ internal inline fun <reified F : Fragment> withDesignSubtabFragment(
             checkNotNull(fragment) { "Expected fragment of type ${F::class.simpleName} not found" }.block()
         }
         shadowOf(Looper.getMainLooper()).idle()
+        afterBlock(scenario)
     }
 }
