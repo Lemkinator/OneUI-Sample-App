@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 /**
  * Shows a one-time [TipPopup] anchored to [getAnchor]'s view, auto-dismissing once the fragment's
  * view lifecycle drops below RESUMED. No-op if the fragment is not resumed or [getAnchor] returns null
- * (e.g. the anchor view isn't laid out yet) when the delay elapses.
+ * (e.g., the anchor view isn't laid out yet) when the delay elapses.
  */
 @NoCoverage
 inline fun Fragment.showTipPopup(
@@ -40,6 +40,8 @@ inline fun Fragment.showTipPopup(
     mode: Mode = Mode.TRANSLUCENT,
     direction: Direction = Direction.DEFAULT,
     delay: Duration = Duration.ZERO,
+    expanded: Boolean = false,
+    dismissOnPaused: Boolean = true,
     crossinline getAnchor: () -> View?,
     crossinline onCreate: TipPopup.() -> Unit = {},
 ) {
@@ -50,14 +52,17 @@ inline fun Fragment.showTipPopup(
         TipPopup(anchor, mode).apply {
             setMessage(message)
             onCreate()
-            viewLifecycleOwner.lifecycle.addObserver(
-                object : DefaultLifecycleObserver {
-                    override fun onPause(owner: LifecycleOwner) {
-                        dismiss(true)
-                        owner.lifecycle.removeObserver(this)
-                    }
-                },
-            )
+            setExpanded(expanded)
+            if (dismissOnPaused) {
+                viewLifecycleOwner.lifecycle.addObserver(
+                    object : DefaultLifecycleObserver {
+                        override fun onPause(owner: LifecycleOwner) {
+                            dismiss(true)
+                            owner.lifecycle.removeObserver(this)
+                        }
+                    },
+                )
+            }
             show(direction)
         }
     }
