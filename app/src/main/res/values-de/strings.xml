@@ -120,6 +120,8 @@
     <string name="scan_qr">QR-Code scannen</string>
     <string name="scan_result_title">Scan-Ergebnis</string>
     <string name="no_camera_available">Kamera nicht verfügbar</string>
+    <string name="share">Teilen</string>
+    <string name="error_share_content_not_supported_on_device">Fehler: Teilen von Inhalten wird auf deinem Gerät nicht unterstützt.</string>
     <string name="tip_long_press_multiselect">Element gedrückt halten, um mehrere auszuwählen</string>
     <string name="tip_icons_tab">Durchsuche die in dieser App verwendete OneUI-Icon-Bibliothek.</string>
     <string name="loading">Lädt…</string>

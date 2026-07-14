@@ -33,6 +33,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabQrBinding.inflate
+import de.lemke.oneuisample.ui.util.shareText
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.qr.app.QrScanConfig
 import dev.oneuiproject.oneui.qr.app.QrScanContract
@@ -72,11 +73,12 @@ class SubtabQrFragment : Fragment() {
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun onQrScanResult(result: String?) {
-        if (result == null) return
+        if (result == null || !isAdded) return
         AlertDialog.Builder(requireContext()).apply {
             setTitle(getString(R.string.scan_result_title))
             setMessage(result)
             setPositiveButton(getString(R.string.ok), null)
+            setNeutralButton(getString(R.string.share)) { _, _ -> shareText(result) }
             show()
         }
     }

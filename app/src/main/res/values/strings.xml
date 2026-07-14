@@ -159,6 +159,8 @@
     <string name="scan_qr">Scan QR code</string>
     <string name="scan_result_title">Scan result</string>
     <string name="no_camera_available">Camera not available</string>
+    <string name="share">Share</string>
+    <string name="error_share_content_not_supported_on_device">Error: Sharing content is not supported on your device.</string>
     <string name="tip_long_press_multiselect">Long-press an item to select multiple</string>
     <string name="tip_icons_tab">Browse the OneUI icon library used throughout this app.</string>
     <string name="progress_dialog" translatable="false">ProgressDialog</string>

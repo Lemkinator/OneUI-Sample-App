@@ -17,8 +17,12 @@ package de.lemke.oneuisample.ui
 
 import android.app.Application
 import android.content.Context
+import android.content.DialogInterface.BUTTON_NEUTRAL
 import android.content.pm.PackageManager
+import android.os.Looper
 import android.view.MenuItem
+import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -70,6 +74,33 @@ class SubtabQrFragmentTest {
     @Test
     fun onQrScanResult_null_doesNothing() {
         withFragment { onQrScanResult(null) }
+    }
+
+    @Test
+    fun onQrScanResult_fragmentDetached_doesNothing() {
+        lateinit var fragmentRef: SubtabQrFragment
+        withDesignSubtabFragment<SubtabQrFragment>(
+            context,
+            QR_SUBTAB_INDEX,
+            block = { fragmentRef = this },
+            afterBlock = { scenario ->
+                scenario.moveToState(Lifecycle.State.DESTROYED)
+                shadowOf(Looper.getMainLooper()).idle()
+                fragmentRef.onQrScanResult("https://github.com/tribalfs/oneui-design")
+                ShadowDialog.getLatestDialog() shouldBe null
+            },
+        )
+    }
+
+    @Test
+    fun onQrScanResult_clickingShareButton_firesShareIntent() {
+        withFragment {
+            onQrScanResult("https://github.com/tribalfs/oneui-design")
+            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+            dialog.getButton(BUTTON_NEUTRAL).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            shadowOf(requireActivity()).nextStartedActivity shouldNotBe null
+        }
     }
 
     @Test
