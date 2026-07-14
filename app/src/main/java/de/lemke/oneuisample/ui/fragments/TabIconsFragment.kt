@@ -70,6 +70,7 @@ import dev.oneuiproject.oneui.recyclerview.ktx.hideSoftInputOnScroll
 import dev.oneuiproject.oneui.utils.ItemDecorRule.ALL
 import dev.oneuiproject.oneui.utils.ItemDecorRule.NONE
 import dev.oneuiproject.oneui.utils.SemItemDecoration
+import dev.oneuiproject.oneui.widget.TipPopup
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,6 +82,9 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     private val binding by autoCleared { FragmentTabIconsBinding.bind(requireView()) }
     private lateinit var drawerLayout: DrawerLayout
     private val allSelectorStateFlow: MutableStateFlow<AllSelectorState> = MutableStateFlow(AllSelectorState())
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal var lastTipPopup: TipPopup? = null
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal val iconAdapter: IconAdapter by autoCleared {
@@ -355,6 +359,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             message = getString(R.string.tip_long_press_multiselect),
             delay = MULTISELECT_TIP_DELAY,
             getAnchor = { binding.iconList.layoutManager?.findViewByPosition(MULTISELECT_TIP_ANCHOR_POSITION) },
+            onCreate = { lastTipPopup = this },
         )
     }
 
@@ -363,6 +368,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         showTipPopup(
             message = getString(R.string.tip_icons_tab),
             getAnchor = { binding.fabIcons },
+            onCreate = { lastTipPopup = this },
         )
     }
 
