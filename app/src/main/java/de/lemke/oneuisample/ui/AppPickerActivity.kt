@@ -19,6 +19,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
@@ -88,6 +89,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
                 binding.toolbarLayout.startSearchMode(
                     onStart = {
                         it.queryHint = getString(R.string.search_apps)
+                        (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).showSoftInput(it, 0)
                         binding.appPickerSpinner.isEnabled = false
                     },
                     onQuery = { query, _ ->

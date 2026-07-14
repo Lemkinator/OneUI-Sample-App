@@ -15,6 +15,8 @@
  */
 package de.lemke.oneuisample.ui.util
 
+import android.content.Context.INPUT_METHOD_SERVICE
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
@@ -46,6 +48,7 @@ fun Fragment.getSearchListener(
             if (isActive) {
                 queryHint?.let { searchView.queryHint = getString(it) }
                 searchView.setQuery(userSettings.search, false)
+                (requireActivity().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).showSoftInput(searchView, 0)
                 onActivate(searchView)
             }
         }
