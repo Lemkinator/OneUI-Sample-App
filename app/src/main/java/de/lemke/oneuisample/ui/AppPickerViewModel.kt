@@ -45,7 +45,9 @@ class AppPickerViewModel @Inject constructor(
         userSettings.appPickerType = type
     }
 
-    fun onSelectLayoutModeToggled() {
-        userSettings.appPickerSelectLayoutMode = !userSettings.appPickerSelectLayoutMode
+    fun onSelectLayoutModeToggled(): Boolean {
+        val newValue = !userSettings.appPickerSelectLayoutMode
+        userSettings.appPickerSelectLayoutMode = newValue
+        return newValue
     }
 }

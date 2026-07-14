@@ -62,9 +62,9 @@ class AppPickerViewModelTest : ShouldSpec(
             vm.state.value shouldBe AppPickerUiState(isSelectLayoutMode = true)
         }
 
-        should("onSelectLayoutModeToggled flips repository value") {
+        should("onSelectLayoutModeToggled flips repository value and returns the new value") {
             every { mockRepo.appPickerSelectLayoutMode } returns false
-            viewModel.onSelectLayoutModeToggled()
+            viewModel.onSelectLayoutModeToggled() shouldBe true
             verify { mockRepo.appPickerSelectLayoutMode = true }
         }
     },
