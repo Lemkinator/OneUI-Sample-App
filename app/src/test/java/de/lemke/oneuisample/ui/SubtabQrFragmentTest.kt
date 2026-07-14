@@ -80,7 +80,7 @@ class SubtabQrFragmentTest {
     @Test
     fun hasCameraHardware_withCameraFeature_returnsTrue() {
         withFragment {
-            shadowOf(requireContext().packageManager).setSystemFeature(PackageManager.FEATURE_CAMERA_ANY, true)
+            shadowOf(requireContext().packageManager).setSystemFeature(PackageManager.FEATURE_CAMERA, true)
             hasCameraHardware() shouldBe true
         }
     }

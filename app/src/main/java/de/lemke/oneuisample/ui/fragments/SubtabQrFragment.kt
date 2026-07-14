@@ -96,8 +96,11 @@ class SubtabQrFragment : Fragment() {
             }
         }
 
+    // QrScanContract's QrScanActivity always binds CameraSelector.DEFAULT_BACK_CAMERA with no fallback, so this
+    // intentionally checks the rear camera specifically rather than lint's generally-recommended FEATURE_CAMERA_ANY.
+    @Suppress("UnsupportedChromeOsCameraSystemFeature")
     @VisibleForTesting(otherwise = PRIVATE)
-    internal fun hasCameraHardware(): Boolean = requireContext().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
+    internal fun hasCameraHardware(): Boolean = requireContext().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
 
     /** Triggers the real camera-backed [QrScanContract] flow — not exercised under Robolectric. */
     @NoCoverage
