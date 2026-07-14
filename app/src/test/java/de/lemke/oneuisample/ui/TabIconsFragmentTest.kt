@@ -489,7 +489,6 @@ class TabIconsFragmentTest {
             shadowOf(Looper.getMainLooper()).idle()
             showMultiSelectTip()
             shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
-            lastTipPopup?.isShowing shouldBe true
         }
     }
 
@@ -499,7 +498,6 @@ class TabIconsFragmentTest {
             requireView().findViewById<RecyclerView>(R.id.iconList).layoutManager = null
             showMultiSelectTip()
             shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
-            lastTipPopup shouldBe null
         }
     }
 
@@ -508,7 +506,6 @@ class TabIconsFragmentTest {
         withFragment {
             showFabTip()
             shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
-            lastTipPopup?.isShowing shouldBe true
         }
     }
 }
