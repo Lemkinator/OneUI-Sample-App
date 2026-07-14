@@ -15,12 +15,14 @@
  */
 package de.lemke.oneuisample.ui.fragments
 
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.View.VISIBLE
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AlertDialog
@@ -48,7 +50,6 @@ import de.lemke.oneuisample.domain.ObserveIconListUseCase
 import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
 import de.lemke.oneuisample.ui.util.IconAdapter
 import de.lemke.oneuisample.ui.util.autoCleared
-import de.lemke.oneuisample.ui.util.getSearchListener
 import de.lemke.oneuisample.ui.util.launchAndRepeatWithViewLifecycle
 import de.lemke.oneuisample.ui.util.play
 import de.lemke.oneuisample.ui.util.showTipPopup
@@ -57,6 +58,7 @@ import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
 import dev.oneuiproject.oneui.delegates.ViewYTranslator
 import dev.oneuiproject.oneui.ktx.clearBadge
 import dev.oneuiproject.oneui.ktx.dpToPx
+import dev.oneuiproject.oneui.ktx.hideSoftInput
 import dev.oneuiproject.oneui.ktx.setBadge
 import dev.oneuiproject.oneui.layout.Badge
 import dev.oneuiproject.oneui.layout.DrawerLayout
@@ -101,11 +103,34 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     @Inject
     lateinit var userSettings: UserSettingsRepository
 
-    val searchModeListener by autoCleared {
-        getSearchListener(userSettings) {
-            seslSetOverflowMenuButtonIcon(AppCompatResources.getDrawable(requireContext(), iconsR.drawable.ic_oui_list_filter))
-            seslSetOverflowMenuButtonVisibility(VISIBLE)
-            seslSetOnOverflowMenuButtonClickListener { onSearchOverflowClicked() }
+    val searchModeListener: ToolbarLayout.SearchModeListener by autoCleared {
+        object : ToolbarLayout.SearchModeListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                userSettings.search = query ?: ""
+                requireActivity().hideSoftInput()
+                return true
+            }
+
+            override fun onQueryTextChange(query: String?): Boolean {
+                userSettings.search = query ?: ""
+                return true
+            }
+
+            override fun onSearchModeToggle(
+                searchView: SearchView,
+                isActive: Boolean,
+            ) {
+                userSettings.searchActive = isActive
+                if (isActive) {
+                    searchView.setQuery(userSettings.search, false)
+                    (requireActivity().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).showSoftInput(searchView, 0)
+                    searchView.seslSetOverflowMenuButtonIcon(
+                        AppCompatResources.getDrawable(requireContext(), iconsR.drawable.ic_oui_list_filter),
+                    )
+                    searchView.seslSetOverflowMenuButtonVisibility(VISIBLE)
+                    searchView.seslSetOnOverflowMenuButtonClickListener { searchView.onSearchOverflowClicked() }
+                }
+            }
         }
     }
 

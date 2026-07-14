@@ -23,6 +23,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -109,6 +110,59 @@ class TabIconsFragmentTest {
     @Test
     fun onIconTabMenuItemSelected_unknown_returnsFalse() {
         withFragment { onIconTabMenuItemSelected(mockMenuItem(-1)) shouldBe false }
+    }
+
+    @Test
+    fun searchModeListener_onQueryTextSubmit_updatesSearch() {
+        withFragment {
+            searchModeListener.onQueryTextSubmit("query") shouldBe true
+            userSettings.search shouldBe "query"
+        }
+    }
+
+    @Test
+    fun searchModeListener_onQueryTextSubmit_withNullQuery_storesEmptyString() {
+        withFragment {
+            searchModeListener.onQueryTextSubmit(null) shouldBe true
+            userSettings.search shouldBe ""
+        }
+    }
+
+    @Test
+    fun searchModeListener_onQueryTextChange_updatesSearch() {
+        withFragment {
+            searchModeListener.onQueryTextChange("change") shouldBe true
+            userSettings.search shouldBe "change"
+        }
+    }
+
+    @Test
+    fun searchModeListener_onQueryTextChange_withNullQuery_storesEmptyString() {
+        withFragment {
+            searchModeListener.onQueryTextChange(null) shouldBe true
+            userSettings.search shouldBe ""
+        }
+    }
+
+    @Test
+    fun searchModeListener_onSearchModeToggle_activating_restoresSearchAndSetsActive() {
+        withFragment {
+            userSettings.search = "prev"
+            val searchView = SearchView(requireContext())
+            searchModeListener.onSearchModeToggle(searchView, true)
+            userSettings.searchActive shouldBe true
+            searchView.query.toString() shouldBe "prev"
+        }
+    }
+
+    @Test
+    fun searchModeListener_onSearchModeToggle_deactivating_setsSearchInactive() {
+        withFragment {
+            userSettings.searchActive = true
+            val searchView = SearchView(requireContext())
+            searchModeListener.onSearchModeToggle(searchView, false)
+            userSettings.searchActive shouldBe false
+        }
     }
 
     @Test
