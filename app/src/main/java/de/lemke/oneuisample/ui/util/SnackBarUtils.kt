@@ -15,7 +15,7 @@
  */
 package de.lemke.oneuisample.ui.util
 
-import android.R.id.content
+import android.R
 import android.app.Activity
 import android.view.View
 import androidx.annotation.StringRes
@@ -60,7 +60,7 @@ inline fun Activity.suggestiveSnackBar(
     duration: Int? = null,
     actionText: String? = null,
     crossinline action: (Snackbar.() -> Unit) = { dismiss() },
-) = Snackbar.make(view ?: findViewById(content), msg, duration ?: LENGTH_SHORT, SESL_SNACKBAR_TYPE_SUGGESTION).apply {
+) = Snackbar.make(view ?: findViewById(R.id.content), msg, duration ?: LENGTH_SHORT, SESL_SNACKBAR_TYPE_SUGGESTION).apply {
     actionText?.let { setAction(it) { action() } }
     show()
 }
