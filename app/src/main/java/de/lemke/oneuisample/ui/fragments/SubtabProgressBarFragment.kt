@@ -90,7 +90,8 @@ class SubtabProgressBarFragment : Fragment() {
                     delay(PROGRESS_DIALOG_STEP_DELAY_MS)
                 }
             } finally {
-                dialog.dismiss()
+                // Window may already be gone if the host activity is finishing/destroyed.
+                runCatching { dialog.dismiss() }
             }
         }
     }

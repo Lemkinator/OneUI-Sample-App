@@ -15,12 +15,14 @@
  */
 package de.lemke.oneuisample.ui.util
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
 import android.content.Intent.EXTRA_TEXT
 import android.content.Intent.EXTRA_TITLE
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.util.Log
 import androidx.fragment.app.Fragment
 import de.lemke.oneuisample.R
@@ -38,23 +40,22 @@ fun Fragment.shareText(
 fun Context.shareText(
     text: String,
     title: String? = null,
-): Boolean {
-    Intent().apply {
-        action = ACTION_SEND
-        putExtra(EXTRA_TEXT, text)
-        putExtra(EXTRA_TITLE, title)
-        type = MIME_TYPE_TEXT
-        return safeStartActivity(Intent.createChooser(this, title))
-    }
-}
-
-private fun Context.safeStartActivity(intent: Intent): Boolean {
+): Boolean =
     try {
-        startActivity(intent)
-        return true
+        startActivity(
+            Intent.createChooser(
+                Intent(ACTION_SEND).apply {
+                    putExtra(EXTRA_TEXT, text)
+                    putExtra(EXTRA_TITLE, title)
+                    type = MIME_TYPE_TEXT
+                    if (this@shareText !is Activity) addFlags(FLAG_ACTIVITY_NEW_TASK)
+                },
+                title,
+            ),
+        )
+        true
     } catch (e: ActivityNotFoundException) {
         Log.e(TAG, "Failed to start activity", e)
         toast(R.string.error_share_content_not_supported_on_device)
-        return false
+        false
     }
-}
