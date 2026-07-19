@@ -6,7 +6,7 @@ targetSdk = "37"
 #noinspection UnusedVersionCatalogEntry
 jvmTarget = "21"
 
-aboutlibraries = "15.0.3"
+aboutlibraries = "15.0.4"
 # activity-compose 1.13.x requires androidx.core.app.PictureInPictureProvider, absent in the androidx.core
 # version bundled by oneui-design. Upgrading is blocked until oneui-design ships a compatible core.
 #noinspection GradleDependency
@@ -21,7 +21,7 @@ arch-core-testing = "2.2.0"
 benchmark-macro = "1.5.0-alpha07"
 core-splashscreen = "1.2.0"
 coroutines = "1.11.0"
-dependency-analysis = "3.16.1"
+dependency-analysis = "3.17.0"
 detekt = "2.0.0-alpha.5"
 hilt = "2.60.1"
 junit-android-framework = "2.0.1"
@@ -30,7 +30,7 @@ junit4 = "4.13.2"
 konsist = "0.17.3"
 kotest = "6.2.2"
 kotlin = "2.4.10"
-kover = "0.9.8"
+kover = "0.9.9"
 ksp = "2.3.10"
 # Used via spotless { kotlin { ktlint(libs.versions.ktlint.get()) } } — version-only ref, no library/plugin alias
 #noinspection UnusedVersionCatalogEntry
@@ -43,7 +43,7 @@ oneui-design = "0.9.13+oneui8"
 oneui-icons = "1.1.0"
 profileinstaller = "1.4.1"
 robolectric = "4.16.1"
-roborazzi = "1.68.0"
+roborazzi = "1.69.0"
 spotless = "8.8.0"
 turbine = "1.2.1"
 uiautomator = "2.4.0"
