@@ -51,6 +51,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
@@ -487,8 +488,10 @@ class TabIconsFragmentTest {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon, icon, icon), null))
             shadowOf(Looper.getMainLooper()).idle()
+            requireView().findViewById<RecyclerView>(R.id.iconList).layoutManager?.findViewByPosition(0) shouldNotBe null
             showMultiSelectTip()
             shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
+            shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldNotBe null
         }
     }
 
@@ -498,6 +501,7 @@ class TabIconsFragmentTest {
             requireView().findViewById<RecyclerView>(R.id.iconList).layoutManager = null
             showMultiSelectTip()
             shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
+            shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldBe null
         }
     }
 
@@ -506,6 +510,7 @@ class TabIconsFragmentTest {
         withFragment {
             showFabTip()
             shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
+            shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldNotBe null
         }
     }
 }

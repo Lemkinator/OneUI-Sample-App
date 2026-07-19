@@ -43,15 +43,17 @@ fun Context.shareText(
 ): Boolean =
     try {
         startActivity(
-            Intent.createChooser(
-                Intent(ACTION_SEND).apply {
-                    putExtra(EXTRA_TEXT, text)
-                    putExtra(EXTRA_TITLE, title)
-                    type = MIME_TYPE_TEXT
+            Intent
+                .createChooser(
+                    Intent(ACTION_SEND).apply {
+                        putExtra(EXTRA_TEXT, text)
+                        putExtra(EXTRA_TITLE, title)
+                        type = MIME_TYPE_TEXT
+                    },
+                    title,
+                ).apply {
                     if (this@shareText !is Activity) addFlags(FLAG_ACTIVITY_NEW_TASK)
                 },
-                title,
-            ),
         )
         true
     } catch (e: ActivityNotFoundException) {
