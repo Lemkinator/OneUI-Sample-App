@@ -35,6 +35,7 @@ class AppPickerViewModelTest : ShouldSpec(
             clearMocks(mockRepo)
             every { mockRepo.flow } returns MutableStateFlow(UserSettings())
             every { mockRepo.appPickerType } returns 0
+            every { mockRepo.appPickerSelectLayoutMode } returns false
             viewModel = AppPickerViewModel(mockRepo)
         }
 
@@ -52,6 +53,19 @@ class AppPickerViewModelTest : ShouldSpec(
         should("onPickerTypeChanged writes to repository") {
             viewModel.onPickerTypeChanged(2)
             verify { mockRepo.appPickerType = 2 }
+        }
+
+        should("initial state reflects repository appPickerSelectLayoutMode = true") {
+            every { mockRepo.appPickerSelectLayoutMode } returns true
+            every { mockRepo.flow } returns MutableStateFlow(UserSettings(appPickerSelectLayoutMode = true))
+            val vm = AppPickerViewModel(mockRepo)
+            vm.state.value shouldBe AppPickerUiState(isSelectLayoutMode = true)
+        }
+
+        should("onSelectLayoutModeToggled flips repository value and returns the new value") {
+            every { mockRepo.appPickerSelectLayoutMode } returns false
+            viewModel.onSelectLayoutModeToggled() shouldBe true
+            verify { mockRepo.appPickerSelectLayoutMode = true }
         }
     },
 )

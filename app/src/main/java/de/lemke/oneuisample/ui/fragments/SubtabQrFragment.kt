@@ -15,19 +15,98 @@
  */
 package de.lemke.oneuisample.ui.fragments
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import de.lemke.oneuisample.NoCoverage
+import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabQrBinding.inflate
+import de.lemke.oneuisample.ui.util.shareText
+import de.lemke.oneuisample.ui.util.suggestiveSnackBar
+import dev.oneuiproject.oneui.qr.app.QrScanConfig
+import dev.oneuiproject.oneui.qr.app.QrScanContract
 
 @AndroidEntryPoint
 class SubtabQrFragment : Fragment() {
+    private val qrScanLauncher = registerForActivityResult(QrScanContract()) { result -> onQrScanResult(result) }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View = inflate(inflater, container, false).root
+
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        setupMenuProvider()
+    }
+
+    @NoCoverage
+    private fun setupMenuProvider() =
+        requireActivity().addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(
+                    menu: Menu,
+                    menuInflater: MenuInflater,
+                ) = menuInflater.inflate(R.menu.qr_tab_menu, menu)
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean = onScanMenuItemSelected(menuItem)
+            },
+            viewLifecycleOwner,
+            Lifecycle.State.RESUMED,
+        )
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onQrScanResult(result: String?) {
+        if (result == null || !isAdded) return
+        AlertDialog.Builder(requireContext()).apply {
+            setTitle(getString(R.string.scan_result_title))
+            setMessage(result)
+            setPositiveButton(getString(R.string.ok), null)
+            setNeutralButton(getString(R.string.share)) { _, _ -> shareText(result) }
+            show()
+        }
+    }
+
+    /** The "camera available" branch triggers the real camera-backed flow — not exercised under Robolectric. */
+    @NoCoverage
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun onScanMenuItemSelected(menuItem: MenuItem): Boolean =
+        when (menuItem.itemId) {
+            R.id.menu_item_scan_qr -> {
+                if (hasCameraHardware()) launchQrScan() else suggestiveSnackBar(getString(R.string.no_camera_available))
+                true
+            }
+
+            else -> {
+                false
+            }
+        }
+
+    // QrScanContract's QrScanActivity always binds CameraSelector.DEFAULT_BACK_CAMERA with no fallback, so this
+    // intentionally checks the rear camera specifically rather than lint's generally-recommended FEATURE_CAMERA_ANY.
+    @Suppress("UnsupportedChromeOsCameraSystemFeature")
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun hasCameraHardware(): Boolean = requireContext().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
+
+    /** Triggers the real camera-backed [QrScanContract] flow — not exercised under Robolectric. */
+    @NoCoverage
+    private fun launchQrScan() {
+        qrScanLauncher.launch(QrScanConfig())
+    }
 }

@@ -19,16 +19,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.widget.SeslProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle.State.RESUMED
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
+import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabProgressBarBinding
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.launchAndRepeatWithViewLifecycle
+import dev.oneuiproject.oneui.dialog.ProgressDialog
+import dev.oneuiproject.oneui.dialog.ProgressDialog.ProgressStyle
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SubtabProgressBarFragment : Fragment() {
@@ -54,6 +61,7 @@ class SubtabProgressBarFragment : Fragment() {
         binding.progressbar5.progress = 0
         binding.progressbar5.max = PROGRESS_MAX
         startProgressUpdater()
+        binding.buttonShowProgressDialog.setOnClickListener { showProgressDialogDemo() }
     }
 
     @NoCoverage
@@ -67,7 +75,30 @@ class SubtabProgressBarFragment : Fragment() {
         }
     }
 
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun showProgressDialogDemo() {
+        val dialog =
+            ProgressDialog(requireContext()).apply {
+                setMessage(getString(R.string.loading))
+                setProgressStyle(ProgressStyle.HORIZONTAL)
+                show()
+            }
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                for (p in 0..PROGRESS_DIALOG_MAX) {
+                    dialog.progress = p
+                    delay(PROGRESS_DIALOG_STEP_DELAY_MS)
+                }
+            } finally {
+                // Window may already be gone if the host activity is finishing/destroyed.
+                runCatching { dialog.dismiss() }
+            }
+        }
+    }
+
     companion object {
         private const val PROGRESS_MAX = 1_000
+        private const val PROGRESS_DIALOG_MAX = 100
+        private val PROGRESS_DIALOG_STEP_DELAY_MS = 25.milliseconds
     }
 }

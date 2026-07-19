@@ -19,12 +19,14 @@ import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.picker.di.AppPickerContext
 import androidx.picker.helper.SeslAppInfoDataHelper
 import androidx.picker.model.AppInfo
@@ -50,6 +52,9 @@ import dev.oneuiproject.oneui.ktx.setEntries
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
 import dev.oneuiproject.oneui.layout.startSearchMode
 import dev.oneuiproject.oneui.recyclerview.ktx.seslSetFastScrollerAdditionalPadding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator() {
@@ -59,7 +64,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal var currentPicker: SeslAppPickerView? = null
-    private var renderedPickerType = -1
+    private var renderedState: AppPickerUiState? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,12 +77,23 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean = menuInflater.inflate(R.menu.app_picker, menu).let { true }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(R.id.menu_app_picker_layout_mode)?.title =
+            if (viewModel.state.value.isSelectLayoutMode) {
+                getString(R.string.simple_picker_mode)
+            } else {
+                getString(R.string.select_layout_mode)
+            }
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
             R.id.menu_app_picker_search -> {
                 binding.toolbarLayout.startSearchMode(
                     onStart = {
                         it.queryHint = getString(R.string.search_apps)
+                        (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).showSoftInput(it, 0)
                         binding.appPickerSpinner.isEnabled = false
                     },
                     onQuery = { query, _ ->
@@ -90,6 +106,12 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
                     },
                     onBackBehavior = CLEAR_DISMISS,
                 )
+                true
+            }
+
+            R.id.menu_app_picker_layout_mode -> {
+                val isSelectLayoutMode = viewModel.onSelectLayoutModeToggled()
+                item.title = getString(if (isSelectLayoutMode) R.string.simple_picker_mode else R.string.select_layout_mode)
                 true
             }
 
@@ -109,9 +131,37 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun render(state: AppPickerUiState) {
-        if (renderedPickerType == state.pickerType) return
-        renderedPickerType = state.pickerType
+        val previous = renderedState
+        renderedState = state
+        val modeChanged = previous == null || previous.isSelectLayoutMode != state.isSelectLayoutMode
+        if (modeChanged) showAppPickerMode(state.isSelectLayoutMode)
+        if (state.isSelectLayoutMode) return
+        if (!modeChanged && previous.pickerType == state.pickerType) return
         setAppPickerType(ListTypes.entries.getOrElse(state.pickerType) { ListTypes.entries.first() })
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun showAppPickerMode(isSelectLayoutMode: Boolean) {
+        binding.appPickerSpinner.isVisible = !isSelectLayoutMode
+        binding.appPickerSelectLayout.isVisible = isSelectLayoutMode
+        if (isSelectLayoutMode) {
+            binding.appPickerList.isVisible = false
+            binding.appPickerGrid.isVisible = false
+            binding.noEntryScrollView.isVisible = false
+            configureSelectLayout()
+        }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun configureSelectLayout() {
+        binding.appPickerProgress.isVisible = true
+        binding.appPickerSelectLayout.appPickerStateView.appListOrder = ORDER_ASCENDING
+        binding.appPickerSelectLayout.enableSelectedAppPickerView(true)
+        lifecycleScope.launch {
+            val packages = withContext(Dispatchers.IO) { getAppList(this@AppPickerActivity, ListTypes.TYPE_LIST_CHECKBOX) }
+            binding.appPickerSelectLayout.submitList(packages)
+            binding.appPickerProgress.isVisible = false
+        }
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
@@ -136,7 +186,11 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun applyFilter(query: String = "") {
-        currentPicker?.setSearchFilter(query) { updateAppPickerVisibility(it > 0) }
+        if (viewModel.state.value.isSelectLayoutMode) {
+            binding.appPickerSelectLayout.setSearchFilter(query)
+        } else {
+            currentPicker?.setSearchFilter(query) { updateAppPickerVisibility(it > 0) }
+        }
     }
 
     private fun configureAppPicker(appPicker: SeslAppPickerView) {

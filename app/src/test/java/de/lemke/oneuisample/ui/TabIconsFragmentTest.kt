@@ -23,8 +23,10 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -43,11 +45,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
+import java.util.concurrent.TimeUnit
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
@@ -107,6 +111,59 @@ class TabIconsFragmentTest {
     @Test
     fun onIconTabMenuItemSelected_unknown_returnsFalse() {
         withFragment { onIconTabMenuItemSelected(mockMenuItem(-1)) shouldBe false }
+    }
+
+    @Test
+    fun searchModeListener_onQueryTextSubmit_updatesSearch() {
+        withFragment {
+            searchModeListener.onQueryTextSubmit("query") shouldBe true
+            userSettings.search shouldBe "query"
+        }
+    }
+
+    @Test
+    fun searchModeListener_onQueryTextSubmit_withNullQuery_storesEmptyString() {
+        withFragment {
+            searchModeListener.onQueryTextSubmit(null) shouldBe true
+            userSettings.search shouldBe ""
+        }
+    }
+
+    @Test
+    fun searchModeListener_onQueryTextChange_updatesSearch() {
+        withFragment {
+            searchModeListener.onQueryTextChange("change") shouldBe true
+            userSettings.search shouldBe "change"
+        }
+    }
+
+    @Test
+    fun searchModeListener_onQueryTextChange_withNullQuery_storesEmptyString() {
+        withFragment {
+            searchModeListener.onQueryTextChange(null) shouldBe true
+            userSettings.search shouldBe ""
+        }
+    }
+
+    @Test
+    fun searchModeListener_onSearchModeToggle_activating_restoresSearchAndSetsActive() {
+        withFragment {
+            userSettings.search = "prev"
+            val searchView = SearchView(requireContext())
+            searchModeListener.onSearchModeToggle(searchView, true)
+            userSettings.searchActive shouldBe true
+            searchView.query.toString() shouldBe "prev"
+        }
+    }
+
+    @Test
+    fun searchModeListener_onSearchModeToggle_deactivating_setsSearchInactive() {
+        withFragment {
+            userSettings.searchActive = true
+            val searchView = SearchView(requireContext())
+            searchModeListener.onSearchModeToggle(searchView, false)
+            userSettings.searchActive shouldBe false
+        }
     }
 
     @Test
@@ -422,6 +479,38 @@ class TabIconsFragmentTest {
             updateList(Pair(listOf(icon), null))
             shadowOf(Looper.getMainLooper()).idle()
             onIconSwipeCallback(0, ItemTouchHelper.END, 0) shouldBe true
+        }
+    }
+
+    @Test
+    fun showMultiSelectTip_withAnchorView_showsTip() {
+        withFragment {
+            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
+            updateList(Pair(listOf(icon, icon, icon), null))
+            shadowOf(Looper.getMainLooper()).idle()
+            requireView().findViewById<RecyclerView>(R.id.iconList).layoutManager?.findViewByPosition(0) shouldNotBe null
+            showMultiSelectTip()
+            shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
+            shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldNotBe null
+        }
+    }
+
+    @Test
+    fun showMultiSelectTip_noAnchorView_doesNothing() {
+        withFragment {
+            requireView().findViewById<RecyclerView>(R.id.iconList).layoutManager = null
+            showMultiSelectTip()
+            shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
+            shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldBe null
+        }
+    }
+
+    @Test
+    fun showFabTip_showsTip() {
+        withFragment {
+            showFabTip()
+            shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
+            shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldNotBe null
         }
     }
 }

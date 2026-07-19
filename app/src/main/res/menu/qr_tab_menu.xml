@@ -19,17 +19,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <item
-        android:id="@+id/menu_app_picker_search"
-        android:title="@string/search_apps"
-        android:icon="@drawable/ic_oui_search"
+        android:id="@+id/menu_item_scan_qr"
+        android:icon="@drawable/ic_oui_qr_code_scanner"
+        android:title="@string/scan_qr"
         app:iconTint="?actionMenuTextColor"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction,AppCompatResource" />
-
-    <item
-        android:id="@+id/menu_app_picker_layout_mode"
-        android:title="@string/select_layout_mode"
-        app:showAsAction="never"
-        tools:ignore="AppCompatResource" />
 
 </menu>

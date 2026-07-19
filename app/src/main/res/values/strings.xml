@@ -99,6 +99,8 @@
     <string name="auto_hide">Auto hide</string>
     <string name="action_mode_search_options">ActionModeSearch options</string>
     <string name="search_apps">Search apps</string>
+    <string name="select_layout_mode">Select layout mode</string>
+    <string name="simple_picker_mode">Simple mode</string>
 
     <string name="qs_detail_view_text">This is the QS Detail View.</string>
     <string name="qs_tile_subtitle">Subtitle</string>
@@ -154,6 +156,15 @@
     <string name="tile_clicked_inactive">Tile clicked: inactive</string>
     <string name="tile_clicked_active">Tile clicked: active</string>
     <string name="toggle_button_state">Toggle Button: %1$s</string>
+    <string name="scan_qr">Scan QR code</string>
+    <string name="scan_result_title">Scan result</string>
+    <string name="no_camera_available">Camera not available</string>
+    <string name="share">Share</string>
+    <string name="error_share_content_not_supported_on_device">Error: Sharing content is not supported on your device.</string>
+    <string name="tip_long_press_multiselect">Long-press an item to select multiple</string>
+    <string name="tip_icons_tab">Browse the OneUI icon library used throughout this app.</string>
+    <string name="progress_dialog" translatable="false">ProgressDialog</string>
+    <string name="loading">Loading…</string>
 
     <!--Section headers-->
     <string name="horizontal">Horizontal</string>

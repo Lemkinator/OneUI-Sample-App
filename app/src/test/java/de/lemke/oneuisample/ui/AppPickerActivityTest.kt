@@ -17,6 +17,7 @@ package de.lemke.oneuisample.ui
 
 import android.content.Intent
 import android.os.Looper
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -37,6 +38,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -237,6 +239,96 @@ class AppPickerActivityTest {
             shadowOf(Looper.getMainLooper()).idle()
             toolbarLayout?.endSearchMode()
             shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun onOptionsItemSelected_layoutMode_togglesSelectLayoutModeAndUpdatesTitle() {
+        launch {
+            val item = mockk<MenuItem>(relaxed = true) { every { itemId } returns R.id.menu_app_picker_layout_mode }
+            onOptionsItemSelected(item) shouldBe true
+            verify { item.title = getString(R.string.simple_picker_mode) }
+            onOptionsItemSelected(item) shouldBe true
+            verify { item.title = getString(R.string.select_layout_mode) }
+        }
+    }
+
+    @Test
+    fun onPrepareOptionsMenu_simpleMode_showsSelectLayoutTitle() {
+        launch {
+            val menuItem = mockk<MenuItem>(relaxed = true)
+            val menu = mockk<Menu> { every { findItem(R.id.menu_app_picker_layout_mode) } returns menuItem }
+            onPrepareOptionsMenu(menu)
+            verify { menuItem.title = getString(R.string.select_layout_mode) }
+        }
+    }
+
+    @Test
+    fun onPrepareOptionsMenu_selectLayoutMode_showsSimpleModeTitle() {
+        launch {
+            val toggleItem = mockk<MenuItem>(relaxed = true) { every { itemId } returns R.id.menu_app_picker_layout_mode }
+            onOptionsItemSelected(toggleItem)
+            shadowOf(Looper.getMainLooper()).idle()
+            val menuItem = mockk<MenuItem>(relaxed = true)
+            val menu = mockk<Menu> { every { findItem(R.id.menu_app_picker_layout_mode) } returns menuItem }
+            onPrepareOptionsMenu(menu)
+            verify { menuItem.title = getString(R.string.simple_picker_mode) }
+        }
+    }
+
+    @Test
+    fun onPrepareOptionsMenu_missingMenuItem_noError() {
+        launch {
+            val menu = mockk<Menu> { every { findItem(R.id.menu_app_picker_layout_mode) } returns null }
+            onPrepareOptionsMenu(menu)
+        }
+    }
+
+    @Test
+    fun showAppPickerMode_selectLayout_configuresSelectLayout() {
+        launch {
+            showAppPickerMode(true)
+            window.decorView.findViewById<View>(R.id.appPickerSelectLayout)?.isVisible shouldBe true
+            window.decorView.findViewById<View>(R.id.appPickerSpinner)?.isVisible shouldBe false
+        }
+    }
+
+    @Test
+    fun showAppPickerMode_simple_hidesSelectLayout() {
+        launch {
+            showAppPickerMode(true)
+            showAppPickerMode(false)
+            window.decorView.findViewById<View>(R.id.appPickerSelectLayout)?.isVisible shouldBe false
+            window.decorView.findViewById<View>(R.id.appPickerSpinner)?.isVisible shouldBe true
+        }
+    }
+
+    @Test
+    fun render_selectLayoutMode_showsSelectLayout() {
+        launch {
+            render(AppPickerUiState(isSelectLayoutMode = true))
+            window.decorView.findViewById<View>(R.id.appPickerSelectLayout)?.isVisible shouldBe true
+        }
+    }
+
+    @Test
+    fun render_backToSimpleMode_restoresPickerType() {
+        launch {
+            render(AppPickerUiState(pickerType = 0, isSelectLayoutMode = false))
+            render(AppPickerUiState(isSelectLayoutMode = true))
+            render(AppPickerUiState(pickerType = 0, isSelectLayoutMode = false))
+            currentPicker shouldNotBe null
+        }
+    }
+
+    @Test
+    fun applyFilter_selectLayoutMode_noError() {
+        launch {
+            val toggleItem = mockk<MenuItem>(relaxed = true) { every { itemId } returns R.id.menu_app_picker_layout_mode }
+            onOptionsItemSelected(toggleItem)
+            shadowOf(Looper.getMainLooper()).idle()
+            applyFilter("test")
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
         }
     }
 }
