@@ -312,7 +312,7 @@ class UserSettingsTest {
 
     @Test
     fun `recentColors keeps only valid integers from mixed stored input`() {
-        val validColor = 0xFF0381FE.toInt()
+        val validColor = 0xFF00FF00.toInt()
         prefs.edit().putString("recentColors", "abc,$validColor").apply()
         reload().recentColors shouldBe listOf(validColor)
     }
