@@ -94,6 +94,10 @@ android {
         buildConfig = true
     }
 
+    testFixtures {
+        enable = true
+    }
+
     packaging {
         resources {
             excludes += "META-INF/AL2.0"
@@ -176,6 +180,9 @@ dependencies {
     androidTestImplementation(libs.coroutines.test)
     androidTestImplementation(libs.hilt.android.testing)
     kspAndroidTest(libs.hilt.compiler)
+
+    testFixturesImplementation(libs.androidx.test.core)
+    testFixturesImplementation(libs.androidx.material3)
 }
 
 spotless {
