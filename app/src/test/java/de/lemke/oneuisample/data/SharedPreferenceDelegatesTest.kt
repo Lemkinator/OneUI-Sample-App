@@ -15,10 +15,8 @@
  */
 package de.lemke.oneuisample.data
 
-import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
-import androidx.test.core.app.ApplicationProvider
+import de.lemke.oneuisample.freshTestPreferences
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -37,11 +35,7 @@ class SharedPreferenceDelegatesTest {
 
     @Before
     fun setup() {
-        prefs =
-            ApplicationProvider
-                .getApplicationContext<Application>()
-                .getSharedPreferences("test_delegates", Context.MODE_PRIVATE)
-        prefs.edit().clear().commit()
+        prefs = freshTestPreferences()
         delegates = SharedPreferenceDelegates(prefs)
     }
 

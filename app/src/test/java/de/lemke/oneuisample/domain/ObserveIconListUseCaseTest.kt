@@ -16,10 +16,10 @@
 package de.lemke.oneuisample.domain
 
 import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.data.UserSettings
+import de.lemke.oneuisample.freshTestPreferences
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -47,8 +47,7 @@ class ObserveIconListUseCaseTest {
     fun setup() {
         testScope = TestScope(UnconfinedTestDispatcher())
         val context = ApplicationProvider.getApplicationContext<Application>()
-        prefs = context.getSharedPreferences("test_observe_icons", Context.MODE_PRIVATE)
-        prefs.edit().clear().commit()
+        prefs = freshTestPreferences(context)
         repo = UserSettings(prefs, testScope.backgroundScope)
         useCase = ObserveIconListUseCase(context, repo)
     }

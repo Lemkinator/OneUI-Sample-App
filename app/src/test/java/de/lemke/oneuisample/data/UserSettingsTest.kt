@@ -15,11 +15,9 @@
  */
 package de.lemke.oneuisample.data
 
-import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
-import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
+import de.lemke.oneuisample.freshTestPreferences
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CoroutineScope
@@ -39,22 +37,20 @@ import org.robolectric.annotation.Config
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
-class UserSettingsRepositoryTest {
+class UserSettingsTest {
     private lateinit var repoScope: CoroutineScope
     private lateinit var testScope: TestScope
     private lateinit var prefs: SharedPreferences
     private lateinit var repo: UserSettings
+
+    private fun reload() = UserSettings(prefs, repoScope)
 
     @Before
     fun setup() {
         val dispatcher = UnconfinedTestDispatcher()
         repoScope = CoroutineScope(dispatcher + SupervisorJob())
         testScope = TestScope(dispatcher)
-        prefs =
-            ApplicationProvider
-                .getApplicationContext<Application>()
-                .getSharedPreferences("test_user_settings", Context.MODE_PRIVATE)
-        prefs.edit().clear().commit()
+        prefs = freshTestPreferences()
         repo = UserSettings(prefs, repoScope)
     }
 
@@ -75,6 +71,8 @@ class UserSettingsRepositoryTest {
         repo.appPickerType shouldBe 0
         repo.appPickerSelectLayoutMode shouldBe false
         repo.sampleSwitchBar shouldBe false
+        repo.currentColor shouldBe UserSettings.DEFAULT_COLOR
+        repo.recentColors shouldBe listOf(UserSettings.DEFAULT_COLOR)
     }
 
     @Test
@@ -277,5 +275,45 @@ class UserSettingsRepositoryTest {
         repo.searchOnActionMode shouldBe SearchOnActionMode.NoDismiss
         repo.search shouldBe "test"
         repo.searchActive shouldBe true
+    }
+
+    @Test
+    fun `currentColor round-trips a value`() {
+        repo.currentColor = 0xFF00FF00.toInt()
+        reload().currentColor shouldBe 0xFF00FF00.toInt()
+    }
+
+    @Test
+    fun `recentColors round-trips`() {
+        val colors = listOf(0xFF0000FF.toInt(), 0xFF00FF00.toInt())
+        repo.recentColors = colors
+        reload().recentColors shouldBe colors
+    }
+
+    @Test
+    fun `recentColors deduplicates written values`() {
+        val color = 0xFF0000FF.toInt()
+        repo.recentColors = listOf(color, color, color)
+        repo.recentColors shouldBe listOf(color)
+    }
+
+    @Test
+    fun `recentColors caps to MAX_RECENT_COLORS when more are written`() {
+        val colors = (1..UserSettings.MAX_RECENT_COLORS + 1).map { 0xFF000000.toInt() + it }
+        repo.recentColors = colors
+        reload().recentColors.size shouldBe UserSettings.MAX_RECENT_COLORS
+    }
+
+    @Test
+    fun `recentColors falls back to default when stored string is all-invalid`() {
+        prefs.edit().putString("recentColors", "abc,,xyz").apply()
+        reload().recentColors shouldBe listOf(UserSettings.DEFAULT_COLOR)
+    }
+
+    @Test
+    fun `recentColors keeps only valid integers from mixed stored input`() {
+        val validColor = 0xFF0381FE.toInt()
+        prefs.edit().putString("recentColors", "abc,$validColor").apply()
+        reload().recentColors shouldBe listOf(validColor)
     }
 }
