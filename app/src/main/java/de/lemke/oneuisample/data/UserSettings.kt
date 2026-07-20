@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-data class UserSettings(
+data class UserSettingsSnapshot(
     val darkMode: Boolean = false,
     val autoDarkMode: Boolean = true,
     val lastVersionCode: Int = -1,
@@ -48,7 +48,7 @@ data class UserSettings(
 )
 
 /** SharedPreferences-backed repository for user settings. */
-class UserSettingsRepository(
+class UserSettings(
     private val preferences: SharedPreferences,
     scope: CoroutineScope,
 ) {
@@ -101,13 +101,13 @@ class UserSettingsRepository(
     var searchActive: Boolean by preferences.delegates.boolean(false)
 
     /**
-     * A [StateFlow] of the current [UserSettings] snapshot.
+     * A [StateFlow] of the current [UserSettingsSnapshot].
      *
      * Backed by a single, strongly-held [SharedPreferences.OnSharedPreferenceChangeListener] so the
      * listener is never GC'd. Per-field flows are available as extension properties:
      *
      * ```
-     * userSettings.flow                    // StateFlow<UserSettings> (whole snapshot)
+     * userSettings.flow                    // StateFlow<UserSettingsSnapshot> (whole snapshot)
      * userSettings.flow.search             // Flow<String>
      * userSettings.flow.searchActive       // Flow<Boolean>
      *
@@ -115,7 +115,7 @@ class UserSettingsRepository(
      *         userSettings.flow.searchActive) { s, a -> ... }
      * ```
      */
-    val flow: StateFlow<UserSettings> =
+    val flow: StateFlow<UserSettingsSnapshot> =
         callbackFlow {
             val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> trySend(snapshot()) }
             preferences.registerOnSharedPreferenceChangeListener(listener)
@@ -125,7 +125,7 @@ class UserSettingsRepository(
             .stateIn(scope, SharingStarted.Eagerly, snapshot())
 
     private fun snapshot() =
-        UserSettings(
+        UserSettingsSnapshot(
             darkMode = darkMode,
             autoDarkMode = autoDarkMode,
             lastVersionCode = lastVersionCode,
@@ -155,7 +155,7 @@ class UserSettingsRepository(
      */
     @Suppress("CyclomaticComplexMethod")
     @Synchronized
-    fun update(transform: UserSettings.() -> UserSettings) {
+    fun update(transform: UserSettingsSnapshot.() -> UserSettingsSnapshot) {
         val current = snapshot()
         val new = current.transform()
         if (new.darkMode != current.darkMode) darkMode = new.darkMode
@@ -184,9 +184,9 @@ class UserSettingsRepository(
 }
 
 /** Per-field Flow accessors — each emits only when that field changes (distinctUntilChanged applied). **/
-val StateFlow<UserSettings>.search: Flow<String> get() = map { it.search }.distinctUntilChanged()
-val StateFlow<UserSettings>.searchActive: Flow<Boolean> get() = map { it.searchActive }.distinctUntilChanged()
+val StateFlow<UserSettingsSnapshot>.search: Flow<String> get() = map { it.search }.distinctUntilChanged()
+val StateFlow<UserSettingsSnapshot>.searchActive: Flow<Boolean> get() = map { it.searchActive }.distinctUntilChanged()
 
-/** Helper retrieving the [ToolbarLayout.SearchOnActionMode] from [UserSettings] with a [ToolbarLayout.SearchModeListener]. */
+/** Helper retrieving the [ToolbarLayout.SearchOnActionMode] from [UserSettingsSnapshot] with a [ToolbarLayout.SearchModeListener]. */
 fun SearchOnActionMode.withListener(listener: ToolbarLayout.SearchModeListener?) =
     if (this is SearchOnActionMode.Concurrent) SearchOnActionMode.Concurrent(listener) else this

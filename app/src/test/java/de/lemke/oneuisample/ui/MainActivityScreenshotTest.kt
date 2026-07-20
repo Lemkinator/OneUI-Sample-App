@@ -32,7 +32,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -57,7 +57,7 @@ class MainActivityScreenshotTest {
         setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
         ApplicationProvider
             .getApplicationContext<HiltTestApplication>()
-            .getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
+            .getSharedPreferences(UserSettings.PREFS_NAME, Context.MODE_PRIVATE)
             .bypassOobe()
     }
 

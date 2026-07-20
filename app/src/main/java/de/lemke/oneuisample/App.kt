@@ -21,13 +21,13 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import dagger.hilt.android.HiltAndroidApp
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 import javax.inject.Inject
 
 @HiltAndroidApp
 class App : Application() {
     @Inject
-    lateinit var userSettings: UserSettingsRepository
+    lateinit var userSettings: UserSettings
 
     override fun onCreate() {
         super.onCreate()

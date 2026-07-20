@@ -39,11 +39,11 @@ import org.robolectric.annotation.Config
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
-class UserSettingsRepositoryTest {
+class UserSettingsTest {
     private lateinit var repoScope: CoroutineScope
     private lateinit var testScope: TestScope
     private lateinit var prefs: SharedPreferences
-    private lateinit var repo: UserSettingsRepository
+    private lateinit var repo: UserSettings
 
     @Before
     fun setup() {
@@ -55,7 +55,7 @@ class UserSettingsRepositoryTest {
                 .getApplicationContext<Application>()
                 .getSharedPreferences("test_user_settings", Context.MODE_PRIVATE)
         prefs.edit().clear().commit()
-        repo = UserSettingsRepository(prefs, repoScope)
+        repo = UserSettings(prefs, repoScope)
     }
 
     @After

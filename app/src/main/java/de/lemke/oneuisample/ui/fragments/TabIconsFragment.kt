@@ -41,7 +41,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettingsSnapshot
 import de.lemke.oneuisample.data.withListener
 import de.lemke.oneuisample.databinding.DialogSettingsBinding
 import de.lemke.oneuisample.databinding.FragmentTabIconsBinding
@@ -97,7 +97,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     lateinit var observeIconList: ObserveIconListUseCase
 
     @Inject
-    lateinit var userSettings: UserSettingsRepository
+    lateinit var userSettings: UserSettings
 
     val searchModeListener: ToolbarLayout.SearchModeListener by autoCleared {
         object : ToolbarLayout.SearchModeListener {
@@ -240,7 +240,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
-    internal fun applyUserSettings(settings: UserSettings) {
+    internal fun applyUserSettings(settings: UserSettingsSnapshot) {
         binding.iconList.seslSetFastScrollerEnabled(!settings.showIndexScroll)
         binding.iconIndexScroll.isVisible = settings.showIndexScroll
         binding.iconIndexScroll.setIndexBarTextMode(settings.indexScrollShowLetters)

@@ -28,7 +28,7 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -118,7 +118,7 @@ class SettingsActivityTest {
     @Test
     fun autoDarkModePref_newValue_false_withDarkModeEnabled_restoresNightMode() {
         context
-            .getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
+            .getSharedPreferences(UserSettings.PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString("darkMode", "1")
             .commit()

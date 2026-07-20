@@ -19,7 +19,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -40,7 +40,7 @@ import org.robolectric.annotation.Config
 class ObserveIconListUseCaseTest {
     private lateinit var testScope: TestScope
     private lateinit var prefs: SharedPreferences
-    private lateinit var repo: UserSettingsRepository
+    private lateinit var repo: UserSettings
     private lateinit var useCase: ObserveIconListUseCase
 
     @Before
@@ -49,7 +49,7 @@ class ObserveIconListUseCaseTest {
         val context = ApplicationProvider.getApplicationContext<Application>()
         prefs = context.getSharedPreferences("test_observe_icons", Context.MODE_PRIVATE)
         prefs.edit().clear().commit()
-        repo = UserSettingsRepository(prefs, testScope.backgroundScope)
+        repo = UserSettings(prefs, testScope.backgroundScope)
         useCase = ObserveIconListUseCase(context, repo)
     }
 

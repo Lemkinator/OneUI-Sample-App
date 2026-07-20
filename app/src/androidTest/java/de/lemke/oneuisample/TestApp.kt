@@ -18,7 +18,7 @@ package de.lemke.oneuisample
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
 import dagger.hilt.android.testing.CustomTestApplication
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 
 open class TestApp : Application() {
     override fun onCreate() {
@@ -26,10 +26,10 @@ open class TestApp : Application() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         // Bypass OOBE: fresh SharedPreferences has lastVersionCode = -1 which triggers
         // onboardIfNeeded → finishWithFade, leaving MainActivity DESTROYED.
-        getSharedPreferences(UserSettingsRepository.PREFS_NAME, MODE_PRIVATE)
+        getSharedPreferences(UserSettings.PREFS_NAME, MODE_PRIVATE)
             .edit()
-            .putInt(UserSettingsRepository::lastVersionCode.name, Int.MAX_VALUE)
-            .putInt(UserSettingsRepository::acceptedTosVersion.name, Int.MAX_VALUE)
+            .putInt(UserSettings::lastVersionCode.name, Int.MAX_VALUE)
+            .putInt(UserSettings::acceptedTosVersion.name, Int.MAX_VALUE)
             .apply()
     }
 }

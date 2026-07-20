@@ -33,7 +33,7 @@ import de.lemke.oneuisample.BuildConfig.FIRST_RUN_SKIPPABLE
 import de.lemke.oneuisample.BuildConfig.VERSION_CODE
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.databinding.ActivityMainBinding
 import de.lemke.oneuisample.openLeakCanary
 import de.lemke.oneuisample.ui.fragments.BottomSheetFragment
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
     private var isUIReady = false
 
     @Inject
-    lateinit var userSettings: UserSettingsRepository
+    lateinit var userSettings: UserSettings
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()

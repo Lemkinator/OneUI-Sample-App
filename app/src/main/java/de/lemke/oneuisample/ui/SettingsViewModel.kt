@@ -18,7 +18,7 @@ package de.lemke.oneuisample.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.util.stateInViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.StateFlow
@@ -33,7 +33,7 @@ data class SettingsUiState(
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val userSettings: UserSettingsRepository,
+    private val userSettings: UserSettings,
 ) : ViewModel() {
     val state: StateFlow<SettingsUiState> =
         userSettings.flow

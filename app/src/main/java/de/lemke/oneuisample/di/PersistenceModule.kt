@@ -22,8 +22,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import de.lemke.oneuisample.data.UserSettingsRepository
-import de.lemke.oneuisample.data.UserSettingsRepository.Companion.PREFS_NAME
+import de.lemke.oneuisample.data.UserSettings
+import de.lemke.oneuisample.data.UserSettings.Companion.PREFS_NAME
 import javax.inject.Qualifier
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
@@ -46,8 +46,8 @@ object PersistenceModule {
 
     @Provides
     @Singleton
-    fun provideUserSettingsRepository(
+    fun provideUserSettings(
         @ApplicationContext context: Context,
         @ApplicationScope scope: CoroutineScope,
-    ): UserSettingsRepository = UserSettingsRepository(context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE), scope)
+    ): UserSettings = UserSettings(context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE), scope)
 }

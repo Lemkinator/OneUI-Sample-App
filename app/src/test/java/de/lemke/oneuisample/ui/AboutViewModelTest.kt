@@ -16,7 +16,7 @@
 package de.lemke.oneuisample.ui
 
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettingsSnapshot
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
@@ -28,35 +28,35 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class AboutViewModelTest : ShouldSpec(
     {
-        val mockRepo = mockk<UserSettingsRepository>(relaxed = true)
+        val mockSettings = mockk<UserSettings>(relaxed = true)
 
         lateinit var viewModel: AboutViewModel
 
         beforeEach {
-            clearMocks(mockRepo)
-            every { mockRepo.flow } returns MutableStateFlow(UserSettings())
-            every { mockRepo.devModeEnabled } returns false
-            viewModel = AboutViewModel(mockRepo)
+            clearMocks(mockSettings)
+            every { mockSettings.flow } returns MutableStateFlow(UserSettingsSnapshot())
+            every { mockSettings.devModeEnabled } returns false
+            viewModel = AboutViewModel(mockSettings)
         }
 
         should("initial state has devModeEnabled = false") {
             viewModel.state.value shouldBe AboutUiState(devModeEnabled = false)
         }
 
-        should("initial state reflects repository devModeEnabled = true") {
-            every { mockRepo.devModeEnabled } returns true
-            every { mockRepo.flow } returns MutableStateFlow(UserSettings(devModeEnabled = true))
-            val vm = AboutViewModel(mockRepo)
+        should("initial state reflects settings devModeEnabled = true") {
+            every { mockSettings.devModeEnabled } returns true
+            every { mockSettings.flow } returns MutableStateFlow(UserSettingsSnapshot(devModeEnabled = true))
+            val vm = AboutViewModel(mockSettings)
             vm.state.value shouldBe AboutUiState(devModeEnabled = true)
         }
 
-        should("onToggleDevMode toggles devModeEnabled via repository update") {
-            val transformSlot = slot<UserSettings.() -> UserSettings>()
-            every { mockRepo.update(capture(transformSlot)) } answers { }
+        should("onToggleDevMode toggles devModeEnabled via settings update") {
+            val transformSlot = slot<UserSettingsSnapshot.() -> UserSettingsSnapshot>()
+            every { mockSettings.update(capture(transformSlot)) } answers { }
             viewModel.onToggleDevMode()
-            verify(exactly = 1) { mockRepo.update(any()) }
-            UserSettings(devModeEnabled = false).run(transformSlot.captured).devModeEnabled shouldBe true
-            UserSettings(devModeEnabled = true).run(transformSlot.captured).devModeEnabled shouldBe false
+            verify(exactly = 1) { mockSettings.update(any()) }
+            UserSettingsSnapshot(devModeEnabled = false).run(transformSlot.captured).devModeEnabled shouldBe true
+            UserSettingsSnapshot(devModeEnabled = true).run(transformSlot.captured).devModeEnabled shouldBe false
         }
     },
 )

@@ -18,7 +18,7 @@ package de.lemke.oneuisample.domain
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.di.DefaultDispatcher
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 @Singleton
 class CompleteOnboardingUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val userSettings: UserSettingsRepository,
+    private val userSettings: UserSettings,
     @param:DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(

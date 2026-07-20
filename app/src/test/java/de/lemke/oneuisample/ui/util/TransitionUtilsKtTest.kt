@@ -25,7 +25,7 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.bypassOobe
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.MainActivity
 import org.junit.Before
 import org.junit.Rule
@@ -46,7 +46,7 @@ class TransitionUtilsKtTest {
     fun setup() {
         ApplicationProvider
             .getApplicationContext<Application>()
-            .getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
+            .getSharedPreferences(UserSettings.PREFS_NAME, Context.MODE_PRIVATE)
             .bypassOobe()
     }
 
