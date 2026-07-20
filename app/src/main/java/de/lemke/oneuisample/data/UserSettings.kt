@@ -16,6 +16,10 @@
 package de.lemke.oneuisample.data
 
 import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import kotlinx.coroutines.CoroutineScope
@@ -115,14 +119,18 @@ class UserSettings(
      *         userSettings.flow.searchActive) { s, a -> ... }
      * ```
      */
-    val flow: StateFlow<UserSettingsSnapshot> =
+    val flow: StateFlow<UserSettingsSnapshot> = settingsFlow(scope, ::snapshot)
+
+    private fun settingsFlow(
+        scope: CoroutineScope,
+        snapshot: () -> UserSettingsSnapshot,
+    ): StateFlow<UserSettingsSnapshot> =
         callbackFlow {
             val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> trySend(snapshot()) }
             preferences.registerOnSharedPreferenceChangeListener(listener)
-            trySend(snapshot()) // close the gap between initial snapshot() and listener registration
+            trySend(snapshot())
             awaitClose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
-        }.distinctUntilChanged()
-            .stateIn(scope, SharingStarted.Eagerly, snapshot())
+        }.distinctUntilChanged().stateIn(scope, SharingStarted.Eagerly, snapshot())
 
     private fun snapshot() =
         UserSettingsSnapshot(
@@ -190,3 +198,12 @@ val StateFlow<UserSettingsSnapshot>.searchActive: Flow<Boolean> get() = map { it
 /** Helper retrieving the [ToolbarLayout.SearchOnActionMode] from [UserSettingsSnapshot] with a [ToolbarLayout.SearchModeListener]. */
 fun SearchOnActionMode.withListener(listener: ToolbarLayout.SearchModeListener?) =
     if (this is SearchOnActionMode.Concurrent) SearchOnActionMode.Concurrent(listener) else this
+
+/** Applies this [UserSettings]'s dark mode setting to the app's default night mode. */
+fun UserSettings.applyDarkMode() {
+    when {
+        autoDarkMode -> setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+        darkMode -> setDefaultNightMode(MODE_NIGHT_YES)
+        else -> setDefaultNightMode(MODE_NIGHT_NO)
+    }
+}
