@@ -104,6 +104,14 @@ class UserSettings(
     /** Whether the search bar is currently active. */
     var searchActive: Boolean by preferences.delegates.boolean(false)
 
+    /** The most recently selected color in the color picker demo. */
+    var currentColor: Int by preferences.delegates.int(DEFAULT_COLOR)
+
+    /** The most recently used colors in the color picker demo, deduplicated and capped at [MAX_RECENT_COLORS]. */
+    var recentColors: List<Int> by preferences.delegates
+        .intList(listOf(DEFAULT_COLOR))
+        .sanitized { it.distinct().take(MAX_RECENT_COLORS) }
+
     /**
      * A [StateFlow] of the current [UserSettingsSnapshot].
      *
@@ -188,6 +196,8 @@ class UserSettings(
 
     companion object {
         const val PREFS_NAME = "user_settings"
+        const val DEFAULT_COLOR = 0xFF0381FE.toInt()
+        const val MAX_RECENT_COLORS = 6
     }
 }
 

@@ -38,6 +38,7 @@ import androidx.picker3.app.SeslColorPickerDialog
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.databinding.FragmentTabPickerBinding
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
@@ -48,16 +49,14 @@ import java.util.Calendar.DAY_OF_MONTH
 import java.util.Calendar.MONTH
 import java.util.Calendar.YEAR
 import java.util.Locale
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     private val binding by autoCleared { FragmentTabPickerBinding.bind(requireView()) }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal var currentColor = 0xFF0381FE.toInt()
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal var recentColors: List<Int> = listOf(currentColor)
+    @Inject
+    lateinit var userSettings: UserSettings
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal var colorPickerDialog: SeslColorPickerDialog? = null
@@ -241,8 +240,8 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
             SeslColorPickerDialog(
                 requireContext(),
                 { color: Int -> onColorPicked(color) },
-                currentColor,
-                recentColors.toIntArray(),
+                userSettings.currentColor,
+                userSettings.recentColors.toIntArray(),
                 true,
             ).apply {
                 setTransparencyControlEnabled(true)
@@ -255,8 +254,8 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun onColorPicked(color: Int) {
-        currentColor = color
-        recentColors = (listOf(color) + recentColors).distinct().take(MAX_RECENT_COLORS)
+        userSettings.currentColor = color
+        userSettings.recentColors = listOf(color) + userSettings.recentColors
     }
 
     @NoCoverage
@@ -286,6 +285,5 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         private const val SPINNER_SLEEP_PICKER = 4
         private const val DEFAULT_START_TIME_MINUTES = 0
         private const val DEFAULT_END_TIME_MINUTES = 600
-        private const val MAX_RECENT_COLORS = 6
     }
 }

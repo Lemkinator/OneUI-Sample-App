@@ -101,7 +101,7 @@ class TabPickerFragmentTest {
     fun onColorPicked_updatesCurrentColor() {
         withFragment {
             onColorPicked(0xFF0000)
-            currentColor shouldBe 0xFF0000
+            userSettings.currentColor shouldBe 0xFF0000
         }
     }
 
@@ -111,7 +111,7 @@ class TabPickerFragmentTest {
             onColorPicked(0xFF0000)
             onColorPicked(0xFF0000)
             // Picked color deduped: list stays at 2 (0xFF0000 + initial default), not 3
-            recentColors.count { it == 0xFF0000 } shouldBe 1
+            userSettings.recentColors.count { it == 0xFF0000 } shouldBe 1
         }
     }
 
@@ -119,7 +119,7 @@ class TabPickerFragmentTest {
     fun onColorPicked_keepsAtMostSixRecentColors() {
         withFragment {
             repeat(8) { i -> onColorPicked(i) }
-            recentColors.size shouldBe 6
+            userSettings.recentColors.size shouldBe 6
         }
     }
 
