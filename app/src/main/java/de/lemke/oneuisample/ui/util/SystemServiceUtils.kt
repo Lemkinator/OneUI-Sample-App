@@ -32,7 +32,7 @@ fun <T, R> Context.withSystemService(
     action: (T) -> R,
 ): R? = ContextCompat.getSystemService(this, serviceClass)?.let(action)
 
-/** Requests focus and shows the soft keyboard for this view. */
+/** Shows the soft keyboard for this view. Focus is requested by `ToolbarLayout.startSearchMode()`'s `isIconified = false`. */
 @NoCoverage
 fun View.showSoftInput(flags: Int = 0) {
     context.withSystemService(InputMethodManager::class.java) { it.showSoftInput(this, flags) }
