@@ -15,14 +15,12 @@
  */
 package de.lemke.oneuisample.ui.fragments
 
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.View.VISIBLE
-import android.view.inputmethod.InputMethodManager
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AlertDialog
@@ -52,6 +50,7 @@ import de.lemke.oneuisample.ui.util.IconAdapter
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.launchAndRepeatWithViewLifecycle
 import de.lemke.oneuisample.ui.util.play
+import de.lemke.oneuisample.ui.util.showSoftInput
 import de.lemke.oneuisample.ui.util.showTipPopup
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
@@ -119,7 +118,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                 userSettings.searchActive = isActive
                 if (isActive) {
                     searchView.setQuery(userSettings.search, false)
-                    (requireActivity().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).showSoftInput(searchView, 0)
+                    searchView.showSoftInput()
                     searchView.seslSetOverflowMenuButtonIcon(
                         AppCompatResources.getDrawable(requireContext(), iconsR.drawable.ic_oui_list_filter),
                     )
