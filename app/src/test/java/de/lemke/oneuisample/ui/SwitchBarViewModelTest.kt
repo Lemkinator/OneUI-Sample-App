@@ -15,19 +15,31 @@
  */
 package de.lemke.oneuisample.ui
 
+import app.cash.turbine.test
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class SwitchBarViewModelTest : ShouldSpec(
     {
         lateinit var settings: UserSettings
         lateinit var viewModel: SwitchBarViewModel
 
         beforeEach {
+            Dispatchers.setMain(UnconfinedTestDispatcher())
             settings = fakeUserSettings()
             viewModel = SwitchBarViewModel(settings)
+        }
+
+        afterEach {
+            Dispatchers.resetMain()
         }
 
         should("initial state has enabled = false") {
@@ -41,14 +53,22 @@ class SwitchBarViewModelTest : ShouldSpec(
         }
 
         should("onSwitchChanged true writes to settings") {
-            viewModel.onSwitchChanged(true)
-            settings.sampleSwitchBar shouldBe true
+            viewModel.state.test {
+                awaitItem() shouldBe SwitchBarUiState(enabled = false)
+                viewModel.onSwitchChanged(true)
+                settings.sampleSwitchBar shouldBe true
+                awaitItem() shouldBe SwitchBarUiState(enabled = true)
+            }
         }
 
         should("onSwitchChanged false writes to settings") {
             settings.sampleSwitchBar = true
-            viewModel.onSwitchChanged(false)
-            settings.sampleSwitchBar shouldBe false
+            viewModel.state.test {
+                awaitItem() shouldBe SwitchBarUiState(enabled = true)
+                viewModel.onSwitchChanged(false)
+                settings.sampleSwitchBar shouldBe false
+                awaitItem() shouldBe SwitchBarUiState(enabled = false)
+            }
         }
     },
 )

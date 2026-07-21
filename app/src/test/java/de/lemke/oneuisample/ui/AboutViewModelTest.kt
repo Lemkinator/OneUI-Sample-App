@@ -15,19 +15,31 @@
  */
 package de.lemke.oneuisample.ui
 
+import app.cash.turbine.test
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AboutViewModelTest : ShouldSpec(
     {
         lateinit var settings: UserSettings
         lateinit var viewModel: AboutViewModel
 
         beforeEach {
+            Dispatchers.setMain(UnconfinedTestDispatcher())
             settings = fakeUserSettings()
             viewModel = AboutViewModel(settings)
+        }
+
+        afterEach {
+            Dispatchers.resetMain()
         }
 
         should("initial state has devModeEnabled = false") {
@@ -41,10 +53,14 @@ class AboutViewModelTest : ShouldSpec(
         }
 
         should("onToggleDevMode toggles devModeEnabled via settings update") {
-            viewModel.onToggleDevMode()
-            settings.devModeEnabled shouldBe true
-            viewModel.onToggleDevMode()
             settings.devModeEnabled shouldBe false
+            viewModel.state.test {
+                awaitItem() shouldBe AboutUiState(devModeEnabled = false)
+                viewModel.onToggleDevMode()
+                awaitItem() shouldBe AboutUiState(devModeEnabled = true)
+                viewModel.onToggleDevMode()
+                awaitItem() shouldBe AboutUiState(devModeEnabled = false)
+            }
         }
     },
 )

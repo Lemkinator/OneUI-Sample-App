@@ -15,19 +15,31 @@
  */
 package de.lemke.oneuisample.ui
 
+import app.cash.turbine.test
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AppPickerViewModelTest : ShouldSpec(
     {
         lateinit var settings: UserSettings
         lateinit var viewModel: AppPickerViewModel
 
         beforeEach {
+            Dispatchers.setMain(UnconfinedTestDispatcher())
             settings = fakeUserSettings()
             viewModel = AppPickerViewModel(settings)
+        }
+
+        afterEach {
+            Dispatchers.resetMain()
         }
 
         should("initial state has pickerType = 0") {
@@ -41,8 +53,12 @@ class AppPickerViewModelTest : ShouldSpec(
         }
 
         should("onPickerTypeChanged writes to settings") {
-            viewModel.onPickerTypeChanged(2)
-            settings.appPickerType shouldBe 2
+            viewModel.state.test {
+                awaitItem() shouldBe AppPickerUiState(pickerType = 0)
+                viewModel.onPickerTypeChanged(2)
+                settings.appPickerType shouldBe 2
+                awaitItem() shouldBe AppPickerUiState(pickerType = 2)
+            }
         }
 
         should("initial state reflects settings appPickerSelectLayoutMode = true") {
@@ -53,8 +69,12 @@ class AppPickerViewModelTest : ShouldSpec(
 
         should("onSelectLayoutModeToggled flips settings value and returns the new value") {
             settings.appPickerSelectLayoutMode = false
-            viewModel.onSelectLayoutModeToggled() shouldBe true
-            settings.appPickerSelectLayoutMode shouldBe true
+            viewModel.state.test {
+                awaitItem() shouldBe AppPickerUiState(isSelectLayoutMode = false)
+                viewModel.onSelectLayoutModeToggled() shouldBe true
+                settings.appPickerSelectLayoutMode shouldBe true
+                awaitItem() shouldBe AppPickerUiState(isSelectLayoutMode = true)
+            }
         }
     },
 )
