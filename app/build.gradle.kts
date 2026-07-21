@@ -183,6 +183,7 @@ dependencies {
 
     testFixturesImplementation(libs.androidx.test.core)
     testFixturesImplementation(libs.androidx.material3)
+    testFixturesImplementation(libs.coroutines.test)
 }
 
 spotless {
