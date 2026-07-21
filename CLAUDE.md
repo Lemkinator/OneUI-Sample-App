@@ -44,7 +44,7 @@ Single-module (`:app`) Android app demonstrating OneUI-Design components. Layere
   `Dispatchers.Default`; flow-based use cases (e.g. `ObserveIconListUseCase`) return a `Flow` directly.
 - **`ui/`** - Activities for settings/about/OOBE/pickers; Fragments for main tabs (`TabDesign`, `TabIcons`, `TabPicker`) with nested subtabs
   via ViewPager2. Screens with non-trivial async state use ViewModels (`AboutViewModel`, `SettingsViewModel`, `OOBEViewModel`,
-  `SwitchBarViewModel`, `AppPickerViewModel`); simpler screens inject use cases or the repository directly.
+  `SwitchBarViewModel`, `AppPickerViewModel`); simpler screens inject use cases or `UserSettings` directly.
 - **`App.kt`** - `@HiltAndroidApp` entry point; `PersistenceModule.kt` - Hilt singleton providing `SharedPreferences` and
   `UserSettings` (with an `@ApplicationScope` `CoroutineScope` for the `StateFlow`).
 
