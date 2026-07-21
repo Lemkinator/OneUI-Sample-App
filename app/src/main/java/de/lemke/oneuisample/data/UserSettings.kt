@@ -160,40 +160,6 @@ class UserSettings(
             searchActive = searchActive,
         )
 
-    /**
-     * Atomically reads the current snapshot, applies [transform], and writes back only the changed
-     * fields. Use for multi-field batch writes (e.g., a settings dialog applying 5 fields at once).
-     * Synchronized to prevent interleaved concurrent updates.
-     *
-     * Single-field writes can just assign directly: `userSettings.devModeEnabled = true`.
-     *
-     * Usage: `userSettings.update { copy(showIndexScroll = true, indexScrollAutoHide = false) }`
-     */
-    @Suppress("CyclomaticComplexMethod")
-    @Synchronized
-    fun update(transform: UserSettingsSnapshot.() -> UserSettingsSnapshot) {
-        val current = snapshot()
-        val new = current.transform()
-        if (new.darkMode != current.darkMode) darkMode = new.darkMode
-        if (new.autoDarkMode != current.autoDarkMode) autoDarkMode = new.autoDarkMode
-        if (new.lastVersionCode != current.lastVersionCode) lastVersionCode = new.lastVersionCode
-        if (new.lastVersionName != current.lastVersionName) lastVersionName = new.lastVersionName
-        if (new.acceptedTosVersion != current.acceptedTosVersion) acceptedTosVersion = new.acceptedTosVersion
-        if (new.devModeEnabled != current.devModeEnabled) devModeEnabled = new.devModeEnabled
-        if (new.appPickerType != current.appPickerType) appPickerType = new.appPickerType
-        if (new.appPickerSelectLayoutMode != current.appPickerSelectLayoutMode) {
-            appPickerSelectLayoutMode = new.appPickerSelectLayoutMode
-        }
-        if (new.sampleSwitchBar != current.sampleSwitchBar) sampleSwitchBar = new.sampleSwitchBar
-        if (new.showIndexScroll != current.showIndexScroll) showIndexScroll = new.showIndexScroll
-        if (new.indexScrollShowLetters != current.indexScrollShowLetters) indexScrollShowLetters = new.indexScrollShowLetters
-        if (new.indexScrollAutoHide != current.indexScrollAutoHide) indexScrollAutoHide = new.indexScrollAutoHide
-        if (new.actionModeShowCancel != current.actionModeShowCancel) actionModeShowCancel = new.actionModeShowCancel
-        if (new.searchOnActionMode != current.searchOnActionMode) searchOnActionMode = new.searchOnActionMode
-        if (new.search != current.search) search = new.search
-        if (new.searchActive != current.searchActive) searchActive = new.searchActive
-    }
-
     companion object {
         const val PREFS_NAME = "user_settings"
         const val DEFAULT_COLOR = 0xFF0381FE.toInt()

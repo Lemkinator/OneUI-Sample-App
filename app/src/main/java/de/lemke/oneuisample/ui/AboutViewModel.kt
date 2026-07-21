@@ -38,6 +38,6 @@ class AboutViewModel @Inject constructor(
             .stateInViewModel(viewModelScope, AboutUiState(devModeEnabled = userSettings.devModeEnabled))
 
     fun onToggleDevMode() {
-        userSettings.update { copy(devModeEnabled = !devModeEnabled) }
+        userSettings.devModeEnabled = !userSettings.devModeEnabled
     }
 }

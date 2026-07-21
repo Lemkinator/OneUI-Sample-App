@@ -409,20 +409,16 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         indexScrollAutoHide: Boolean,
         checkedSearchOnActionModeId: Int,
     ) {
-        userSettings.update {
-            copy(
-                actionModeShowCancel = actionModeShowCancel,
-                showIndexScroll = showIndexScroll,
-                indexScrollShowLetters = indexScrollShowLetters,
-                indexScrollAutoHide = indexScrollAutoHide,
-                searchOnActionMode =
-                    when (checkedSearchOnActionModeId) {
-                        R.id.amsDismiss -> ToolbarLayout.SearchOnActionMode.Dismiss
-                        R.id.amsNoDismiss -> ToolbarLayout.SearchOnActionMode.NoDismiss
-                        else -> ToolbarLayout.SearchOnActionMode.Concurrent(null)
-                    },
-            )
-        }
+        userSettings.actionModeShowCancel = actionModeShowCancel
+        userSettings.showIndexScroll = showIndexScroll
+        userSettings.indexScrollShowLetters = indexScrollShowLetters
+        userSettings.indexScrollAutoHide = indexScrollAutoHide
+        userSettings.searchOnActionMode =
+            when (checkedSearchOnActionModeId) {
+                R.id.amsDismiss -> ToolbarLayout.SearchOnActionMode.Dismiss
+                R.id.amsNoDismiss -> ToolbarLayout.SearchOnActionMode.NoDismiss
+                else -> ToolbarLayout.SearchOnActionMode.Concurrent(null)
+            }
     }
 
     @VisibleForTesting(otherwise = PRIVATE)

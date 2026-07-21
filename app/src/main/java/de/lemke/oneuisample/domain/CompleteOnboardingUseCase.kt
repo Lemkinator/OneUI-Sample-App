@@ -35,12 +35,8 @@ class CompleteOnboardingUseCase @Inject constructor(
         versionCode: Int,
         versionName: String,
     ) = withContext(defaultDispatcher) {
-        userSettings.update {
-            copy(
-                acceptedTosVersion = context.resources.getInteger(R.integer.tos_version),
-                lastVersionCode = versionCode,
-                lastVersionName = versionName,
-            )
-        }
+        userSettings.acceptedTosVersion = context.resources.getInteger(R.integer.tos_version)
+        userSettings.lastVersionCode = versionCode
+        userSettings.lastVersionName = versionName
     }
 }
