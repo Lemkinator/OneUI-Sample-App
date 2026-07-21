@@ -94,7 +94,11 @@ class SharedPreferenceDelegates(
     ): ReadWriteProperty<Any, Set<String>> =
         create(default, key, { k, d -> prefs.getStringSet(k, null) ?: d }, { k, v -> prefs.edit { putStringSet(k, v) } })
 
-    /** Delegate that reads/writes a [List]<[Int]> preference, stored as a comma-joined string. */
+    /**
+     * Delegate that reads/writes a [List]<[Int]> preference, stored as a comma-joined string. Writing [emptyList]
+     * is stored as `""`, which reads back as [default] rather than `[]` (see [parseIntList]) — safe for call sites
+     * whose default is itself empty, but a non-empty [default] will silently discard an empty-list write.
+     */
     fun intList(
         default: List<Int> = emptyList(),
         key: String? = null,
