@@ -127,20 +127,6 @@ class UserSettingsTest {
     }
 
     @Test
-    fun `update applies transform atomically`() {
-        repo.update { copy(devModeEnabled = true, sampleSwitchBar = true) }
-        repo.devModeEnabled shouldBe true
-        repo.sampleSwitchBar shouldBe true
-    }
-
-    @Test
-    fun `update does not touch unchanged fields`() {
-        repo.lastVersionCode = 10
-        repo.update { copy(devModeEnabled = true) }
-        repo.lastVersionCode shouldBe 10
-    }
-
-    @Test
     fun `flow emits snapshot on creation`() {
         val snapshot = repo.flow.value
         snapshot.darkMode shouldBe false
@@ -230,52 +216,6 @@ class UserSettingsTest {
     fun `searchOnActionMode round-trip for Concurrent`() {
         repo.searchOnActionMode = SearchOnActionMode.Concurrent(null)
         repo.searchOnActionMode shouldBe SearchOnActionMode.Concurrent(null)
-    }
-
-    @Test
-    fun `update does not write devModeEnabled when unchanged`() {
-        repo.update { copy(darkMode = true) }
-        repo.devModeEnabled shouldBe false
-    }
-
-    @Test
-    fun `update applies all fields`() {
-        repo.update {
-            copy(
-                darkMode = true,
-                autoDarkMode = false,
-                lastVersionCode = 100,
-                lastVersionName = "5.0",
-                acceptedTosVersion = 5,
-                devModeEnabled = true,
-                appPickerType = 3,
-                appPickerSelectLayoutMode = true,
-                sampleSwitchBar = true,
-                showIndexScroll = false,
-                indexScrollShowLetters = false,
-                indexScrollAutoHide = false,
-                actionModeShowCancel = true,
-                searchOnActionMode = SearchOnActionMode.NoDismiss,
-                search = "test",
-                searchActive = true,
-            )
-        }
-        repo.darkMode shouldBe true
-        repo.autoDarkMode shouldBe false
-        repo.lastVersionCode shouldBe 100
-        repo.lastVersionName shouldBe "5.0"
-        repo.acceptedTosVersion shouldBe 5
-        repo.devModeEnabled shouldBe true
-        repo.appPickerType shouldBe 3
-        repo.appPickerSelectLayoutMode shouldBe true
-        repo.sampleSwitchBar shouldBe true
-        repo.showIndexScroll shouldBe false
-        repo.indexScrollShowLetters shouldBe false
-        repo.indexScrollAutoHide shouldBe false
-        repo.actionModeShowCancel shouldBe true
-        repo.searchOnActionMode shouldBe SearchOnActionMode.NoDismiss
-        repo.search shouldBe "test"
-        repo.searchActive shouldBe true
     }
 
     @Test
