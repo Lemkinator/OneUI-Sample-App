@@ -16,6 +16,7 @@
 package de.lemke.oneuisample.data
 
 import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatDelegate
 import app.cash.turbine.test
 import de.lemke.oneuisample.freshTestPreferences
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
@@ -315,5 +316,28 @@ class UserSettingsTest {
         val validColor = 0xFF00FF00.toInt()
         prefs.edit().putString("recentColors", "abc,$validColor").apply()
         reload().recentColors shouldBe listOf(validColor)
+    }
+
+    @Test
+    fun `applyDarkMode with autoDarkMode true follows the system setting`() {
+        repo.autoDarkMode = true
+        repo.applyDarkMode()
+        AppCompatDelegate.getDefaultNightMode() shouldBe AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+    }
+
+    @Test
+    fun `applyDarkMode with autoDarkMode false and darkMode true forces night mode`() {
+        repo.autoDarkMode = false
+        repo.darkMode = true
+        repo.applyDarkMode()
+        AppCompatDelegate.getDefaultNightMode() shouldBe AppCompatDelegate.MODE_NIGHT_YES
+    }
+
+    @Test
+    fun `applyDarkMode with autoDarkMode false and darkMode false forces light mode`() {
+        repo.autoDarkMode = false
+        repo.darkMode = false
+        repo.applyDarkMode()
+        AppCompatDelegate.getDefaultNightMode() shouldBe AppCompatDelegate.MODE_NIGHT_NO
     }
 }
