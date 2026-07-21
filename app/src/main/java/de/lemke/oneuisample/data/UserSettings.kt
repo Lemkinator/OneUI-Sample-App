@@ -104,10 +104,17 @@ class UserSettings(
     /** Whether the search bar is currently active. */
     var searchActive: Boolean by preferences.delegates.boolean(false)
 
-    /** The most recently selected color in the color picker demo. */
+    /**
+     * The most recently selected color in the color picker demo. Deliberately absent from
+     * [UserSettingsSnapshot]/[flow] — [TabPickerFragment][de.lemke.oneuisample.ui.fragments.TabPickerFragment]
+     * is the only reader, and it reads this synchronously at dialog-creation time rather than observing it.
+     */
     var currentColor: Int by preferences.delegates.int(DEFAULT_COLOR)
 
-    /** The most recently used colors in the color picker demo, deduplicated and capped at [MAX_RECENT_COLORS]. */
+    /**
+     * The most recently used colors in the color picker demo, deduplicated and capped at [MAX_RECENT_COLORS].
+     * Excluded from [UserSettingsSnapshot]/[flow] for the same reason as [currentColor].
+     */
     var recentColors: List<Int> by preferences.delegates
         .intList(listOf(DEFAULT_COLOR))
         .sanitized { it.distinct().take(MAX_RECENT_COLORS) }
