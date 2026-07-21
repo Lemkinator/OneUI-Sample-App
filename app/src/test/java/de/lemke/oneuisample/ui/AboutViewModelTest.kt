@@ -15,22 +15,18 @@
  */
 package de.lemke.oneuisample.ui
 
-import de.lemke.oneuisample.data.FakeSharedPreferences
 import de.lemke.oneuisample.data.UserSettings
+import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class AboutViewModelTest : ShouldSpec(
     {
         lateinit var settings: UserSettings
         lateinit var viewModel: AboutViewModel
 
         beforeEach {
-            settings = UserSettings(FakeSharedPreferences(), CoroutineScope(UnconfinedTestDispatcher()))
+            settings = fakeUserSettings()
             viewModel = AboutViewModel(settings)
         }
 
