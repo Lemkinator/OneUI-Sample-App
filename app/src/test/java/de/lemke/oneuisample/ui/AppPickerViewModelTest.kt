@@ -15,28 +15,23 @@
  */
 package de.lemke.oneuisample.ui
 
+import de.lemke.oneuisample.data.FakeSharedPreferences
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsSnapshot
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AppPickerViewModelTest : ShouldSpec(
     {
-        val mockSettings = mockk<UserSettings>(relaxed = true)
-
+        lateinit var settings: UserSettings
         lateinit var viewModel: AppPickerViewModel
 
         beforeEach {
-            clearMocks(mockSettings)
-            every { mockSettings.flow } returns MutableStateFlow(UserSettingsSnapshot())
-            every { mockSettings.appPickerType } returns 0
-            every { mockSettings.appPickerSelectLayoutMode } returns false
-            viewModel = AppPickerViewModel(mockSettings)
+            settings = UserSettings(FakeSharedPreferences(), CoroutineScope(UnconfinedTestDispatcher()))
+            viewModel = AppPickerViewModel(settings)
         }
 
         should("initial state has pickerType = 0") {
@@ -44,28 +39,26 @@ class AppPickerViewModelTest : ShouldSpec(
         }
 
         should("initial state reflects settings appPickerType = 1") {
-            every { mockSettings.appPickerType } returns 1
-            every { mockSettings.flow } returns MutableStateFlow(UserSettingsSnapshot(appPickerType = 1))
-            val vm = AppPickerViewModel(mockSettings)
+            settings.appPickerType = 1
+            val vm = AppPickerViewModel(settings)
             vm.state.value shouldBe AppPickerUiState(pickerType = 1)
         }
 
         should("onPickerTypeChanged writes to settings") {
             viewModel.onPickerTypeChanged(2)
-            verify { mockSettings.appPickerType = 2 }
+            settings.appPickerType shouldBe 2
         }
 
         should("initial state reflects settings appPickerSelectLayoutMode = true") {
-            every { mockSettings.appPickerSelectLayoutMode } returns true
-            every { mockSettings.flow } returns MutableStateFlow(UserSettingsSnapshot(appPickerSelectLayoutMode = true))
-            val vm = AppPickerViewModel(mockSettings)
+            settings.appPickerSelectLayoutMode = true
+            val vm = AppPickerViewModel(settings)
             vm.state.value shouldBe AppPickerUiState(isSelectLayoutMode = true)
         }
 
         should("onSelectLayoutModeToggled flips settings value and returns the new value") {
-            every { mockSettings.appPickerSelectLayoutMode } returns false
+            settings.appPickerSelectLayoutMode = false
             viewModel.onSelectLayoutModeToggled() shouldBe true
-            verify { mockSettings.appPickerSelectLayoutMode = true }
+            settings.appPickerSelectLayoutMode shouldBe true
         }
     },
 )

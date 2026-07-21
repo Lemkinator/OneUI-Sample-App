@@ -15,27 +15,23 @@
  */
 package de.lemke.oneuisample.ui
 
+import de.lemke.oneuisample.data.FakeSharedPreferences
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsSnapshot
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class SwitchBarViewModelTest : ShouldSpec(
     {
-        val mockSettings = mockk<UserSettings>(relaxed = true)
-
+        lateinit var settings: UserSettings
         lateinit var viewModel: SwitchBarViewModel
 
         beforeEach {
-            clearMocks(mockSettings)
-            every { mockSettings.flow } returns MutableStateFlow(UserSettingsSnapshot())
-            every { mockSettings.sampleSwitchBar } returns false
-            viewModel = SwitchBarViewModel(mockSettings)
+            settings = UserSettings(FakeSharedPreferences(), CoroutineScope(UnconfinedTestDispatcher()))
+            viewModel = SwitchBarViewModel(settings)
         }
 
         should("initial state has enabled = false") {
@@ -43,20 +39,20 @@ class SwitchBarViewModelTest : ShouldSpec(
         }
 
         should("initial state reflects settings sampleSwitchBar = true") {
-            every { mockSettings.sampleSwitchBar } returns true
-            every { mockSettings.flow } returns MutableStateFlow(UserSettingsSnapshot(sampleSwitchBar = true))
-            val vm = SwitchBarViewModel(mockSettings)
+            settings.sampleSwitchBar = true
+            val vm = SwitchBarViewModel(settings)
             vm.state.value shouldBe SwitchBarUiState(enabled = true)
         }
 
         should("onSwitchChanged true writes to settings") {
             viewModel.onSwitchChanged(true)
-            verify { mockSettings.sampleSwitchBar = true }
+            settings.sampleSwitchBar shouldBe true
         }
 
         should("onSwitchChanged false writes to settings") {
+            settings.sampleSwitchBar = true
             viewModel.onSwitchChanged(false)
-            verify { mockSettings.sampleSwitchBar = false }
+            settings.sampleSwitchBar shouldBe false
         }
     },
 )

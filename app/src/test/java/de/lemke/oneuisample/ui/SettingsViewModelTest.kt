@@ -15,34 +15,26 @@
  */
 package de.lemke.oneuisample.ui
 
+import de.lemke.oneuisample.data.FakeSharedPreferences
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsSnapshot
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest : ShouldSpec(
     {
-        val mockSettings = mockk<UserSettings>(relaxed = true)
-        val settingsFlow = MutableStateFlow(UserSettingsSnapshot())
-
+        lateinit var settings: UserSettings
         lateinit var viewModel: SettingsViewModel
 
         beforeEach {
-            clearMocks(mockSettings)
-            every { mockSettings.flow } returns settingsFlow
-            // autoDarkMode defaults to true in UserSettingsSnapshot; relaxed mock returns false, so must stub explicitly.
-            // Other boolean properties (darkMode, devModeEnabled, sampleSwitchBar) default to false,
-            // and relaxed mock already returns false — no stubs needed.
-            every { mockSettings.autoDarkMode } returns true
-            viewModel = SettingsViewModel(mockSettings)
+            settings = UserSettings(FakeSharedPreferences(), CoroutineScope(UnconfinedTestDispatcher()))
+            viewModel = SettingsViewModel(settings)
         }
 
-        should("initial state matches repository defaults") {
+        should("initial state matches settings defaults") {
             viewModel.state.value shouldBe
                 SettingsUiState(
                     darkMode = false,
@@ -54,17 +46,17 @@ class SettingsViewModelTest : ShouldSpec(
 
         should("onDarkModeChanged writes to settings") {
             viewModel.onDarkModeChanged(true)
-            verify { mockSettings.darkMode = true }
+            settings.darkMode shouldBe true
         }
 
         should("onAutoDarkModeChanged writes to settings") {
             viewModel.onAutoDarkModeChanged(false)
-            verify { mockSettings.autoDarkMode = false }
+            settings.autoDarkMode shouldBe false
         }
 
         should("onSampleSwitchBarChanged writes to settings") {
             viewModel.onSampleSwitchBarChanged(true)
-            verify { mockSettings.sampleSwitchBar = true }
+            settings.sampleSwitchBar shouldBe true
         }
     },
 )

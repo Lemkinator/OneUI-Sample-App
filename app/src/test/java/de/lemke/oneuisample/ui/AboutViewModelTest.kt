@@ -15,28 +15,23 @@
  */
 package de.lemke.oneuisample.ui
 
+import de.lemke.oneuisample.data.FakeSharedPreferences
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsSnapshot
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AboutViewModelTest : ShouldSpec(
     {
-        val mockSettings = mockk<UserSettings>(relaxed = true)
-
+        lateinit var settings: UserSettings
         lateinit var viewModel: AboutViewModel
 
         beforeEach {
-            clearMocks(mockSettings)
-            every { mockSettings.flow } returns MutableStateFlow(UserSettingsSnapshot())
-            every { mockSettings.devModeEnabled } returns false
-            viewModel = AboutViewModel(mockSettings)
+            settings = UserSettings(FakeSharedPreferences(), CoroutineScope(UnconfinedTestDispatcher()))
+            viewModel = AboutViewModel(settings)
         }
 
         should("initial state has devModeEnabled = false") {
@@ -44,19 +39,16 @@ class AboutViewModelTest : ShouldSpec(
         }
 
         should("initial state reflects settings devModeEnabled = true") {
-            every { mockSettings.devModeEnabled } returns true
-            every { mockSettings.flow } returns MutableStateFlow(UserSettingsSnapshot(devModeEnabled = true))
-            val vm = AboutViewModel(mockSettings)
+            settings.devModeEnabled = true
+            val vm = AboutViewModel(settings)
             vm.state.value shouldBe AboutUiState(devModeEnabled = true)
         }
 
         should("onToggleDevMode toggles devModeEnabled via settings update") {
-            val transformSlot = slot<UserSettingsSnapshot.() -> UserSettingsSnapshot>()
-            every { mockSettings.update(capture(transformSlot)) } answers { }
             viewModel.onToggleDevMode()
-            verify(exactly = 1) { mockSettings.update(any()) }
-            UserSettingsSnapshot(devModeEnabled = false).run(transformSlot.captured).devModeEnabled shouldBe true
-            UserSettingsSnapshot(devModeEnabled = true).run(transformSlot.captured).devModeEnabled shouldBe false
+            settings.devModeEnabled shouldBe true
+            viewModel.onToggleDevMode()
+            settings.devModeEnabled shouldBe false
         }
     },
 )
