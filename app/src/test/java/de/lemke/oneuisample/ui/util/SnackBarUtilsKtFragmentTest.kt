@@ -16,7 +16,6 @@
 package de.lemke.oneuisample.ui.util
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import android.view.View
@@ -32,6 +31,7 @@ import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.MainActivity
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -49,11 +49,14 @@ class SnackBarUtilsKtFragmentTest {
     val hiltRule = HiltAndroidRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
-    private val prefs get() = context.getSharedPreferences(UserSettings.PREFS_NAME, Context.MODE_PRIVATE)
+
+    @Inject
+    lateinit var userSettings: UserSettings
 
     @Before
     fun setup() {
-        prefs.bypassOobe()
+        hiltRule.inject()
+        userSettings.bypassOobe()
     }
 
     private fun withFragment(block: (androidx.fragment.app.Fragment) -> Unit) {

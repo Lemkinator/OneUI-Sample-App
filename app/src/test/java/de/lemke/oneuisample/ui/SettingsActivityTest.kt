@@ -15,7 +15,6 @@
  */
 package de.lemke.oneuisample.ui
 
-import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import androidx.lifecycle.Lifecycle
@@ -30,6 +29,8 @@ import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
 import io.kotest.matchers.shouldBe
+import javax.inject.Inject
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +47,15 @@ class SettingsActivityTest {
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
 
+    @Inject
+    lateinit var userSettings: UserSettings
+
     private val context get() = ApplicationProvider.getApplicationContext<android.app.Application>()
+
+    @Before
+    fun setup() {
+        hiltRule.inject()
+    }
 
     private fun launch(block: SettingsActivity.SettingsFragment.() -> Unit = {}) {
         ActivityScenario.launch<SettingsActivity>(Intent(context, SettingsActivity::class.java)).use { scenario ->
@@ -117,11 +126,7 @@ class SettingsActivityTest {
 
     @Test
     fun autoDarkModePref_newValue_false_withDarkModeEnabled_restoresNightMode() {
-        context
-            .getSharedPreferences(UserSettings.PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString("darkMode", "1")
-            .commit()
+        userSettings.darkMode = true
         launch {
             findPreference<androidx.preference.SwitchPreferenceCompat>("dark_mode_auto_pref")
                 ?.callChangeListener(false)

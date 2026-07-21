@@ -16,7 +16,6 @@
 package de.lemke.oneuisample.ui
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import androidx.appcompat.widget.SeslSwitchBar
@@ -32,6 +31,7 @@ import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.fragments.SubtabWidgetsFragment
 import de.lemke.oneuisample.ui.fragments.TabDesignFragment
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,11 +50,14 @@ class SubtabWidgetsFragmentTest {
     val hiltRule = HiltAndroidRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
-    private val prefs get() = context.getSharedPreferences(UserSettings.PREFS_NAME, Context.MODE_PRIVATE)
+
+    @Inject
+    lateinit var userSettings: UserSettings
 
     @Before
     fun setup() {
-        prefs.bypassOobe()
+        hiltRule.inject()
+        userSettings.bypassOobe()
     }
 
     private fun withFragment(block: SubtabWidgetsFragment.() -> Unit) {

@@ -17,7 +17,6 @@ package de.lemke.oneuisample.ui
 
 import android.app.Application
 import android.app.Dialog
-import android.content.Context
 import android.os.Looper
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
@@ -30,6 +29,7 @@ import de.lemke.oneuisample.ui.fragments.SubtabProgressBarFragment
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -49,11 +49,14 @@ class SubtabProgressBarFragmentTest {
     val hiltRule = HiltAndroidRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
-    private val prefs get() = context.getSharedPreferences(UserSettings.PREFS_NAME, Context.MODE_PRIVATE)
+
+    @Inject
+    lateinit var userSettings: UserSettings
 
     @Before
     fun setup() {
-        prefs.bypassOobe()
+        hiltRule.inject()
+        userSettings.bypassOobe()
     }
 
     private fun withFragment(block: SubtabProgressBarFragment.() -> Unit) =

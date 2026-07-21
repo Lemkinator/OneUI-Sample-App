@@ -15,7 +15,6 @@
  */
 package de.lemke.oneuisample.ui
 
-import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
@@ -33,6 +32,7 @@ import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
+import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -51,14 +51,14 @@ class MainActivityScreenshotTest {
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
 
+    @Inject
+    lateinit var userSettings: UserSettings
+
     @Before
     fun setup() {
         hiltRule.inject()
         setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
-        ApplicationProvider
-            .getApplicationContext<HiltTestApplication>()
-            .getSharedPreferences(UserSettings.PREFS_NAME, Context.MODE_PRIVATE)
-            .bypassOobe()
+        userSettings.bypassOobe()
     }
 
     private fun captureMainScreenshot(

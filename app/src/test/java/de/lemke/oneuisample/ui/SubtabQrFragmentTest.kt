@@ -16,7 +16,6 @@
 package de.lemke.oneuisample.ui
 
 import android.app.Application
-import android.content.Context
 import android.content.DialogInterface.BUTTON_NEUTRAL
 import android.content.pm.PackageManager
 import android.os.Looper
@@ -35,6 +34,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
+import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -54,11 +54,14 @@ class SubtabQrFragmentTest {
     val hiltRule = HiltAndroidRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
-    private val prefs get() = context.getSharedPreferences(UserSettings.PREFS_NAME, Context.MODE_PRIVATE)
+
+    @Inject
+    lateinit var userSettings: UserSettings
 
     @Before
     fun setup() {
-        prefs.bypassOobe()
+        hiltRule.inject()
+        userSettings.bypassOobe()
     }
 
     private fun withFragment(block: SubtabQrFragment.() -> Unit) = withDesignSubtabFragment(context, QR_SUBTAB_INDEX, block)

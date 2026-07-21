@@ -15,7 +15,6 @@
  */
 package de.lemke.oneuisample.ui
 
-import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import androidx.test.core.app.ActivityScenario
@@ -26,6 +25,8 @@ import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.data.UserSettings
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import javax.inject.Inject
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,8 +43,15 @@ class SwitchBarActivityTest {
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
 
+    @Inject
+    lateinit var userSettings: UserSettings
+
     private val context get() = ApplicationProvider.getApplicationContext<android.app.Application>()
-    private val prefs get() = context.getSharedPreferences(UserSettings.PREFS_NAME, Context.MODE_PRIVATE)
+
+    @Before
+    fun setup() {
+        hiltRule.inject()
+    }
 
     private fun launch(block: SwitchBarActivity.() -> Unit = {}) {
         ActivityScenario.launch<SwitchBarActivity>(Intent(context, SwitchBarActivity::class.java)).use { scenario ->
@@ -56,21 +64,21 @@ class SwitchBarActivityTest {
 
     @Test
     fun onSwitchChanged_true_updatesViewModel() {
-        prefs.edit().putBoolean("sampleSwitchBar", false).commit()
+        userSettings.sampleSwitchBar = false
         launch {
             onSwitchChanged(mockk(relaxed = true), true)
         }
         // onSwitchChanged → viewModel.onSwitchChanged(true) → userSettings.sampleSwitchBar = true
-        prefs.getBoolean("sampleSwitchBar", false) shouldBe true
+        userSettings.sampleSwitchBar shouldBe true
     }
 
     @Test
     fun onSwitchChanged_false_updatesViewModel() {
         // Pre-set to true so toggling to false produces a meaningful observable change
-        prefs.edit().putBoolean("sampleSwitchBar", true).commit()
+        userSettings.sampleSwitchBar = true
         launch {
             onSwitchChanged(mockk(relaxed = true), false)
         }
-        prefs.getBoolean("sampleSwitchBar", true) shouldBe false
+        userSettings.sampleSwitchBar shouldBe false
     }
 }
