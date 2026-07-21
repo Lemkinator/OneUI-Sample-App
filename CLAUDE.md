@@ -38,8 +38,8 @@ Release signing properties (`releaseStoreFile`, `releaseStorePassword`, `release
 Single-module (`:app`) Android app demonstrating OneUI-Design components. Layered architecture (data/domain/ui):
 
 - **`data/`** - `UserSettings`: SharedPreferences-backed store for user settings. Exposes per-field property delegates and a
-  `StateFlow<UserSettingsSnapshot>`. Multi-field batch updates via `userSettings.update { copy(field = value) }` (synchronized). Single-field
-  writes assign directly: `userSettings.search = "query"`.
+  `StateFlow<UserSettingsSnapshot>`. All writes assign directly, single- or multi-field: `userSettings.search = "query"`. No batch write
+  API — `SharedPreferences` already skips no-op writes for unchanged keys, and no consumer needs atomic multi-field emission.
 - **`domain/`** - Use cases with `operator fun invoke()`. Suspend use cases (e.g. `CompleteOnboardingUseCase`) switch to
   `Dispatchers.Default`; flow-based use cases (e.g. `ObserveIconListUseCase`) return a `Flow` directly.
 - **`ui/`** - Activities for settings/about/OOBE/pickers; Fragments for main tabs (`TabDesign`, `TabIcons`, `TabPicker`) with nested subtabs
