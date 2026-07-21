@@ -18,13 +18,12 @@ package de.lemke.oneuisample.domain
 import android.content.Context
 import android.content.res.Resources
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.FakeSharedPreferences
 import de.lemke.oneuisample.data.UserSettings
+import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
@@ -39,7 +38,7 @@ class CompleteOnboardingUseCaseTest : ShouldSpec(
         beforeEach {
             mockContext = mockk()
             mockResources = mockk()
-            settings = UserSettings(FakeSharedPreferences(), CoroutineScope(UnconfinedTestDispatcher()))
+            settings = fakeUserSettings()
             useCase = CompleteOnboardingUseCase(mockContext, settings, UnconfinedTestDispatcher())
             every { mockContext.resources } returns mockResources
             every { mockResources.getInteger(R.integer.tos_version) } returns 2
