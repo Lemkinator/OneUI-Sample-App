@@ -79,10 +79,11 @@ Tests never mock settings — every test uses the real `UserSettings` over an is
   source sets (not `testFixtures`; Hilt's kapt/ksp aggregation silently skips a `@TestInstallIn` module declared in `testFixtures` for the
   Robolectric side) — provides `UserSettings(freshTestPreferences(context), CoroutineScope(SupervisorJob() + Dispatchers.Default))`,
   replacing `PersistenceModule`.
-- **Pure-JVM specs** (the ViewModelTests, no Context available) use a real `UserSettings(FakeSharedPreferences(),
-  CoroutineScope(UnconfinedTestDispatcher()))` — `FakeSharedPreferences` fires `OnSharedPreferenceChangeListener` correctly, so `.flow`
-  behaves like the real thing; the dispatcher must be unconfined so `SharingStarted.Eagerly` propagates synchronously (avoids the
-  `StandardTestDispatcher`-queues-without-running flake `.state.value` reads are otherwise exposed to).
+- **Pure-JVM specs** (the ViewModelTests, no Context available) use `fakeUserSettings()` (`app/src/testFixtures`) — a real
+  `UserSettings(FakeSharedPreferences(), CoroutineScope(UnconfinedTestDispatcher()))` — `FakeSharedPreferences` fires
+  `OnSharedPreferenceChangeListener` correctly, so `.flow` behaves like the real thing; the dispatcher must be unconfined so
+  `SharingStarted.Eagerly` propagates synchronously (avoids the `StandardTestDispatcher`-queues-without-running flake `.state.value` reads
+  are otherwise exposed to).
 - **`freshTestPreferences()`** (`app/src/testFixtures`) returns a UUID-named `SharedPreferences` file, fresh by construction — never a
   fixed name or `.edit().clear()`.
 - **`UserSettings.bypassOobe()`** (`app/src/testFixtures`) sets `lastVersionCode`/`acceptedTosVersion` to `Int.MAX_VALUE` so
