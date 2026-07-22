@@ -27,7 +27,8 @@ import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.bypassOobe
+import de.lemke.oneuisample.data.UserSettings
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import java.util.concurrent.CountDownLatch
@@ -46,15 +47,14 @@ class MainActivityTest {
     val hiltRule = HiltAndroidRule(this)
 
     @Inject
-    lateinit var userSettings: UserSettingsRepository
+    lateinit var userSettings: UserSettings
 
     @Before
     fun setUp() {
         hiltRule.inject()
         // Ensure shouldShowOOBE=false on fresh emulators (SharedPreferences defaults to
         // lastVersionCode=-1 which triggers OOBEActivity, blocking HiltAndroidRule.after()).
-        userSettings.lastVersionCode = Int.MAX_VALUE
-        userSettings.acceptedTosVersion = Int.MAX_VALUE
+        userSettings.bypassOobe()
     }
 
     @Test

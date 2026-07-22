@@ -15,57 +15,66 @@
  */
 package de.lemke.oneuisample.ui
 
+import app.cash.turbine.test
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AppPickerViewModelTest : ShouldSpec(
     {
-        val mockRepo = mockk<UserSettingsRepository>(relaxed = true)
-
+        lateinit var settings: UserSettings
         lateinit var viewModel: AppPickerViewModel
 
         beforeEach {
-            clearMocks(mockRepo)
-            every { mockRepo.flow } returns MutableStateFlow(UserSettings())
-            every { mockRepo.appPickerType } returns 0
-            every { mockRepo.appPickerSelectLayoutMode } returns false
-            viewModel = AppPickerViewModel(mockRepo)
+            Dispatchers.setMain(UnconfinedTestDispatcher())
+            settings = fakeUserSettings()
+            viewModel = AppPickerViewModel(settings)
+        }
+
+        afterEach {
+            Dispatchers.resetMain()
         }
 
         should("initial state has pickerType = 0") {
             viewModel.state.value shouldBe AppPickerUiState(pickerType = 0)
         }
 
-        should("initial state reflects repository appPickerType = 1") {
-            every { mockRepo.appPickerType } returns 1
-            every { mockRepo.flow } returns MutableStateFlow(UserSettings(appPickerType = 1))
-            val vm = AppPickerViewModel(mockRepo)
+        should("initial state reflects settings appPickerType = 1") {
+            settings.appPickerType = 1
+            val vm = AppPickerViewModel(settings)
             vm.state.value shouldBe AppPickerUiState(pickerType = 1)
         }
 
-        should("onPickerTypeChanged writes to repository") {
-            viewModel.onPickerTypeChanged(2)
-            verify { mockRepo.appPickerType = 2 }
+        should("onPickerTypeChanged writes to settings") {
+            viewModel.state.test {
+                awaitItem() shouldBe AppPickerUiState(pickerType = 0)
+                viewModel.onPickerTypeChanged(2)
+                settings.appPickerType shouldBe 2
+                awaitItem() shouldBe AppPickerUiState(pickerType = 2)
+            }
         }
 
-        should("initial state reflects repository appPickerSelectLayoutMode = true") {
-            every { mockRepo.appPickerSelectLayoutMode } returns true
-            every { mockRepo.flow } returns MutableStateFlow(UserSettings(appPickerSelectLayoutMode = true))
-            val vm = AppPickerViewModel(mockRepo)
+        should("initial state reflects settings appPickerSelectLayoutMode = true") {
+            settings.appPickerSelectLayoutMode = true
+            val vm = AppPickerViewModel(settings)
             vm.state.value shouldBe AppPickerUiState(isSelectLayoutMode = true)
         }
 
-        should("onSelectLayoutModeToggled flips repository value and returns the new value") {
-            every { mockRepo.appPickerSelectLayoutMode } returns false
-            viewModel.onSelectLayoutModeToggled() shouldBe true
-            verify { mockRepo.appPickerSelectLayoutMode = true }
+        should("onSelectLayoutModeToggled flips settings value and returns the new value") {
+            settings.appPickerSelectLayoutMode = false
+            viewModel.state.test {
+                awaitItem() shouldBe AppPickerUiState(isSelectLayoutMode = false)
+                viewModel.onSelectLayoutModeToggled() shouldBe true
+                settings.appPickerSelectLayoutMode shouldBe true
+                awaitItem() shouldBe AppPickerUiState(isSelectLayoutMode = true)
+            }
         }
     },
 )

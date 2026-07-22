@@ -15,14 +15,12 @@
  */
 package de.lemke.oneuisample.ui.fragments
 
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.View.VISIBLE
-import android.view.inputmethod.InputMethodManager
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AlertDialog
@@ -41,7 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettingsSnapshot
 import de.lemke.oneuisample.data.withListener
 import de.lemke.oneuisample.databinding.DialogSettingsBinding
 import de.lemke.oneuisample.databinding.FragmentTabIconsBinding
@@ -52,6 +50,7 @@ import de.lemke.oneuisample.ui.util.IconAdapter
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.launchAndRepeatWithViewLifecycle
 import de.lemke.oneuisample.ui.util.play
+import de.lemke.oneuisample.ui.util.showSoftInput
 import de.lemke.oneuisample.ui.util.showTipPopup
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
@@ -97,7 +96,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     lateinit var observeIconList: ObserveIconListUseCase
 
     @Inject
-    lateinit var userSettings: UserSettingsRepository
+    lateinit var userSettings: UserSettings
 
     val searchModeListener: ToolbarLayout.SearchModeListener by autoCleared {
         object : ToolbarLayout.SearchModeListener {
@@ -119,7 +118,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                 userSettings.searchActive = isActive
                 if (isActive) {
                     searchView.setQuery(userSettings.search, false)
-                    (requireActivity().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).showSoftInput(searchView, 0)
+                    searchView.showSoftInput()
                     searchView.seslSetOverflowMenuButtonIcon(
                         AppCompatResources.getDrawable(requireContext(), iconsR.drawable.ic_oui_list_filter),
                     )
@@ -240,7 +239,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
-    internal fun applyUserSettings(settings: UserSettings) {
+    internal fun applyUserSettings(settings: UserSettingsSnapshot) {
         binding.iconList.seslSetFastScrollerEnabled(!settings.showIndexScroll)
         binding.iconIndexScroll.isVisible = settings.showIndexScroll
         binding.iconIndexScroll.setIndexBarTextMode(settings.indexScrollShowLetters)
@@ -409,20 +408,16 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         indexScrollAutoHide: Boolean,
         checkedSearchOnActionModeId: Int,
     ) {
-        userSettings.update {
-            copy(
-                actionModeShowCancel = actionModeShowCancel,
-                showIndexScroll = showIndexScroll,
-                indexScrollShowLetters = indexScrollShowLetters,
-                indexScrollAutoHide = indexScrollAutoHide,
-                searchOnActionMode =
-                    when (checkedSearchOnActionModeId) {
-                        R.id.amsDismiss -> ToolbarLayout.SearchOnActionMode.Dismiss
-                        R.id.amsNoDismiss -> ToolbarLayout.SearchOnActionMode.NoDismiss
-                        else -> ToolbarLayout.SearchOnActionMode.Concurrent(null)
-                    },
-            )
-        }
+        userSettings.actionModeShowCancel = actionModeShowCancel
+        userSettings.showIndexScroll = showIndexScroll
+        userSettings.indexScrollShowLetters = indexScrollShowLetters
+        userSettings.indexScrollAutoHide = indexScrollAutoHide
+        userSettings.searchOnActionMode =
+            when (checkedSearchOnActionModeId) {
+                R.id.amsDismiss -> ToolbarLayout.SearchOnActionMode.Dismiss
+                R.id.amsNoDismiss -> ToolbarLayout.SearchOnActionMode.NoDismiss
+                else -> ToolbarLayout.SearchOnActionMode.Concurrent(null)
+            }
     }
 
     @VisibleForTesting(otherwise = PRIVATE)

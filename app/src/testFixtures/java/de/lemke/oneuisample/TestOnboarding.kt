@@ -15,11 +15,13 @@
  */
 package de.lemke.oneuisample
 
-import android.app.Application
-import dagger.hilt.android.testing.CustomTestApplication
+import de.lemke.oneuisample.data.UserSettings
 
-open class TestApp : Application()
-
-@Suppress("unused") // KSP generates TestApplication_Application from this annotation target
-@CustomTestApplication(TestApp::class)
-interface TestApplication
+/**
+ * Sets lastVersionCode and acceptedTosVersion to Int.MAX_VALUE so onboardIfNeeded()
+ * never redirects to OOBE in tests — no real version code will ever reach MAX_VALUE.
+ */
+fun UserSettings.bypassOobe() {
+    lastVersionCode = Int.MAX_VALUE
+    acceptedTosVersion = Int.MAX_VALUE
+}

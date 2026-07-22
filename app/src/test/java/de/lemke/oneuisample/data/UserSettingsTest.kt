@@ -15,11 +15,10 @@
  */
 package de.lemke.oneuisample.data
 
-import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
-import androidx.test.core.app.ApplicationProvider
+import androidx.appcompat.app.AppCompatDelegate
 import app.cash.turbine.test
+import de.lemke.oneuisample.freshTestPreferences
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CoroutineScope
@@ -39,23 +38,21 @@ import org.robolectric.annotation.Config
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
-class UserSettingsRepositoryTest {
+class UserSettingsTest {
     private lateinit var repoScope: CoroutineScope
     private lateinit var testScope: TestScope
     private lateinit var prefs: SharedPreferences
-    private lateinit var repo: UserSettingsRepository
+    private lateinit var repo: UserSettings
+
+    private fun reload() = UserSettings(prefs, repoScope)
 
     @Before
     fun setup() {
         val dispatcher = UnconfinedTestDispatcher()
         repoScope = CoroutineScope(dispatcher + SupervisorJob())
         testScope = TestScope(dispatcher)
-        prefs =
-            ApplicationProvider
-                .getApplicationContext<Application>()
-                .getSharedPreferences("test_user_settings", Context.MODE_PRIVATE)
-        prefs.edit().clear().commit()
-        repo = UserSettingsRepository(prefs, repoScope)
+        prefs = freshTestPreferences()
+        repo = UserSettings(prefs, repoScope)
     }
 
     @After
@@ -75,6 +72,8 @@ class UserSettingsRepositoryTest {
         repo.appPickerType shouldBe 0
         repo.appPickerSelectLayoutMode shouldBe false
         repo.sampleSwitchBar shouldBe false
+        repo.currentColor shouldBe UserSettings.DEFAULT_COLOR
+        repo.recentColors shouldBe listOf(UserSettings.DEFAULT_COLOR)
     }
 
     @Test
@@ -125,20 +124,6 @@ class UserSettingsRepositoryTest {
     fun `searchOnActionMode round-trip for Dismiss`() {
         repo.searchOnActionMode = SearchOnActionMode.Dismiss
         repo.searchOnActionMode shouldBe SearchOnActionMode.Dismiss
-    }
-
-    @Test
-    fun `update applies transform atomically`() {
-        repo.update { copy(devModeEnabled = true, sampleSwitchBar = true) }
-        repo.devModeEnabled shouldBe true
-        repo.sampleSwitchBar shouldBe true
-    }
-
-    @Test
-    fun `update does not touch unchanged fields`() {
-        repo.lastVersionCode = 10
-        repo.update { copy(devModeEnabled = true) }
-        repo.lastVersionCode shouldBe 10
     }
 
     @Test
@@ -234,48 +219,65 @@ class UserSettingsRepositoryTest {
     }
 
     @Test
-    fun `update does not write devModeEnabled when unchanged`() {
-        repo.update { copy(darkMode = true) }
-        repo.devModeEnabled shouldBe false
+    fun `currentColor round-trips a value`() {
+        repo.currentColor = 0xFF00FF00.toInt()
+        reload().currentColor shouldBe 0xFF00FF00.toInt()
     }
 
     @Test
-    fun `update applies all fields`() {
-        repo.update {
-            copy(
-                darkMode = true,
-                autoDarkMode = false,
-                lastVersionCode = 100,
-                lastVersionName = "5.0",
-                acceptedTosVersion = 5,
-                devModeEnabled = true,
-                appPickerType = 3,
-                appPickerSelectLayoutMode = true,
-                sampleSwitchBar = true,
-                showIndexScroll = false,
-                indexScrollShowLetters = false,
-                indexScrollAutoHide = false,
-                actionModeShowCancel = true,
-                searchOnActionMode = SearchOnActionMode.NoDismiss,
-                search = "test",
-                searchActive = true,
-            )
-        }
-        repo.darkMode shouldBe true
-        repo.autoDarkMode shouldBe false
-        repo.lastVersionCode shouldBe 100
-        repo.lastVersionName shouldBe "5.0"
-        repo.acceptedTosVersion shouldBe 5
-        repo.devModeEnabled shouldBe true
-        repo.appPickerType shouldBe 3
-        repo.appPickerSelectLayoutMode shouldBe true
-        repo.sampleSwitchBar shouldBe true
-        repo.showIndexScroll shouldBe false
-        repo.indexScrollShowLetters shouldBe false
-        repo.indexScrollAutoHide shouldBe false
-        repo.actionModeShowCancel shouldBe true
-        repo.searchOnActionMode shouldBe SearchOnActionMode.NoDismiss
-        repo.search shouldBe "test"
-        repo.searchActive shouldBe true
+    fun `recentColors round-trips`() {
+        val colors = listOf(0xFF0000FF.toInt(), 0xFF00FF00.toInt())
+        repo.recentColors = colors
+        reload().recentColors shouldBe colors
+    }
+
+    @Test
+    fun `recentColors deduplicates written values`() {
+        val color = 0xFF0000FF.toInt()
+        repo.recentColors = listOf(color, color, color)
+        repo.recentColors shouldBe listOf(color)
+    }
+
+    @Test
+    fun `recentColors caps to MAX_RECENT_COLORS when more are written`() {
+        val colors = (1..UserSettings.MAX_RECENT_COLORS + 1).map { 0xFF000000.toInt() + it }
+        repo.recentColors = colors
+        reload().recentColors.size shouldBe UserSettings.MAX_RECENT_COLORS
+    }
+
+    @Test
+    fun `recentColors falls back to default when stored string is all-invalid`() {
+        prefs.edit().putString("recentColors", "abc,,xyz").apply()
+        reload().recentColors shouldBe listOf(UserSettings.DEFAULT_COLOR)
+    }
+
+    @Test
+    fun `recentColors keeps only valid integers from mixed stored input`() {
+        val validColor = 0xFF00FF00.toInt()
+        prefs.edit().putString("recentColors", "abc,$validColor").apply()
+        reload().recentColors shouldBe listOf(validColor)
+    }
+
+    @Test
+    fun `applyDarkMode with autoDarkMode true follows the system setting`() {
+        repo.autoDarkMode = true
+        repo.applyDarkMode()
+        AppCompatDelegate.getDefaultNightMode() shouldBe AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+    }
+
+    @Test
+    fun `applyDarkMode with autoDarkMode false and darkMode true forces night mode`() {
+        repo.autoDarkMode = false
+        repo.darkMode = true
+        repo.applyDarkMode()
+        AppCompatDelegate.getDefaultNightMode() shouldBe AppCompatDelegate.MODE_NIGHT_YES
+    }
+
+    @Test
+    fun `applyDarkMode with autoDarkMode false and darkMode false forces light mode`() {
+        repo.autoDarkMode = false
+        repo.darkMode = false
+        repo.applyDarkMode()
+        AppCompatDelegate.getDefaultNightMode() shouldBe AppCompatDelegate.MODE_NIGHT_NO
     }
 }

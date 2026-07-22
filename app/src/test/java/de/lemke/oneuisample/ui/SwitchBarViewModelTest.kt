@@ -15,48 +15,60 @@
  */
 package de.lemke.oneuisample.ui
 
+import app.cash.turbine.test
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class SwitchBarViewModelTest : ShouldSpec(
     {
-        val mockRepo = mockk<UserSettingsRepository>(relaxed = true)
-
+        lateinit var settings: UserSettings
         lateinit var viewModel: SwitchBarViewModel
 
         beforeEach {
-            clearMocks(mockRepo)
-            every { mockRepo.flow } returns MutableStateFlow(UserSettings())
-            every { mockRepo.sampleSwitchBar } returns false
-            viewModel = SwitchBarViewModel(mockRepo)
+            Dispatchers.setMain(UnconfinedTestDispatcher())
+            settings = fakeUserSettings()
+            viewModel = SwitchBarViewModel(settings)
+        }
+
+        afterEach {
+            Dispatchers.resetMain()
         }
 
         should("initial state has enabled = false") {
             viewModel.state.value shouldBe SwitchBarUiState(enabled = false)
         }
 
-        should("initial state reflects repository sampleSwitchBar = true") {
-            every { mockRepo.sampleSwitchBar } returns true
-            every { mockRepo.flow } returns MutableStateFlow(UserSettings(sampleSwitchBar = true))
-            val vm = SwitchBarViewModel(mockRepo)
+        should("initial state reflects settings sampleSwitchBar = true") {
+            settings.sampleSwitchBar = true
+            val vm = SwitchBarViewModel(settings)
             vm.state.value shouldBe SwitchBarUiState(enabled = true)
         }
 
-        should("onSwitchChanged true writes to repository") {
-            viewModel.onSwitchChanged(true)
-            verify { mockRepo.sampleSwitchBar = true }
+        should("onSwitchChanged true writes to settings") {
+            viewModel.state.test {
+                awaitItem() shouldBe SwitchBarUiState(enabled = false)
+                viewModel.onSwitchChanged(true)
+                settings.sampleSwitchBar shouldBe true
+                awaitItem() shouldBe SwitchBarUiState(enabled = true)
+            }
         }
 
-        should("onSwitchChanged false writes to repository") {
-            viewModel.onSwitchChanged(false)
-            verify { mockRepo.sampleSwitchBar = false }
+        should("onSwitchChanged false writes to settings") {
+            settings.sampleSwitchBar = true
+            viewModel.state.test {
+                awaitItem() shouldBe SwitchBarUiState(enabled = true)
+                viewModel.onSwitchChanged(false)
+                settings.sampleSwitchBar shouldBe false
+                awaitItem() shouldBe SwitchBarUiState(enabled = false)
+            }
         }
     },
 )

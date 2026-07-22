@@ -15,12 +15,15 @@
  */
 package de.lemke.oneuisample
 
+import android.content.Context
 import android.content.SharedPreferences
-import de.lemke.oneuisample.data.UserSettingsRepository
+import androidx.test.core.app.ApplicationProvider
+import java.util.UUID
 
-fun SharedPreferences.bypassOobe() {
-    edit()
-        .putInt(UserSettingsRepository::lastVersionCode.name, Int.MAX_VALUE)
-        .putInt(UserSettingsRepository::acceptedTosVersion.name, Int.MAX_VALUE)
-        .commit()
-}
+/**
+ * Returns a [SharedPreferences] instance backed by a UUID-named file, fresh by construction:
+ * no manual `.edit().clear()`, no caller-supplied names, no collision risk on a reused device.
+ * The only canonical way to get a settings-backed store in a test.
+ */
+fun freshTestPreferences(context: Context = ApplicationProvider.getApplicationContext()): SharedPreferences =
+    context.getSharedPreferences("test_${UUID.randomUUID()}", Context.MODE_PRIVATE)

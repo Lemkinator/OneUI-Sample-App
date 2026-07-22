@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.lemke.oneuisample
+package de.lemke.oneuisample.data
 
-import android.app.Application
-import dagger.hilt.android.testing.CustomTestApplication
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
-open class TestApp : Application()
-
-@Suppress("unused") // KSP generates TestApplication_Application from this annotation target
-@CustomTestApplication(TestApp::class)
-interface TestApplication
+/**
+ * Real [UserSettings] over a [FakeSharedPreferences], for pure-JVM specs with no Context
+ * (Hilt/Robolectric structurally unavailable). The dispatcher must be unconfined so
+ * SharingStarted.Eagerly propagates synchronously.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+fun fakeUserSettings(): UserSettings = UserSettings(FakeSharedPreferences(), CoroutineScope(UnconfinedTestDispatcher()))

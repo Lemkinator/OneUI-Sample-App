@@ -19,12 +19,11 @@ import android.content.Context
 import android.content.res.Resources
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
@@ -33,46 +32,31 @@ class CompleteOnboardingUseCaseTest : ShouldSpec(
     {
         lateinit var mockContext: Context
         lateinit var mockResources: Resources
-        lateinit var mockRepo: UserSettingsRepository
+        lateinit var settings: UserSettings
         lateinit var useCase: CompleteOnboardingUseCase
 
         beforeEach {
             mockContext = mockk()
             mockResources = mockk()
-            mockRepo = mockk(relaxed = true)
-            useCase = CompleteOnboardingUseCase(mockContext, mockRepo, UnconfinedTestDispatcher())
+            settings = fakeUserSettings()
+            useCase = CompleteOnboardingUseCase(mockContext, settings, UnconfinedTestDispatcher())
             every { mockContext.resources } returns mockResources
             every { mockResources.getInteger(R.integer.tos_version) } returns 2
         }
 
         should("update acceptedTosVersion to tos_version resource value") {
-            val transformSlot = slot<UserSettings.() -> UserSettings>()
-            every { mockRepo.update(capture(transformSlot)) } answers { }
-
             useCase(versionCode = 10, versionName = "1.0")
-
-            val result = UserSettings(acceptedTosVersion = -1).run(transformSlot.captured)
-            result.acceptedTosVersion shouldBe 2
+            settings.acceptedTosVersion shouldBe 2
         }
 
         should("update lastVersionCode to provided versionCode") {
-            val transformSlot = slot<UserSettings.() -> UserSettings>()
-            every { mockRepo.update(capture(transformSlot)) } answers { }
-
             useCase(versionCode = 7, versionName = "2.0")
-
-            val result = UserSettings().run(transformSlot.captured)
-            result.lastVersionCode shouldBe 7
+            settings.lastVersionCode shouldBe 7
         }
 
         should("update lastVersionName to provided versionName") {
-            val transformSlot = slot<UserSettings.() -> UserSettings>()
-            every { mockRepo.update(capture(transformSlot)) } answers { }
-
             useCase(versionCode = 1, versionName = "3.1.4")
-
-            val result = UserSettings().run(transformSlot.captured)
-            result.lastVersionName shouldBe "3.1.4"
+            settings.lastVersionName shouldBe "3.1.4"
         }
     },
 )

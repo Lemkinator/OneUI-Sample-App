@@ -19,7 +19,7 @@ import android.content.Context
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.lemke.oneuisample.NoCoverage
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.search
 import de.lemke.oneuisample.data.searchActive
 import javax.inject.Inject
@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Singleton
 class ObserveIconListUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val userSettings: UserSettingsRepository,
+    private val userSettings: UserSettings,
 ) {
     val iconsId = loadIcons()
 

@@ -16,6 +16,10 @@
 package de.lemke.oneuisample.data
 
 import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +32,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-data class UserSettings(
+data class UserSettingsSnapshot(
     val darkMode: Boolean = false,
     val autoDarkMode: Boolean = true,
     val lastVersionCode: Int = -1,
@@ -48,7 +52,7 @@ data class UserSettings(
 )
 
 /** SharedPreferences-backed repository for user settings. */
-class UserSettingsRepository(
+class UserSettings(
     private val preferences: SharedPreferences,
     scope: CoroutineScope,
 ) {
@@ -101,13 +105,28 @@ class UserSettingsRepository(
     var searchActive: Boolean by preferences.delegates.boolean(false)
 
     /**
-     * A [StateFlow] of the current [UserSettings] snapshot.
+     * The most recently selected color in the color picker demo. Deliberately absent from
+     * [UserSettingsSnapshot]/[flow] — [TabPickerFragment][de.lemke.oneuisample.ui.fragments.TabPickerFragment]
+     * is the only reader, and it reads this synchronously at dialog-creation time rather than observing it.
+     */
+    var currentColor: Int by preferences.delegates.int(DEFAULT_COLOR)
+
+    /**
+     * The most recently used colors in the color picker demo, deduplicated and capped at [MAX_RECENT_COLORS].
+     * Excluded from [UserSettingsSnapshot]/[flow] for the same reason as [currentColor].
+     */
+    var recentColors: List<Int> by preferences.delegates
+        .intList(listOf(DEFAULT_COLOR))
+        .sanitized { it.distinct().take(MAX_RECENT_COLORS) }
+
+    /**
+     * A [StateFlow] of the current [UserSettingsSnapshot].
      *
      * Backed by a single, strongly-held [SharedPreferences.OnSharedPreferenceChangeListener] so the
      * listener is never GC'd. Per-field flows are available as extension properties:
      *
      * ```
-     * userSettings.flow                    // StateFlow<UserSettings> (whole snapshot)
+     * userSettings.flow                    // StateFlow<UserSettingsSnapshot> (whole snapshot)
      * userSettings.flow.search             // Flow<String>
      * userSettings.flow.searchActive       // Flow<Boolean>
      *
@@ -115,17 +134,21 @@ class UserSettingsRepository(
      *         userSettings.flow.searchActive) { s, a -> ... }
      * ```
      */
-    val flow: StateFlow<UserSettings> =
+    val flow: StateFlow<UserSettingsSnapshot> = settingsFlow(scope, ::snapshot)
+
+    private fun settingsFlow(
+        scope: CoroutineScope,
+        snapshot: () -> UserSettingsSnapshot,
+    ): StateFlow<UserSettingsSnapshot> =
         callbackFlow {
             val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> trySend(snapshot()) }
             preferences.registerOnSharedPreferenceChangeListener(listener)
-            trySend(snapshot()) // close the gap between initial snapshot() and listener registration
+            trySend(snapshot())
             awaitClose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
-        }.distinctUntilChanged()
-            .stateIn(scope, SharingStarted.Eagerly, snapshot())
+        }.distinctUntilChanged().stateIn(scope, SharingStarted.Eagerly, snapshot())
 
     private fun snapshot() =
-        UserSettings(
+        UserSettingsSnapshot(
             darkMode = darkMode,
             autoDarkMode = autoDarkMode,
             lastVersionCode = lastVersionCode,
@@ -144,49 +167,26 @@ class UserSettingsRepository(
             searchActive = searchActive,
         )
 
-    /**
-     * Atomically reads the current snapshot, applies [transform], and writes back only the changed
-     * fields. Use for multi-field batch writes (e.g., a settings dialog applying 5 fields at once).
-     * Synchronized to prevent interleaved concurrent updates.
-     *
-     * Single-field writes can just assign directly: `userSettings.devModeEnabled = true`.
-     *
-     * Usage: `userSettings.update { copy(showIndexScroll = true, indexScrollAutoHide = false) }`
-     */
-    @Suppress("CyclomaticComplexMethod")
-    @Synchronized
-    fun update(transform: UserSettings.() -> UserSettings) {
-        val current = snapshot()
-        val new = current.transform()
-        if (new.darkMode != current.darkMode) darkMode = new.darkMode
-        if (new.autoDarkMode != current.autoDarkMode) autoDarkMode = new.autoDarkMode
-        if (new.lastVersionCode != current.lastVersionCode) lastVersionCode = new.lastVersionCode
-        if (new.lastVersionName != current.lastVersionName) lastVersionName = new.lastVersionName
-        if (new.acceptedTosVersion != current.acceptedTosVersion) acceptedTosVersion = new.acceptedTosVersion
-        if (new.devModeEnabled != current.devModeEnabled) devModeEnabled = new.devModeEnabled
-        if (new.appPickerType != current.appPickerType) appPickerType = new.appPickerType
-        if (new.appPickerSelectLayoutMode != current.appPickerSelectLayoutMode) {
-            appPickerSelectLayoutMode = new.appPickerSelectLayoutMode
-        }
-        if (new.sampleSwitchBar != current.sampleSwitchBar) sampleSwitchBar = new.sampleSwitchBar
-        if (new.showIndexScroll != current.showIndexScroll) showIndexScroll = new.showIndexScroll
-        if (new.indexScrollShowLetters != current.indexScrollShowLetters) indexScrollShowLetters = new.indexScrollShowLetters
-        if (new.indexScrollAutoHide != current.indexScrollAutoHide) indexScrollAutoHide = new.indexScrollAutoHide
-        if (new.actionModeShowCancel != current.actionModeShowCancel) actionModeShowCancel = new.actionModeShowCancel
-        if (new.searchOnActionMode != current.searchOnActionMode) searchOnActionMode = new.searchOnActionMode
-        if (new.search != current.search) search = new.search
-        if (new.searchActive != current.searchActive) searchActive = new.searchActive
-    }
-
     companion object {
         const val PREFS_NAME = "user_settings"
+        const val DEFAULT_COLOR = 0xFF0381FE.toInt()
+        const val MAX_RECENT_COLORS = 6
     }
 }
 
 /** Per-field Flow accessors — each emits only when that field changes (distinctUntilChanged applied). **/
-val StateFlow<UserSettings>.search: Flow<String> get() = map { it.search }.distinctUntilChanged()
-val StateFlow<UserSettings>.searchActive: Flow<Boolean> get() = map { it.searchActive }.distinctUntilChanged()
+val StateFlow<UserSettingsSnapshot>.search: Flow<String> get() = map { it.search }.distinctUntilChanged()
+val StateFlow<UserSettingsSnapshot>.searchActive: Flow<Boolean> get() = map { it.searchActive }.distinctUntilChanged()
 
-/** Helper retrieving the [ToolbarLayout.SearchOnActionMode] from [UserSettings] with a [ToolbarLayout.SearchModeListener]. */
+/** Helper retrieving the [ToolbarLayout.SearchOnActionMode] from [UserSettingsSnapshot] with a [ToolbarLayout.SearchModeListener]. */
 fun SearchOnActionMode.withListener(listener: ToolbarLayout.SearchModeListener?) =
     if (this is SearchOnActionMode.Concurrent) SearchOnActionMode.Concurrent(listener) else this
+
+/** Applies this [UserSettings]'s dark mode setting to the app's default night mode. */
+fun UserSettings.applyDarkMode() {
+    when {
+        autoDarkMode -> setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+        darkMode -> setDefaultNightMode(MODE_NIGHT_YES)
+        else -> setDefaultNightMode(MODE_NIGHT_NO)
+    }
+}

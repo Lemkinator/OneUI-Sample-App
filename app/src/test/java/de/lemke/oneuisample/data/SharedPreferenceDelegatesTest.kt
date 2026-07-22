@@ -15,10 +15,8 @@
  */
 package de.lemke.oneuisample.data
 
-import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
-import androidx.test.core.app.ApplicationProvider
+import de.lemke.oneuisample.freshTestPreferences
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -37,11 +35,7 @@ class SharedPreferenceDelegatesTest {
 
     @Before
     fun setup() {
-        prefs =
-            ApplicationProvider
-                .getApplicationContext<Application>()
-                .getSharedPreferences("test_delegates", Context.MODE_PRIVATE)
-        prefs.edit().clear().commit()
+        prefs = freshTestPreferences()
         delegates = SharedPreferenceDelegates(prefs)
     }
 
@@ -210,6 +204,110 @@ class SharedPreferenceDelegatesTest {
         h.mode = SearchOnActionMode.NoDismiss
         h.mode = SearchOnActionMode.Dismiss
         h.mode shouldBe SearchOnActionMode.Dismiss
+    }
+
+    // intList
+
+    @Test
+    fun `intList default returns empty list`() {
+        val h =
+            object {
+                var list: List<Int> by delegates.intList()
+            }
+        h.list shouldBe emptyList()
+    }
+
+    @Test
+    fun `intList round-trip`() {
+        val h =
+            object {
+                var list: List<Int> by delegates.intList(default = emptyList())
+            }
+        h.list = listOf(4, 5, 6)
+        h.list shouldBe listOf(4, 5, 6)
+        prefs.getString("list", null) shouldBe "4,5,6"
+    }
+
+    @Test
+    fun `intList falls back to default after writing an empty list`() {
+        val h =
+            object {
+                var list: List<Int> by delegates.intList(default = listOf(1, 2, 3))
+            }
+        h.list = emptyList()
+        h.list shouldBe listOf(1, 2, 3)
+    }
+
+    @Test
+    fun `intList returns default when stored value has no parsable ints`() {
+        prefs.edit().putString("list", "a,b,c").apply()
+        val h =
+            object {
+                var list: List<Int> by delegates.intList(default = listOf(9))
+            }
+        h.list shouldBe listOf(9)
+    }
+
+    @Test
+    fun `intList filters out empty segments produced by consecutive commas`() {
+        prefs.edit().putString("list", "1,,2").apply()
+        val h =
+            object {
+                var list: List<Int> by delegates.intList(default = emptyList())
+            }
+        h.list shouldBe listOf(1, 2)
+    }
+
+    @Test
+    fun `intList parses negative ints`() {
+        prefs.edit().putString("list", "-1,2,-3").apply()
+        val h =
+            object {
+                var list: List<Int> by delegates.intList(default = emptyList())
+            }
+        h.list shouldBe listOf(-1, 2, -3)
+    }
+
+    // sanitized
+
+    @Test
+    fun `sanitized clamps a value already out of range in storage on read`() {
+        prefs.edit().putInt("size", 9999).apply()
+        val h =
+            object {
+                var size: Int by delegates.int(default = 512).sanitized { it.coerceIn(16, 1024) }
+            }
+        h.size shouldBe 1024
+    }
+
+    @Test
+    fun `sanitized clamps on write so the stored value itself is valid`() {
+        val h =
+            object {
+                var size: Int by delegates.int(default = 512).sanitized { it.coerceIn(16, 1024) }
+            }
+        h.size = -5
+        prefs.getInt("size", -1) shouldBe 16
+    }
+
+    @Test
+    fun `sanitized passes through in-range values unchanged`() {
+        val h =
+            object {
+                var size: Int by delegates.int(default = 512).sanitized { it.coerceIn(16, 1024) }
+            }
+        h.size = 256
+        h.size shouldBe 256
+    }
+
+    @Test
+    fun `sanitized composes with intList to cap a stored list on read`() {
+        prefs.edit().putString("colors", "1,2,3,4,5,6,7,8").apply()
+        val h =
+            object {
+                var colors: List<Int> by delegates.intList(default = emptyList()).sanitized { it.take(6) }
+            }
+        h.colors shouldBe listOf(1, 2, 3, 4, 5, 6)
     }
 
     // custom key

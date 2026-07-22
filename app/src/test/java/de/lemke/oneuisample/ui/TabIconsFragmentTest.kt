@@ -16,7 +16,6 @@
 package de.lemke.oneuisample.ui
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import android.view.LayoutInflater
@@ -35,7 +34,7 @@ import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettingsSnapshot
 import de.lemke.oneuisample.databinding.DialogSettingsBinding
 import de.lemke.oneuisample.domain.Icon
 import de.lemke.oneuisample.ui.fragments.TabIconsFragment
@@ -46,6 +45,7 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -66,11 +66,14 @@ class TabIconsFragmentTest {
     val hiltRule = HiltAndroidRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
-    private val prefs get() = context.getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
+
+    @Inject
+    lateinit var userSettings: UserSettings
 
     @Before
     fun setup() {
-        prefs.bypassOobe()
+        hiltRule.inject()
+        userSettings.bypassOobe()
     }
 
     private fun withFragment(block: TabIconsFragment.() -> Unit) {
@@ -454,7 +457,7 @@ class TabIconsFragmentTest {
 
     @Test
     fun applyUserSettings_updatesBindings() {
-        withFragment { applyUserSettings(UserSettings()) }
+        withFragment { applyUserSettings(UserSettingsSnapshot()) }
     }
 
     @Test

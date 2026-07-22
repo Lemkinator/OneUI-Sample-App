@@ -16,7 +16,6 @@
 package de.lemke.oneuisample.ui.util
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import androidx.test.core.app.ActivityScenario
@@ -25,10 +24,12 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.BuildConfig
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
+import de.lemke.oneuisample.freshTestPreferences
 import de.lemke.oneuisample.ui.MainActivity
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
@@ -50,14 +51,16 @@ class OnboardingUtilsKtTest {
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
 
+    @Inject
+    lateinit var userSettings: UserSettings
+
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
-    private val prefs get() = context.getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
     private lateinit var testScope: TestScope
 
     @Before
     fun setup() {
+        hiltRule.inject()
         testScope = TestScope(UnconfinedTestDispatcher())
-        prefs.edit().clear().commit()
     }
 
     @After
@@ -72,54 +75,43 @@ class OnboardingUtilsKtTest {
             shadowOf(Looper.getMainLooper()).idle()
         }
         // version NOT updated because onboardIfNeeded returned null early
-        prefs.getInt(UserSettingsRepository::lastVersionCode.name, -1) shouldBe -1
+        userSettings.lastVersionCode shouldBe -1
     }
 
     // upgrade: 0 < lastVersionCode < versionCode → FIRST_TIME_VERSION → shouldShowOOBE = false → updates + returns AppStart
     @Test
     fun `onboardIfNeeded updates version and returns AppStart on upgrade`() {
-        prefs
-            .edit()
-            .putInt(UserSettingsRepository::lastVersionCode.name, 0)
-            .putInt(UserSettingsRepository::acceptedTosVersion.name, Int.MAX_VALUE)
-            .commit()
+        userSettings.lastVersionCode = 0
+        userSettings.acceptedTosVersion = Int.MAX_VALUE
         ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use {
             shadowOf(Looper.getMainLooper()).idle()
         }
-        prefs.getInt(UserSettingsRepository::lastVersionCode.name, -1) shouldBe BuildConfig.VERSION_CODE
+        userSettings.lastVersionCode shouldBe BuildConfig.VERSION_CODE
     }
 
     // else branch: lastVersionCode == versionCode → NORMAL (no Log.w) → updates + returns AppStart
     @Test
     fun `onboardIfNeeded returns AppStart on same version launch`() {
-        prefs
-            .edit()
-            .putInt(UserSettingsRepository::lastVersionCode.name, BuildConfig.VERSION_CODE)
-            .putInt(UserSettingsRepository::acceptedTosVersion.name, Int.MAX_VALUE)
-            .commit()
+        userSettings.lastVersionCode = BuildConfig.VERSION_CODE
+        userSettings.acceptedTosVersion = Int.MAX_VALUE
         ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use {
             shadowOf(Looper.getMainLooper()).idle()
         }
-        prefs.getInt(UserSettingsRepository::lastVersionCode.name, -1) shouldBe BuildConfig.VERSION_CODE
+        userSettings.lastVersionCode shouldBe BuildConfig.VERSION_CODE
     }
 
     // allowSkip=true + no EXTRA_SKIP_ONBOARDING → getBooleanExtra=false → !(true&&false)=true → shouldShowOOBE=true → OOBE
     @Test
     fun `onboardIfNeeded redirects to OOBE when allowSkip is true but extra not in intent`() {
-        prefs
-            .edit()
-            .putInt(UserSettingsRepository::lastVersionCode.name, Int.MAX_VALUE)
-            .putInt(UserSettingsRepository::acceptedTosVersion.name, Int.MAX_VALUE)
-            .commit()
+        userSettings.lastVersionCode = Int.MAX_VALUE
+        userSettings.acceptedTosVersion = Int.MAX_VALUE
         ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
-                val testPrefs = context.getSharedPreferences("test_allowskip_noextra", Context.MODE_PRIVATE)
-                testPrefs.edit().clear().commit()
-                val repo = UserSettingsRepository(testPrefs, testScope)
+                val testSettings = UserSettings(freshTestPreferences(context), testScope)
                 // No EXTRA_SKIP_ONBOARDING in intent → getBooleanExtra=false
                 // allowSkip=true && false = false → !(false)=true → shouldShowOOBE=true → OOBE
-                val result = activity.onboardIfNeeded(repo, 1, "1.0", allowSkip = true)
+                val result = activity.onboardIfNeeded(testSettings, 1, "1.0", allowSkip = true)
                 result shouldBe null
             }
         }
@@ -128,25 +120,18 @@ class OnboardingUtilsKtTest {
     // no allowSkip arg → $default wrapper provides false → behaves same as allowSkip=false
     @Test
     fun `onboardIfNeeded default allowSkip is false and returns AppStart when no OOBE needed`() {
-        prefs
-            .edit()
-            .putInt(UserSettingsRepository::lastVersionCode.name, Int.MAX_VALUE)
-            .putInt(UserSettingsRepository::acceptedTosVersion.name, Int.MAX_VALUE)
-            .commit()
+        userSettings.lastVersionCode = Int.MAX_VALUE
+        userSettings.acceptedTosVersion = Int.MAX_VALUE
         ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
-                val testPrefs = context.getSharedPreferences("test_default_allowskip", Context.MODE_PRIVATE)
-                testPrefs
-                    .edit()
-                    .putInt(UserSettingsRepository::lastVersionCode.name, 1)
-                    .putInt(UserSettingsRepository::acceptedTosVersion.name, Int.MAX_VALUE)
-                    .commit()
-                val repo = UserSettingsRepository(testPrefs, testScope)
+                val testSettings = UserSettings(freshTestPreferences(context), testScope)
+                testSettings.lastVersionCode = 1
+                testSettings.acceptedTosVersion = Int.MAX_VALUE
                 // omit allowSkip — exercises the $default synthetic wrapper (default = false)
-                val result = activity.onboardIfNeeded(repo, 1, "1.0")
+                val result = activity.onboardIfNeeded(testSettings, 1, "1.0")
                 result shouldNotBe null
-                repo.lastVersionCode shouldBe 1
+                testSettings.lastVersionCode shouldBe 1
             }
         }
     }
@@ -154,23 +139,18 @@ class OnboardingUtilsKtTest {
     // allowSkip path: !(allowSkip=true && EXTRA_SKIP_ONBOARDING=true) = false → skip OOBE even when shouldShowOOBE=true
     @Test
     fun `onboardIfNeeded skips OOBE when allowSkip is true and intent has EXTRA_SKIP_ONBOARDING`() {
-        prefs
-            .edit()
-            .putInt(UserSettingsRepository::lastVersionCode.name, Int.MAX_VALUE)
-            .putInt(UserSettingsRepository::acceptedTosVersion.name, Int.MAX_VALUE)
-            .commit()
+        userSettings.lastVersionCode = Int.MAX_VALUE
+        userSettings.acceptedTosVersion = Int.MAX_VALUE
         val intent = Intent(context, MainActivity::class.java).putExtra(EXTRA_SKIP_ONBOARDING, true)
         ActivityScenario.launch<MainActivity>(intent).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
-                val testPrefs = context.getSharedPreferences("test_skip_prefs", Context.MODE_PRIVATE)
-                testPrefs.edit().clear().commit()
-                val repo = UserSettingsRepository(testPrefs, testScope)
-                // fresh repo: lastVersionCode = -1 → shouldShowOOBE = true
+                val testSettings = UserSettings(freshTestPreferences(context), testScope)
+                // fresh store: lastVersionCode = -1 → shouldShowOOBE = true
                 // but allowSkip=true + intent has EXTRA_SKIP_ONBOARDING=true → condition is false → no OOBE
-                val result = activity.onboardIfNeeded(repo, 1, "1.0", allowSkip = true)
+                val result = activity.onboardIfNeeded(testSettings, 1, "1.0", allowSkip = true)
                 result shouldNotBe null
-                repo.lastVersionCode shouldBe 1
+                testSettings.lastVersionCode shouldBe 1
             }
         }
     }

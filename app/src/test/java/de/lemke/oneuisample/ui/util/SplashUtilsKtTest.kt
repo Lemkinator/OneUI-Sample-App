@@ -16,7 +16,6 @@
 package de.lemke.oneuisample.ui.util
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import android.view.View
@@ -27,10 +26,11 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.bypassOobe
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.MainActivity
 import io.mockk.mockk
 import io.mockk.verify
+import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -47,11 +47,14 @@ class SplashUtilsKtTest {
     val hiltRule = HiltAndroidRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
-    private val prefs get() = context.getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
+
+    @Inject
+    lateinit var userSettings: UserSettings
 
     @Before
     fun setup() {
-        prefs.bypassOobe()
+        hiltRule.inject()
+        userSettings.bypassOobe()
     }
 
     private fun withActivity(block: (MainActivity) -> Unit) {

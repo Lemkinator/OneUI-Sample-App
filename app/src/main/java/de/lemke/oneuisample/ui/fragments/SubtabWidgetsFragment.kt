@@ -17,7 +17,6 @@ package de.lemke.oneuisample.ui.fragments
 
 import android.app.SearchManager
 import android.content.ComponentName
-import android.content.Context.SEARCH_SERVICE
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.Q
 import android.os.Bundle
@@ -37,6 +36,7 @@ import de.lemke.oneuisample.ui.MainActivity
 import de.lemke.oneuisample.ui.util.autoCleared
 import de.lemke.oneuisample.ui.util.play
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
+import de.lemke.oneuisample.ui.util.withSystemService
 import dev.oneuiproject.oneui.ktx.setEntries
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
@@ -85,8 +85,9 @@ class SubtabWidgetsFragment : Fragment() {
             }
         }
         binding.searchView.apply {
-            val searchManager = requireContext().getSystemService(SEARCH_SERVICE) as SearchManager
-            setSearchableInfo(searchManager.getSearchableInfo(ComponentName(requireContext(), MainActivity::class.java)))
+            requireContext().withSystemService(SearchManager::class.java) {
+                setSearchableInfo(it.getSearchableInfo(ComponentName(requireContext(), MainActivity::class.java)))
+            }
             seslSetUpButtonVisibility(VISIBLE)
             seslSetOnUpButtonClickListener { suggestiveSnackBar(getString(R.string.search_up_button_clicked)) }
         }

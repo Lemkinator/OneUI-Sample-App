@@ -37,16 +37,16 @@ Release signing properties (`releaseStoreFile`, `releaseStorePassword`, `release
 
 Single-module (`:app`) Android app demonstrating OneUI-Design components. Layered architecture (data/domain/ui):
 
-- **`data/`** - `UserSettingsRepository`: SharedPreferences-backed store for user settings. Exposes per-field property delegates and a
-  `StateFlow<UserSettings>`. Multi-field batch updates via `userSettings.update { copy(field = value) }` (synchronized). Single-field writes
-  assign directly: `userSettings.search = "query"`.
+- **`data/`** - `UserSettings`: SharedPreferences-backed store for user settings. Exposes per-field property delegates and a
+  `StateFlow<UserSettingsSnapshot>`. All writes assign directly, single- or multi-field: `userSettings.search = "query"`. No batch write
+  API — `SharedPreferences` already skips no-op writes for unchanged keys, and no consumer needs atomic multi-field emission.
 - **`domain/`** - Use cases with `operator fun invoke()`. Suspend use cases (e.g. `CompleteOnboardingUseCase`) switch to
   `Dispatchers.Default`; flow-based use cases (e.g. `ObserveIconListUseCase`) return a `Flow` directly.
 - **`ui/`** - Activities for settings/about/OOBE/pickers; Fragments for main tabs (`TabDesign`, `TabIcons`, `TabPicker`) with nested subtabs
   via ViewPager2. Screens with non-trivial async state use ViewModels (`AboutViewModel`, `SettingsViewModel`, `OOBEViewModel`,
-  `SwitchBarViewModel`, `AppPickerViewModel`); simpler screens inject use cases or the repository directly.
+  `SwitchBarViewModel`, `AppPickerViewModel`); simpler screens inject use cases or `UserSettings` directly.
 - **`App.kt`** - `@HiltAndroidApp` entry point; `PersistenceModule.kt` - Hilt singleton providing `SharedPreferences` and
-  `UserSettingsRepository` (with an `@ApplicationScope` `CoroutineScope` for the `StateFlow`).
+  `UserSettings` (with an `@ApplicationScope` `CoroutineScope` for the `StateFlow`).
 
 State collection patterns:
 
@@ -69,7 +69,28 @@ native JUnit 5 support ([issue #3477](https://github.com/robolectric/robolectric
 to the original `inline fun` definition. Simple delegating `inline fun` therefore don't need `@NoCoverage` here (tests calling them cover
 the definition via SMAP). The exception is `crossinline` default-value lambdas: the default compiles to a definition-site private static
 method that is never invoked, so it always needs `@NoCoverage` regardless of test runner. That is why the `@NoCoverage` footprint here is
-smaller than in `common-utils` (which uses JUnit 5 + `RobolectricExtension`, where SMAP attribution doesn't fire).
+smaller than in a JUnit 5 + `RobolectricExtension` setup, where SMAP attribution doesn't fire.
+
+## Settings in Tests
+
+Tests never mock settings — every test uses the real `UserSettings` over an isolated, empty store:
+
+- **Hilt tests** (Robolectric `src/test` and instrumented `src/androidTest`) use `TestSettingsModule` — byte-identical twins in both
+  source sets (not `testFixtures`; Hilt's kapt/ksp aggregation silently skips a `@TestInstallIn` module declared in `testFixtures` for the
+  Robolectric side) — provides `UserSettings(freshTestPreferences(context), CoroutineScope(SupervisorJob() + Dispatchers.Default))`,
+  replacing `PersistenceModule`.
+- **Pure-JVM specs** (the ViewModelTests, no Context available) use `fakeUserSettings()` (`app/src/testFixtures`) — a real
+  `UserSettings(FakeSharedPreferences(), CoroutineScope(UnconfinedTestDispatcher()))` — `FakeSharedPreferences` fires
+  `OnSharedPreferenceChangeListener` correctly, so `.flow` behaves like the real thing; the dispatcher must be unconfined so
+  `SharingStarted.Eagerly` propagates synchronously (avoids the `StandardTestDispatcher`-queues-without-running flake `.state.value` reads
+  are otherwise exposed to).
+- **`freshTestPreferences()`** (`app/src/testFixtures`) returns a UUID-named `SharedPreferences` file, fresh by construction — never a
+  fixed name or `.edit().clear()`.
+- **`UserSettings.bypassOobe()`** (`app/src/testFixtures`) sets `lastVersionCode`/`acceptedTosVersion` to `Int.MAX_VALUE` so
+  `onboardIfNeeded()` never redirects to OOBE in a test.
+
+`app/src/testFixtures` is enabled on `:app` itself (`android.testFixtures.enable = true`) — this app has no shared library to draw test
+helpers from, so its own `testFixtures` source set is the only way to share code between `src/test` and `src/androidTest`.
 
 ## Dependency Version Policy
 

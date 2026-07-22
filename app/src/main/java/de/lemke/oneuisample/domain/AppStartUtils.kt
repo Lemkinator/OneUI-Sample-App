@@ -18,7 +18,7 @@ package de.lemke.oneuisample.domain
 import android.content.Context
 import android.util.Log
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 
 private const val TAG = "AppStart"
 
@@ -77,7 +77,7 @@ class AppStart(
 
 /** Checks whether this is the first run, a version upgrade, or a normal start. Version info is committed by the caller. */
 internal fun Context.checkAppStart(
-    userSettings: UserSettingsRepository,
+    userSettings: UserSettings,
     versionCode: Int,
     versionName: String,
 ): AppStart {

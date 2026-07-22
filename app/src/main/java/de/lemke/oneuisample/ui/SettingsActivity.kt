@@ -50,6 +50,7 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivitySettingsBinding
 import de.lemke.oneuisample.ui.util.collectState
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
+import de.lemke.oneuisample.ui.util.withSystemService
 import dev.oneuiproject.oneui.ktx.addRelativeLinksCard
 import dev.oneuiproject.oneui.ktx.onClick
 import dev.oneuiproject.oneui.ktx.onNewValue
@@ -229,7 +230,7 @@ class SettingsActivity : AppCompatActivity() {
 
         @NoCoverage
         private fun clearApplicationUserData() {
-            (settingsActivity.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
+            settingsActivity.withSystemService(ActivityManager::class.java) { it.clearApplicationUserData() }
         }
 
         private fun initSuggestionCard() {

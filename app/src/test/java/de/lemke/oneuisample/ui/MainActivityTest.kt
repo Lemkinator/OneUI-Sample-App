@@ -17,7 +17,6 @@ package de.lemke.oneuisample.ui
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_SEARCH
 import android.os.Looper
@@ -30,11 +29,12 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
-import de.lemke.oneuisample.data.UserSettingsRepository
+import de.lemke.oneuisample.data.UserSettings
 import dev.oneuiproject.oneui.navigation.widget.DrawerNavigationView
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -54,11 +54,14 @@ class MainActivityTest {
     val hiltRule = HiltAndroidRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
-    private val prefs get() = context.getSharedPreferences(UserSettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
+
+    @Inject
+    lateinit var userSettings: UserSettings
 
     @Before
     fun setup() {
-        prefs.bypassOobe()
+        hiltRule.inject()
+        userSettings.bypassOobe()
     }
 
     private fun launch(block: ActivityScenario<MainActivity>.() -> Unit = {}) {
@@ -88,7 +91,8 @@ class MainActivityTest {
 
     @Test
     fun onCreate_onboardingRequired_returnsEarly() {
-        prefs.edit().clear().commit()
+        userSettings.lastVersionCode = -1
+        userSettings.acceptedTosVersion = -1
         launch()
     }
 

@@ -13,41 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.lemke.oneuisample.di
+package de.lemke.oneuisample
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import dagger.hilt.testing.TestInstallIn
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettings.Companion.PREFS_NAME
-import javax.inject.Qualifier
+import de.lemke.oneuisample.di.PersistenceModule
 import javax.inject.Singleton
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
-@Retention(AnnotationRetention.RUNTIME)
-@Qualifier
-annotation class ApplicationScope
-
 @Module
-@InstallIn(SingletonComponent::class)
-object PersistenceModule {
+@TestInstallIn(components = [SingletonComponent::class], replaces = [PersistenceModule::class])
+object TestSettingsModule {
     @Provides
     @Singleton
-    @ApplicationScope
-    fun providesApplicationScope(
-        @DefaultDispatcher dispatcher: CoroutineDispatcher,
-    ): CoroutineScope = CoroutineScope(SupervisorJob() + dispatcher)
-
-    @Provides
-    @Singleton
-    fun provideUserSettings(
+    fun provideTestUserSettings(
         @ApplicationContext context: Context,
-        @ApplicationScope scope: CoroutineScope,
-    ): UserSettings = UserSettings(context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE), scope)
+    ): UserSettings = UserSettings(freshTestPreferences(context), CoroutineScope(SupervisorJob() + Dispatchers.Default))
 }
