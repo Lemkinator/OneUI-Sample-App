@@ -25,15 +25,19 @@ import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.di.PersistenceModule
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [PersistenceModule::class])
 object TestSettingsModule {
+    // Unconfined so SharingStarted.Eagerly propagates state.flow updates synchronously with the SharedPreferences write,
+    // instead of racing a real background dispatcher against the test thread.
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Provides
     @Singleton
     fun provideTestUserSettings(
         @ApplicationContext context: Context,
-    ): UserSettings = UserSettings(freshTestPreferences(context), CoroutineScope(SupervisorJob() + Dispatchers.Default))
+    ): UserSettings = UserSettings(freshTestPreferences(context), CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher()))
 }
