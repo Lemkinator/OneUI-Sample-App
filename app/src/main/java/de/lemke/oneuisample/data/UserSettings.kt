@@ -33,8 +33,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 data class UserSettingsSnapshot(
-    val darkMode: Boolean = false,
-    val autoDarkMode: Boolean = true,
     val lastVersionCode: Int = -1,
     val lastVersionName: String = "0.0",
     val acceptedTosVersion: Int = -1,
@@ -56,10 +54,14 @@ class UserSettings(
     private val preferences: SharedPreferences,
     scope: CoroutineScope,
 ) {
-    /** Whether dark mode is explicitly enabled (stored as `"1"`/`"0"` for legacy `HorizontalRadioPreference` compatibility). */
+    /**
+     * Whether dark mode is explicitly enabled (stored as `"1"`/`"0"` for legacy `HorizontalRadioPreference`
+     * compatibility). Deliberately absent from [UserSettingsSnapshot]/[flow] - only the settings screen's own
+     * widgets read or write it, and native `Preference` persistence handles both directly.
+     */
     var darkMode: Boolean by preferences.delegates.darkMode(false)
 
-    /** Whether to follow the system dark mode setting instead of the explicit [darkMode] value. */
+    /** Whether to follow the system dark mode setting instead of the explicit [darkMode] value. Same exclusion as [darkMode]. */
     var autoDarkMode: Boolean by preferences.delegates.boolean(true)
 
     /** The version code recorded on the previous app launch, or -1 if never set. */
@@ -119,6 +121,43 @@ class UserSettings(
         .intList(listOf(DEFAULT_COLOR))
         .sanitized { it.distinct().take(MAX_RECENT_COLORS) }
 
+    // The properties below back preferences.xml's showcase widgets one-for-one (Preference XML <-> Settings
+    // Binding Convention, common-utils CLAUDE.md) - each is read/written only by native Preference persistence,
+    // no screen or use case reads them, so they're excluded from UserSettingsSnapshot/flow like currentColor above.
+
+    /** Backs the `SwitchPreference` demo entry. */
+    var switchDemo: Boolean by preferences.delegates.boolean(false)
+
+    /** Backs the `CheckBoxPreference` demo entry. */
+    var checkbox: Boolean by preferences.delegates.boolean(true)
+
+    /** Backs the `EditTextPreference` demo entry. */
+    var editText: String by preferences.delegates.string("Default text")
+
+    /** Backs the `DropDownPreference` demo entry. */
+    var dropdown: String by preferences.delegates.string("#00FFFF")
+
+    /** Backs the `ListPreference` demo entry. */
+    var list: String by preferences.delegates.string("#F0FFFF")
+
+    /** Backs the `MultiSelectListPreference` demo entry. */
+    var multiselectList: Set<String> by preferences.delegates.stringSet(setOf("#00FFFF"))
+
+    /** Backs the `ColorPickerPreference` demo entry - a fixed showcase default, unrelated to [currentColor]. */
+    var colorPicker: Int by preferences.delegates.int(DEFAULT_COLOR)
+
+    /** Backs the plain `SeekBarPreference` demo entry. */
+    var seekbar: Int by preferences.delegates.int(30)
+
+    /** Backs the expand-mode `SeekBarPreferencePro` demo entry. */
+    var seekbarPro: Int by preferences.delegates.int(0)
+
+    /** Backs the level-bar-mode `SeekBarPreferencePro` demo entry. */
+    var seekbarProLevel: Int by preferences.delegates.int(2)
+
+    /** Backs the center-based-mode `SeekBarPreferencePro` demo entry. */
+    var seekbarProCenterBased: Int by preferences.delegates.int(0)
+
     /**
      * A [StateFlow] of the current [UserSettingsSnapshot].
      *
@@ -149,8 +188,6 @@ class UserSettings(
 
     private fun snapshot() =
         UserSettingsSnapshot(
-            darkMode = darkMode,
-            autoDarkMode = autoDarkMode,
             lastVersionCode = lastVersionCode,
             lastVersionName = lastVersionName,
             acceptedTosVersion = acceptedTosVersion,
@@ -168,7 +205,6 @@ class UserSettings(
         )
 
     companion object {
-        const val PREFS_NAME = "user_settings"
         const val DEFAULT_COLOR = 0xFF0381FE.toInt()
         const val MAX_RECENT_COLORS = 6
     }

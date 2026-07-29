@@ -18,37 +18,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory android:title="@string/design">
         <dev.oneuiproject.oneui.preference.HorizontalRadioPreference
-            android:key="dark_mode_pref"
+            android:key="darkMode"
+            android:defaultValue="0"
             app:entries="@array/preferences_darkmode_entries"
             app:entriesImage="@array/preferences_darkmode_entries_image"
             app:entryValues="@array/preferences_darkmode_values"
             app:viewType="image" />
         <SwitchPreferenceCompat
-            android:key="dark_mode_auto_pref"
+            android:key="autoDarkMode"
+            android:defaultValue="true"
             android:title="@string/system_default" />
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="language_pref_cat"
+        android:key="languageCategory"
         android:title="@string/language"
         app:isPreferenceVisible="false">
         <PreferenceScreen
-            android:key="language_pref"
+            android:key="language"
             android:title="@string/change_language" />
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="dev_options"
+        android:key="devOptions"
         android:title="@string/dev_options"
         app:isPreferenceVisible="false">
         <PreferenceScreen
-            android:key="delete_app_data_pref"
+            android:key="deleteAppData"
             android:title="@string/delete_appdata_and_exit" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/more_information">
         <PreferenceScreen
-            android:key="tos_pref"
+            android:key="tos"
             android:title="@string/tos" />
     </PreferenceCategory>
 
@@ -56,6 +58,7 @@
 
     <dev.oneuiproject.oneui.preference.TipsCardPreference
         android:key="tip"
+        android:persistent="false"
         android:summary="@string/tips_card_summary"
         android:title="TipsCardPreference" />
 
@@ -63,28 +66,31 @@
 
     <dev.oneuiproject.oneui.preference.SuggestionCardPreference
         android:key="suggestion"
+        android:persistent="false"
         android:summary="@string/suggestion_card_summary"
         android:title="@string/suggestion_pref_title"
         app:actionButtonText="@string/turn_on" />
 
-    <dev.oneuiproject.oneui.preference.InsetPreferenceCategory android:key="suggestion_inset" />
+    <dev.oneuiproject.oneui.preference.InsetPreferenceCategory android:key="suggestionInset" />
 
-    <dev.oneuiproject.oneui.preference.SwitchBarPreference />
+    <dev.oneuiproject.oneui.preference.SwitchBarPreference android:persistent="false" />
 
     <PreferenceCategory>
         <dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
             android:key="updatable"
+            android:persistent="false"
             android:title="@string/updatable_widget"
             android:widgetLayout="@layout/sample_pref_widget_check"
             app:summary="@string/click_me" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="switch"
+            android:key="switchDemo"
             android:title="SwitchPreference" />
 
         <SeslSwitchPreferenceScreen
-            android:key="switch_screen"
+            android:key="sampleSwitchBar"
+            android:defaultValue="false"
             android:title="SwitchPreferenceScreen" />
 
         <CheckBoxPreference
@@ -97,7 +103,7 @@
     <PreferenceCategory>
         <EditTextPreference
             android:defaultValue="Default text"
-            android:key="edit_text"
+            android:key="editText"
             android:title="EditTextPreference"
             app:useSimpleSummaryProvider="true" />
 
@@ -118,9 +124,10 @@
             app:useSimpleSummaryProvider="true" />
 
         <MultiSelectListPreference
+            android:defaultValue="@array/preferences_multiselect_list_default_values"
             android:entries="@array/preferences_test_entries"
             android:entryValues="@array/preferences_test_values"
-            android:key="multiselect_list"
+            android:key="multiselectList"
             android:summary="@string/summary_placeholder"
             android:title="MultiSelectListPreference" />
     </PreferenceCategory>
@@ -128,7 +135,7 @@
     <PreferenceCategory>
         <dev.oneuiproject.oneui.preference.ColorPickerPreference
             android:defaultValue="#0381FE"
-            android:key="color_picker"
+            android:key="colorPicker"
             android:summary="@string/summary_placeholder"
             android:title="ColorPickerPreference"
             app:showAlphaSlider="true" />
@@ -142,7 +149,8 @@
             app:min="0" />
 
         <dev.oneuiproject.oneui.preference.SeekBarPreferencePro
-            android:key="seekbar_pro"
+            android:key="seekbarPro"
+            android:defaultValue="0"
             android:max="100"
             android:summary="@string/seekbar_expanded"
             android:title="SeekBarPreference"
@@ -152,7 +160,8 @@
             app:showTickMark="false" />
 
         <dev.oneuiproject.oneui.preference.SeekBarPreferencePro
-            android:key="seekbar_pro_level"
+            android:key="seekbarProLevel"
+            android:defaultValue="2"
             android:max="10"
             android:summary="LevelBar"
             android:title="SeekBarPreference"
@@ -164,7 +173,8 @@
             app:showTickMark="true" />
 
         <dev.oneuiproject.oneui.preference.SeekBarPreferencePro
-            android:key="seekbar_pro_center_based"
+            android:key="seekbarProCenterBased"
+            android:defaultValue="0"
             android:summary="CenterBasedBar"
             android:title="SeekBarPreference"
             app:adjustable="false"

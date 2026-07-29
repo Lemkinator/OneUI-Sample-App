@@ -16,14 +16,13 @@
 package de.lemke.oneuisample.di
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
+import androidx.preference.PreferenceManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettings.Companion.PREFS_NAME
 import javax.inject.Qualifier
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
@@ -49,5 +48,5 @@ object PersistenceModule {
     fun provideUserSettings(
         @ApplicationContext context: Context,
         @ApplicationScope scope: CoroutineScope,
-    ): UserSettings = UserSettings(context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE), scope)
+    ): UserSettings = UserSettings(PreferenceManager.getDefaultSharedPreferences(context), scope)
 }
