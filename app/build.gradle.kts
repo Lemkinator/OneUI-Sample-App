@@ -184,6 +184,11 @@ dependencies {
     testFixturesImplementation(libs.androidx.test.core)
     testFixturesImplementation(libs.androidx.material3)
     testFixturesImplementation(libs.coroutines.test)
+    // PreferenceXmlParity.kt hosts a real PreferenceFragmentCompat (via oneui.design's androidx.preference
+    // fork) through Robolectric.buildActivity - `implementation` deps of :app's main source set don't leak
+    // to testFixtures, so both are declared again here at the same coordinates main uses.
+    testFixturesImplementation(libs.oneui.design)
+    testFixturesImplementation(libs.robolectric)
 }
 
 spotless {
