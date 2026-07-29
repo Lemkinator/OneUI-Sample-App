@@ -40,12 +40,12 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * [userSettings] here is [TestSettingsModule][de.lemke.oneuisample.TestSettingsModule]'s isolated
- * `freshTestPreferences()` file - Hilt's `@TestInstallIn` is source-set-wide, not overridable per test class, so
- * this can't be pointed at the real default file the way `darkMode`/`autoDarkMode` now need for native
- * `Preference` persistence to see it. In practice this only means a `userSettings.darkMode = true`-style preset
- * before [launch] no longer reaches `darkModePref`'s initial render - no assertion here depends on that, only on
- * no-crash/click/summary-text behavior, so it's a latent gap rather than a live bug.
+ * [userSettings] is [TestSettingsModule][de.lemke.oneuisample.TestSettingsModule]'s isolated
+ * `freshTestPreferences()` file - a different file than `darkModePref`/`autoDarkModePref`'s own native
+ * `Preference` persistence, which always targets the real default file regardless of what's Hilt-injected
+ * (Hilt's `@TestInstallIn` is source-set-wide, not overridable per test class). A
+ * `userSettings.darkMode = true`-style preset before [launch] therefore has no effect on those two widgets;
+ * no assertion in this class relies on it.
  */
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
