@@ -74,6 +74,84 @@ class UserSettingsTest {
         repo.sampleSwitchBar shouldBe false
         repo.currentColor shouldBe UserSettings.DEFAULT_COLOR
         repo.recentColors shouldBe listOf(UserSettings.DEFAULT_COLOR)
+        repo.switchDemo shouldBe false
+        repo.checkbox shouldBe true
+        repo.editText shouldBe "Default text"
+        repo.dropdown shouldBe "#00FFFF"
+        repo.list shouldBe "#F0FFFF"
+        repo.multiselectList shouldBe setOf("#00FFFF")
+        repo.colorPicker shouldBe UserSettings.DEFAULT_COLOR
+        repo.seekbar shouldBe 30
+        repo.seekbarPro shouldBe 0
+        repo.seekbarProLevel shouldBe 2
+        repo.seekbarProCenterBased shouldBe 0
+    }
+
+    @Test
+    fun `switchDemo round-trip`() {
+        repo.switchDemo = true
+        repo.switchDemo shouldBe true
+    }
+
+    @Test
+    fun `checkbox round-trip`() {
+        repo.checkbox = false
+        repo.checkbox shouldBe false
+    }
+
+    @Test
+    fun `editText round-trip`() {
+        repo.editText = "custom text"
+        repo.editText shouldBe "custom text"
+    }
+
+    @Test
+    fun `dropdown round-trip`() {
+        repo.dropdown = "#F5F5DC"
+        repo.dropdown shouldBe "#F5F5DC"
+    }
+
+    @Test
+    fun `list round-trip`() {
+        repo.list = "#F5F5DC"
+        repo.list shouldBe "#F5F5DC"
+    }
+
+    @Test
+    fun `multiselectList round-trip`() {
+        val values = setOf("#00FFFF", "#F0FFFF")
+        repo.multiselectList = values
+        repo.multiselectList shouldBe values
+    }
+
+    @Test
+    fun `colorPicker round-trip`() {
+        repo.colorPicker = 0xFF00FF00.toInt()
+        repo.colorPicker shouldBe 0xFF00FF00.toInt()
+    }
+
+    @Test
+    fun `seekbar round-trip`() {
+        repo.seekbar = 10
+        repo.seekbar shouldBe 10
+    }
+
+    @Test
+    fun `seekbarPro round-trip`() {
+        repo.seekbarPro = 50
+        repo.seekbarPro shouldBe 50
+    }
+
+    @Test
+    fun `seekbarProLevel round-trip`() {
+        repo.seekbarProLevel = 5
+        repo.seekbarProLevel shouldBe 5
+    }
+
+    @Test
+    fun `seekbarProCenterBased round-trip`() {
+        repo.seekbarProCenterBased = 25
+        repo.seekbarProCenterBased shouldBe 25
     }
 
     @Test
@@ -129,8 +207,8 @@ class UserSettingsTest {
     @Test
     fun `flow emits snapshot on creation`() {
         val snapshot = repo.flow.value
-        snapshot.darkMode shouldBe false
-        snapshot.autoDarkMode shouldBe true
+        snapshot.lastVersionCode shouldBe -1
+        snapshot.devModeEnabled shouldBe false
     }
 
     @Test
