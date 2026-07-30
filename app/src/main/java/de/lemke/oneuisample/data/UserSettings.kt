@@ -54,14 +54,10 @@ class UserSettings(
     private val preferences: SharedPreferences,
     scope: CoroutineScope,
 ) {
-    /**
-     * Whether dark mode is explicitly enabled (stored as `"1"`/`"0"` for legacy `HorizontalRadioPreference`
-     * compatibility). Deliberately absent from [UserSettingsSnapshot]/[flow] - only the settings screen's own
-     * widgets read or write it, and native `Preference` persistence handles both directly.
-     */
+    /** Whether dark mode is explicitly enabled (stored as `"1"`/`"0"` for legacy `HorizontalRadioPreference` compatibility). */
     var darkMode: Boolean by preferences.delegates.darkMode(false)
 
-    /** Whether to follow the system dark mode setting instead of the explicit [darkMode] value. Same exclusion as [darkMode]. */
+    /** Whether to follow the system dark mode setting instead of the explicit [darkMode] value. */
     var autoDarkMode: Boolean by preferences.delegates.boolean(true)
 
     /** The version code recorded on the previous app launch, or -1 if never set. */
@@ -106,24 +102,16 @@ class UserSettings(
     /** Whether the search bar is currently active. */
     var searchActive: Boolean by preferences.delegates.boolean(false)
 
-    /**
-     * The most recently selected color in the color picker demo. Deliberately absent from
-     * [UserSettingsSnapshot]/[flow] — [TabPickerFragment][de.lemke.oneuisample.ui.fragments.TabPickerFragment]
-     * is the only reader, and it reads this synchronously at dialog-creation time rather than observing it.
-     */
+    /** The most recently selected color in the color picker demo. */
     var currentColor: Int by preferences.delegates.int(DEFAULT_COLOR)
 
-    /**
-     * The most recently used colors in the color picker demo, deduplicated and capped at [MAX_RECENT_COLORS].
-     * Excluded from [UserSettingsSnapshot]/[flow] for the same reason as [currentColor].
-     */
+    /** The most recently used colors in the color picker demo, deduplicated and capped at [MAX_RECENT_COLORS]. */
     var recentColors: List<Int> by preferences.delegates
         .intList(listOf(DEFAULT_COLOR))
         .sanitized { it.distinct().take(MAX_RECENT_COLORS) }
 
     // The properties below back preferences.xml's showcase widgets one-for-one (Preference XML <-> Settings
-    // Binding Convention, common-utils CLAUDE.md) - each is read/written only by native Preference persistence,
-    // no screen or use case reads them, so they're excluded from UserSettingsSnapshot/flow like currentColor above.
+    // Binding Convention, common-utils CLAUDE.md).
 
     /** Backs the `SwitchPreference` demo entry. */
     var switchDemo: Boolean by preferences.delegates.boolean(false)
