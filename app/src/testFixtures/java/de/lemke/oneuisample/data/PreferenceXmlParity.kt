@@ -30,10 +30,6 @@ import java.util.UUID
 import org.robolectric.Robolectric
 import org.xmlpull.v1.XmlPullParser
 
-// Local copy of common-utils' PreferenceXmlParity.kt (this app has no common-utils dependency, per
-// CLAUDE.md's "My Apps/Projects" note) - keep behaviourally identical to that copy. See its KDoc for
-// the full rationale; this file only carries the adaptation to this app's package.
-
 private const val ANDROID_NS = "http://schemas.android.com/apk/res/android"
 
 /**

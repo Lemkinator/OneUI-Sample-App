@@ -110,9 +110,6 @@ class UserSettings(
         .intList(listOf(DEFAULT_COLOR))
         .sanitized { it.distinct().take(MAX_RECENT_COLORS) }
 
-    // The properties below back preferences.xml's showcase widgets one-for-one (Preference XML <-> Settings
-    // Binding Convention, common-utils CLAUDE.md).
-
     /** Backs the `SwitchPreference` demo entry. */
     var switchDemo: Boolean by preferences.delegates.boolean(false)
 
