@@ -2,6 +2,8 @@
 #noinspection UnusedVersionCatalogEntry
 compileSdk = "37"
 #noinspection UnusedVersionCatalogEntry
+compileSdkMinor = "1"
+#noinspection UnusedVersionCatalogEntry
 targetSdk = "37"
 #noinspection UnusedVersionCatalogEntry
 jvmTarget = "21"
