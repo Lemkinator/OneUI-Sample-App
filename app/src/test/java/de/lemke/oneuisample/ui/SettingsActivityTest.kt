@@ -39,6 +39,14 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
+/**
+ * [userSettings] is [TestSettingsModule][de.lemke.oneuisample.TestSettingsModule]'s isolated
+ * `freshTestPreferences()` file - a different file than `darkModePref`/`autoDarkModePref`'s own native
+ * `Preference` persistence, which always targets the real default file regardless of what's Hilt-injected
+ * (Hilt's `@TestInstallIn` is source-set-wide, not overridable per test class). A
+ * `userSettings.darkMode = true`-style preset before [launch] therefore has no effect on those two widgets;
+ * no assertion in this class relies on it.
+ */
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @Config(application = HiltTestApplication::class, sdk = [36])
@@ -74,7 +82,7 @@ class SettingsActivityTest {
     fun tosPref_click_showsDialog() {
         // dialog code is Kover-excluded (*SettingsFragment*initTosPref*); verifies no crash on click
         launch {
-            findPreference<PreferenceScreen>("tos_pref")?.performClick()
+            findPreference<PreferenceScreen>("tos")?.performClick()
             shadowOf(Looper.getMainLooper()).idle()
         }
     }
@@ -83,7 +91,7 @@ class SettingsActivityTest {
     fun deleteAppDataPref_click_showsConfirmationDialog() {
         // dialog code is Kover-excluded (*SettingsFragment*initDeleteAppDataPref*); verifies no crash
         launch {
-            findPreference<PreferenceScreen>("delete_app_data_pref")?.performClick()
+            findPreference<PreferenceScreen>("deleteAppData")?.performClick()
             shadowOf(Looper.getMainLooper()).idle()
         }
     }
@@ -91,7 +99,7 @@ class SettingsActivityTest {
     @Test
     fun darkModePref_newValue_darkMode_updatesState() {
         launch {
-            findPreference<dev.oneuiproject.oneui.preference.HorizontalRadioPreference>("dark_mode_pref")
+            findPreference<dev.oneuiproject.oneui.preference.HorizontalRadioPreference>("darkMode")
                 ?.callChangeListener("1")
             shadowOf(Looper.getMainLooper()).idle()
         }
@@ -100,7 +108,7 @@ class SettingsActivityTest {
     @Test
     fun darkModePref_newValue_lightMode_updatesState() {
         launch {
-            findPreference<dev.oneuiproject.oneui.preference.HorizontalRadioPreference>("dark_mode_pref")
+            findPreference<dev.oneuiproject.oneui.preference.HorizontalRadioPreference>("darkMode")
                 ?.callChangeListener("0")
             shadowOf(Looper.getMainLooper()).idle()
         }
@@ -109,7 +117,7 @@ class SettingsActivityTest {
     @Test
     fun autoDarkModePref_newValue_true_setsFollowSystem() {
         launch {
-            findPreference<androidx.preference.SwitchPreferenceCompat>("dark_mode_auto_pref")
+            findPreference<androidx.preference.SwitchPreferenceCompat>("autoDarkMode")
                 ?.callChangeListener(true)
             shadowOf(Looper.getMainLooper()).idle()
         }
@@ -118,7 +126,7 @@ class SettingsActivityTest {
     @Test
     fun autoDarkModePref_newValue_false_restoresDarkModeSetting() {
         launch {
-            findPreference<androidx.preference.SwitchPreferenceCompat>("dark_mode_auto_pref")
+            findPreference<androidx.preference.SwitchPreferenceCompat>("autoDarkMode")
                 ?.callChangeListener(false)
             shadowOf(Looper.getMainLooper()).idle()
         }
@@ -126,9 +134,10 @@ class SettingsActivityTest {
 
     @Test
     fun autoDarkModePref_newValue_false_withDarkModeEnabled_restoresNightMode() {
-        userSettings.darkMode = true
         launch {
-            findPreference<androidx.preference.SwitchPreferenceCompat>("dark_mode_auto_pref")
+            // darkModePref's own native persistence, not userSettings - see this class's doc.
+            findPreference<dev.oneuiproject.oneui.preference.HorizontalRadioPreference>("darkMode")?.value = "1"
+            findPreference<androidx.preference.SwitchPreferenceCompat>("autoDarkMode")
                 ?.callChangeListener(false)
             shadowOf(Looper.getMainLooper()).idle()
         }
@@ -137,7 +146,7 @@ class SettingsActivityTest {
     @Test
     fun switchScreenPref_click_startsActivity() {
         launch {
-            findPreference<SeslSwitchPreferenceScreen>("switch_screen")?.performClick()
+            findPreference<SeslSwitchPreferenceScreen>("sampleSwitchBar")?.performClick()
             shadowOf(Looper.getMainLooper()).idle()
             requireActivity().let { activity ->
                 shadowOf(activity)
@@ -151,10 +160,10 @@ class SettingsActivityTest {
     @Test
     fun switchScreenPref_newValue_true_updatesSummary() {
         launch {
-            findPreference<SeslSwitchPreferenceScreen>("switch_screen")
+            findPreference<SeslSwitchPreferenceScreen>("sampleSwitchBar")
                 ?.callChangeListener(true)
             shadowOf(Looper.getMainLooper()).idle()
-            findPreference<SeslSwitchPreferenceScreen>("switch_screen")
+            findPreference<SeslSwitchPreferenceScreen>("sampleSwitchBar")
                 ?.summary shouldBe "Enabled"
         }
     }
@@ -162,11 +171,25 @@ class SettingsActivityTest {
     @Test
     fun switchScreenPref_newValue_false_updatesSummary() {
         launch {
-            findPreference<SeslSwitchPreferenceScreen>("switch_screen")
+            findPreference<SeslSwitchPreferenceScreen>("sampleSwitchBar")
                 ?.callChangeListener(false)
             shadowOf(Looper.getMainLooper()).idle()
-            findPreference<SeslSwitchPreferenceScreen>("switch_screen")
+            findPreference<SeslSwitchPreferenceScreen>("sampleSwitchBar")
                 ?.summary shouldBe "Disabled"
+        }
+    }
+
+    @Test
+    fun switchScreenPref_sampleSwitchBarChangedElsewhere_renderUpdatesWidget() {
+        // userSettings IS the same Hilt-injected instance viewModel observes (unlike the widget's own native
+        // persistence, see this class's doc), so this exercises render()'s cross-screen reactivity path directly -
+        // the same path SwitchBarViewModel drives in production.
+        launch {
+            userSettings.sampleSwitchBar = true
+            shadowOf(Looper.getMainLooper()).idle()
+            val pref = findPreference<SeslSwitchPreferenceScreen>("sampleSwitchBar")
+            pref?.isChecked shouldBe true
+            pref?.summary shouldBe "Enabled"
         }
     }
 
@@ -193,7 +216,7 @@ class SettingsActivityTest {
     @Test
     fun editTextPref_newValue_showsSnackBar() {
         launch {
-            findPreference<androidx.preference.EditTextPreference>("edit_text")
+            findPreference<androidx.preference.EditTextPreference>("editText")
                 ?.callChangeListener("test value")
             shadowOf(Looper.getMainLooper()).idle()
         }
@@ -207,7 +230,7 @@ class SettingsActivityTest {
                 val fragment =
                     activity.supportFragmentManager
                         .findFragmentById(R.id.settings) as? SettingsActivity.SettingsFragment
-                fragment?.findPreference<PreferenceScreen>("tos_pref")?.performClick()
+                fragment?.findPreference<PreferenceScreen>("tos")?.performClick()
             }
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity {
@@ -224,8 +247,8 @@ class SettingsActivityTest {
     @Config(sdk = [28])
     fun languagePref_belowTiramisu_prefCatNotVisible() {
         launch {
-            // language_pref_cat starts hidden in XML; only shown on SDK >= TIRAMISU
-            findPreference<PreferenceCategory>("language_pref_cat")?.isVisible shouldBe false
+            // languageCategory starts hidden in XML; only shown on SDK >= TIRAMISU
+            findPreference<PreferenceCategory>("languageCategory")?.isVisible shouldBe false
         }
     }
 
@@ -235,7 +258,7 @@ class SettingsActivityTest {
             requireView().findViewById<android.widget.ImageView>(dev.oneuiproject.oneui.design.R.id.exit_button).performClick()
             shadowOf(Looper.getMainLooper()).idle()
             preferenceScreen.findPreference<dev.oneuiproject.oneui.preference.SuggestionCardPreference>("suggestion") shouldBe null
-            preferenceScreen.findPreference<dev.oneuiproject.oneui.preference.InsetPreferenceCategory>("suggestion_inset") shouldBe null
+            preferenceScreen.findPreference<dev.oneuiproject.oneui.preference.InsetPreferenceCategory>("suggestionInset") shouldBe null
         }
     }
 

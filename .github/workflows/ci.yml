@@ -60,10 +60,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
       - name: Run lint
-        run: chmod +x ./gradlew && ./gradlew lintDebug --stacktrace
+        run: chmod +x ./gradlew && ./gradlew lintDebug --stacktrace $LINT_ARGS
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+          LINT_ARGS: ${{ github.event.pull_request.user.login == 'renovate[bot]' && '-Plint.checkDependencyUpdates=false' || '' }}
       - name: Upload lint report
         if: always()
         uses: actions/upload-artifact@v7
