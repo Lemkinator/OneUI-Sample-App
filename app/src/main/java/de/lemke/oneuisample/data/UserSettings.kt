@@ -33,9 +33,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 data class UserSettingsSnapshot(
-    val lastVersionCode: Int = -1,
-    val lastVersionName: String = "0.0",
-    val acceptedTosVersion: Int = -1,
     val devModeEnabled: Boolean = false,
     val appPickerType: Int = 0,
     val appPickerSelectLayoutMode: Boolean = false,
@@ -43,8 +40,6 @@ data class UserSettingsSnapshot(
     val showIndexScroll: Boolean = true,
     val indexScrollShowLetters: Boolean = true,
     val indexScrollAutoHide: Boolean = true,
-    val actionModeShowCancel: Boolean = false,
-    val searchOnActionMode: SearchOnActionMode = SearchOnActionMode.Dismiss,
     val search: String = "",
     val searchActive: Boolean = false,
 )
@@ -173,9 +168,6 @@ class UserSettings(
 
     private fun snapshot() =
         UserSettingsSnapshot(
-            lastVersionCode = lastVersionCode,
-            lastVersionName = lastVersionName,
-            acceptedTosVersion = acceptedTosVersion,
             devModeEnabled = devModeEnabled,
             appPickerType = appPickerType,
             appPickerSelectLayoutMode = appPickerSelectLayoutMode,
@@ -183,8 +175,6 @@ class UserSettings(
             showIndexScroll = showIndexScroll,
             indexScrollShowLetters = indexScrollShowLetters,
             indexScrollAutoHide = indexScrollAutoHide,
-            actionModeShowCancel = actionModeShowCancel,
-            searchOnActionMode = searchOnActionMode,
             search = search,
             searchActive = searchActive,
         )

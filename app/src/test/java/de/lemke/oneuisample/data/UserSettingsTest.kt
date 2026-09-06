@@ -207,7 +207,6 @@ class UserSettingsTest {
     @Test
     fun `flow emits snapshot on creation`() {
         val snapshot = repo.flow.value
-        snapshot.lastVersionCode shouldBe -1
         snapshot.devModeEnabled shouldBe false
     }
 
