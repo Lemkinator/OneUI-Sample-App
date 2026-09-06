@@ -417,4 +417,18 @@ class SharedPreferenceDelegatesTest {
             }
         h.ss shouldBe setOf("x")
     }
+
+    // mapped
+
+    @Test
+    fun `mapped exposes a String delegate as another type and writes the wire form`() {
+        class Holder {
+            var flag: Boolean by delegates.string("0").mapped(to = { it == "1" }, from = { if (it) "1" else "0" })
+        }
+        val h = Holder()
+        h.flag shouldBe false
+        h.flag = true
+        Holder().flag shouldBe true
+        prefs.getString("flag", null) shouldBe "1"
+    }
 }

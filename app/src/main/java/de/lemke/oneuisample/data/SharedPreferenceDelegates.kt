@@ -48,6 +48,28 @@ fun <R, T> ReadWriteProperty<R, T>.sanitized(sanitize: (T) -> T): ReadWritePrope
         ) = this@sanitized.setValue(thisRef, property, sanitize(value))
     }
 
+/**
+ * Wraps this delegate to expose values as [S] instead of the natively-storable [T] — e.g. an enum or sealed type
+ * backed by a String delegate. [to] converts the stored value on read, [from] converts back on write. Unlike
+ * [sanitized] (same type in, same type out — for clamping/validating), [mapped] changes the exposed type entirely.
+ */
+fun <R, T, S> ReadWriteProperty<R, T>.mapped(
+    to: (T) -> S,
+    from: (S) -> T,
+): ReadWriteProperty<R, S> =
+    object : ReadWriteProperty<R, S> {
+        override fun getValue(
+            thisRef: R,
+            property: KProperty<*>,
+        ): S = to(this@mapped.getValue(thisRef, property))
+
+        override fun setValue(
+            thisRef: R,
+            property: KProperty<*>,
+            value: S,
+        ) = this@mapped.setValue(thisRef, property, from(value))
+    }
+
 /** Parses [raw] as a comma-joined int list; null (→ delegate falls back to its default) if null, empty, or unparsable. */
 private fun parseIntList(raw: String?): List<Int>? =
     raw?.let { it.split(",").mapNotNull { part -> part.toIntOrNull() }.takeIf { list -> list.isNotEmpty() } }
@@ -114,13 +136,7 @@ class SharedPreferenceDelegates(
     fun darkMode(
         default: Boolean = false,
         key: String? = null,
-    ): ReadWriteProperty<Any, Boolean> =
-        create(
-            default,
-            key,
-            { k, d -> prefs.getString(k, if (d) "1" else "0") == "1" },
-            { k, v -> prefs.edit { putString(k, if (v) "1" else "0") } },
-        )
+    ): ReadWriteProperty<Any, Boolean> = string(if (default) "1" else "0", key).mapped(to = { it == "1" }, from = { if (it) "1" else "0" })
 
     /** Delegate that reads/writes a [SearchOnActionMode] preference. */
     fun searchOnActionMode(

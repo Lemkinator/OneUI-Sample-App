@@ -66,7 +66,7 @@ class UserSettingsTest {
         repo.darkMode shouldBe false
         repo.autoDarkMode shouldBe true
         repo.lastVersionCode shouldBe -1
-        repo.lastVersionName shouldBe "0.0"
+        repo.lastVersionName shouldBe "0.0.0"
         repo.acceptedTosVersion shouldBe -1
         repo.devModeEnabled shouldBe false
         repo.appPickerType shouldBe 0

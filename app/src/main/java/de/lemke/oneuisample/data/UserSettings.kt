@@ -59,7 +59,7 @@ class UserSettings(
     var lastVersionCode: Int by preferences.delegates.int(-1)
 
     /** The version name recorded on the previous app launch. */
-    var lastVersionName: String by preferences.delegates.string("0.0")
+    var lastVersionName: String by preferences.delegates.string("0.0.0")
 
     /** The highest TOS version the user has accepted, or -1 if the user has never accepted. */
     var acceptedTosVersion: Int by preferences.delegates.int(-1)
