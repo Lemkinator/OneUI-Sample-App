@@ -107,11 +107,53 @@ subprojects {
                     exclude(group = "androidx.viewpager", module = "viewpager")
                     exclude(group = "androidx.appcompat", module = "appcompat")
                     exclude(group = "androidx.fragment", module = "fragment")
+                    exclude(group = "androidx.fragment", module = "fragment-ktx")
                     exclude(group = "androidx.preference", module = "preference")
                     exclude(group = "androidx.recyclerview", module = "recyclerview")
                     exclude(group = "androidx.slidingpanelayout", module = "slidingpanelayout")
                     exclude(group = "androidx.swiperefreshlayout", module = "swiperefreshlayout")
                     exclude(group = "com.google.android.material", module = "material")
+                }
+
+                // The plain exclude() above is necessary but not sufficient for androidx.core/
+                // core-ktx specifically: real, non-SESL-forked leaves (androidx.activity,
+                // androidx.compose.ui, emoji2, autofill, window, graphics, savedstate) each
+                // hard-depend on a different real core version — confirmed via
+                // ResolvedComponentResult that these are genuine dependency edges, not constraints.
+                // Once that many independent real-core-version conflicts exist simultaneously in
+                // ONE configuration (only happens on :app's own main classpath, which declares real
+                // Compose — material3/activity-compose — directly, alongside oneui-design), Gradle's
+                // exclude() stops cutting those specific edges, and real core still ends up on the
+                // classpath despite the exclude rule above. Declaring the SESL fork as an alternate
+                // provider of the real capability and picking a winner per config survives that
+                // reliably; non-test configs prefer the SESL fork, test configs keep real AndroidX
+                // for Robolectric. On configs where no such pileup exists (e.g. androidTest, whose
+                // own test-only libraries pull real core but never sesl core into the same graph),
+                // the plain exclude() above already does the job and this capability rule is a
+                // no-op — but it must stay scoped identically to the exclude() above rather than
+                // narrowed to just the main classpath, since androidTest still needs real core kept
+                // out where a SESL alternative does exist (e.g. via :app's own oneui-design edge).
+                dependencies {
+                    components {
+                        withModule("sesl.androidx.core:core") {
+                            allVariants { withCapabilities { addCapability("androidx.core", "core", id.version) } }
+                        }
+                        withModule("sesl.androidx.core:core-ktx") {
+                            allVariants { withCapabilities { addCapability("androidx.core", "core-ktx", id.version) } }
+                        }
+                    }
+                }
+                configurations.matching { !it.name.startsWith("test", ignoreCase = true) }.configureEach {
+                    resolutionStrategy.capabilitiesResolution {
+                        withCapability("androidx.core:core") { select(candidates.first { it.id.toString().startsWith("sesl.") }) }
+                        withCapability("androidx.core:core-ktx") { select(candidates.first { it.id.toString().startsWith("sesl.") }) }
+                    }
+                }
+                configurations.matching { it.name.startsWith("test", ignoreCase = true) }.configureEach {
+                    resolutionStrategy.capabilitiesResolution {
+                        withCapability("androidx.core:core") { select(candidates.first { !it.id.toString().startsWith("sesl.") }) }
+                        withCapability("androidx.core:core-ktx") { select(candidates.first { !it.id.toString().startsWith("sesl.") }) }
+                    }
                 }
             }
         }
