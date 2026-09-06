@@ -357,4 +357,42 @@ class UserSettingsTest {
         repo.applyDarkMode()
         AppCompatDelegate.getDefaultNightMode() shouldBe AppCompatDelegate.MODE_NIGHT_NO
     }
+
+    @Test
+    fun `delegated keys are pinned`() {
+        assertDelegatedKeys(
+            UserSettings::class.java,
+            setOf(
+                "darkMode",
+                "autoDarkMode",
+                "lastVersionCode",
+                "lastVersionName",
+                "acceptedTosVersion",
+                "devModeEnabled",
+                "appPickerType",
+                "appPickerSelectLayoutMode",
+                "sampleSwitchBar",
+                "showIndexScroll",
+                "indexScrollShowLetters",
+                "indexScrollAutoHide",
+                "actionModeShowCancel",
+                "searchOnActionMode",
+                "search",
+                "searchActive",
+                "currentColor",
+                "recentColors",
+                "switchDemo",
+                "checkbox",
+                "editText",
+                "dropdown",
+                "list",
+                "multiselectList",
+                "colorPicker",
+                "seekbar",
+                "seekbarPro",
+                "seekbarProLevel",
+                "seekbarProCenterBased",
+            ),
+        )
+    }
 }
