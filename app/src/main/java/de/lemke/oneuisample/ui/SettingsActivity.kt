@@ -103,6 +103,7 @@ class SettingsActivity : AppCompatActivity() {
             bundle: Bundle?,
             str: String?,
         ) {
+            preferenceManager.preferenceDataStore = userSettings.preferenceDataStore()
             addPreferencesFromResource(R.xml.preferences)
         }
 
@@ -158,25 +159,26 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         /**
-         * Neither [darkModePref] nor [autoDarkModePref] read/write through [viewModel] - nothing outside this screen
-         * writes either setting (see [SettingsViewModel]'s class doc), so native `Preference` persistence is the only
-         * source of truth for both value and initial render. Only the purely-local "auto disables the explicit
-         * choice" UI rule and the `setDefaultNightMode` side effect are wired here.
+         * Both widgets persist natively; nothing outside this screen writes either setting (see [SettingsViewModel]'s
+         * class doc), so only the local "auto disables the explicit choice" rule and the `setDefaultNightMode` side
+         * effect are wired here, reading widget state rather than [userSettings].
          */
         private fun initDarkModePrefs() {
             darkModePref = findPreference("darkMode")!!
             autoDarkModePref = findPreference("autoDarkMode")!!
-            darkModePref.isEnabled = !userSettings.autoDarkMode
+            darkModePref.isEnabled = !autoDarkModePref.isChecked
             darkModePref.onNewValue { newValue ->
                 AppCompatDelegate.setDefaultNightMode(if (newValue == "1") MODE_NIGHT_YES else MODE_NIGHT_NO)
             }
             autoDarkModePref.onNewValue { newValue ->
                 darkModePref.isEnabled = !newValue
-                if (newValue) {
-                    AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(if (darkModePref.value == "1") MODE_NIGHT_YES else MODE_NIGHT_NO)
-                }
+                AppCompatDelegate.setDefaultNightMode(
+                    when {
+                        newValue -> MODE_NIGHT_FOLLOW_SYSTEM
+                        darkModePref.value == "1" -> MODE_NIGHT_YES
+                        else -> MODE_NIGHT_NO
+                    },
+                )
             }
             darkModePref.setDividerEnabled(false)
             darkModePref.setTouchEffectEnabled(false)

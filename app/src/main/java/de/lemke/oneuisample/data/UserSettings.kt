@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
+import androidx.preference.PreferenceDataStore
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import kotlinx.coroutines.CoroutineScope
@@ -137,6 +138,12 @@ class UserSettings(
 
     /** Backs the center-based-mode `SeekBarPreferencePro` demo entry. */
     var seekbarProCenterBased: Int by preferences.delegates.int(0)
+
+    /**
+     * Binds a `PreferenceFragmentCompat` to this store — assign it to `preferenceManager.preferenceDataStore` before
+     * inflating any preference XML, so widgets persist where the delegates read.
+     */
+    fun preferenceDataStore(): PreferenceDataStore = SharedPreferencesDataStore(preferences)
 
     /**
      * A [StateFlow] of the current [UserSettingsSnapshot].

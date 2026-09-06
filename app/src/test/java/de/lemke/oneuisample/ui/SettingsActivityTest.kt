@@ -39,14 +39,6 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-/**
- * [userSettings] is [TestSettingsModule][de.lemke.oneuisample.TestSettingsModule]'s isolated
- * `freshTestPreferences()` file - a different file than `darkModePref`/`autoDarkModePref`'s own native
- * `Preference` persistence, which always targets the real default file regardless of what's Hilt-injected
- * (Hilt's `@TestInstallIn` is source-set-wide, not overridable per test class). A
- * `userSettings.darkMode = true`-style preset before [launch] therefore has no effect on those two widgets;
- * no assertion in this class relies on it.
- */
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @Config(application = HiltTestApplication::class, sdk = [36])
@@ -134,12 +126,31 @@ class SettingsActivityTest {
 
     @Test
     fun autoDarkModePref_newValue_false_withDarkModeEnabled_restoresNightMode() {
+        userSettings.darkMode = true
         launch {
-            // darkModePref's own native persistence, not userSettings - see this class's doc.
-            findPreference<dev.oneuiproject.oneui.preference.HorizontalRadioPreference>("darkMode")?.value = "1"
             findPreference<androidx.preference.SwitchPreferenceCompat>("autoDarkMode")
                 ?.callChangeListener(false)
             shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun darkModePref_radioClick_persistsToUserSettings() {
+        launch {
+            val pref = findPreference<dev.oneuiproject.oneui.preference.HorizontalRadioPreference>("darkMode")!!
+            // Mirrors HorizontalRadioPreference's own click path: listener first, then value.
+            if (pref.callChangeListener("1")) pref.value = "1"
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+        userSettings.darkMode shouldBe true
+    }
+
+    @Test
+    fun autoDarkModePref_presetFalse_enablesDarkModeRadio() {
+        userSettings.autoDarkMode = false
+        launch {
+            findPreference<androidx.preference.SwitchPreferenceCompat>("autoDarkMode")?.isChecked shouldBe false
+            findPreference<dev.oneuiproject.oneui.preference.HorizontalRadioPreference>("darkMode")?.isEnabled shouldBe true
         }
     }
 
