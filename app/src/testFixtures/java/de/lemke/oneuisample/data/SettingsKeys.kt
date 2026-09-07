@@ -15,8 +15,6 @@
  */
 package de.lemke.oneuisample.data
 
-// Mirror of common-utils' lib/src/testFixtures/.../SettingsKeys.kt (this app has no common-utils dependency). Keep byte-identical apart from package/imports.
-
 /**
  * Pins the exact set of `SharedPreferences` keys [settingsClass] declares - one per `by preferences.delegates.*`
  * property, whose key defaults to the property name. Only properties declared on [settingsClass] itself count; a

@@ -15,7 +15,6 @@
  */
 package de.lemke.oneuisample.data
 
-// Mirror of common-utils' lib/src/testFixtures/.../PreferenceXmlParity.kt (this app has no common-utils dependency). Keep byte-identical apart from package/imports.
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.XmlResourceParser
