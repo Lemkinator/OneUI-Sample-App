@@ -48,22 +48,11 @@ Single-module (`:app`) Android app demonstrating OneUI-Design components. Layere
 - **`App.kt`** - `@HiltAndroidApp` entry point; `PersistenceModule.kt` - Hilt singleton providing `SharedPreferences` and
   `UserSettings` (with an `@ApplicationScope` `CoroutineScope` for the `StateFlow`).
 
-State collection patterns:
-
-- Fragments: `launchAndRepeatWithViewLifecycle { flow.collectLatest { } }`, or the `collectState` / `collectEvents` shortcuts from
-  `ui/util/LifecycleUtils.kt`
-- Activities: `collectState(viewModel.state) { }` / `collectEvents(viewModel.events) { }`
-- One-shot delayed UI work: `viewLifecycleOwner.lifecycleScope.launch { delay(ms); ... }` (canceled automatically on `onDestroyView`)
-
 ViewBinding uses the `autoCleared` delegate (`ui/util/AutoClearedUtils.kt`) to prevent leaks.
 
 ## Robolectric + JUnit 5
 
-**Do not migrate Robolectric tests to JUnit 5.** `org.robolectric.junit.jupiter.RobolectricExtension` does not exist - Robolectric has no
-native JUnit 5 support ([issue #3477](https://github.com/robolectric/robolectric/issues/3477)). The community extension
-`tech.apter.junit5.jupiter:robolectric-extension` only targets Robolectric 4.14.1, is pre-release, and has no Hilt/Roborazzi support.
-
-`@RunWith(RobolectricTestRunner::class)` + `junit-vintage-engine` is correct. Keep until Robolectric ships native JUnit 5.
+See the shared Robolectric/JUnit 5 policy in `A:\repo\android\CLAUDE.md`.
 
 **Kover + inline functions**: JUnit 4 + `RobolectricTestRunner` enables JaCoCo SMAP attribution — inlined call-site coverage is mapped back
 to the original `inline fun` definition. Simple delegating `inline fun` therefore don't need `@NoCoverage` here (tests calling them cover
@@ -98,18 +87,6 @@ Tests never mock settings — every test uses the real `UserSettings` over an is
 `app/src/testFixtures` is enabled on `:app` itself (`android.testFixtures.enable = true`) — this app has no shared library to draw test
 helpers from, so its own `testFixtures` source set is the only way to share code between `src/test` and `src/androidTest`.
 
-## Dependency Version Policy
-
-Default: use the latest stable version of every dependency.
-Renovate keeps minor/patch current; bump majors manually with release-note review.
-
-Known exceptions:
-
-1. Kotlin + KSP lockstep - Renovate's `kotlin` group enforces this
-2. Detekt on fresh Kotlin majors. May need alpha until stable catches up
-3. Plugin AGP compatibility windows, check before bumping AGP
-4. CI emulator images, pin to most stable, not newest
-
 ## Static Analysis
 
 Four tools run as part of `./gradlew build`:
@@ -140,14 +117,6 @@ message if `core.autocrlf=true` is detected.
 If `spotlessCheck` fails, fix with `./gradlew spotlessApply` then re-run. Screenshot test failures (`verifyRoborazziDebug`) mean the code
 change broke a visual. Do not analyze screenshots, ask the user to verify the changes.
 
-**Dependency analysis**, manual hygiene tool (not in CI). Invoke with:
-
-```powershell
-./gradlew buildHealth
-```
-
-Report at `build/reports/dependency-analysis/build-health-report.txt`. Review unused/misconfigured deps case-by-case.
-
 **ktlint rule overrides**: two rules disabled in `.editorconfig` to match community practice (NowInAndroid, Pokedex both use the inline
 form):
 
@@ -157,9 +126,6 @@ form):
   insufficient.
 
 ## Key Patterns
-
-**Dependency exclusions** - root `build.gradle.kts` globally excludes `appcompat`, `fragment`, `recyclerview`, `material`, `viewpager2`, and
-others from all subprojects - `oneui-design` bundles its own versions. Never add these as explicit dependencies.
 
 **Navigation** - Navigation Component (`main_navigation.xml`) handles fragment destinations. Lateral activities are launched via
 `startActivity(Intent(...))`. `NavigationView.onNavigationSingleClick` debounces rapid taps.
