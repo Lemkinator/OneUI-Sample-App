@@ -103,6 +103,7 @@ android {
         buildConfig = true
     }
 
+    @Suppress("UnstableApiUsage")
     testFixtures {
         enable = true
     }
