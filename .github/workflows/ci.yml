@@ -72,7 +72,7 @@ jobs:
           name: lint-report
           path: app/build/reports/lint-results-*
 
-  unit-tests:
+  local-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: check-formatting
@@ -90,8 +90,8 @@ jobs:
           java-version: '21'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
-      - name: Run unit tests
-        run: chmod +x ./gradlew && ./gradlew testDebugUnitTest koverXmlReportDebug koverHtmlReportDebug koverVerifyDebug --stacktrace
+      - name: Run local tests
+        run: chmod +x ./gradlew && ./gradlew testDebugUnitTest verifyRoborazziDebug koverXmlReportDebug koverHtmlReportDebug koverVerifyDebug --stacktrace
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
@@ -112,30 +112,6 @@ jobs:
         with:
           name: kover-coverage-report
           path: app/build/reports/kover/htmlDebug/
-
-  screenshot-tests:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: check-formatting
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - name: Copy CI gradle.properties
-        run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
-      - name: Set up JDK
-        uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: '21'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
-      - name: Verify screenshots
-        run: chmod +x ./gradlew && ./gradlew verifyRoborazziDebug --stacktrace
-        env:
-          GH_USERNAME: ${{ secrets.GH_USERNAME }}
-          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
       - name: Upload diff on failure
         if: failure()
         uses: actions/upload-artifact@v7
@@ -176,7 +152,7 @@ jobs:
   assemble:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [ lint, unit-tests, screenshot-tests, instrumented-tests ]
+    needs: [ lint, local-tests, instrumented-tests ]
     steps:
       - name: Checkout
         uses: actions/checkout@v7
