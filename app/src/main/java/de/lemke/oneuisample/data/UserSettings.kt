@@ -140,12 +140,6 @@ class UserSettings(
     var seekbarProCenterBased: Int by preferences.delegates.int(0)
 
     /**
-     * Binds a `PreferenceFragmentCompat` to this store — assign it to `preferenceManager.preferenceDataStore` before
-     * inflating any preference XML, so widgets persist where the delegates read.
-     */
-    fun preferenceDataStore(): PreferenceDataStore = SharedPreferencesDataStore(preferences)
-
-    /**
      * A [StateFlow] of the current [UserSettingsSnapshot].
      *
      * Backed by a single, strongly-held [SharedPreferences.OnSharedPreferenceChangeListener] so the
@@ -161,6 +155,12 @@ class UserSettings(
      * ```
      */
     val flow: StateFlow<UserSettingsSnapshot> = settingsFlow(scope, ::snapshot)
+
+    /**
+     * Binds a `PreferenceFragmentCompat` to this store — assign it to `preferenceManager.preferenceDataStore` before
+     * inflating any preference XML, so widgets persist where the delegates read.
+     */
+    fun preferenceDataStore(): PreferenceDataStore = SharedPreferencesDataStore(preferences)
 
     private fun settingsFlow(
         scope: CoroutineScope,
