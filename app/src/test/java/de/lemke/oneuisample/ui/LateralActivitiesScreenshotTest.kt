@@ -18,10 +18,13 @@ package de.lemke.oneuisample.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Looper
+import android.view.ViewGroup
+import androidx.core.view.descendants
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
+import com.airbnb.lottie.LottieAnimationView
 import com.github.takahirom.roborazzi.captureRoboImage
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -46,8 +49,20 @@ class LateralActivitiesScreenshotTest {
     private val context get() = ApplicationProvider.getApplicationContext<HiltTestApplication>()
 
     private inline fun <reified T : Activity> captureScreenshot(fileName: String) {
-        ActivityScenario.launch<T>(Intent(context, T::class.java)).use {
+        ActivityScenario.launch<T>(Intent(context, T::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
+            // Lottie drives its own Choreographer-based animator, independent of the Looper
+            // queue idle() drains above — an autoplaying/looping view is otherwise captured at
+            // a timing-dependent frame. Pin every one to frame 0 for a deterministic screenshot.
+            scenario.onActivity { activity ->
+                (activity.window.decorView as ViewGroup)
+                    .descendants
+                    .filterIsInstance<LottieAnimationView>()
+                    .forEach {
+                        it.pauseAnimation()
+                        it.progress = 0f
+                    }
+            }
             onView(isRoot()).captureRoboImage(fileName)
         }
     }
