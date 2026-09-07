@@ -15,6 +15,7 @@
  */
 package de.lemke.oneuisample.ui
 
+import app.cash.turbine.test
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
@@ -31,28 +32,23 @@ class SettingsViewModelTest : ShouldSpec(
         }
 
         should("initial state matches settings defaults") {
-            viewModel.state.value shouldBe
-                SettingsUiState(
-                    darkMode = false,
-                    autoDarkMode = true,
-                    devModeEnabled = false,
-                    sampleSwitchBar = false,
-                )
+            viewModel.state.value shouldBe SettingsUiState(devModeEnabled = false, sampleSwitchBar = false)
         }
 
-        should("onDarkModeChanged writes to settings") {
-            viewModel.onDarkModeChanged(true)
-            settings.darkMode shouldBe true
+        should("state reflects devModeEnabled written from elsewhere") {
+            viewModel.state.test {
+                awaitItem() shouldBe SettingsUiState(devModeEnabled = false, sampleSwitchBar = false)
+                settings.devModeEnabled = true
+                awaitItem() shouldBe SettingsUiState(devModeEnabled = true, sampleSwitchBar = false)
+            }
         }
 
-        should("onAutoDarkModeChanged writes to settings") {
-            viewModel.onAutoDarkModeChanged(false)
-            settings.autoDarkMode shouldBe false
-        }
-
-        should("onSampleSwitchBarChanged writes to settings") {
-            viewModel.onSampleSwitchBarChanged(true)
-            settings.sampleSwitchBar shouldBe true
+        should("state reflects sampleSwitchBar written from elsewhere") {
+            viewModel.state.test {
+                awaitItem() shouldBe SettingsUiState(devModeEnabled = false, sampleSwitchBar = false)
+                settings.sampleSwitchBar = true
+                awaitItem() shouldBe SettingsUiState(devModeEnabled = false, sampleSwitchBar = true)
+            }
         }
     },
 )

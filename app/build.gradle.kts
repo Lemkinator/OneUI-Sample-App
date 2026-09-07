@@ -38,10 +38,19 @@ fun getProperty(key: String): String? = rootProject.findProperty(key)?.toString(
 
 android {
     namespace = "de.lemke.oneuisample"
-    compileSdk =
-        libs.versions.compileSdk
-            .get()
-            .toInt()
+    compileSdk {
+        version =
+            release(
+                libs.versions.compileSdk
+                    .get()
+                    .toInt(),
+            ) {
+                minorApiLevel =
+                    libs.versions.compileSdkMinor
+                        .get()
+                        .toInt()
+            }
+    }
     defaultConfig {
         applicationId = "de.lemke.oneuisample"
         minSdk = 26
@@ -94,6 +103,7 @@ android {
         buildConfig = true
     }
 
+    @Suppress("UnstableApiUsage")
     testFixtures {
         enable = true
     }
@@ -115,8 +125,6 @@ android {
         checkReleaseBuilds = true
         abortOnError = true
         baseline = file("lint-baseline.xml")
-        sarifReport = true
-        htmlReport = true
         // Avatar PNGs in drawable/ are intentionally densityless (photos, not icons)
         disable += setOf("IconLocation", "IconMissingDensityFolder")
     }
@@ -184,6 +192,11 @@ dependencies {
     testFixturesImplementation(libs.androidx.test.core)
     testFixturesImplementation(libs.androidx.material3)
     testFixturesImplementation(libs.coroutines.test)
+    // PreferenceXmlParity.kt hosts a real PreferenceFragmentCompat (via oneui.design's androidx.preference
+    // fork) through Robolectric.buildActivity - `implementation` deps of :app's main source set don't leak
+    // to testFixtures, so both are declared again here at the same coordinates main uses.
+    testFixturesImplementation(libs.oneui.design)
+    testFixturesImplementation(libs.robolectric)
 }
 
 spotless {

@@ -25,38 +25,29 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 
 data class SettingsUiState(
-    val darkMode: Boolean = false,
-    val autoDarkMode: Boolean = true,
     val devModeEnabled: Boolean = false,
     val sampleSwitchBar: Boolean = false,
 )
 
+/**
+ * Only [devModeEnabled] and [sampleSwitchBar] are observed here: both can change while this screen is alive but
+ * paused (devModeEnabled from [AboutViewModel]'s hidden toggle; sampleSwitchBar from [SwitchBarViewModel] when the
+ * user backs out of [de.lemke.oneuisample.ui.SwitchBarActivity]), so the widgets need a push from outside to stay
+ * current. darkMode/autoDarkMode have no such external writer - their widgets' own native persistence is the only
+ * source of truth, so this ViewModel doesn't need to know about them at all.
+ */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val userSettings: UserSettings,
+    userSettings: UserSettings,
 ) : ViewModel() {
     val state: StateFlow<SettingsUiState> =
         userSettings.flow
-            .map { SettingsUiState(it.darkMode, it.autoDarkMode, it.devModeEnabled, it.sampleSwitchBar) }
+            .map { SettingsUiState(it.devModeEnabled, it.sampleSwitchBar) }
             .stateInViewModel(
                 viewModelScope,
                 SettingsUiState(
-                    darkMode = userSettings.darkMode,
-                    autoDarkMode = userSettings.autoDarkMode,
                     devModeEnabled = userSettings.devModeEnabled,
                     sampleSwitchBar = userSettings.sampleSwitchBar,
                 ),
             )
-
-    fun onDarkModeChanged(darkMode: Boolean) {
-        userSettings.darkMode = darkMode
-    }
-
-    fun onAutoDarkModeChanged(autoDarkMode: Boolean) {
-        userSettings.autoDarkMode = autoDarkMode
-    }
-
-    fun onSampleSwitchBarChanged(enabled: Boolean) {
-        userSettings.sampleSwitchBar = enabled
-    }
 }

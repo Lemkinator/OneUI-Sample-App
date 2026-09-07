@@ -47,6 +47,8 @@ fun getProperty(key: String): String =
 val githubUsername = getProperty("ghUsername")
 val githubAccessToken = getProperty("ghAccessToken")
 
+val checkDependencyUpdates = providers.gradleProperty("lint.checkDependencyUpdates").getOrElse("true").toBoolean()
+
 allprojects {
     repositories {
         google()
@@ -69,6 +71,12 @@ subprojects {
                 targetCompatibility = JavaVersion.toVersion(libs.versions.jvmTarget.get())
             }
 
+            // Renovate owns dependency freshness on its own PRs; enforcing there would fail every
+            // in-flight bump against every other still-pending one.
+            if (!checkDependencyUpdates) {
+                lint.informational += setOf("GradleDependency", "NewerVersionAvailable")
+            }
+
             @Suppress("UnstableApiUsage")
             testOptions.managedDevices.localDevices {
                 register("pixel9Api35") {
@@ -79,17 +87,14 @@ subprojects {
                 }
             }
 
-            // oneui-design replaces these AOSP AndroidX modules with Samsung forks; exclude
-            // AOSP originals from all com.android.application modules to prevent shadowing.
-            // com.android.test modules (e.g. :benchmarks) are not matched and keep
-            // genuine AOSP AndroidX for UiAutomator and benchmark dependencies.
+            // oneui-design replaces these AOSP AndroidX modules with Samsung's SESL forks, which
+            // keep the original package names — exclude the AOSP originals everywhere to prevent
+            // shadowing. com.android.test modules (:benchmarks) are not matched and keep genuine
+            // AOSP AndroidX for UiAutomator/benchmark deps. androidTest specifically needs SESL:
+            // instrumented tests launch SESL activities calling SESL-only APIs (e.g.
+            // MenuItemCompat.setSeslNaviMenuItemType).
             plugins.withId("com.android.application") {
-                // Exclude from non-unit-test configs. Unit-test* configs need genuine AOSP
-                // AndroidX for Robolectric. androidTest* configs keep SESL transitively from
-                // :app implementation deps — instrumented tests launch SESL activities that call
-                // SESL-specific APIs (e.g. MenuItemCompat.setSeslNaviMenuItemType).
-                // contains("test") would put AOSP in androidTest and cause NoSuchMethodError.
-                configurations.matching { !it.name.startsWith("test", ignoreCase = true) }.configureEach {
+                configurations.configureEach {
                     exclude(group = "androidx.core", module = "core")
                     exclude(group = "androidx.core", module = "core-ktx")
                     exclude(group = "androidx.customview", module = "customview")
@@ -99,11 +104,35 @@ subprojects {
                     exclude(group = "androidx.viewpager", module = "viewpager")
                     exclude(group = "androidx.appcompat", module = "appcompat")
                     exclude(group = "androidx.fragment", module = "fragment")
+                    exclude(group = "androidx.fragment", module = "fragment-ktx")
                     exclude(group = "androidx.preference", module = "preference")
                     exclude(group = "androidx.recyclerview", module = "recyclerview")
                     exclude(group = "androidx.slidingpanelayout", module = "slidingpanelayout")
                     exclude(group = "androidx.swiperefreshlayout", module = "swiperefreshlayout")
                     exclude(group = "com.google.android.material", module = "material")
+                }
+
+                // exclude() alone is unreliable for androidx.core/core-ktx: several real,
+                // non-SESL-forked libraries (activity, compose.ui, emoji2, autofill, window,
+                // graphics, savedstate) each pull a different real core version, and once enough
+                // conflicting real versions are in one graph, Gradle stops honoring the exclude
+                // rule for this pair. Declaring the SESL fork as an alternate provider of the real
+                // capability, then selecting it, closes that gap.
+                dependencies {
+                    components {
+                        withModule("sesl.androidx.core:core") {
+                            allVariants { withCapabilities { addCapability("androidx.core", "core", id.version) } }
+                        }
+                        withModule("sesl.androidx.core:core-ktx") {
+                            allVariants { withCapabilities { addCapability("androidx.core", "core-ktx", id.version) } }
+                        }
+                    }
+                }
+                configurations.configureEach {
+                    resolutionStrategy.capabilitiesResolution {
+                        withCapability("androidx.core:core") { select(candidates.first { it.id.toString().startsWith("sesl.") }) }
+                        withCapability("androidx.core:core-ktx") { select(candidates.first { it.id.toString().startsWith("sesl.") }) }
+                    }
                 }
             }
         }

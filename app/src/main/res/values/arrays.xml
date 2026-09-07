@@ -38,5 +38,8 @@
         <item>#F0FFFF</item>
         <item>#F5F5DC</item>
     </string-array>
+    <string-array name="preferences_multiselect_list_default_values">
+        <item>#00FFFF</item>
+    </string-array>
 
 </resources>

@@ -47,6 +47,7 @@ import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.databinding.ActivitySettingsBinding
 import de.lemke.oneuisample.ui.util.collectState
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
@@ -60,6 +61,7 @@ import dev.oneuiproject.oneui.preference.SuggestionCardPreference
 import dev.oneuiproject.oneui.preference.TipsCardPreference
 import dev.oneuiproject.oneui.preference.UpdatableWidgetPreference
 import dev.oneuiproject.oneui.widget.RelativeLink
+import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -79,6 +81,8 @@ class SettingsActivity : AppCompatActivity() {
 
     @AndroidEntryPoint
     class SettingsFragment : PreferenceFragmentCompat() {
+        @Inject
+        lateinit var userSettings: UserSettings
         private lateinit var settingsActivity: SettingsActivity
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
@@ -99,6 +103,7 @@ class SettingsActivity : AppCompatActivity() {
             bundle: Bundle?,
             str: String?,
         ) {
+            preferenceManager.preferenceDataStore = userSettings.preferenceDataStore()
             addPreferencesFromResource(R.xml.preferences)
         }
 
@@ -121,9 +126,6 @@ class SettingsActivity : AppCompatActivity() {
 
         private fun render(state: SettingsUiState) {
             devOptionsPref.isVisible = state.devModeEnabled
-            autoDarkModePref.isChecked = state.autoDarkMode
-            darkModePref.isEnabled = !state.autoDarkMode
-            darkModePref.value = if (state.darkMode) "1" else "0"
             switchScreenPref.apply {
                 isChecked = state.sampleSwitchBar
                 summary = if (isChecked) getString(R.string.enabled) else getString(R.string.disabled)
@@ -131,10 +133,10 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun initPreferences() {
-            devOptionsPref = findPreference("dev_options")!!
-            switchScreenPref = findPreference("switch_screen")!!
+            devOptionsPref = findPreference("devOptions")!!
+            switchScreenPref = findPreference("sampleSwitchBar")!!
             suggestionCardPref = findPreference("suggestion")!!
-            suggestionInsetPref = findPreference("suggestion_inset")!!
+            suggestionInsetPref = findPreference("suggestionInset")!!
             initDarkModePrefs()
             initSwitchBarPref()
             initLanguagePref()
@@ -153,24 +155,30 @@ class SettingsActivity : AppCompatActivity() {
             findPreference<TipsCardPreference>(
                 "tip",
             )!!.addButton(getString(R.string.button)) { suggestiveSnackBar(getString(R.string.on_click)) }
-            findPreference<EditTextPreference>("edit_text")!!.onNewValue { suggestiveSnackBar(getString(R.string.new_value, it)) }
+            findPreference<EditTextPreference>("editText")!!.onNewValue { suggestiveSnackBar(getString(R.string.new_value, it)) }
         }
 
+        /**
+         * Both widgets persist natively; nothing outside this screen writes either setting (see [SettingsViewModel]'s
+         * class doc), so only the local "auto disables the explicit choice" rule and the `setDefaultNightMode` side
+         * effect are wired here, reading widget state rather than [userSettings].
+         */
         private fun initDarkModePrefs() {
-            darkModePref = findPreference("dark_mode_pref")!!
-            autoDarkModePref = findPreference("dark_mode_auto_pref")!!
+            darkModePref = findPreference("darkMode")!!
+            autoDarkModePref = findPreference("autoDarkMode")!!
+            darkModePref.isEnabled = !autoDarkModePref.isChecked
             darkModePref.onNewValue { newValue ->
-                val darkMode = newValue == "1"
-                AppCompatDelegate.setDefaultNightMode(if (darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
-                viewModel.onDarkModeChanged(darkMode)
+                AppCompatDelegate.setDefaultNightMode(if (newValue == "1") MODE_NIGHT_YES else MODE_NIGHT_NO)
             }
             autoDarkModePref.onNewValue { newValue ->
-                if (newValue) {
-                    AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(if (viewModel.state.value.darkMode) MODE_NIGHT_YES else MODE_NIGHT_NO)
-                }
-                viewModel.onAutoDarkModeChanged(newValue)
+                darkModePref.isEnabled = !newValue
+                AppCompatDelegate.setDefaultNightMode(
+                    when {
+                        newValue -> MODE_NIGHT_FOLLOW_SYSTEM
+                        darkModePref.value == "1" -> MODE_NIGHT_YES
+                        else -> MODE_NIGHT_NO
+                    },
+                )
             }
             darkModePref.setDividerEnabled(false)
             darkModePref.setTouchEffectEnabled(false)
@@ -179,17 +187,14 @@ class SettingsActivity : AppCompatActivity() {
         private fun initSwitchBarPref() {
             switchScreenPref.apply {
                 onClick { startActivity(Intent(requireActivity(), SwitchBarActivity::class.java)) }
-                onNewValue { newValue ->
-                    summary = if (newValue) getString(R.string.enabled) else getString(R.string.disabled)
-                    viewModel.onSampleSwitchBarChanged(newValue)
-                }
+                onNewValue { newValue -> summary = if (newValue) getString(R.string.enabled) else getString(R.string.disabled) }
             }
         }
 
         private fun initLanguagePref() {
             if (SDK_INT >= TIRAMISU) {
-                findPreference<PreferenceCategory>("language_pref_cat")!!.isVisible = true
-                findPreference<PreferenceScreen>("language_pref")!!.onClick { openAppLocaleSettings() }
+                findPreference<PreferenceCategory>("languageCategory")!!.isVisible = true
+                findPreference<PreferenceScreen>("language")!!.onClick { openAppLocaleSettings() }
             }
         }
 
@@ -205,7 +210,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun initTosPref() {
-            findPreference<PreferenceScreen>("tos_pref")!!.onClick {
+            findPreference<PreferenceScreen>("tos")!!.onClick {
                 AlertDialog
                     .Builder(requireContext())
                     .setTitle(getString(R.string.tos))
@@ -216,7 +221,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun initDeleteAppDataPref() {
-            findPreference<PreferenceScreen>("delete_app_data_pref")!!.onClick {
+            findPreference<PreferenceScreen>("deleteAppData")!!.onClick {
                 AlertDialog
                     .Builder(settingsActivity)
                     .setTitle(R.string.delete_appdata_and_exit)

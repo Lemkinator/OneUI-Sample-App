@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
+import androidx.preference.PreferenceDataStore
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import kotlinx.coroutines.CoroutineScope
@@ -33,11 +34,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 data class UserSettingsSnapshot(
-    val darkMode: Boolean = false,
-    val autoDarkMode: Boolean = true,
-    val lastVersionCode: Int = -1,
-    val lastVersionName: String = "0.0",
-    val acceptedTosVersion: Int = -1,
     val devModeEnabled: Boolean = false,
     val appPickerType: Int = 0,
     val appPickerSelectLayoutMode: Boolean = false,
@@ -45,8 +41,6 @@ data class UserSettingsSnapshot(
     val showIndexScroll: Boolean = true,
     val indexScrollShowLetters: Boolean = true,
     val indexScrollAutoHide: Boolean = true,
-    val actionModeShowCancel: Boolean = false,
-    val searchOnActionMode: SearchOnActionMode = SearchOnActionMode.Dismiss,
     val search: String = "",
     val searchActive: Boolean = false,
 )
@@ -66,7 +60,7 @@ class UserSettings(
     var lastVersionCode: Int by preferences.delegates.int(-1)
 
     /** The version name recorded on the previous app launch. */
-    var lastVersionName: String by preferences.delegates.string("0.0")
+    var lastVersionName: String by preferences.delegates.string("0.0.0")
 
     /** The highest TOS version the user has accepted, or -1 if the user has never accepted. */
     var acceptedTosVersion: Int by preferences.delegates.int(-1)
@@ -104,20 +98,46 @@ class UserSettings(
     /** Whether the search bar is currently active. */
     var searchActive: Boolean by preferences.delegates.boolean(false)
 
-    /**
-     * The most recently selected color in the color picker demo. Deliberately absent from
-     * [UserSettingsSnapshot]/[flow] — [TabPickerFragment][de.lemke.oneuisample.ui.fragments.TabPickerFragment]
-     * is the only reader, and it reads this synchronously at dialog-creation time rather than observing it.
-     */
+    /** The most recently selected color in the color picker demo. */
     var currentColor: Int by preferences.delegates.int(DEFAULT_COLOR)
 
-    /**
-     * The most recently used colors in the color picker demo, deduplicated and capped at [MAX_RECENT_COLORS].
-     * Excluded from [UserSettingsSnapshot]/[flow] for the same reason as [currentColor].
-     */
+    /** The most recently used colors in the color picker demo, deduplicated and capped at [MAX_RECENT_COLORS]. */
     var recentColors: List<Int> by preferences.delegates
         .intList(listOf(DEFAULT_COLOR))
         .sanitized { it.distinct().take(MAX_RECENT_COLORS) }
+
+    /** Backs the `SwitchPreference` demo entry. */
+    var switchDemo: Boolean by preferences.delegates.boolean(false)
+
+    /** Backs the `CheckBoxPreference` demo entry. */
+    var checkbox: Boolean by preferences.delegates.boolean(true)
+
+    /** Backs the `EditTextPreference` demo entry. */
+    var editText: String by preferences.delegates.string("Default text")
+
+    /** Backs the `DropDownPreference` demo entry. */
+    var dropdown: String by preferences.delegates.string("#00FFFF")
+
+    /** Backs the `ListPreference` demo entry. */
+    var list: String by preferences.delegates.string("#F0FFFF")
+
+    /** Backs the `MultiSelectListPreference` demo entry. */
+    var multiselectList: Set<String> by preferences.delegates.stringSet(setOf("#00FFFF"))
+
+    /** Backs the `ColorPickerPreference` demo entry - a fixed showcase default, unrelated to [currentColor]. */
+    var colorPicker: Int by preferences.delegates.int(DEFAULT_COLOR)
+
+    /** Backs the plain `SeekBarPreference` demo entry. */
+    var seekbar: Int by preferences.delegates.int(30)
+
+    /** Backs the expand-mode `SeekBarPreferencePro` demo entry. */
+    var seekbarPro: Int by preferences.delegates.int(0)
+
+    /** Backs the level-bar-mode `SeekBarPreferencePro` demo entry. */
+    var seekbarProLevel: Int by preferences.delegates.int(2)
+
+    /** Backs the center-based-mode `SeekBarPreferencePro` demo entry. */
+    var seekbarProCenterBased: Int by preferences.delegates.int(0)
 
     /**
      * A [StateFlow] of the current [UserSettingsSnapshot].
@@ -136,6 +156,12 @@ class UserSettings(
      */
     val flow: StateFlow<UserSettingsSnapshot> = settingsFlow(scope, ::snapshot)
 
+    /**
+     * Binds a `PreferenceFragmentCompat` to this store — assign it to `preferenceManager.preferenceDataStore` before
+     * inflating any preference XML, so widgets persist where the delegates read.
+     */
+    fun preferenceDataStore(): PreferenceDataStore = SharedPreferencesDataStore(preferences)
+
     private fun settingsFlow(
         scope: CoroutineScope,
         snapshot: () -> UserSettingsSnapshot,
@@ -149,11 +175,6 @@ class UserSettings(
 
     private fun snapshot() =
         UserSettingsSnapshot(
-            darkMode = darkMode,
-            autoDarkMode = autoDarkMode,
-            lastVersionCode = lastVersionCode,
-            lastVersionName = lastVersionName,
-            acceptedTosVersion = acceptedTosVersion,
             devModeEnabled = devModeEnabled,
             appPickerType = appPickerType,
             appPickerSelectLayoutMode = appPickerSelectLayoutMode,
@@ -161,14 +182,11 @@ class UserSettings(
             showIndexScroll = showIndexScroll,
             indexScrollShowLetters = indexScrollShowLetters,
             indexScrollAutoHide = indexScrollAutoHide,
-            actionModeShowCancel = actionModeShowCancel,
-            searchOnActionMode = searchOnActionMode,
             search = search,
             searchActive = searchActive,
         )
 
     companion object {
-        const val PREFS_NAME = "user_settings"
         const val DEFAULT_COLOR = 0xFF0381FE.toInt()
         const val MAX_RECENT_COLORS = 6
     }

@@ -86,6 +86,12 @@ Tests never mock settings — every test uses the real `UserSettings` over an is
   are otherwise exposed to).
 - **`freshTestPreferences()`** (`app/src/testFixtures`) returns a UUID-named `SharedPreferences` file, fresh by construction — never a
   fixed name or `.edit().clear()`.
+- **Widgets persist into the injected store.** `SettingsFragment.onCreatePreferences` sets
+  `preferenceManager.preferenceDataStore = userSettings.preferenceDataStore()` before inflating `preferences.xml`, so a
+  `userSettings.darkMode = true` preset before launch is what the `darkMode` radio shows, and a widget change is what
+  `userSettings.darkMode` reads back. Never bind a test to `PreferenceManager.getDefaultSharedPreferences()`.
+- **`PreferenceXmlParityTest`** pins `preferences.xml` to `UserSettings` via `PreferenceXmlParity.kt`; `UserSettingsTest.delegated
+  keys are pinned` pins every stored key via `SettingsKeys.kt` (both `app/src/testFixtures`).
 - **`UserSettings.bypassOobe()`** (`app/src/testFixtures`) sets `lastVersionCode`/`acceptedTosVersion` to `Int.MAX_VALUE` so
   `onboardIfNeeded()` never redirects to OOBE in a test.
 
