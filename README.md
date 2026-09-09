@@ -51,9 +51,9 @@ This is a sample app for the <a href="https://github.com/tribalfs/oneui-design">
 
 <a href="https://www.star-history.com/?repos=Lemkinator%2FOneUI-Sample-App&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Lemkinator/OneUI-Sample-App&type=date&theme=dark&legend=top-left&sealed_token=-XJQx70y0NYgAhwhZatmmrx82J_yuSwEMx1nrtAxeSJyTk57sck2Zz41XcS147-A4CmDf7sZ0vN5vI4zyFzj-YOLddBZ8E85ODAwJzyyEhpFuF5HD3PN1zQ25K-uxBdSrAWTCcTCN0Sisqn-2mPPpci0x_08eQz7ykhtslOuU_pIfFhB5qgazRd0Gx84" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Lemkinator/OneUI-Sample-App&type=date&legend=top-left&sealed_token=-XJQx70y0NYgAhwhZatmmrx82J_yuSwEMx1nrtAxeSJyTk57sck2Zz41XcS147-A4CmDf7sZ0vN5vI4zyFzj-YOLddBZ8E85ODAwJzyyEhpFuF5HD3PN1zQ25K-uxBdSrAWTCcTCN0Sisqn-2mPPpci0x_08eQz7ykhtslOuU_pIfFhB5qgazRd0Gx84" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Lemkinator/OneUI-Sample-App&type=date&legend=top-left&sealed_token=-XJQx70y0NYgAhwhZatmmrx82J_yuSwEMx1nrtAxeSJyTk57sck2Zz41XcS147-A4CmDf7sZ0vN5vI4zyFzj-YOLddBZ8E85ODAwJzyyEhpFuF5HD3PN1zQ25K-uxBdSrAWTCcTCN0Sisqn-2mPPpci0x_08eQz7ykhtslOuU_pIfFhB5qgazRd0Gx84" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Lemkinator/OneUI-Sample-App&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Lemkinator/OneUI-Sample-App&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Lemkinator/OneUI-Sample-App&type=date&legend=top-left" />
  </picture>
 </a>
 
