@@ -64,10 +64,12 @@ smaller than in a JUnit 5 + `RobolectricExtension` setup, where SMAP attribution
 
 Tests never mock settings — every test uses the real `UserSettings` over an isolated, empty store:
 
-- **Hilt tests** (Robolectric `src/test` and instrumented `src/androidTest`) use `TestSettingsModule` — byte-identical twins in both
-  source sets (not `testFixtures`; Hilt's kapt/ksp aggregation silently skips a `@TestInstallIn` module declared in `testFixtures` for the
-  Robolectric side) — provides `UserSettings(freshTestPreferences(context), CoroutineScope(SupervisorJob() + Dispatchers.Default))`,
-  replacing `PersistenceModule`.
+- **Hilt tests** (Robolectric `src/test` and instrumented `src/androidTest`) share a single `TestSettingsModule` in
+  `app/src/testFixtures`, provided to both via the module's own testFixtures artifact — provides
+  `UserSettings(freshTestPreferences(context), CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher()))`, replacing
+  `PersistenceModule`. `TestFixturesModuleInstallationTest` (`app/src/test/java/de/lemke/oneuisample`) is a permanent regression guard: it
+  asserts an injected settings write never lands in production `SharedPreferences`, so if Hilt's KSP aggregation ever silently drops this
+  module for the Robolectric side, this test turns red instead of failing silently.
 - **Pure-JVM specs** (the ViewModelTests, no Context available) use `fakeUserSettings()` (`app/src/testFixtures`) — a real
   `UserSettings(FakeSharedPreferences(), CoroutineScope(UnconfinedTestDispatcher()))` — `FakeSharedPreferences` fires
   `OnSharedPreferenceChangeListener` correctly, so `.flow` behaves like the real thing; the dispatcher must be unconfined so
