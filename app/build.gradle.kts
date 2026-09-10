@@ -197,6 +197,8 @@ dependencies {
     // to testFixtures, so both are declared again here at the same coordinates main uses.
     testFixturesImplementation(libs.oneui.design)
     testFixturesImplementation(libs.robolectric)
+    testFixturesImplementation(libs.hilt.android.testing)
+    kspTestFixtures(libs.hilt.compiler)
 }
 
 spotless {
