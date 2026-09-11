@@ -53,8 +53,9 @@ class TestFixturesModuleInstallationTest {
 
     @Test
     fun `injected settings do not write through to production SharedPreferences`() {
-        settings.devModeEnabled = true
         val productionPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationProvider.getApplicationContext())
+        productionPrefs.edit().remove("devModeEnabled").commit()
+        settings.devModeEnabled = true
         assertFalse(
             "devModeEnabled leaked into production SharedPreferences - TestSettingsModule (src/testFixtures) was " +
                 "NOT installed; production module won instead",
