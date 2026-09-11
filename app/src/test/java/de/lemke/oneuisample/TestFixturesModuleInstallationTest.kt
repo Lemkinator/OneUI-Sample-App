@@ -22,7 +22,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.data.UserSettings
 import javax.inject.Inject
-import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -54,12 +54,13 @@ class TestFixturesModuleInstallationTest {
     @Test
     fun `injected settings do not write through to production SharedPreferences`() {
         val productionPrefs = PreferenceManager.getDefaultSharedPreferences(ApplicationProvider.getApplicationContext())
-        productionPrefs.edit().remove("devModeEnabled").commit()
-        settings.devModeEnabled = true
-        assertFalse(
-            "devModeEnabled leaked into production SharedPreferences - TestSettingsModule (src/testFixtures) was " +
+        val devModeEnabledBefore = productionPrefs.all["devModeEnabled"]
+        settings.devModeEnabled = !(devModeEnabledBefore as? Boolean ?: false)
+        assertEquals(
+            "devModeEnabled changed in production SharedPreferences - TestSettingsModule (src/testFixtures) was " +
                 "NOT installed; production module won instead",
-            productionPrefs.contains("devModeEnabled"),
+            devModeEnabledBefore,
+            productionPrefs.all["devModeEnabled"],
         )
     }
 }
