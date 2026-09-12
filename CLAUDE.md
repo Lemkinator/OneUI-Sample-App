@@ -22,6 +22,28 @@ Instrumented tests run via Gradle Managed Device (no physical device needed):
 The GMD device (`pixel9Api35`: Pixel 9 / API 35 / aosp / x86_64) is declared once in root
 `build.gradle.kts` and shared by `:app` instrumented tests and `:benchmarks` baseline profile generation.
 
+### Baseline Profile & Benchmarks
+
+This repo has no release pipeline (no versionCode bump, no Play/GH release) — the baseline profile
+setup exists as an accurate reference for the pattern, not to optimize a shipped build. It's still
+generated automatically as part of every `assembleRelease` (`app/build.gradle.kts`'s
+`baselineProfile { variants { create("release") { ... } } }`); PR CI passes
+`-Pandroidx.baselineprofile.skipgeneration` so a PR's assemble never boots the GMD; a weekly smoke test
+(`baseline-profile.yml`) doesn't, so it always generates fresh and also verifies packaging, standing in
+for the packaging check other repos get from their release workflow. `./gradlew :app:generateBaselineProfile`
+still works standalone as a local diagnostic — run it in the background, not a foreground shell with a
+short timeout; it takes ~9-10 minutes:
+
+```powershell
+./gradlew :app:generateBaselineProfile `
+  -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
+```
+
+Run macrobenchmarks manually on a **connected physical device**, never the GMD (the library flags an
+emulator as an `EMULATOR` error condition) — never in CI, only after touching the startup path or a
+benchmarked journey. Read the delta between compilation modes rather than absolute ms; don't gate or
+store history.
+
 ## Private Dependencies (Required for Build)
 
 `oneui-design` is hosted on a private GitHub Maven repo. Provide `ghUsername` + `ghAccessToken` (`read:packages` scope) via **one** of
