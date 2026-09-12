@@ -1,0 +1,92 @@
+name: Build and publish release
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'app/build.gradle.kts' ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_USERNAME: ${{ secrets.GH_USERNAME }}
+      GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Extract version information
+        id: version_info
+        run: |
+          PREV=$(git rev-parse HEAD^)
+          OLD_VERSION_CODE=$(git show $PREV:app/build.gradle.kts | grep 'versionCode' | sed -E 's/.*versionCode\s*=\s*([0-9]+).*/\1/')
+          VERSION_CODE=$(grep 'versionCode' app/build.gradle.kts | sed -E 's/.*versionCode\s*=\s*([0-9]+).*/\1/')
+          VERSION_NAME=$(grep 'versionName' app/build.gradle.kts | sed -E 's/.*versionName\s*=\s*"([^"]+)".*/\1/')
+
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "changed=$([ "$OLD_VERSION_CODE" != "$VERSION_CODE" ] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+
+          echo "Version: $VERSION_NAME (code: $VERSION_CODE, changed: $([ "$OLD_VERSION_CODE" != "$VERSION_CODE" ] && echo "true" || echo "false"))"
+
+      - name: Enable KVM
+        if: steps.version_info.outputs.changed == 'true'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Setup GMD
+        if: steps.version_info.outputs.changed == 'true'
+        run: chmod +x ./gradlew && ./gradlew :benchmarks:pixel9Api35Setup -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
+
+      - name: Build APK
+        if: steps.version_info.outputs.changed == 'true'
+        run: |
+          chmod +x ./gradlew && ./gradlew :app:assembleRelease \
+            -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect --stacktrace
+
+      - name: Verify baseline profile packaged
+        if: steps.version_info.outputs.changed == 'true'
+        run: |
+          apk=app/build/outputs/apk/release/app-release.apk
+          [ -f "$apk" ] || { echo "::error::Release APK not found at $apk"; exit 1; }
+          prof_size=$(unzip -p "$apk" assets/dexopt/baseline.prof 2>/dev/null | wc -c)
+          [ "$prof_size" -gt 1024 ] || { echo "::error::assets/dexopt/baseline.prof missing or too small in $apk ($prof_size bytes)"; exit 1; }
+          echo "Embedded profile in APK: $prof_size bytes"
+          mapfile -t dms < <(find app/build/outputs/apk/release/baselineProfiles -name '*.dm')
+          [ "${#dms[@]}" -ge 2 ] || { echo "::error::Expected at least 2 baseline profile buckets (one per supported dex-metadata format range), found ${#dms[@]}"; exit 1; }
+          for dm in "${dms[@]}"; do
+            size=$(stat -c%s "$dm")
+            [ "$size" -gt 1024 ] || { echo "::error::$dm too small ($size bytes)"; exit 1; }
+            echo "Packaged baseline profile: $dm ($size bytes)"
+          done
+
+      - name: Create GitHub Release
+        if: steps.version_info.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ steps.version_info.outputs.version_name }}
+          files: app/build/outputs/apk/release/app-release.apk
+          generate_release_notes: true

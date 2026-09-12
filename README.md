@@ -32,7 +32,7 @@ This is a sample app for the <a href="https://github.com/tribalfs/oneui-design">
 <br>
 
 <h3>
-<a href="https://github.com/Lemkinator/OneUI-Sample-App/raw/main/app/release/app-release.apk">Download SampleAPK</a>
+<a href="https://github.com/Lemkinator/OneUI-Sample-App/releases/latest/download/app-release.apk">Download SampleAPK</a>
 </h3>
 
 <br><br>
