@@ -24,10 +24,19 @@ complexity:
   active: true
   LongParameterList:
     active: true
-    allowedFunctionParameters: 8
-    allowedConstructorParameters: 8
+    allowedFunctionParameters: 6
+    allowedConstructorParameters: 7
   TooManyFunctions:
-    active: false
+    active: true
+    # ignoreOverridden: framework-mandated lifecycle callbacks (onCreate, onNewIntent, ...) are
+    # not class-owned complexity.
+    # Why: allowedFunctionsPerClass raised above the default 11 — TabIconsFragment (search mode,
+    # action mode, swipe-to-delete, settings dialog, index scroll) and TabPickerFragment own
+    # several independent OneUI-widget-demo concerns in one class by design, mirroring this
+    # sample app's per-tab structure; TabIconsFragment currently needs 24. Splitting them into
+    # collaborator classes is a larger structural change than this cleanup pass covers.
+    ignoreOverridden: true
+    allowedFunctionsPerClass: 24
   ComplexCondition:
     allowedConditions: 4
 
@@ -35,8 +44,8 @@ style:
   active: true
   MagicNumber:
     active: true
-    ignoreNumbers: [ '-1', '0', '1', '2', '0.5' ]
-    ignorePropertyDeclaration: true
+    ignoreNumbers: [ '-1', '0', '1', '2' ]
+    ignorePropertyDeclaration: false
     ignoreCompanionObjectPropertyDeclaration: true
   MaxLineLength:
     maxLineLength: 140
@@ -57,7 +66,7 @@ naming:
 empty-blocks:
   EmptyFunctionBlock:
     active: true
-    ignoreOverridden: true
+    ignoreOverridden: false
 
 exceptions:
   active: true

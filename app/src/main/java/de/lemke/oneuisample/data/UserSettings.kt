@@ -128,7 +128,7 @@ class UserSettings(
     var colorPicker: Int by preferences.delegates.int(DEFAULT_COLOR)
 
     /** Backs the plain `SeekBarPreference` demo entry. */
-    var seekbar: Int by preferences.delegates.int(30)
+    var seekbar: Int by preferences.delegates.int(DEFAULT_SEEKBAR_PROGRESS)
 
     /** Backs the expand-mode `SeekBarPreferencePro` demo entry. */
     var seekbarPro: Int by preferences.delegates.int(0)
@@ -189,6 +189,7 @@ class UserSettings(
     companion object {
         const val DEFAULT_COLOR = 0xFF0381FE.toInt()
         const val MAX_RECENT_COLORS = 6
+        private const val DEFAULT_SEEKBAR_PROGRESS = 30
     }
 }
 
