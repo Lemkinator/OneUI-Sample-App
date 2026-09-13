@@ -148,6 +148,8 @@ form):
   doubly-indenting the class body (8 sp instead of 4 sp).
 - `ktlint_standard_class-signature = disabled` - in ktlint 1.7+, both rules together enforce the split form; disabling only `annotation` is
   insufficient.
+- `@Suppress("IncorrectFormatting")` on `IconAdapter` - ktlint indents its multi-line super-constructor arguments at 8 sp, the IDE's
+  default formatter expects 4 sp.
 
 ## Key Patterns
 
