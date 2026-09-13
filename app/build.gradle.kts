@@ -220,11 +220,6 @@ spotless {
         trimTrailingWhitespace()
         endWithNewline()
     }
-    kotlinGradle {
-        target("*.gradle.kts")
-        licenseHeaderFile(rootProject.file("config/spotless/apache-2.0.kt"), "(^(?![\\/ ]\\*).*$)")
-        ktlint(libs.versions.ktlint.get())
-    }
     format("xml") {
         target("src/**/*.xml")
         targetExclude("**/build/**")
