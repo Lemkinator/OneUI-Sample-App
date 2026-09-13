@@ -17,7 +17,10 @@ package de.lemke.oneuisample.di
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 /**
  * [TestDispatchersModule] replaces [DispatchersModule] in every `@HiltAndroidTest`, so no
@@ -25,8 +28,15 @@ import kotlinx.coroutines.Dispatchers
  */
 class DispatchersModuleTest : ShouldSpec(
     {
-        should("provideDefaultDispatcher returns Dispatchers.Default") {
-            DispatchersModule.provideDefaultDispatcher() shouldBe Dispatchers.Default
+        should("provideDefaultDispatcher dispatches work onto Dispatchers.Default's thread pool") {
+            val dispatcher = DispatchersModule.provideDefaultDispatcher()
+            val callerThread = Thread.currentThread().name
+            val dispatchedThread =
+                runBlocking {
+                    withContext(dispatcher) { Thread.currentThread().name }
+                }
+            dispatcher shouldBe Dispatchers.Default
+            dispatchedThread shouldNotBe callerThread
         }
     },
 )
