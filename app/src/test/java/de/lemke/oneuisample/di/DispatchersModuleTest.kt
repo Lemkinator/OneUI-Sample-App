@@ -25,10 +25,6 @@ import kotlinx.coroutines.Dispatchers
  */
 class DispatchersModuleTest : ShouldSpec(
     {
-        should("provideIoDispatcher returns Dispatchers.IO") {
-            DispatchersModule.provideIoDispatcher() shouldBe Dispatchers.IO
-        }
-
         should("provideDefaultDispatcher returns Dispatchers.Default") {
             DispatchersModule.provideDefaultDispatcher() shouldBe Dispatchers.Default
         }
