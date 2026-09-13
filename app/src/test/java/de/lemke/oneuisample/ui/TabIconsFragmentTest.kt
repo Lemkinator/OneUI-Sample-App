@@ -100,20 +100,20 @@ class TabIconsFragmentTest {
 
     @Test
     fun onIconTabMenuItemSelected_search_startsSearchMode() {
-        withFragment { onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_search)) shouldBe true }
+        withFragment { actionModeHandler.onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_search)) shouldBe true }
     }
 
     @Test
     fun onIconTabMenuItemSelected_settings_showsDialog() {
         withFragment {
-            onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_settings)) shouldBe true
+            actionModeHandler.onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_settings)) shouldBe true
             ShadowDialog.getLatestDialog() shouldNotBe null
         }
     }
 
     @Test
     fun onIconTabMenuItemSelected_unknown_returnsFalse() {
-        withFragment { onIconTabMenuItemSelected(mockMenuItem(-1)) shouldBe false }
+        withFragment { actionModeHandler.onIconTabMenuItemSelected(mockMenuItem(-1)) shouldBe false }
     }
 
     @Test
@@ -171,22 +171,22 @@ class TabIconsFragmentTest {
 
     @Test
     fun onActionModeMenuItemSelected_item1_showsSnackbar() {
-        withFragment { onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_1)) shouldBe true }
+        withFragment { actionModeHandler.onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_1)) shouldBe true }
     }
 
     @Test
     fun onActionModeMenuItemSelected_item2_showsSnackbar() {
-        withFragment { onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_2)) shouldBe true }
+        withFragment { actionModeHandler.onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_2)) shouldBe true }
     }
 
     @Test
     fun onActionModeMenuItemSelected_item3_showsSnackbar() {
-        withFragment { onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_3)) shouldBe true }
+        withFragment { actionModeHandler.onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_3)) shouldBe true }
     }
 
     @Test
     fun onActionModeMenuItemSelected_unknown_returnsFalse() {
-        withFragment { onActionModeMenuItemSelected(mockMenuItem(-1)) shouldBe false }
+        withFragment { actionModeHandler.onActionModeMenuItemSelected(mockMenuItem(-1)) shouldBe false }
     }
 
     @Test
@@ -230,14 +230,14 @@ class TabIconsFragmentTest {
         withFragment {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
-            launchActionMode()
+            actionModeHandler.launchActionMode()
             onIconItemClicked(0, icon)
         }
     }
 
     @Test
     fun launchActionMode_startsActionMode() {
-        withFragment { launchActionMode() }
+        withFragment { actionModeHandler.launchActionMode() }
     }
 
     @Test
@@ -254,7 +254,7 @@ class TabIconsFragmentTest {
                 val fragment =
                     (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
                         .childFragmentManager.primaryNavigationFragment as? TabIconsFragment
-                fragment?.onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_settings))
+                fragment?.actionModeHandler?.onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_settings))
             }
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity {
@@ -267,7 +267,7 @@ class TabIconsFragmentTest {
     @Test
     fun applySettings_dismiss_updatesSearchOnActionMode() {
         withFragment {
-            applySettings(
+            settingsDialogHandler.applySettings(
                 actionModeShowCancel = false,
                 showIndexScroll = false,
                 indexScrollShowLetters = false,
@@ -282,7 +282,7 @@ class TabIconsFragmentTest {
     @Test
     fun applySettings_noDismiss_updatesSearchOnActionMode() {
         withFragment {
-            applySettings(
+            settingsDialogHandler.applySettings(
                 actionModeShowCancel = true,
                 showIndexScroll = true,
                 indexScrollShowLetters = true,
@@ -297,7 +297,7 @@ class TabIconsFragmentTest {
     @Test
     fun applySettings_concurrent_updatesSearchOnActionMode() {
         withFragment {
-            applySettings(
+            settingsDialogHandler.applySettings(
                 actionModeShowCancel = false,
                 showIndexScroll = true,
                 indexScrollShowLetters = false,
@@ -312,7 +312,7 @@ class TabIconsFragmentTest {
     fun onShowIndexScrollChanged_true_enablesSubOptions() {
         withFragment {
             val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
-            onShowIndexScrollChanged(dialogBinding, true)
+            settingsDialogHandler.onShowIndexScrollChanged(dialogBinding, true)
             dialogBinding.indexScrollShowLetters.isEnabled shouldBe true
             dialogBinding.indexScrollAutoHide.isEnabled shouldBe true
         }
@@ -322,7 +322,7 @@ class TabIconsFragmentTest {
     fun onShowIndexScrollChanged_false_disablesSubOptions() {
         withFragment {
             val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
-            onShowIndexScrollChanged(dialogBinding, false)
+            settingsDialogHandler.onShowIndexScrollChanged(dialogBinding, false)
             dialogBinding.indexScrollShowLetters.isEnabled shouldBe false
             dialogBinding.indexScrollAutoHide.isEnabled shouldBe false
         }
@@ -330,14 +330,14 @@ class TabIconsFragmentTest {
 
     @Test
     fun buildSettingsDialogView_showIndexScrollToggle_triggersCallback() {
-        withFragment { buildSettingsDialogView().showIndexScroll.performClick() }
+        withFragment { settingsDialogHandler.buildSettingsDialogView().showIndexScroll.performClick() }
     }
 
     @Test
     fun showSettingsDialog_withDismissSearchMode_checksCorrectRadio() {
         withFragment {
             userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.Dismiss
-            showSettingsDialog()
+            settingsDialogHandler.showSettingsDialog()
         }
     }
 
@@ -345,7 +345,7 @@ class TabIconsFragmentTest {
     fun showSettingsDialog_withNoDismissSearchMode_checksCorrectRadio() {
         withFragment {
             userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.NoDismiss
-            showSettingsDialog()
+            settingsDialogHandler.showSettingsDialog()
         }
     }
 
@@ -353,7 +353,7 @@ class TabIconsFragmentTest {
     fun showSettingsDialog_withConcurrentSearchMode_checksCorrectRadio() {
         withFragment {
             userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.Concurrent(null)
-            showSettingsDialog()
+            settingsDialogHandler.showSettingsDialog()
         }
     }
 
@@ -362,7 +362,7 @@ class TabIconsFragmentTest {
         withFragment {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
-            onIconSwiped(0, androidx.recyclerview.widget.ItemTouchHelper.START)
+            swipeHandler.onIconSwiped(0, androidx.recyclerview.widget.ItemTouchHelper.START)
         }
     }
 
@@ -371,7 +371,7 @@ class TabIconsFragmentTest {
         withFragment {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
-            onIconSwiped(0, androidx.recyclerview.widget.ItemTouchHelper.END)
+            swipeHandler.onIconSwiped(0, androidx.recyclerview.widget.ItemTouchHelper.END)
         }
     }
 
@@ -380,7 +380,7 @@ class TabIconsFragmentTest {
         withFragment {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
-            onIconSwiped(0, -1) shouldBe true
+            swipeHandler.onIconSwiped(0, -1) shouldBe true
         }
     }
 
@@ -397,7 +397,7 @@ class TabIconsFragmentTest {
     fun applySettingsFromDialog_withDefaultDialogBinding_appliesSettings() {
         withFragment {
             val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
-            applySettingsFromDialog(dialogBinding)
+            settingsDialogHandler.applySettingsFromDialog(dialogBinding)
         }
     }
 
@@ -407,7 +407,7 @@ class TabIconsFragmentTest {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
             shadowOf(Looper.getMainLooper()).idle()
-            launchActionMode()
+            actionModeHandler.launchActionMode()
             shadowOf(Looper.getMainLooper()).idle()
             iconAdapter.onToggleSelectAll(true)
             shadowOf(Looper.getMainLooper()).idle()
@@ -417,7 +417,7 @@ class TabIconsFragmentTest {
     @Test
     fun endActionMode_afterLaunchActionMode_triggersOnEnd() {
         withFragment {
-            launchActionMode()
+            actionModeHandler.launchActionMode()
             shadowOf(Looper.getMainLooper()).idle()
             requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout).endActionMode()
             shadowOf(Looper.getMainLooper()).idle()
@@ -427,7 +427,7 @@ class TabIconsFragmentTest {
     @Test
     fun selectAll_afterLaunchActionMode_triggersOnSelectAll() {
         withFragment {
-            launchActionMode()
+            actionModeHandler.launchActionMode()
             shadowOf(Looper.getMainLooper()).idle()
             requireActivity()
                 .findViewById<android.view.View>(dev.oneuiproject.oneui.design.R.id.toolbarlayout_selectall)
@@ -442,7 +442,7 @@ class TabIconsFragmentTest {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
             shadowOf(Looper.getMainLooper()).idle()
-            launchActionMode()
+            actionModeHandler.launchActionMode()
             shadowOf(Looper.getMainLooper()).idle()
             iconAdapter.onToggleSelectAll(true)
             shadowOf(Looper.getMainLooper()).idle()
@@ -462,7 +462,7 @@ class TabIconsFragmentTest {
 
     @Test
     fun isSwipeEnabled_notInActionMode_returnsTrue() {
-        withFragment { isSwipeEnabled(mockk()) shouldBe true }
+        withFragment { swipeHandler.isSwipeEnabled(mockk()) shouldBe true }
     }
 
     @Test
@@ -471,7 +471,7 @@ class TabIconsFragmentTest {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
             shadowOf(Looper.getMainLooper()).idle()
-            onIconSwipeCallback(0, ItemTouchHelper.START, 0) shouldBe true
+            swipeHandler.onIconSwipeCallback(0, ItemTouchHelper.START, 0) shouldBe true
         }
     }
 
@@ -481,7 +481,7 @@ class TabIconsFragmentTest {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
             shadowOf(Looper.getMainLooper()).idle()
-            onIconSwipeCallback(0, ItemTouchHelper.END, 0) shouldBe true
+            swipeHandler.onIconSwipeCallback(0, ItemTouchHelper.END, 0) shouldBe true
         }
     }
 
