@@ -174,6 +174,26 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         ) { position, _ -> onSpinnerItemSelected(position) }
     }
 
+    companion object {
+        private const val PICKER_TEXT_SIZE_SP = 40f
+        private const val PICKER1_MIN_VALUE = 1
+        private const val PICKER1_MAX_VALUE = 100
+        private const val PICKER1_DEFAULT_VALUE = 50
+        private const val PICKER2_TEXT_SIZE_SP = 50f
+        private const val PICKER2_MIN_VALUE = 0
+        private const val PICKER2_MAX_VALUE = 10
+        private const val PICKER2_DEFAULT_VALUE = 8
+        private const val PICKER3_MIN_VALUE = 0
+        private const val PICKER3_MAX_VALUE = 2
+        private const val SPINNER_NUMBER_PICKER = 0
+        private const val SPINNER_TIME_PICKER = 1
+        private const val SPINNER_DATE_PICKER = 2
+        private const val SPINNER_SPINNING_DATE_PICKER = 3
+        private const val SPINNER_SLEEP_PICKER = 4
+        private const val DEFAULT_START_TIME_MINUTES = 0
+        private const val DEFAULT_END_TIME_MINUTES = 600
+    }
+
     /** Date/time/color picker dialogs, split out to keep [TabPickerFragment] under the function-count limit. */
     internal inner class PickerDialogHandler {
         @VisibleForTesting(otherwise = PRIVATE)
@@ -271,25 +291,5 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
             rootView.draw(Canvas(bitmap))
             return bitmap
         }
-    }
-
-    companion object {
-        private const val PICKER_TEXT_SIZE_SP = 40f
-        private const val PICKER1_MIN_VALUE = 1
-        private const val PICKER1_MAX_VALUE = 100
-        private const val PICKER1_DEFAULT_VALUE = 50
-        private const val PICKER2_TEXT_SIZE_SP = 50f
-        private const val PICKER2_MIN_VALUE = 0
-        private const val PICKER2_MAX_VALUE = 10
-        private const val PICKER2_DEFAULT_VALUE = 8
-        private const val PICKER3_MIN_VALUE = 0
-        private const val PICKER3_MAX_VALUE = 2
-        private const val SPINNER_NUMBER_PICKER = 0
-        private const val SPINNER_TIME_PICKER = 1
-        private const val SPINNER_DATE_PICKER = 2
-        private const val SPINNER_SPINNING_DATE_PICKER = 3
-        private const val SPINNER_SLEEP_PICKER = 4
-        private const val DEFAULT_START_TIME_MINUTES = 0
-        private const val DEFAULT_END_TIME_MINUTES = 600
     }
 }

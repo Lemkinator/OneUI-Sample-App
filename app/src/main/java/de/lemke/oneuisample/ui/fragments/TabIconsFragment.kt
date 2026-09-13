@@ -270,6 +270,11 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         )
     }
 
+    companion object {
+        private const val MULTISELECT_TIP_ANCHOR_POSITION = 2
+        private val MULTISELECT_TIP_DELAY = 1.seconds
+    }
+
     /** Swipe-to-reveal-action handling for the icon list, split out to keep [TabIconsFragment] under the function-count limit. */
     internal inner class SwipeHandler {
         fun configureItemSwipeAnimator() {
@@ -445,10 +450,5 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                     false
                 }
             }
-    }
-
-    companion object {
-        private const val MULTISELECT_TIP_ANCHOR_POSITION = 2
-        private val MULTISELECT_TIP_DELAY = 1.seconds
     }
 }
