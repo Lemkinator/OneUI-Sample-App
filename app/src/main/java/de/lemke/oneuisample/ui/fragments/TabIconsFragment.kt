@@ -80,7 +80,9 @@ import dev.oneuiproject.oneui.R as iconsR
 @AndroidEntryPoint
 class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator by AppBarAwareYTranslator() {
     private val binding by autoCleared { FragmentTabIconsBinding.bind(requireView()) }
-    private lateinit var drawerLayout: DrawerLayout
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal lateinit var drawerLayout: DrawerLayout
     private val allSelectorStateFlow: MutableStateFlow<AllSelectorState> = MutableStateFlow(AllSelectorState())
 
     @VisibleForTesting(otherwise = PRIVATE)
@@ -275,7 +277,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         private val MULTISELECT_TIP_DELAY = 1.seconds
     }
 
-    /** Swipe-to-reveal-action handling for the icon list, split out to keep [TabIconsFragment] under the function-count limit. */
+    /** Swipe-to-reveal actions for the icon list: shows a directional snackbar per swipe. */
     internal inner class SwipeHandler {
         fun configureItemSwipeAnimator() {
             binding.iconList.configureItemSwipeAnimator(
@@ -298,8 +300,8 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         ): Boolean {
             val icon = iconAdapter.getItemByPosition(position)
             when (swipeDirection) {
-                START -> suggestiveSnackBar("${icon.name}: Right to Left")
-                END -> suggestiveSnackBar("${icon.name}: Left to Right")
+                START -> suggestiveSnackBar("${icon.name}: ${getString(R.string.right_to_left)}")
+                END -> suggestiveSnackBar("${icon.name}: ${getString(R.string.left_to_right)}")
             }
             return true
         }
@@ -317,7 +319,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         ): Boolean = onIconSwiped(position, direction)
     }
 
-    /** Icon-tab settings dialog, split out to keep [TabIconsFragment] under the function-count limit. */
+    /** Builds, shows, and applies the icon tab's settings dialog. */
     internal inner class SettingsDialogHandler {
         @VisibleForTesting(otherwise = PRIVATE)
         internal fun buildSettingsDialogView(): DialogSettingsBinding =
@@ -392,7 +394,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         }
     }
 
-    /** Search/action-mode menu handling for the icon tab, split out to keep [TabIconsFragment] under the function-count limit. */
+    /** Search and selection (action mode) menu handling for the icon tab. */
     internal inner class ActionModeHandler {
         private fun startSearch() = drawerLayout.startSearchMode(searchModeListener, DISMISS)
 

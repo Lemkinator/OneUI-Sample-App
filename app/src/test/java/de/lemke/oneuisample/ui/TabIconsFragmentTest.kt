@@ -40,6 +40,7 @@ import de.lemke.oneuisample.domain.Icon
 import de.lemke.oneuisample.ui.fragments.TabIconsFragment
 import dev.oneuiproject.oneui.layout.DrawerLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout
+import dev.oneuiproject.oneui.widget.RadioItemViewGroup
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
@@ -237,7 +238,10 @@ class TabIconsFragmentTest {
 
     @Test
     fun launchActionMode_startsActionMode() {
-        withFragment { actionModeHandler.launchActionMode() }
+        withFragment {
+            actionModeHandler.launchActionMode()
+            drawerLayout.isActionMode shouldBe true
+        }
     }
 
     @Test
@@ -330,7 +334,13 @@ class TabIconsFragmentTest {
 
     @Test
     fun buildSettingsDialogView_showIndexScrollToggle_triggersCallback() {
-        withFragment { settingsDialogHandler.buildSettingsDialogView().showIndexScroll.performClick() }
+        withFragment {
+            val dialogBinding = settingsDialogHandler.buildSettingsDialogView()
+            val expectedEnabled = !dialogBinding.showIndexScroll.isChecked
+            dialogBinding.showIndexScroll.performClick()
+            dialogBinding.indexScrollShowLetters.isEnabled shouldBe expectedEnabled
+            dialogBinding.indexScrollAutoHide.isEnabled shouldBe expectedEnabled
+        }
     }
 
     @Test
@@ -338,6 +348,8 @@ class TabIconsFragmentTest {
         withFragment {
             userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.Dismiss
             settingsDialogHandler.showSettingsDialog()
+            val amsOptions = (ShadowDialog.getLatestDialog() as AlertDialog).findViewById<RadioItemViewGroup>(R.id.amsOptions)
+            amsOptions?.checkedRadioButtonId shouldBe R.id.amsDismiss
         }
     }
 
@@ -346,6 +358,8 @@ class TabIconsFragmentTest {
         withFragment {
             userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.NoDismiss
             settingsDialogHandler.showSettingsDialog()
+            val amsOptions = (ShadowDialog.getLatestDialog() as AlertDialog).findViewById<RadioItemViewGroup>(R.id.amsOptions)
+            amsOptions?.checkedRadioButtonId shouldBe R.id.amsNoDismiss
         }
     }
 
@@ -354,6 +368,8 @@ class TabIconsFragmentTest {
         withFragment {
             userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.Concurrent(null)
             settingsDialogHandler.showSettingsDialog()
+            val amsOptions = (ShadowDialog.getLatestDialog() as AlertDialog).findViewById<RadioItemViewGroup>(R.id.amsOptions)
+            amsOptions?.checkedRadioButtonId shouldBe R.id.amsConcurrent
         }
     }
 
@@ -398,6 +414,10 @@ class TabIconsFragmentTest {
         withFragment {
             val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
             settingsDialogHandler.applySettingsFromDialog(dialogBinding)
+            userSettings.actionModeShowCancel shouldBe dialogBinding.actionModeShowCancel.isChecked
+            userSettings.showIndexScroll shouldBe dialogBinding.showIndexScroll.isChecked
+            userSettings.indexScrollShowLetters shouldBe dialogBinding.indexScrollShowLetters.isChecked
+            userSettings.indexScrollAutoHide shouldBe dialogBinding.indexScrollAutoHide.isChecked
         }
     }
 

@@ -21,6 +21,7 @@ import android.content.res.Configuration
 import android.os.Looper
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
 import androidx.picker.widget.SeslNumberPicker
@@ -45,6 +46,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowDialog
+import com.google.android.material.R as MaterialR
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -87,17 +89,36 @@ class TabPickerFragmentTest {
 
     @Test
     fun onDatePicked_showsSnackBar() {
-        withFragment { pickerDialogHandler.onDatePicked(2025, 11, 25) }
+        withFragment {
+            val snackbar = pickerDialogHandler.onDatePicked(2025, 11, 25)
+            snackbar.view
+                .findViewById<TextView>(MaterialR.id.snackbar_text)
+                ?.text
+                .toString() shouldBe "2025-12-25"
+        }
     }
 
     @Test
     fun onTimePicked_showsSnackBar() {
-        withFragment { pickerDialogHandler.onTimePicked(14, 30) }
+        withFragment {
+            val snackbar = pickerDialogHandler.onTimePicked(14, 30)
+            snackbar.view
+                .findViewById<TextView>(MaterialR.id.snackbar_text)
+                ?.text
+                .toString() shouldBe "14:30"
+        }
     }
 
     @Test
     fun onStartEndTimePicked_showsSnackBar() {
-        withFragment { pickerDialogHandler.onStartEndTimePicked(480, 1020) }
+        withFragment {
+            val snackbar = pickerDialogHandler.onStartEndTimePicked(480, 1020)
+            snackbar.view
+                .findViewById<TextView>(MaterialR.id.snackbar_text)
+                ?.text
+                .toString() shouldBe
+                getString(R.string.start_end_time_result, "08:00", "17:00")
+        }
     }
 
     @Test

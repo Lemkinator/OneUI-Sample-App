@@ -35,6 +35,7 @@ import androidx.picker.app.SeslTimePickerDialog
 import androidx.picker.widget.SeslDatePicker
 import androidx.picker.widget.SeslTimePicker
 import androidx.picker3.app.SeslColorPickerDialog
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
@@ -194,7 +195,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         private const val DEFAULT_END_TIME_MINUTES = 600
     }
 
-    /** Date/time/color picker dialogs, split out to keep [TabPickerFragment] under the function-count limit. */
+    /** Date, time, and color picker dialogs for the picker tab. */
     internal inner class PickerDialogHandler {
         @VisibleForTesting(otherwise = PRIVATE)
         internal fun openDatePickerDialog() {
@@ -213,9 +214,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
             year: Int,
             monthOfYear: Int,
             dayOfMonth: Int,
-        ) {
-            suggestiveSnackBar(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth))
-        }
+        ): Snackbar = suggestiveSnackBar(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth))
 
         @VisibleForTesting(otherwise = PRIVATE)
         internal fun openTimePickerDialog() {
@@ -233,9 +232,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         internal fun onTimePicked(
             hourOfDay: Int,
             minute: Int,
-        ) {
-            suggestiveSnackBar("$hourOfDay:$minute")
-        }
+        ): Snackbar = suggestiveSnackBar("$hourOfDay:$minute")
 
         @VisibleForTesting(otherwise = PRIVATE)
         internal fun openStartEndTimePickerDialog() {
@@ -253,10 +250,10 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         internal fun onStartEndTimePicked(
             startTime: Int,
             endTime: Int,
-        ) {
+        ): Snackbar {
             val startFormatted = String.format(Locale.getDefault(), "%02d:%02d", startTime / 60, startTime % 60)
             val endFormatted = String.format(Locale.getDefault(), "%02d:%02d", endTime / 60, endTime % 60)
-            suggestiveSnackBar(getString(R.string.start_end_time_result, startFormatted, endFormatted))
+            return suggestiveSnackBar(getString(R.string.start_end_time_result, startFormatted, endFormatted))
         }
 
         @VisibleForTesting(otherwise = PRIVATE)
