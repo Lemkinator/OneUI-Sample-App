@@ -24,13 +24,12 @@ The GMD device (`pixel9Api35`: Pixel 9 / API 35 / aosp / x86_64) is declared onc
 
 ### Baseline Profile & Benchmarks
 
-This repo has no release pipeline (no versionCode bump, no Play/GH release) — the baseline profile
-setup exists as an accurate reference for the pattern, not to optimize a shipped build. It's still
-generated automatically as part of every `assembleRelease` (`app/build.gradle.kts`'s
-`baselineProfile { variants { create("release") { ... } } }`); PR CI passes
-`-Pandroidx.baselineprofile.skipgeneration` so a PR's assemble never boots the GMD; a weekly smoke test
-(`baseline-profile.yml`) doesn't, so it always generates fresh and also verifies packaging, standing in
-for the packaging check other repos get from their release workflow. `./gradlew :app:generateBaselineProfile`
+The baseline profile is generated automatically as part of every `assembleRelease`
+(`app/build.gradle.kts`'s `baselineProfile { variants { create("release") { ... } } }`); PR CI passes
+`-Pandroidx.baselineprofile.skipgeneration` so a PR's assemble never boots the GMD. `buildAndPublishRelease.yml`
+only runs `assembleRelease` on a versionCode-bumping push to `main` (GitHub-release-only, no Play Store
+step), so a weekly smoke test (`baseline-profile.yml`) runs it unconditionally in between, always generating
+fresh and verifying packaging. `./gradlew :app:generateBaselineProfile`
 still works standalone as a local diagnostic — run it in the background, not a foreground shell with a
 short timeout; it takes ~9-10 minutes:
 
