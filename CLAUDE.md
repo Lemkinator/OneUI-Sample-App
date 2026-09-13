@@ -140,8 +140,8 @@ message if `core.autocrlf=true` is detected.
 If `spotlessCheck` fails, fix with `./gradlew spotlessApply` then re-run. Screenshot test failures (`verifyRoborazziDebug`) mean the code
 change broke a visual. Do not analyze screenshots, ask the user to verify the changes.
 
-**ktlint rule overrides**: two rules disabled in `.editorconfig` to match community practice (NowInAndroid, Pokedex both use the inline
-form):
+**ktlint rule overrides**: three overrides — two rules disabled in `.editorconfig` to match community practice (NowInAndroid, Pokedex both
+use the inline form), plus one source-level suppress:
 
 - `ktlint_standard_annotation = disabled` - ktlint 1.7+ moves `@Inject` before `constructor` onto its own continuation line,
   doubly-indenting the class body (8 sp instead of 4 sp).
