@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("unused")
-
 package de.lemke.oneuisample.ui.util
 
 import android.content.Intent
@@ -28,7 +26,6 @@ import dev.oneuiproject.oneui.layout.NavDrawerLayout
 import dev.oneuiproject.oneui.navigation.widget.DrawerNavigationView
 import dev.oneuiproject.oneui.R as iconsR
 
-private const val TAG = "DrawerUtils"
 private const val NAV_RAIL_MIN_SIDE_MARGIN_DP = 14
 
 /** Sets up the drawer header button with an info icon navigating to [AboutActivity] and configures the nav rail. */
