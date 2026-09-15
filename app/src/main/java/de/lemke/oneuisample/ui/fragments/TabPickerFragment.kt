@@ -35,6 +35,7 @@ import androidx.picker.app.SeslTimePickerDialog
 import androidx.picker.widget.SeslDatePicker
 import androidx.picker.widget.SeslTimePicker
 import androidx.picker3.app.SeslColorPickerDialog
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
@@ -61,6 +62,9 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     @VisibleForTesting(otherwise = PRIVATE)
     internal var colorPickerDialog: SeslColorPickerDialog? = null
 
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal val pickerDialogHandler = PickerDialogHandler()
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
@@ -71,10 +75,10 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         initNumberPicker()
         initDatePicker()
         initSpinner()
-        binding.dateButton.setOnClickListener { openDatePickerDialog() }
-        binding.timeButton.setOnClickListener { openTimePickerDialog() }
-        binding.startEndTimeButton.setOnClickListener { openStartEndTimePickerDialog() }
-        binding.colorButton.setOnClickListener { openColorPickerDialog() }
+        binding.dateButton.setOnClickListener { pickerDialogHandler.openDatePickerDialog() }
+        binding.timeButton.setOnClickListener { pickerDialogHandler.openTimePickerDialog() }
+        binding.startEndTimeButton.setOnClickListener { pickerDialogHandler.openStartEndTimePickerDialog() }
+        binding.colorButton.setOnClickListener { pickerDialogHandler.openColorPickerDialog() }
     }
 
     override fun onDestroyView() {
@@ -88,7 +92,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         colorPickerDialog?.apply {
             if (isShowing) {
                 dismiss()
-                openColorPickerDialog()
+                pickerDialogHandler.openColorPickerDialog()
             }
         }
     }
@@ -171,102 +175,6 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         ) { position, _ -> onSpinnerItemSelected(position) }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun openDatePickerDialog() {
-        val calendar = Calendar.getInstance()
-        SeslDatePickerDialog(
-            requireContext(),
-            { _: SeslDatePicker?, year: Int, monthOfYear: Int, dayOfMonth: Int -> onDatePicked(year, monthOfYear, dayOfMonth) },
-            calendar[YEAR],
-            calendar[MONTH],
-            calendar[DAY_OF_MONTH],
-        ).show()
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onDatePicked(
-        year: Int,
-        monthOfYear: Int,
-        dayOfMonth: Int,
-    ) {
-        suggestiveSnackBar(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth))
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun openTimePickerDialog() {
-        val calendar = Calendar.getInstance()
-        SeslTimePickerDialog(
-            requireContext(),
-            { _: SeslTimePicker?, hourOfDay: Int, minute: Int -> onTimePicked(hourOfDay, minute) },
-            calendar[Calendar.HOUR_OF_DAY],
-            calendar[Calendar.MINUTE],
-            is24HourFormat(requireContext()),
-        ).show()
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onTimePicked(
-        hourOfDay: Int,
-        minute: Int,
-    ) {
-        suggestiveSnackBar("$hourOfDay:$minute")
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun openStartEndTimePickerDialog() {
-        StartEndTimePickerDialog(
-            requireContext(),
-            DEFAULT_START_TIME_MINUTES,
-            DEFAULT_END_TIME_MINUTES,
-            is24HourFormat(requireContext()),
-        ) { startTime, endTime ->
-            onStartEndTimePicked(startTime, endTime)
-        }.show()
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onStartEndTimePicked(
-        startTime: Int,
-        endTime: Int,
-    ) {
-        val startFormatted = String.format(Locale.getDefault(), "%02d:%02d", startTime / 60, startTime % 60)
-        val endFormatted = String.format(Locale.getDefault(), "%02d:%02d", endTime / 60, endTime % 60)
-        suggestiveSnackBar(getString(R.string.start_end_time_result, startFormatted, endFormatted))
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun openColorPickerDialog() {
-        colorPickerDialog =
-            SeslColorPickerDialog(
-                requireContext(),
-                { color: Int -> onColorPicked(color) },
-                userSettings.currentColor,
-                userSettings.recentColors.toIntArray(),
-                true,
-            ).apply {
-                setTransparencyControlEnabled(true)
-                show()
-                requireView().post {
-                    setOnBitmapSetListener { captureScreenBitmap() }
-                }
-            }
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onColorPicked(color: Int) {
-        userSettings.currentColor = color
-        userSettings.recentColors = listOf(color) + userSettings.recentColors
-    }
-
-    @NoCoverage
-    internal fun captureScreenBitmap(): Bitmap {
-        val act = activity ?: return createBitmap(1, 1)
-        val rootView = act.window.decorView.rootView
-        val bitmap = createBitmap(rootView.width.coerceAtLeast(1), rootView.height.coerceAtLeast(1))
-        rootView.draw(Canvas(bitmap))
-        return bitmap
-    }
-
     companion object {
         private const val PICKER_TEXT_SIZE_SP = 40f
         private const val PICKER1_MIN_VALUE = 1
@@ -285,5 +193,100 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         private const val SPINNER_SLEEP_PICKER = 4
         private const val DEFAULT_START_TIME_MINUTES = 0
         private const val DEFAULT_END_TIME_MINUTES = 600
+    }
+
+    /** Date, time, and color picker dialogs for the picker tab. */
+    internal inner class PickerDialogHandler {
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun openDatePickerDialog() {
+            val calendar = Calendar.getInstance()
+            SeslDatePickerDialog(
+                requireContext(),
+                { _: SeslDatePicker?, year: Int, monthOfYear: Int, dayOfMonth: Int -> onDatePicked(year, monthOfYear, dayOfMonth) },
+                calendar[YEAR],
+                calendar[MONTH],
+                calendar[DAY_OF_MONTH],
+            ).show()
+        }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun onDatePicked(
+            year: Int,
+            monthOfYear: Int,
+            dayOfMonth: Int,
+        ): Snackbar = suggestiveSnackBar(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth))
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun openTimePickerDialog() {
+            val calendar = Calendar.getInstance()
+            SeslTimePickerDialog(
+                requireContext(),
+                { _: SeslTimePicker?, hourOfDay: Int, minute: Int -> onTimePicked(hourOfDay, minute) },
+                calendar[Calendar.HOUR_OF_DAY],
+                calendar[Calendar.MINUTE],
+                is24HourFormat(requireContext()),
+            ).show()
+        }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun onTimePicked(
+            hourOfDay: Int,
+            minute: Int,
+        ): Snackbar = suggestiveSnackBar("$hourOfDay:$minute")
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun openStartEndTimePickerDialog() {
+            StartEndTimePickerDialog(
+                requireContext(),
+                DEFAULT_START_TIME_MINUTES,
+                DEFAULT_END_TIME_MINUTES,
+                is24HourFormat(requireContext()),
+            ) { startTime, endTime ->
+                onStartEndTimePicked(startTime, endTime)
+            }.show()
+        }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun onStartEndTimePicked(
+            startTime: Int,
+            endTime: Int,
+        ): Snackbar {
+            val startFormatted = String.format(Locale.getDefault(), "%02d:%02d", startTime / 60, startTime % 60)
+            val endFormatted = String.format(Locale.getDefault(), "%02d:%02d", endTime / 60, endTime % 60)
+            return suggestiveSnackBar(getString(R.string.start_end_time_result, startFormatted, endFormatted))
+        }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun openColorPickerDialog() {
+            colorPickerDialog =
+                SeslColorPickerDialog(
+                    requireContext(),
+                    { color: Int -> onColorPicked(color) },
+                    userSettings.currentColor,
+                    userSettings.recentColors.toIntArray(),
+                    true,
+                ).apply {
+                    setTransparencyControlEnabled(true)
+                    show()
+                    requireView().post {
+                        setOnBitmapSetListener { captureScreenBitmap() }
+                    }
+                }
+        }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun onColorPicked(color: Int) {
+            userSettings.currentColor = color
+            userSettings.recentColors = listOf(color) + userSettings.recentColors
+        }
+
+        @NoCoverage
+        internal fun captureScreenBitmap(): Bitmap {
+            val act = activity ?: return createBitmap(1, 1)
+            val rootView = act.window.decorView.rootView
+            val bitmap = createBitmap(rootView.width.coerceAtLeast(1), rootView.height.coerceAtLeast(1))
+            rootView.draw(Canvas(bitmap))
+            return bitmap
+        }
     }
 }

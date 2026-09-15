@@ -21,6 +21,7 @@ import android.content.res.Configuration
 import android.os.Looper
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment
 import androidx.picker.widget.SeslNumberPicker
@@ -45,6 +46,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowDialog
+import com.google.android.material.R as MaterialR
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -87,23 +89,42 @@ class TabPickerFragmentTest {
 
     @Test
     fun onDatePicked_showsSnackBar() {
-        withFragment { onDatePicked(2025, 11, 25) }
+        withFragment {
+            val snackbar = pickerDialogHandler.onDatePicked(2025, 11, 25)
+            snackbar.view
+                .findViewById<TextView>(MaterialR.id.snackbar_text)
+                ?.text
+                .toString() shouldBe "2025-12-25"
+        }
     }
 
     @Test
     fun onTimePicked_showsSnackBar() {
-        withFragment { onTimePicked(14, 30) }
+        withFragment {
+            val snackbar = pickerDialogHandler.onTimePicked(14, 30)
+            snackbar.view
+                .findViewById<TextView>(MaterialR.id.snackbar_text)
+                ?.text
+                .toString() shouldBe "14:30"
+        }
     }
 
     @Test
     fun onStartEndTimePicked_showsSnackBar() {
-        withFragment { onStartEndTimePicked(480, 1020) }
+        withFragment {
+            val snackbar = pickerDialogHandler.onStartEndTimePicked(480, 1020)
+            snackbar.view
+                .findViewById<TextView>(MaterialR.id.snackbar_text)
+                ?.text
+                .toString() shouldBe
+                getString(R.string.start_end_time_result, "08:00", "17:00")
+        }
     }
 
     @Test
     fun onColorPicked_updatesCurrentColor() {
         withFragment {
-            onColorPicked(0xFF0000)
+            pickerDialogHandler.onColorPicked(0xFF0000)
             userSettings.currentColor shouldBe 0xFF0000
         }
     }
@@ -111,8 +132,8 @@ class TabPickerFragmentTest {
     @Test
     fun onColorPicked_deduplicatesRecentColors() {
         withFragment {
-            onColorPicked(0xFF0000)
-            onColorPicked(0xFF0000)
+            pickerDialogHandler.onColorPicked(0xFF0000)
+            pickerDialogHandler.onColorPicked(0xFF0000)
             // Picked color deduped: list stays at 2 (0xFF0000 + initial default), not 3
             userSettings.recentColors.count { it == 0xFF0000 } shouldBe 1
         }
@@ -121,33 +142,33 @@ class TabPickerFragmentTest {
     @Test
     fun onColorPicked_keepsAtMostSixRecentColors() {
         withFragment {
-            repeat(8) { i -> onColorPicked(i) }
+            repeat(8) { i -> pickerDialogHandler.onColorPicked(i) }
             userSettings.recentColors.size shouldBe 6
         }
     }
 
     @Test
     fun openDatePickerDialog_showsDialog() {
-        withFragment { openDatePickerDialog() }
+        withFragment { pickerDialogHandler.openDatePickerDialog() }
         ShadowDialog.getLatestDialog() shouldNotBe null
     }
 
     @Test
     fun openTimePickerDialog_showsDialog() {
-        withFragment { openTimePickerDialog() }
+        withFragment { pickerDialogHandler.openTimePickerDialog() }
         ShadowDialog.getLatestDialog() shouldNotBe null
     }
 
     @Test
     fun openStartEndTimePickerDialog_showsDialog() {
-        withFragment { openStartEndTimePickerDialog() }
+        withFragment { pickerDialogHandler.openStartEndTimePickerDialog() }
         ShadowDialog.getLatestDialog() shouldNotBe null
     }
 
     @Test
     fun openColorPickerDialog_showsDialog() {
         withFragment {
-            openColorPickerDialog()
+            pickerDialogHandler.openColorPickerDialog()
             colorPickerDialog shouldNotBe null
         }
     }
@@ -163,7 +184,7 @@ class TabPickerFragmentTest {
     @Test
     fun onConfigurationChanged_withDismissedDialog_doesNotReopen() {
         withFragment {
-            openColorPickerDialog()
+            pickerDialogHandler.openColorPickerDialog()
             shadowOf(Looper.getMainLooper()).idle()
             colorPickerDialog?.dismiss()
             val config = Configuration(resources.configuration)
@@ -252,7 +273,7 @@ class TabPickerFragmentTest {
     @Test
     fun onConfigurationChanged_withDialogShowing_dismissesAndReopens() {
         withFragment {
-            openColorPickerDialog()
+            pickerDialogHandler.openColorPickerDialog()
             val config = Configuration(resources.configuration)
             onConfigurationChanged(config)
             shadowOf(Looper.getMainLooper()).idle()
@@ -263,7 +284,7 @@ class TabPickerFragmentTest {
     @Test
     fun onConfigurationChanged_withDialogExistingNotShowing_doesNothing() {
         withFragment {
-            openColorPickerDialog()
+            pickerDialogHandler.openColorPickerDialog()
             colorPickerDialog?.dismiss()
             val config = Configuration(resources.configuration)
             onConfigurationChanged(config)
@@ -286,7 +307,7 @@ class TabPickerFragmentTest {
                     (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
                         .childFragmentManager
                         .primaryNavigationFragment as? TabPickerFragment
-                fragment?.openStartEndTimePickerDialog()
+                fragment?.pickerDialogHandler?.openStartEndTimePickerDialog()
             }
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity {

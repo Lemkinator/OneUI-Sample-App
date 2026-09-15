@@ -80,7 +80,9 @@ import dev.oneuiproject.oneui.R as iconsR
 @AndroidEntryPoint
 class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator by AppBarAwareYTranslator() {
     private val binding by autoCleared { FragmentTabIconsBinding.bind(requireView()) }
-    private lateinit var drawerLayout: DrawerLayout
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal lateinit var drawerLayout: DrawerLayout
     private val allSelectorStateFlow: MutableStateFlow<AllSelectorState> = MutableStateFlow(AllSelectorState())
 
     @VisibleForTesting(otherwise = PRIVATE)
@@ -88,7 +90,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         IconAdapter(
             requireContext(),
             onAllSelectorStateChanged = { allSelectorStateFlow.value = it },
-            onBlockActionMode = ::launchActionMode,
+            onBlockActionMode = { actionModeHandler.launchActionMode() },
         )
     }
 
@@ -129,6 +131,15 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         }
     }
 
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal val swipeHandler = SwipeHandler()
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal val settingsDialogHandler = SettingsDialogHandler()
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal val actionModeHandler = ActionModeHandler()
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
@@ -158,7 +169,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                     menu.findItem(R.id.menu_item_settings)?.setBadge(Badge.DOT)
                 }
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean = onIconTabMenuItemSelected(menuItem)
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean = actionModeHandler.onIconTabMenuItemSelected(menuItem)
             },
             viewLifecycleOwner,
             Lifecycle.State.RESUMED,
@@ -172,7 +183,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             addItemDecoration(SemItemDecoration(context, ALL, NONE).apply { setDividerInsetStart(76.dpToPx(resources)) })
             enableCoreSeslFeatures()
             hideSoftInputOnScroll()
-            configureItemSwipeAnimator()
+            swipeHandler.configureItemSwipeAnimator()
             iconAdapter.configureWith(this)
             binding.iconIndexScroll.attachToRecyclerView(this)
             binding.fabIcons.hideOnScroll(this, binding.iconIndexScroll)
@@ -221,21 +232,8 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
 
     @NoCoverage
     internal fun onIconItemLongClicked() {
-        if (!iconAdapter.isActionMode) launchActionMode()
+        if (!iconAdapter.isActionMode) actionModeHandler.launchActionMode()
         binding.iconList.seslStartLongPressMultiSelection()
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onIconSwiped(
-        position: Int,
-        swipeDirection: Int,
-    ): Boolean {
-        val icon = iconAdapter.getItemByPosition(position)
-        when (swipeDirection) {
-            START -> suggestiveSnackBar("${icon.name}: Right to Left")
-            END -> suggestiveSnackBar("${icon.name}: Left to Right")
-        }
-        return true
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
@@ -246,34 +244,6 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         binding.iconIndexScroll.setAutoHide(settings.indexScrollAutoHide)
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun isSwipeEnabled(
-        @Suppress("UNUSED_PARAMETER") viewHolder: RecyclerView.ViewHolder,
-    ): Boolean = !drawerLayout.isActionMode
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onIconSwipeCallback(
-        position: Int,
-        direction: Int,
-        @Suppress("UNUSED_PARAMETER") actionState: Int,
-    ): Boolean = onIconSwiped(position, direction)
-
-    private fun configureItemSwipeAnimator() {
-        binding.iconList.configureItemSwipeAnimator(
-            leftToRightLabel = getString(R.string.left_to_right),
-            rightToLeftLabel = getString(R.string.right_to_left),
-            leftToRightColor = "#11a85f".toColorInt(),
-            rightToLeftColor = "#31a5f3".toColorInt(),
-            leftToRightDrawableRes = iconsR.drawable.ic_oui_arrow_right,
-            rightToLeftDrawableRes = iconsR.drawable.ic_oui_arrow_left,
-            isLeftSwipeEnabled = ::isSwipeEnabled,
-            isRightSwipeEnabled = ::isSwipeEnabled,
-            onSwiped = ::onIconSwipeCallback,
-        )
-    }
-
-    private fun startSearch() = drawerLayout.startSearchMode(searchModeListener, DISMISS)
-
     @NoCoverage
     private fun SearchView.onSearchOverflowClicked() {
         clearFocus()
@@ -281,94 +251,6 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             setTitle(getString(R.string.search_filter))
             setNegativeButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_cancel), null)
             setPositiveButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_apply), null)
-            show()
-        }
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun launchActionMode(initialSelected: Set<Long>? = null) {
-        val adapter = iconAdapter
-        adapter.toggleActionMode(true, initialSelected)
-        drawerLayout.startActionMode(
-            onInflateMenu = { menu, menuInflater -> menuInflater.inflate(R.menu.select, menu) },
-            onEnd = { adapter.toggleActionMode(false) },
-            onSelectMenuItem = ::onActionModeMenuItemSelected,
-            onSelectAll = { isChecked: Boolean -> iconAdapter.onToggleSelectAll(isChecked) },
-            allSelectorStateFlow = allSelectorStateFlow,
-            searchOnActionMode = userSettings.searchOnActionMode.withListener(searchModeListener),
-            showCancel = userSettings.actionModeShowCancel,
-        )
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onIconTabMenuItemSelected(menuItem: MenuItem): Boolean =
-        when (menuItem.itemId) {
-            R.id.menu_item_search -> startSearch().let { true }
-            R.id.menu_item_settings -> onSettingsMenuItemSelected(menuItem).let { true }
-            else -> false
-        }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onSettingsMenuItemSelected(menuItem: MenuItem) {
-        showSettingsDialog()
-        menuItem.clearBadge()
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onActionModeMenuItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
-            R.id.menu_item_1 -> {
-                suggestiveSnackBar(getString(R.string.menu_item_1_selected))
-                drawerLayout.endActionMode()
-                true
-            }
-
-            R.id.menu_item_2 -> {
-                suggestiveSnackBar(getString(R.string.menu_item_2_selected))
-                drawerLayout.endActionMode()
-                true
-            }
-
-            R.id.menu_item_3 -> {
-                suggestiveSnackBar(getString(R.string.menu_item_3_selected))
-                drawerLayout.endActionMode()
-                true
-            }
-
-            else -> {
-                false
-            }
-        }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun buildSettingsDialogView(): DialogSettingsBinding =
-        DialogSettingsBinding.inflate(layoutInflater).apply {
-            actionModeShowCancel.isChecked = userSettings.actionModeShowCancel
-            showIndexScroll.isChecked = userSettings.showIndexScroll
-            indexScrollShowLetters.isChecked = userSettings.indexScrollShowLetters
-            indexScrollAutoHide.isChecked = userSettings.indexScrollAutoHide
-            indexScrollShowLetters.isEnabled = userSettings.showIndexScroll
-            indexScrollAutoHide.isEnabled = userSettings.showIndexScroll
-            when (userSettings.searchOnActionMode) {
-                ToolbarLayout.SearchOnActionMode.Dismiss -> amsOptions.check(R.id.amsDismiss)
-                ToolbarLayout.SearchOnActionMode.NoDismiss -> amsOptions.check(R.id.amsNoDismiss)
-                is ToolbarLayout.SearchOnActionMode.Concurrent -> amsOptions.check(R.id.amsConcurrent)
-            }
-            showIndexScroll.onCheckedChangedListener = { _, isChecked ->
-                onShowIndexScrollChanged(this, isChecked)
-            }
-        }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun showSettingsDialog() {
-        val dialogBinding = buildSettingsDialogView()
-        AlertDialog.Builder(requireContext()).apply {
-            setTitle(getString(R.string.settings))
-            setView(dialogBinding.root)
-            setNegativeButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_cancel), null)
-            setPositiveButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_apply)) { _, _ ->
-                applySettingsFromDialog(dialogBinding)
-            }
             show()
         }
     }
@@ -390,47 +272,185 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         )
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun applySettingsFromDialog(dialogBinding: DialogSettingsBinding) =
-        applySettings(
-            actionModeShowCancel = dialogBinding.actionModeShowCancel.isChecked,
-            showIndexScroll = dialogBinding.showIndexScroll.isChecked,
-            indexScrollShowLetters = dialogBinding.indexScrollShowLetters.isChecked,
-            indexScrollAutoHide = dialogBinding.indexScrollAutoHide.isChecked,
-            checkedSearchOnActionModeId = dialogBinding.amsOptions.checkedRadioButtonId,
-        )
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun applySettings(
-        actionModeShowCancel: Boolean,
-        showIndexScroll: Boolean,
-        indexScrollShowLetters: Boolean,
-        indexScrollAutoHide: Boolean,
-        checkedSearchOnActionModeId: Int,
-    ) {
-        userSettings.actionModeShowCancel = actionModeShowCancel
-        userSettings.showIndexScroll = showIndexScroll
-        userSettings.indexScrollShowLetters = indexScrollShowLetters
-        userSettings.indexScrollAutoHide = indexScrollAutoHide
-        userSettings.searchOnActionMode =
-            when (checkedSearchOnActionModeId) {
-                R.id.amsDismiss -> ToolbarLayout.SearchOnActionMode.Dismiss
-                R.id.amsNoDismiss -> ToolbarLayout.SearchOnActionMode.NoDismiss
-                else -> ToolbarLayout.SearchOnActionMode.Concurrent(null)
-            }
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onShowIndexScrollChanged(
-        dialogBinding: DialogSettingsBinding,
-        isChecked: Boolean,
-    ) {
-        dialogBinding.indexScrollShowLetters.isEnabled = isChecked
-        dialogBinding.indexScrollAutoHide.isEnabled = isChecked
-    }
-
     companion object {
         private const val MULTISELECT_TIP_ANCHOR_POSITION = 2
         private val MULTISELECT_TIP_DELAY = 1.seconds
+    }
+
+    /** Swipe-to-reveal actions for the icon list: shows a directional snackbar per swipe. */
+    internal inner class SwipeHandler {
+        fun configureItemSwipeAnimator() {
+            binding.iconList.configureItemSwipeAnimator(
+                leftToRightLabel = getString(R.string.left_to_right),
+                rightToLeftLabel = getString(R.string.right_to_left),
+                leftToRightColor = "#11a85f".toColorInt(),
+                rightToLeftColor = "#31a5f3".toColorInt(),
+                leftToRightDrawableRes = iconsR.drawable.ic_oui_arrow_right,
+                rightToLeftDrawableRes = iconsR.drawable.ic_oui_arrow_left,
+                isLeftSwipeEnabled = ::isSwipeEnabled,
+                isRightSwipeEnabled = ::isSwipeEnabled,
+                onSwiped = ::onIconSwipeCallback,
+            )
+        }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun onIconSwiped(
+            position: Int,
+            swipeDirection: Int,
+        ): Boolean {
+            val icon = iconAdapter.getItemByPosition(position)
+            when (swipeDirection) {
+                START -> suggestiveSnackBar("${icon.name}: ${getString(R.string.right_to_left)}")
+                END -> suggestiveSnackBar("${icon.name}: ${getString(R.string.left_to_right)}")
+            }
+            return true
+        }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun isSwipeEnabled(
+            @Suppress("UNUSED_PARAMETER") viewHolder: RecyclerView.ViewHolder,
+        ): Boolean = !drawerLayout.isActionMode
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun onIconSwipeCallback(
+            position: Int,
+            direction: Int,
+            @Suppress("UNUSED_PARAMETER") actionState: Int,
+        ): Boolean = onIconSwiped(position, direction)
+    }
+
+    /** Builds, shows, and applies the icon tab's settings dialog. */
+    internal inner class SettingsDialogHandler {
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun buildSettingsDialogView(): DialogSettingsBinding =
+            DialogSettingsBinding.inflate(layoutInflater).apply {
+                actionModeShowCancel.isChecked = userSettings.actionModeShowCancel
+                showIndexScroll.isChecked = userSettings.showIndexScroll
+                indexScrollShowLetters.isChecked = userSettings.indexScrollShowLetters
+                indexScrollAutoHide.isChecked = userSettings.indexScrollAutoHide
+                indexScrollShowLetters.isEnabled = userSettings.showIndexScroll
+                indexScrollAutoHide.isEnabled = userSettings.showIndexScroll
+                when (userSettings.searchOnActionMode) {
+                    ToolbarLayout.SearchOnActionMode.Dismiss -> amsOptions.check(R.id.amsDismiss)
+                    ToolbarLayout.SearchOnActionMode.NoDismiss -> amsOptions.check(R.id.amsNoDismiss)
+                    is ToolbarLayout.SearchOnActionMode.Concurrent -> amsOptions.check(R.id.amsConcurrent)
+                }
+                showIndexScroll.onCheckedChangedListener = { _, isChecked ->
+                    onShowIndexScrollChanged(this, isChecked)
+                }
+            }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun showSettingsDialog() {
+            val dialogBinding = buildSettingsDialogView()
+            AlertDialog.Builder(requireContext()).apply {
+                setTitle(getString(R.string.settings))
+                setView(dialogBinding.root)
+                setNegativeButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_cancel), null)
+                setPositiveButton(getString(dev.oneuiproject.oneui.design.R.string.oui_des_common_apply)) { _, _ ->
+                    applySettingsFromDialog(dialogBinding)
+                }
+                show()
+            }
+        }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun applySettingsFromDialog(dialogBinding: DialogSettingsBinding) =
+            applySettings(
+                actionModeShowCancel = dialogBinding.actionModeShowCancel.isChecked,
+                showIndexScroll = dialogBinding.showIndexScroll.isChecked,
+                indexScrollShowLetters = dialogBinding.indexScrollShowLetters.isChecked,
+                indexScrollAutoHide = dialogBinding.indexScrollAutoHide.isChecked,
+                checkedSearchOnActionModeId = dialogBinding.amsOptions.checkedRadioButtonId,
+            )
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun applySettings(
+            actionModeShowCancel: Boolean,
+            showIndexScroll: Boolean,
+            indexScrollShowLetters: Boolean,
+            indexScrollAutoHide: Boolean,
+            checkedSearchOnActionModeId: Int,
+        ) {
+            userSettings.actionModeShowCancel = actionModeShowCancel
+            userSettings.showIndexScroll = showIndexScroll
+            userSettings.indexScrollShowLetters = indexScrollShowLetters
+            userSettings.indexScrollAutoHide = indexScrollAutoHide
+            userSettings.searchOnActionMode =
+                when (checkedSearchOnActionModeId) {
+                    R.id.amsDismiss -> ToolbarLayout.SearchOnActionMode.Dismiss
+                    R.id.amsNoDismiss -> ToolbarLayout.SearchOnActionMode.NoDismiss
+                    else -> ToolbarLayout.SearchOnActionMode.Concurrent(null)
+                }
+        }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun onShowIndexScrollChanged(
+            dialogBinding: DialogSettingsBinding,
+            isChecked: Boolean,
+        ) {
+            dialogBinding.indexScrollShowLetters.isEnabled = isChecked
+            dialogBinding.indexScrollAutoHide.isEnabled = isChecked
+        }
+    }
+
+    /** Search and selection (action mode) menu handling for the icon tab. */
+    internal inner class ActionModeHandler {
+        private fun startSearch() = drawerLayout.startSearchMode(searchModeListener, DISMISS)
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun launchActionMode(initialSelected: Set<Long>? = null) {
+            val adapter = iconAdapter
+            adapter.toggleActionMode(true, initialSelected)
+            drawerLayout.startActionMode(
+                onInflateMenu = { menu, menuInflater -> menuInflater.inflate(R.menu.select, menu) },
+                onEnd = { adapter.toggleActionMode(false) },
+                onSelectMenuItem = ::onActionModeMenuItemSelected,
+                onSelectAll = { isChecked: Boolean -> iconAdapter.onToggleSelectAll(isChecked) },
+                allSelectorStateFlow = allSelectorStateFlow,
+                searchOnActionMode = userSettings.searchOnActionMode.withListener(searchModeListener),
+                showCancel = userSettings.actionModeShowCancel,
+            )
+        }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun onIconTabMenuItemSelected(menuItem: MenuItem): Boolean =
+            when (menuItem.itemId) {
+                R.id.menu_item_search -> startSearch().let { true }
+                R.id.menu_item_settings -> onSettingsMenuItemSelected(menuItem).let { true }
+                else -> false
+            }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun onSettingsMenuItemSelected(menuItem: MenuItem) {
+            settingsDialogHandler.showSettingsDialog()
+            menuItem.clearBadge()
+        }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal fun onActionModeMenuItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                R.id.menu_item_1 -> {
+                    suggestiveSnackBar(getString(R.string.menu_item_1_selected))
+                    drawerLayout.endActionMode()
+                    true
+                }
+
+                R.id.menu_item_2 -> {
+                    suggestiveSnackBar(getString(R.string.menu_item_2_selected))
+                    drawerLayout.endActionMode()
+                    true
+                }
+
+                R.id.menu_item_3 -> {
+                    suggestiveSnackBar(getString(R.string.menu_item_3_selected))
+                    drawerLayout.endActionMode()
+                    true
+                }
+
+                else -> {
+                    false
+                }
+            }
     }
 }

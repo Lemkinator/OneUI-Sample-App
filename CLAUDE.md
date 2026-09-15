@@ -24,13 +24,12 @@ The GMD device (`pixel9Api35`: Pixel 9 / API 35 / aosp / x86_64) is declared onc
 
 ### Baseline Profile & Benchmarks
 
-This repo has no release pipeline (no versionCode bump, no Play/GH release) — the baseline profile
-setup exists as an accurate reference for the pattern, not to optimize a shipped build. It's still
-generated automatically as part of every `assembleRelease` (`app/build.gradle.kts`'s
-`baselineProfile { variants { create("release") { ... } } }`); PR CI passes
-`-Pandroidx.baselineprofile.skipgeneration` so a PR's assemble never boots the GMD; a weekly smoke test
-(`baseline-profile.yml`) doesn't, so it always generates fresh and also verifies packaging, standing in
-for the packaging check other repos get from their release workflow. `./gradlew :app:generateBaselineProfile`
+The baseline profile is generated automatically as part of every `assembleRelease`
+(`app/build.gradle.kts`'s `baselineProfile { variants { create("release") { ... } } }`); PR CI passes
+`-Pandroidx.baselineprofile.skipgeneration` so a PR's assemble never boots the GMD. `buildAndPublishRelease.yml`
+only runs `assembleRelease` on a versionCode-bumping push to `main` (GitHub-release-only, no Play Store
+step), so a weekly smoke test (`baseline-profile.yml`) runs it unconditionally in between, always generating
+fresh and verifying packaging. `./gradlew :app:generateBaselineProfile`
 still works standalone as a local diagnostic — run it in the background, not a foreground shell with a
 short timeout; it takes ~9-10 minutes:
 
@@ -141,13 +140,15 @@ message if `core.autocrlf=true` is detected.
 If `spotlessCheck` fails, fix with `./gradlew spotlessApply` then re-run. Screenshot test failures (`verifyRoborazziDebug`) mean the code
 change broke a visual. Do not analyze screenshots, ask the user to verify the changes.
 
-**ktlint rule overrides**: two rules disabled in `.editorconfig` to match community practice (NowInAndroid, Pokedex both use the inline
-form):
+**ktlint rule overrides**: three overrides — two rules disabled in `.editorconfig` to match community practice (NowInAndroid, Pokedex both
+use the inline form), plus one source-level suppress:
 
 - `ktlint_standard_annotation = disabled` - ktlint 1.7+ moves `@Inject` before `constructor` onto its own continuation line,
   doubly-indenting the class body (8 sp instead of 4 sp).
 - `ktlint_standard_class-signature = disabled` - in ktlint 1.7+, both rules together enforce the split form; disabling only `annotation` is
   insufficient.
+- `@Suppress("IncorrectFormatting")` on `IconAdapter` - ktlint indents its multi-line super-constructor arguments at 8 sp, the IDE's
+  default formatter expects 4 sp.
 
 ## Key Patterns
 

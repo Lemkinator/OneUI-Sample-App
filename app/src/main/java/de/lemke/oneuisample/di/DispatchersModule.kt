@@ -25,19 +25,11 @@ import kotlinx.coroutines.Dispatchers
 
 @Retention(AnnotationRetention.RUNTIME)
 @Qualifier
-annotation class IoDispatcher
-
-@Retention(AnnotationRetention.RUNTIME)
-@Qualifier
 annotation class DefaultDispatcher
 
 @Module
 @InstallIn(SingletonComponent::class)
 object DispatchersModule {
-    @Provides
-    @IoDispatcher
-    fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
-
     @Provides
     @DefaultDispatcher
     fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
