@@ -432,6 +432,7 @@ class TabIconsFragmentTest {
         withFragment {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
+            awaitIconListSize(1)
             swipeHandler.onIconSwiped(0, -1) shouldBe true
         }
     }
@@ -526,7 +527,7 @@ class TabIconsFragmentTest {
         withFragment {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
-            shadowOf(Looper.getMainLooper()).idle()
+            awaitIconListSize(1)
             swipeHandler.onIconSwipeCallback(0, ItemTouchHelper.START, 0) shouldBe true
         }
     }
@@ -536,7 +537,7 @@ class TabIconsFragmentTest {
         withFragment {
             val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
             updateList(Pair(listOf(icon), null))
-            shadowOf(Looper.getMainLooper()).idle()
+            awaitIconListSize(1)
             swipeHandler.onIconSwipeCallback(0, ItemTouchHelper.END, 0) shouldBe true
         }
     }
