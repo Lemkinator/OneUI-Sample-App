@@ -30,10 +30,10 @@ class DispatchersModuleTest : ShouldSpec(
     {
         should("provideDefaultDispatcher dispatches work onto Dispatchers.Default's thread pool") {
             val dispatcher = DispatchersModule.provideDefaultDispatcher()
-            val callerThread = Thread.currentThread().name
+            val callerThread = Thread.currentThread()
             val dispatchedThread =
                 runBlocking {
-                    withContext(dispatcher) { Thread.currentThread().name }
+                    withContext(dispatcher) { Thread.currentThread() }
                 }
             dispatcher shouldBe Dispatchers.Default
             dispatchedThread shouldNotBe callerThread
