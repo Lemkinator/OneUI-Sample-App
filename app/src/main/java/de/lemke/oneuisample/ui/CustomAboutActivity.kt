@@ -148,7 +148,7 @@ class CustomAboutActivity : AppCompatActivity() {
 
     private fun applyBackProgress(progress: Float) {
         val interpolatedProgress = progressInterpolator.getInterpolation(progress)
-        if (interpolatedProgress > 0.5f && !isExpanding) {
+        if (interpolatedProgress > BACK_EXPAND_THRESHOLD && !isExpanding) {
             isExpanding = true
             binding.aboutAppBar.setExpanded(true, true)
         } else if (interpolatedProgress < BACK_COLLAPSE_THRESHOLD && isExpanding) {
@@ -161,7 +161,7 @@ class CustomAboutActivity : AppCompatActivity() {
     private fun refreshAppBar(config: Configuration) {
         if (config.orientation != ORIENTATION_LANDSCAPE && !isInMultiWindowModeCompat) {
             binding.aboutAppBar.apply {
-                seslSetCustomHeightProportion(true, 0.5f) // expanded
+                seslSetCustomHeightProportion(true, EXPANDED_HEIGHT_PROPORTION)
                 addOnOffsetChangedListener(appBarListener)
                 setExpanded(true, false)
             }
@@ -263,6 +263,8 @@ class CustomAboutActivity : AppCompatActivity() {
 
     companion object {
         private const val BACK_COLLAPSE_THRESHOLD = 0.3f
+        private const val BACK_EXPAND_THRESHOLD = 0.5f
+        private const val EXPANDED_HEIGHT_PROPORTION = 0.5f
         private const val SWIPE_UP_ALPHA_SPEED = 3f
         private const val BOTTOM_ALPHA_SCALE = 150f
         private const val BOTTOM_ALPHA_RANGE_FRACTION = 0.143f

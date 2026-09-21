@@ -25,17 +25,13 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 /**
  * Replaces [DispatchersModule] in `@HiltAndroidTest` Robolectric tests so coroutines launched on
- * [IoDispatcher]/[DefaultDispatcher] run unconfined instead of on real background threads -
- * required so `shadowOf(Looper.getMainLooper()).idle()` can observe their result deterministically.
+ * [DefaultDispatcher] run unconfined instead of on real background threads - required so
+ * `shadowOf(Looper.getMainLooper()).idle()` can observe their result deterministically.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [DispatchersModule::class])
 object TestDispatchersModule {
-    @Provides
-    @IoDispatcher
-    fun provideIoDispatcher(): CoroutineDispatcher = UnconfinedTestDispatcher()
-
     @Provides
     @DefaultDispatcher
     fun provideDefaultDispatcher(): CoroutineDispatcher = UnconfinedTestDispatcher()

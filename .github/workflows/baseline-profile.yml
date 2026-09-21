@@ -33,9 +33,9 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       # automaticGenerationDuringBuild is unconditional for the release variant, so assembleRelease
-      # itself is what exercises the real generator end to end. No release workflow exists for this
-      # repo (no versionCode bump, no Play/GH release), so this job also stands in for the packaging
-      # check the other repos get from buildAndPublishRelease.yml.
+      # itself is what exercises the real generator end to end. buildAndPublishRelease.yml only
+      # runs assembleRelease on a versionCode-bumping push to main, so this weekly job is what
+      # continuously exercises release packaging in between.
       - name: Build release APK with a freshly generated baseline profile
         run: |
           chmod +x ./gradlew
