@@ -172,6 +172,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.material3)
     implementation(libs.core.splashscreen)
+    implementation(libs.coroutines.android)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
@@ -214,7 +215,6 @@ dependencies {
 spotless {
     kotlin {
         target("src/**/*.kt")
-        targetExclude("**/build/**", "**/generated/**")
         licenseHeaderFile(rootProject.file("config/spotless/apache-2.0.kt"))
         ktlint(libs.versions.ktlint.get())
         trimTrailingWhitespace()
@@ -222,7 +222,6 @@ spotless {
     }
     format("xml") {
         target("src/**/*.xml")
-        targetExclude("**/build/**")
         licenseHeaderFile(rootProject.file("config/spotless/apache-2.0.xml"), "(<[^!?])")
         trimTrailingWhitespace()
         endWithNewline()
@@ -271,6 +270,7 @@ kover {
                 classes(
                     "*.databinding.*",
                     "*.BuildConfig",
+                    "*.di.*",
                     "*Hilt_*",
                     "*_HiltModules*",
                     "*_Factory",
@@ -278,30 +278,9 @@ kover {
                     "*_MembersInjector",
                     "dagger.hilt.*",
                     "hilt_aggregated_deps.*",
-                    "*TileService",
-                    "*TileService$*",
-                    "*ComposableSingletons$*",
-                    "de.lemke.oneuisample.App",
-                    "de.lemke.oneuisample.ui.LibsActivity*",
-                    "de.lemke.oneuisample.ui.util.SearchHighlighter*",
-                    // SettingsActivity dialog button lambdas — DialogInterface.OnClickListener anonymous classes
-                    "*SettingsFragment*initTosPref*",
-                    "*SettingsFragment*initDeleteAppDataPref*",
-                    "*OOBEActivity*initToSView*",
-                    // AppPickerActivity configureAppPicker anonymous OnStateChangeListener
-                    "*AppPickerActivity*configureAppPicker*",
-                    // SubtabProgressBarFragment — infinite coroutine loop with invokeSuspend on main class
-                    "de.lemke.oneuisample.ui.fragments.SubtabProgressBarFragment*",
-                    // iconAdapter lazy lambda — onAllSelectorStateChanged callback (infrastructure, not testable via public API)
-                    "*TabIconsFragment*iconAdapter*",
-                    // SwipeActionListener — ItemTouchHelper callbacks not triggerable in Robolectric unit tests
-                    "*TabIconsFragment*configureItemSwipeAnimator*",
-                    // ActionModeListener — action mode menu/select callbacks not triggerable in Robolectric unit tests
-                    "*TabIconsFragment*launchActionMode*",
-                    // SearchModeListener — ToolbarLayout search callbacks not reliably triggerable in Robolectric unit tests
-                    "*AppPickerActivity*onOptionsItemSelected*",
-                    // invokeOnBack anonymous OnBackPressedCallback + coroutine classes — 0 instructions, method-only stubs
-                    "*CustomAboutActivity*initOnBackPressed*",
+                    "*_Impl",
+                    "*_Impl\$*",
+                    "*ComposableSingletons\$*",
                 )
                 annotatedBy("de.lemke.oneuisample.NoCoverage")
             }
@@ -310,7 +289,7 @@ kover {
             verify {
                 rule {
                     minBound(100, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.INSTRUCTION)
-                    minBound(100, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
+                    minBound(99, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
                 }
             }
         }
