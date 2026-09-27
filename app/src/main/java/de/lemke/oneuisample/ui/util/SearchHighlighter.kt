@@ -45,11 +45,10 @@ class SearchHighlighter @Inject constructor(
         textToBold: String,
     ): SpannableStringBuilder {
         var text = builder.toString()
-        if (textToBold.isEmpty() || !text.contains(textToBold, ignoreCase = true)) return builder
+        if (textToBold.isEmpty()) return builder
         var startingIndex = text.indexOf(textToBold, ignoreCase = true)
         var endingIndex = startingIndex + textToBold.length
         var offset = 0 // for multiple replaces
-        var firstSearchIndex = text.length
         while (startingIndex >= 0) {
             builder.setSpan(
                 TextAppearanceSpan(context, R.style.OneUI_SearchHighlightedTextAppearance),
@@ -57,7 +56,6 @@ class SearchHighlighter @Inject constructor(
                 offset + endingIndex,
                 SPAN_MARK_MARK,
             )
-            if (startingIndex < firstSearchIndex) firstSearchIndex = startingIndex
             text = text.substring(endingIndex)
             offset += endingIndex
             startingIndex = text.indexOf(textToBold, ignoreCase = true)

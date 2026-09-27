@@ -107,9 +107,7 @@ class SearchHighlighterTest {
     }
 
     @Test
-    fun `query with trailing space produces empty token that short-circuits contains check`() {
-        // "hello ".split(" ") → ["hello", ""] — the empty token passes text.contains("") but
-        // isEmpty()=true in the single-text overload, short-circuiting the contains() call.
+    fun `query with trailing space skips the empty token`() {
         val result = highlighter("hello world", "hello ")
         result.toString() shouldBe "hello world"
         result.getSpans(0, result.length, TextAppearanceSpan::class.java).size shouldBe 1
