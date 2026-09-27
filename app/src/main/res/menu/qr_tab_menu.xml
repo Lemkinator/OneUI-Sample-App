@@ -24,6 +24,6 @@
         android:title="@string/scan_qr"
         app:iconTint="?actionMenuTextColor"
         app:showAsAction="always"
-        tools:ignore="AlwaysShowAction,AppCompatResource" />
+        tools:ignore="AppCompatResource" />
 
 </menu>

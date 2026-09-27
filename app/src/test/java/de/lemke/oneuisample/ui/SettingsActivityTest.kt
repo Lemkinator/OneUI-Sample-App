@@ -15,8 +15,13 @@
  */
 package de.lemke.oneuisample.ui
 
+import android.app.ActivityManager
+import android.content.DialogInterface.BUTTON_NEGATIVE
+import android.content.DialogInterface.BUTTON_POSITIVE
 import android.content.Intent
 import android.os.Looper
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceScreen
@@ -38,6 +43,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowDialog
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -71,21 +77,61 @@ class SettingsActivityTest {
     }
 
     @Test
-    fun tosPref_click_showsDialog() {
-        // dialog code is Kover-excluded (*SettingsFragment*initTosPref*); verifies no crash on click
+    fun tosPref_click_showsTermsOfServiceDialog() {
         launch {
-            findPreference<PreferenceScreen>("tos")?.performClick()
+            findPreference<PreferenceScreen>("tos")!!.performClick()
             shadowOf(Looper.getMainLooper()).idle()
+            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+            dialog.isShowing shouldBe true
+            dialog.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)!!.text.toString() shouldBe "Terms of Service"
+        }
+    }
+
+    @Test
+    fun tosPref_okButton_dismissesDialog() {
+        launch {
+            findPreference<PreferenceScreen>("tos")!!.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+            dialog.getButton(BUTTON_POSITIVE).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            dialog.isShowing shouldBe false
         }
     }
 
     @Test
     fun deleteAppDataPref_click_showsConfirmationDialog() {
-        // dialog code is Kover-excluded (*SettingsFragment*initDeleteAppDataPref*); verifies no crash
         launch {
-            findPreference<PreferenceScreen>("deleteAppData")?.performClick()
+            findPreference<PreferenceScreen>("deleteAppData")!!.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+            dialog.isShowing shouldBe true
+            dialog.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)!!.text.toString() shouldBe "Delete App-Data and exit"
+        }
+    }
+
+    @Test
+    fun deleteAppDataPref_yesButton_clearsAppData() {
+        launch {
+            findPreference<PreferenceScreen>("deleteAppData")!!.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            (ShadowDialog.getLatestDialog() as AlertDialog).getButton(BUTTON_POSITIVE).performClick()
             shadowOf(Looper.getMainLooper()).idle()
         }
+        shadowOf(context.getSystemService(ActivityManager::class.java)).isApplicationUserDataCleared shouldBe true
+    }
+
+    @Test
+    fun deleteAppDataPref_cancelButton_keepsAppData() {
+        launch {
+            findPreference<PreferenceScreen>("deleteAppData")!!.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+            dialog.getButton(BUTTON_NEGATIVE).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            dialog.isShowing shouldBe false
+        }
+        shadowOf(context.getSystemService(ActivityManager::class.java)).isApplicationUserDataCleared shouldBe false
     }
 
     @Test
@@ -229,27 +275,6 @@ class SettingsActivityTest {
         launch {
             findPreference<androidx.preference.EditTextPreference>("editText")
                 ?.callChangeListener("test value")
-            shadowOf(Looper.getMainLooper()).idle()
-        }
-    }
-
-    @Test
-    fun tosPref_positiveButton_dismissesDialog() {
-        ActivityScenario.launch<SettingsActivity>(Intent(context, SettingsActivity::class.java)).use { scenario ->
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                val fragment =
-                    activity.supportFragmentManager
-                        .findFragmentById(R.id.settings) as? SettingsActivity.SettingsFragment
-                fragment?.findPreference<PreferenceScreen>("tos")?.performClick()
-            }
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity {
-                org.robolectric.shadows.ShadowAlertDialog
-                    .getLatestAlertDialog()
-                    ?.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
-                    ?.performClick()
-            }
             shadowOf(Looper.getMainLooper()).idle()
         }
     }
