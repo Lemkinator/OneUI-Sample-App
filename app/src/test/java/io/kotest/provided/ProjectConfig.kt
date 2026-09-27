@@ -15,11 +15,11 @@
  */
 package io.kotest.provided
 
-import de.lemke.oneuisample.TestDispatcherListener
+import de.lemke.oneuisample.MainDispatcherExtension
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
 
 class ProjectConfig : AbstractProjectConfig() {
     override val specExecutionOrder = SpecExecutionOrder.Random
-    override val extensions = listOf(TestDispatcherListener())
+    override val extensions = listOf(MainDispatcherExtension())
 }
