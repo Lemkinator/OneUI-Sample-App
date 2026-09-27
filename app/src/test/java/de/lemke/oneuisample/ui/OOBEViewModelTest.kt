@@ -26,29 +26,23 @@ import io.mockk.clearMocks
 import io.mockk.coJustRun
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OOBEViewModelTest : ShouldSpec(
     {
-        val testDispatcher = UnconfinedTestDispatcher()
+        lateinit var testDispatcher: TestDispatcher
         val completeOnboarding = mockk<CompleteOnboardingUseCase>()
 
         lateinit var viewModel: OOBEViewModel
 
         beforeEach {
-            Dispatchers.setMain(testDispatcher)
+            testDispatcher = UnconfinedTestDispatcher()
             clearMocks(completeOnboarding)
             coJustRun { completeOnboarding(any(), any()) }
             viewModel = OOBEViewModel(SavedStateHandle(), completeOnboarding)
-        }
-
-        afterEach {
-            Dispatchers.resetMain()
         }
 
         should("isAccepting starts as false") {
