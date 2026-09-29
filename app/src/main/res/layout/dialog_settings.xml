@@ -16,7 +16,6 @@
 -->
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -56,8 +55,8 @@
                 android:layout_weight="1"
                 android:clickable="false"
                 android:focusable="false"
-                android:src="@drawable/drawer_item_separator_bg"
-                tools:ignore="ContentDescription" />
+                android:importantForAccessibility="no"
+                android:src="@drawable/drawer_item_separator_bg" />
 
         </LinearLayout>
 
@@ -104,8 +103,8 @@
                 android:layout_weight="1"
                 android:clickable="false"
                 android:focusable="false"
-                android:src="@drawable/drawer_item_separator_bg"
-                tools:ignore="ContentDescription" />
+                android:importantForAccessibility="no"
+                android:src="@drawable/drawer_item_separator_bg" />
 
         </LinearLayout>
 
