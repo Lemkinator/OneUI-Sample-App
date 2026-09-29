@@ -279,6 +279,12 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
 
     /** Swipe-to-reveal actions for the icon list: shows a directional snackbar per swipe. */
     internal inner class SwipeHandler {
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal val isSwipeEnabled: (RecyclerView.ViewHolder) -> Boolean = { !drawerLayout.isActionMode }
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        internal val onIconSwipeCallback: (Int, Int, Int) -> Boolean = { position, direction, _ -> onIconSwiped(position, direction) }
+
         fun configureItemSwipeAnimator() {
             binding.iconList.configureItemSwipeAnimator(
                 leftToRightLabel = getString(R.string.left_to_right),
@@ -287,9 +293,9 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                 rightToLeftColor = "#31a5f3".toColorInt(),
                 leftToRightDrawableRes = iconsR.drawable.ic_oui_arrow_right,
                 rightToLeftDrawableRes = iconsR.drawable.ic_oui_arrow_left,
-                isLeftSwipeEnabled = ::isSwipeEnabled,
-                isRightSwipeEnabled = ::isSwipeEnabled,
-                onSwiped = ::onIconSwipeCallback,
+                isLeftSwipeEnabled = isSwipeEnabled,
+                isRightSwipeEnabled = isSwipeEnabled,
+                onSwiped = onIconSwipeCallback,
             )
         }
 
@@ -305,18 +311,6 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             }
             return true
         }
-
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun isSwipeEnabled(
-            @Suppress("UNUSED_PARAMETER") viewHolder: RecyclerView.ViewHolder,
-        ): Boolean = !drawerLayout.isActionMode
-
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onIconSwipeCallback(
-            position: Int,
-            direction: Int,
-            @Suppress("UNUSED_PARAMETER") actionState: Int,
-        ): Boolean = onIconSwiped(position, direction)
     }
 
     /** Builds, shows, and applies the icon tab's settings dialog. */
