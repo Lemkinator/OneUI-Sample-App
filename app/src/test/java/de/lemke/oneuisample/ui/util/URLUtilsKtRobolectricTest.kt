@@ -20,6 +20,7 @@ import android.content.ActivityNotFoundException
 import android.content.ContextWrapper
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.Test
@@ -59,13 +60,21 @@ class URLUtilsKtRobolectricTest {
     }
 
     @Test
-    @Suppress("TooGenericExceptionThrown")
-    fun `openURL catches generic Exception and returns false`() {
+    fun `openURL catches SecurityException and returns false`() {
         val ctx =
             object : ContextWrapper(context) {
-                override fun startActivity(intent: Intent?): Unit = throw RuntimeException("unexpected")
+                override fun startActivity(intent: Intent?): Unit = throw SecurityException("not exported")
             }
         ctx.openURL("https://example.com") shouldBe false
-        ShadowToast.getLatestToast() shouldNotBe null
+        ShadowToast.getTextOfLatestToast() shouldBe "Error: URL could not be opened."
+    }
+
+    @Test
+    fun `openURL lets unexpected exceptions propagate`() {
+        val ctx =
+            object : ContextWrapper(context) {
+                override fun startActivity(intent: Intent?): Unit = error("unexpected")
+            }
+        shouldThrow<IllegalStateException> { ctx.openURL("https://example.com") }.message shouldBe "unexpected"
     }
 }

@@ -44,7 +44,6 @@ fun String.urlEncode(): String = URLEncoder.encode(this, "UTF-8")
 fun Fragment.openURL(url: String?): Boolean = requireContext().openURL(url)
 
 /** Opens [url] in the default browser, showing a toast if no browser is available or the URL is blank. */
-@Suppress("TooGenericExceptionCaught")
 fun Context.openURL(url: String?): Boolean =
     try {
         if (url.isNullOrBlank()) {
@@ -59,7 +58,7 @@ fun Context.openURL(url: String?): Boolean =
         Log.e(TAG, "No browser app installed", e)
         toast(getString(R.string.no_browser_app_installed))
         false
-    } catch (e: Exception) {
+    } catch (e: SecurityException) {
         Log.e(TAG, "Failed to open URL", e)
         toast(getString(R.string.error_cant_open_url))
         false
