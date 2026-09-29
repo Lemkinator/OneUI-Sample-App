@@ -16,7 +16,6 @@
 -->
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -112,8 +111,7 @@
         <dev.oneuiproject.oneui.widget.Separator
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="SearchView"
-            tools:ignore="HardcodedText" />
+            android:text="@string/search_view_label" />
 
         <dev.oneuiproject.oneui.widget.RoundedFrameLayout
             android:layout_width="match_parent"
