@@ -26,29 +26,23 @@ import io.mockk.clearMocks
 import io.mockk.coJustRun
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OOBEViewModelTest : ShouldSpec(
     {
-        val testDispatcher = UnconfinedTestDispatcher()
+        lateinit var mainScheduler: TestCoroutineScheduler
         val completeOnboarding = mockk<CompleteOnboardingUseCase>()
 
         lateinit var viewModel: OOBEViewModel
 
         beforeEach {
-            Dispatchers.setMain(testDispatcher)
+            mainScheduler = UnconfinedTestDispatcher().scheduler
             clearMocks(completeOnboarding)
             coJustRun { completeOnboarding(any(), any()) }
             viewModel = OOBEViewModel(SavedStateHandle(), completeOnboarding)
-        }
-
-        afterEach {
-            Dispatchers.resetMain()
         }
 
         should("isAccepting starts as false") {
@@ -74,7 +68,7 @@ class OOBEViewModelTest : ShouldSpec(
         should("onAcceptTos emits NavigateToMain event after delay") {
             viewModel.events.test {
                 viewModel.onAcceptTos()
-                testDispatcher.scheduler.advanceUntilIdle()
+                mainScheduler.advanceUntilIdle()
                 awaitItem() shouldBe OOBEEvent.NavigateToMain
             }
         }
