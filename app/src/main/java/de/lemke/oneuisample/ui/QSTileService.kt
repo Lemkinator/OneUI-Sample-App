@@ -19,15 +19,19 @@ import android.content.Intent
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import android.util.Log
 import android.widget.RemoteViews
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.ui.util.toast
 
-@Suppress("redundantOverride", "unused", "EmptyMethod")
+private const val TAG = "QSTileService"
+
+@Suppress("unused")
 class QSTileService : TileService() {
     override fun onCreate() {
         // Called by the system when the service is first created.
         super.onCreate()
+        Log.d(TAG, "onCreate")
     }
 
     override fun onStartListening() {
@@ -45,6 +49,7 @@ class QSTileService : TileService() {
         // Called when this tile moves out of a listening state.
         // Any listeners or callbacks registered in onStartListening() should be unregistered here.
         super.onStopListening()
+        Log.d(TAG, "onStopListening")
     }
 
     override fun onClick() {

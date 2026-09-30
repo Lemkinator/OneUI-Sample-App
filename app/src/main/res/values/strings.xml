@@ -173,6 +173,7 @@
     <string name="progress_determinate" translatable="false">Determinate</string>
     <string name="compound_buttons" translatable="false">Compound Buttons</string>
     <string name="spinner_label" translatable="false">Spinner</string>
+    <string name="search_view_label" translatable="false">SearchView</string>
     <string name="switch_label" translatable="false">Switch</string>
     <string name="checkbox_label" translatable="false">CheckBox</string>
     <string name="radio_button" translatable="false">RadioButton</string>

@@ -36,11 +36,10 @@ class FakeSharedPreferences : SharedPreferences {
         defValue: String?,
     ): String? = map[key] as? String ?: defValue
 
-    @Suppress("UNCHECKED_CAST")
     override fun getStringSet(
         key: String?,
         defValues: MutableSet<String>?,
-    ): MutableSet<String>? = (map[key] as? Set<String>)?.toMutableSet() ?: defValues
+    ): MutableSet<String>? = (map[key] as? Set<*>)?.filterIsInstance<String>()?.toMutableSet() ?: defValues
 
     override fun getInt(
         key: String?,
