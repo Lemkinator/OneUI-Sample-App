@@ -25,6 +25,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
 import org.robolectric.shadows.ShadowToast
 
 @RunWith(RobolectricTestRunner::class)
@@ -60,6 +61,13 @@ class QSTileServiceTest {
 
         service.qsTile.subtitle shouldBe "Subtitle"
         service.qsTile.state shouldBe Tile.STATE_ACTIVE
+    }
+
+    @Test
+    fun `create and stop listening log the lifecycle calls`() {
+        service.onStopListening()
+
+        ShadowLog.getLogsForTag("QSTileService").map { it.msg } shouldBe listOf("onCreate", "onStopListening")
     }
 
     @Test
