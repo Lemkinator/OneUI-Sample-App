@@ -117,7 +117,8 @@ Four tools run as part of `./gradlew build`:
 - **Spotless** - enforces formatting via ktlint (sole ktlint driver; Detekt has no ktlint wrapper). Fix violations with
   `./gradlew spotlessApply`.
 - **Detekt** - static analysis; config at `config/detekt/detekt.yml`. `autoCorrect = false`.
-- **Kover** - coverage; verify threshold with `./gradlew koverVerifyDebug`.
+- **Kover** - coverage; verify threshold with `./gradlew koverVerifyDebug`. CI strips zero-instruction `<line>` entries from the
+  Kover XML (`.github/scripts/strip-zero-instruction-lines.py`) before the Codecov upload.
 - **Konsist** - architecture rules in `app/src/test/java/de/lemke/oneuisample/ArchitectureTest.kt`. Enforces `data/domain/ui` layering. Runs
   as part of `./gradlew test`.
 
