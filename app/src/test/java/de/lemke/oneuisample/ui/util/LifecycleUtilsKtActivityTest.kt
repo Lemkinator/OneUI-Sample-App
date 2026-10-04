@@ -81,14 +81,4 @@ class LifecycleUtilsKtActivityTest {
         }
         received shouldBe 42
     }
-
-    @Test
-    fun `collectEvents delivers flow emission to callback`() {
-        val flow = MutableStateFlow("hello")
-        var received = ""
-        withActivity { activity ->
-            activity.collectEvents(flow) { received = it }
-        }
-        received shouldBe "hello"
-    }
 }

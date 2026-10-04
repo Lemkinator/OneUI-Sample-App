@@ -62,24 +62,6 @@ inline fun <T> Fragment.collectState(
     flow.collect { onEach(it) }
 }
 
-/** Collects [flow] events and delivers each to [onEach] while the activity is at least [minActiveState]. */
-inline fun <T> AppCompatActivity.collectEvents(
-    flow: Flow<T>,
-    minActiveState: State = STARTED,
-    crossinline onEach: (T) -> Unit,
-) = launchAndRepeatWithLifecycle(minActiveState) {
-    flow.collect { onEach(it) }
-}
-
-/** Collects [flow] events and delivers each to [onEach] while the fragment view is at least [minActiveState]. */
-inline fun <T> Fragment.collectEvents(
-    flow: Flow<T>,
-    minActiveState: State = STARTED,
-    crossinline onEach: (T) -> Unit,
-) = launchAndRepeatWithViewLifecycle(minActiveState) {
-    flow.collect { onEach(it) }
-}
-
 private const val FLOW_STOP_TIMEOUT_MS = 5_000L
 
 /**

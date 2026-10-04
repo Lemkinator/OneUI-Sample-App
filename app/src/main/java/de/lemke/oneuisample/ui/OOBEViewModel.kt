@@ -25,16 +25,18 @@ import de.lemke.oneuisample.ui.util.EXTRA_VERSION_CODE
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_NAME
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-sealed class OOBEEvent {
-    data object NavigateToMain : OOBEEvent()
+/** The terms-of-service acceptance. The activity opens the main screen on [Accepted] and then reports it handled. */
+enum class TosAcceptance {
+    Idle,
+    Accepting,
+    Accepted,
+    Navigated,
 }
 
 @HiltViewModel
@@ -45,19 +47,20 @@ class OOBEViewModel @Inject constructor(
     private val versionCode = savedStateHandle.get<Int>(EXTRA_VERSION_CODE) ?: BuildConfig.VERSION_CODE
     private val versionName = savedStateHandle.get<String>(EXTRA_VERSION_NAME) ?: BuildConfig.VERSION_NAME
 
-    private val _events = Channel<OOBEEvent>(Channel.BUFFERED)
-    val events: Flow<OOBEEvent> = _events.receiveAsFlow()
-
-    val isAccepting: StateFlow<Boolean>
-        field = MutableStateFlow(false)
+    val tosAcceptance: StateFlow<TosAcceptance>
+        field = MutableStateFlow(TosAcceptance.Idle)
 
     fun onAcceptTos() {
-        if (isAccepting.value) return
+        if (tosAcceptance.value != TosAcceptance.Idle) return
+        tosAcceptance.value = TosAcceptance.Accepting
         viewModelScope.launch {
-            isAccepting.value = true
             completeOnboarding(versionCode, versionName)
             delay(500.milliseconds)
-            _events.send(OOBEEvent.NavigateToMain)
+            tosAcceptance.value = TosAcceptance.Accepted
         }
+    }
+
+    fun onTosAcceptedHandled() {
+        tosAcceptance.update { if (it == TosAcceptance.Accepted) TosAcceptance.Navigated else it }
     }
 }
