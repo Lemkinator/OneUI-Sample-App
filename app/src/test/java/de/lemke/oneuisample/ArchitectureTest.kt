@@ -19,6 +19,7 @@ import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.declaration.KoFileDeclaration
 import com.lemonappdev.konsist.api.ext.list.withPackage
 import com.lemonappdev.konsist.api.verify.assertFalse
+import com.lemonappdev.konsist.api.verify.assertTrue
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.engine.spec.tempdir
@@ -47,6 +48,14 @@ class ArchitectureTest : ShouldSpec() {
                 .withPackage("de.lemke.oneuisample.data..")
                 .assertFalse(testName = this.testCase.name.toString()) {
                     it.hasImport { import -> import.name.startsWith("de.lemke.oneuisample.domain.") }
+                }
+        }
+        should("classes named ViewModel extend ViewModel") {
+            codeScope
+                .classes()
+                .filter { it.name.endsWith("ViewModel") }
+                .assertTrue(testName = this.testCase.name.toString()) {
+                    it.hasParent { parent -> parent.name in VIEW_MODEL_BASE_CLASSES }
                 }
         }
         should("ViewModel files expose state only, without Channel or SharedFlow events") {
