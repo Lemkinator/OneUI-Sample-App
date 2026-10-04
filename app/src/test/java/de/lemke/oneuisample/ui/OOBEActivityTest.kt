@@ -22,6 +22,7 @@ import android.text.style.ClickableSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -153,6 +154,28 @@ class OOBEActivityTest {
             activity.isFinishing shouldBe true
             activity.findViewById<View>(R.id.oobe_intro_footer_button_progress)!!.visibility shouldBe View.VISIBLE
             activity.findViewById<View>(R.id.oobe_intro_footer_button)!!.visibility shouldBe View.GONE
+        }
+    }
+
+    @Test
+    fun acceptedTos_opensMainActivityOnlyOnceResumed_andOnceAcrossRecreation() {
+        ActivityScenario.launch<OOBEActivity>(Intent(context, OOBEActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.moveToState(Lifecycle.State.STARTED)
+            scenario.onActivity { it.findViewById<View>(R.id.oobe_intro_footer_button)!!.performClick() }
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(500))
+            shadowOf(context).nextStartedActivity shouldBe null
+            scenario.onActivity { it.findViewById<View>(R.id.oobe_intro_footer_button_progress)!!.visibility shouldBe View.VISIBLE }
+
+            scenario.recreate()
+            scenario.moveToState(Lifecycle.State.RESUMED)
+            shadowOf(Looper.getMainLooper()).idle()
+            shadowOf(context).nextStartedActivity.component!!.className shouldBe MainActivity::class.java.name
+            shadowOf(context).nextStartedActivity shouldBe null
+
+            scenario.recreate()
+            shadowOf(Looper.getMainLooper()).idle()
+            shadowOf(context).nextStartedActivity shouldBe null
         }
     }
 }
