@@ -126,9 +126,31 @@ class ArchitectureTest : ShouldSpec() {
         should("ui collects no event flows") {
             codeScope.files
                 .withPackage("de.lemke.oneuisample.ui..")
-                .assertFalse(testName = this.testCase.name.toString()) {
-                    it.hasImport { import -> import.name.substringAfterLast('.') == "collectEvents" }
-                }
+                .assertFalse(testName = this.testCase.name.toString()) { it.importsCollectEvents() }
+        }
+        should("collect events rule catches plain and aliased collectEvents imports") {
+            fun importsCollectEvents(import: String): Boolean {
+                val dir = tempdir()
+                dir.resolve("ProbeActivity.kt").writeText("import $import\nclass ProbeActivity\n")
+                return Konsist
+                    .scopeFromExternalDirectory(dir.absolutePath)
+                    .files
+                    .single()
+                    .importsCollectEvents()
+            }
+            listOf(
+                "de.lemke.oneuisample.ui.util.collectEvents",
+                "de.lemke.commonutils.ui.utils.collectEvents",
+                "de.lemke.oneuisample.ui.util.collectEvents as collectOnce",
+            ).forEach { import ->
+                withClue(import) { importsCollectEvents(import) shouldBe true }
+            }
+            listOf(
+                "de.lemke.oneuisample.ui.util.collectState",
+                "de.lemke.oneuisample.ui.util.collectEventsLegacy",
+            ).forEach { import ->
+                withClue(import) { importsCollectEvents(import) shouldBe false }
+            }
         }
     }
 }
@@ -158,6 +180,9 @@ private val COMMENT_OR_STRING = Regex(""""{3}.*?"{3}|"(?:\\.|[^"\\\n])*"|/\*.*?\
 
 private fun KoFileDeclaration.declaresViewModel(): Boolean =
     classes().any { koClass -> koClass.hasParent { it.name in VIEW_MODEL_BASE_CLASSES } }
+
+private fun KoFileDeclaration.importsCollectEvents(): Boolean =
+    hasImport { import -> import.name.substringAfterLast('.') == "collectEvents" }
 
 private fun KoFileDeclaration.usesEventStreams(): Boolean =
     hasImport { import ->
