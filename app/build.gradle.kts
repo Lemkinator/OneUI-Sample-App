@@ -134,6 +134,7 @@ android {
 
             all { test ->
                 test.useJUnitPlatform()
+                test.maxHeapSize = "4096m"
                 test.jvmArgs(
                     "-XX:+EnableDynamicAgentLoading",
                     "--add-opens=java.base/java.lang=ALL-UNNAMED",
