@@ -16,7 +16,7 @@
 package de.lemke.oneuisample.ui
 
 import androidx.lifecycle.SavedStateHandle
-import app.cash.turbine.test
+import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.domain.CompleteOnboardingUseCase
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_CODE
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_NAME
@@ -26,6 +26,7 @@ import io.mockk.clearMocks
 import io.mockk.coJustRun
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -38,45 +39,77 @@ class OOBEViewModelTest : ShouldSpec(
 
         lateinit var viewModel: OOBEViewModel
 
+        fun TestCoroutineScheduler.advanceBy(millis: Int) {
+            advanceTimeBy(millis.milliseconds)
+            runCurrent()
+        }
+
         beforeEach {
             mainScheduler = UnconfinedTestDispatcher().scheduler
             clearMocks(completeOnboarding)
             coJustRun { completeOnboarding(any(), any()) }
-            viewModel = OOBEViewModel(SavedStateHandle(), completeOnboarding)
+            viewModel = OOBEViewModel(SavedStateHandle(mapOf(EXTRA_VERSION_CODE to 5, EXTRA_VERSION_NAME to "2.0")), completeOnboarding)
         }
 
-        should("isAccepting starts as false") {
-            viewModel.isAccepting.value shouldBe false
+        should("tosAcceptance starts Idle") {
+            viewModel.tosAcceptance.value shouldBe TosAcceptance.Idle
         }
 
-        should("onAcceptTos sets isAccepting to true") {
+        should("onAcceptTos completes onboarding with the version from the extras") {
             viewModel.onAcceptTos()
-            viewModel.isAccepting.value shouldBe true
+            coVerify(exactly = 1) { completeOnboarding(5, "2.0") }
         }
 
-        should("onAcceptTos calls completeOnboarding exactly once") {
+        should("onAcceptTos completes onboarding with the build version without extras") {
+            OOBEViewModel(SavedStateHandle(), completeOnboarding).onAcceptTos()
+            coVerify(exactly = 1) { completeOnboarding(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME) }
+        }
+
+        should("onAcceptTos stays Accepting until 500 ms have passed, then turns Accepted") {
             viewModel.onAcceptTos()
-            coVerify(exactly = 1) { completeOnboarding(any(), any()) }
+            viewModel.tosAcceptance.value shouldBe TosAcceptance.Accepting
+            mainScheduler.advanceBy(499)
+            viewModel.tosAcceptance.value shouldBe TosAcceptance.Accepting
+            mainScheduler.advanceBy(1)
+            viewModel.tosAcceptance.value shouldBe TosAcceptance.Accepted
         }
 
-        should("subsequent onAcceptTos while accepting is ignored") {
+        should("onAcceptTos while Accepting is ignored") {
             viewModel.onAcceptTos()
             viewModel.onAcceptTos()
-            coVerify(exactly = 1) { completeOnboarding(any(), any()) }
+            coVerify(exactly = 1) { completeOnboarding(5, "2.0") }
         }
 
-        should("onAcceptTos emits NavigateToMain event after delay") {
-            viewModel.events.test {
-                viewModel.onAcceptTos()
-                mainScheduler.advanceUntilIdle()
-                awaitItem() shouldBe OOBEEvent.NavigateToMain
-            }
+        should("onAcceptTos after Accepted is ignored") {
+            viewModel.onAcceptTos()
+            mainScheduler.advanceBy(500)
+            viewModel.onAcceptTos()
+            viewModel.tosAcceptance.value shouldBe TosAcceptance.Accepted
+            coVerify(exactly = 1) { completeOnboarding(5, "2.0") }
         }
 
-        should("construction with version extras in SavedStateHandle does not throw and starts not accepting") {
-            val handle = SavedStateHandle(mapOf(EXTRA_VERSION_CODE to 5, EXTRA_VERSION_NAME to "2.0"))
-            val vm = OOBEViewModel(handle, completeOnboarding)
-            vm.isAccepting.value shouldBe false
+        should("onTosAcceptedHandled moves Accepted to Navigated") {
+            viewModel.onAcceptTos()
+            mainScheduler.advanceBy(500)
+            viewModel.onTosAcceptedHandled()
+            viewModel.tosAcceptance.value shouldBe TosAcceptance.Navigated
+        }
+
+        should("onTosAcceptedHandled keeps Idle and Accepting") {
+            viewModel.onTosAcceptedHandled()
+            viewModel.tosAcceptance.value shouldBe TosAcceptance.Idle
+            viewModel.onAcceptTos()
+            viewModel.onTosAcceptedHandled()
+            viewModel.tosAcceptance.value shouldBe TosAcceptance.Accepting
+        }
+
+        should("onAcceptTos after Navigated is ignored") {
+            viewModel.onAcceptTos()
+            mainScheduler.advanceBy(500)
+            viewModel.onTosAcceptedHandled()
+            viewModel.onAcceptTos()
+            viewModel.tosAcceptance.value shouldBe TosAcceptance.Navigated
+            coVerify(exactly = 1) { completeOnboarding(5, "2.0") }
         }
     },
 )

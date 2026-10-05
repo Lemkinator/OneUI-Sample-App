@@ -31,16 +31,14 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout.LayoutParams
 import androidx.activity.viewModels
-import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle.State.RESUMED
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
-import de.lemke.oneuisample.ui.util.collectEvents
 import de.lemke.oneuisample.ui.util.collectState
 import de.lemke.oneuisample.ui.util.finishWithFade
 import dev.oneuiproject.oneui.widget.OnboardingTipsItemView
@@ -62,25 +60,25 @@ class OOBEActivity : AppCompatActivity() {
         initTipsItems()
         initToSView()
         initFooterButton()
-        collectState(viewModel.isAccepting) { isAccepting ->
-            binding.oobeIntroFooterTosText.isEnabled = !isAccepting
-            binding.oobeIntroFooterButton.isVisible = !isAccepting
-            binding.oobeIntroFooterButtonProgress.isVisible = isAccepting
-        }
-        collectEvents(viewModel.events) { handleOOBEEvent(it) }
+        collectState(viewModel.tosAcceptance) { renderTosAcceptance(it) }
+        collectState(viewModel.tosAcceptance, minActiveState = RESUMED) { if (it == TosAcceptance.Accepted) onTosAccepted() }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun handleOOBEEvent(event: OOBEEvent) {
-        when (event) {
-            OOBEEvent.NavigateToMain -> navigateToMain()
-        }
+    private fun renderTosAcceptance(tosAcceptance: TosAcceptance) {
+        val isIdle =
+            when (tosAcceptance) {
+                TosAcceptance.Idle -> true
+                TosAcceptance.Accepting, TosAcceptance.Accepted, TosAcceptance.Navigated -> false
+            }
+        binding.oobeIntroFooterTosText.isEnabled = isIdle
+        binding.oobeIntroFooterButton.isVisible = isIdle
+        binding.oobeIntroFooterButtonProgress.isVisible = !isIdle
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun navigateToMain() {
+    private fun onTosAccepted() {
         startActivity(Intent(this, MainActivity::class.java))
         finishWithFade()
+        viewModel.onTosAcceptedHandled()
     }
 
     private fun initTipsItems() {

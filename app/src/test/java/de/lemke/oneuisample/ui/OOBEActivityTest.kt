@@ -22,6 +22,7 @@ import android.text.style.ClickableSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -30,6 +31,7 @@ import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import java.time.Duration
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,22 +55,6 @@ class OOBEActivityTest {
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { it.block() }
             shadowOf(Looper.getMainLooper()).idle()
-        }
-    }
-
-    @Test
-    fun navigateToMain_startsMainActivity() {
-        launch {
-            navigateToMain()
-            shadowOf(this as Activity).nextStartedActivity?.component?.className shouldBe MainActivity::class.java.name
-        }
-    }
-
-    @Test
-    fun handleOOBEEvent_navigateToMain_callsNavigateToMain() {
-        launch {
-            handleOOBEEvent(OOBEEvent.NavigateToMain)
-            shadowOf(this as Activity).nextStartedActivity?.component?.className shouldBe MainActivity::class.java.name
         }
     }
 
@@ -140,9 +126,8 @@ class OOBEActivityTest {
                     .findViewById<View>(R.id.oobe_intro_footer_button)
                     ?.performClick()
             }
-            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+            shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
-                // _isAccepting = true → oobeIntroFooterButtonProgress shown, button hidden
                 activity.window.decorView
                     .findViewById<View>(R.id.oobe_intro_footer_button_progress)
                     ?.visibility shouldBe View.VISIBLE
@@ -150,6 +135,47 @@ class OOBEActivityTest {
                     .findViewById<View>(R.id.oobe_intro_footer_button)
                     ?.visibility shouldBe View.GONE
             }
+        }
+    }
+
+    @Test
+    fun footerButton_click_opensMainActivityAfter500ms_andFinishes() {
+        ActivityScenario.launch<OOBEActivity>(Intent(context, OOBEActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            lateinit var activity: OOBEActivity
+            scenario.onActivity {
+                activity = it
+                it.findViewById<View>(R.id.oobe_intro_footer_button)!!.performClick()
+            }
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(499))
+            shadowOf(activity as Activity).nextStartedActivity shouldBe null
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(1))
+            shadowOf(activity as Activity).nextStartedActivity?.component?.className shouldBe MainActivity::class.java.name
+            activity.isFinishing shouldBe true
+            activity.findViewById<View>(R.id.oobe_intro_footer_button_progress)!!.visibility shouldBe View.VISIBLE
+            activity.findViewById<View>(R.id.oobe_intro_footer_button)!!.visibility shouldBe View.GONE
+        }
+    }
+
+    @Test
+    fun acceptedTos_opensMainActivityOnlyOnceResumed_andOnceAcrossRecreation() {
+        ActivityScenario.launch<OOBEActivity>(Intent(context, OOBEActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.moveToState(Lifecycle.State.STARTED)
+            scenario.onActivity { it.findViewById<View>(R.id.oobe_intro_footer_button)!!.performClick() }
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(500))
+            shadowOf(context).nextStartedActivity shouldBe null
+            scenario.onActivity { it.findViewById<View>(R.id.oobe_intro_footer_button_progress)!!.visibility shouldBe View.VISIBLE }
+
+            scenario.recreate()
+            scenario.moveToState(Lifecycle.State.RESUMED)
+            shadowOf(Looper.getMainLooper()).idle()
+            shadowOf(context).nextStartedActivity.component!!.className shouldBe MainActivity::class.java.name
+            shadowOf(context).nextStartedActivity shouldBe null
+
+            scenario.recreate()
+            shadowOf(Looper.getMainLooper()).idle()
+            shadowOf(context).nextStartedActivity shouldBe null
         }
     }
 }

@@ -90,14 +90,4 @@ class LifecycleUtilsKtFragmentTest {
         }
         received shouldBe 99
     }
-
-    @Test
-    fun `Fragment collectEvents delivers flow emission to callback`() {
-        val flow = MutableStateFlow("fragment-event")
-        var received = ""
-        withFragment { fragment ->
-            fragment.collectEvents(flow) { received = it }
-        }
-        received shouldBe "fragment-event"
-    }
 }
