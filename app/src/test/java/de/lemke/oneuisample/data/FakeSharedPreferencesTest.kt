@@ -92,7 +92,7 @@ class FakeSharedPreferencesTest : ShouldSpec(
                             .putBoolean("b", true),
                     )
 
-                    notifiedKeys.first() shouldBe null
+                    notifiedKeys.take(1) shouldBe listOf(null)
                     notifiedKeys.drop(1) shouldContainExactlyInAnyOrder listOf("a", "b")
                 }
 
