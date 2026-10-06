@@ -111,13 +111,9 @@ class FakeSharedPreferences : SharedPreferences {
 
         override fun remove(key: String?) = apply { key?.let { pending[it] = Removed } }
 
-        // Real Editor.clear() also drops this editor's own pending puts/removes issued so far -
-        // only ones issued after clear() (in call order) survive to apply().
-        override fun clear() =
-            apply {
-                pending.clear()
-                clearAll = true
-            }
+        // Real EditorImpl.clear() only sets a flag: commit wipes the map first, then applies every put/remove of
+        // this editor, whether it came before or after clear().
+        override fun clear() = apply { clearAll = true }
 
         override fun commit(): Boolean {
             applyChanges()
@@ -128,11 +124,11 @@ class FakeSharedPreferences : SharedPreferences {
 
         // Mirrors real EditorImpl.commitToMemory(): only keys whose stored value actually changes are
         // reported to listeners, and pending/clearAll are reset afterwards so a reused Editor can't replay
-        // already-applied changes.
+        // already-applied changes. Since API 30, a clear() is reported once with a null key, not per removed key.
         private fun applyChanges() {
-            val changedKeys = mutableSetOf<String>()
+            val changedKeys = mutableListOf<String?>()
             if (clearAll) {
-                changedKeys += map.keys
+                changedKeys += null
                 map.clear()
             }
             pending.forEach { (key, value) ->
