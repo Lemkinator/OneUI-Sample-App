@@ -17,6 +17,7 @@ package de.lemke.oneuisample.data
 
 import android.content.SharedPreferences
 import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 
 class FakeSharedPreferencesTest : ShouldSpec(
@@ -75,6 +76,13 @@ class FakeSharedPreferencesTest : ShouldSpec(
                     notifiedKeys shouldBe listOf(null, "n")
                 }
 
+                should("apply a remove issued after clear() as a no-op") {
+                    finish(prefs.edit().clear().remove("old"))
+
+                    prefs.all shouldBe emptyMap()
+                    notifiedKeys shouldBe listOf(null)
+                }
+
                 should("notify once with a null key, then once per put") {
                     finish(
                         prefs
@@ -84,7 +92,8 @@ class FakeSharedPreferencesTest : ShouldSpec(
                             .putBoolean("b", true),
                     )
 
-                    notifiedKeys shouldBe listOf(null, "a", "b")
+                    notifiedKeys.first() shouldBe null
+                    notifiedKeys.drop(1) shouldContainExactlyInAnyOrder listOf("a", "b")
                 }
 
                 should("not replay the clear on a reused editor") {
@@ -96,6 +105,14 @@ class FakeSharedPreferencesTest : ShouldSpec(
                     notifiedKeys shouldBe listOf(null, "a")
                 }
             }
+        }
+
+        should("return true from commit() after clear() and remove()") {
+            prefs
+                .edit()
+                .clear()
+                .remove("old")
+                .commit() shouldBe true
         }
     },
 )

@@ -124,7 +124,7 @@ class FakeSharedPreferences : SharedPreferences {
 
         // Mirrors real EditorImpl.commitToMemory(): only keys whose stored value actually changes are
         // reported to listeners, and pending/clearAll are reset afterwards so a reused Editor can't replay
-        // already-applied changes. Since API 30, a clear() is reported once with a null key, not per removed key.
+        // already-applied changes. Since API 30, a clear() is reported once with a null key, before the modified keys.
         private fun applyChanges() {
             val changedKeys = mutableListOf<String?>()
             if (clearAll) {
