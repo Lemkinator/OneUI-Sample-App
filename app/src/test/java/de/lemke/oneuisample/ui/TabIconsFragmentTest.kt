@@ -44,7 +44,6 @@ import dev.oneuiproject.oneui.widget.RadioItemViewGroup
 import dev.oneuiproject.oneui.widget.SwitchItemView
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.mockk
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import org.junit.Before
@@ -516,7 +515,7 @@ class TabIconsFragmentTest {
 
     @Test
     fun isSwipeEnabled_notInActionMode_returnsTrue() {
-        withFragment { swipeHandler.isSwipeEnabled(mockk()) shouldBe true }
+        withFragment { swipeHandler.isSwipeEnabled(object : RecyclerView.ViewHolder(View(requireContext())) {}) shouldBe true }
     }
 
     @Test

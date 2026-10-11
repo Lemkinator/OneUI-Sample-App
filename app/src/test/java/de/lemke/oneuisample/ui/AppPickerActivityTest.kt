@@ -35,7 +35,6 @@ import de.lemke.oneuisample.ui.util.ListTypes
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.mockk
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -133,7 +132,7 @@ class AppPickerActivityTest {
     @Test
     fun onAppItemClick_listPicker_returnsFalse() {
         launch {
-            val listPicker = mockk<SeslAppPickerView>(relaxed = true)
+            val listPicker = findViewById<SeslAppPickerView>(R.id.appPickerList)
             val appInfo = AppInfo(packageName = "de.lemke.oneuisample", activityName = "")
             onAppItemClick(listPicker, appInfo) shouldBe false
         }
@@ -142,7 +141,7 @@ class AppPickerActivityTest {
     @Test
     fun onAppItemClick_gridPicker_returnsTrue() {
         launch {
-            val gridPicker = mockk<SeslAppPickerGridView>(relaxed = true)
+            val gridPicker = findViewById<SeslAppPickerGridView>(R.id.appPickerGrid)
             val appInfo = AppInfo(packageName = "de.lemke.oneuisample", activityName = "")
             onAppItemClick(gridPicker, appInfo) shouldBe true
         }

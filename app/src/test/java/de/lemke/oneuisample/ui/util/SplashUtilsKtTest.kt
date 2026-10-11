@@ -69,8 +69,7 @@ class SplashUtilsKtTest {
     fun `configureSplashScreen with null condition does not call setKeepOnScreenCondition`() {
         withActivity { activity ->
             val splashScreen = mockk<SplashScreen>(relaxed = true)
-            val root = mockk<View>(relaxed = true)
-            activity.configureSplashScreen(splashScreen, root)
+            activity.configureSplashScreen(splashScreen, View(activity))
             verify(exactly = 0) { splashScreen.setKeepOnScreenCondition(any()) }
         }
     }
@@ -79,8 +78,7 @@ class SplashUtilsKtTest {
     fun `configureSplashScreen with condition calls setKeepOnScreenCondition`() {
         withActivity { activity ->
             val splashScreen = mockk<SplashScreen>(relaxed = true)
-            val root = mockk<View>(relaxed = true)
-            activity.configureSplashScreen(splashScreen, root) { false }
+            activity.configureSplashScreen(splashScreen, View(activity)) { false }
             verify(exactly = 1) { splashScreen.setKeepOnScreenCondition(any()) }
         }
     }
