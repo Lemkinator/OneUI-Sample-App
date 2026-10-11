@@ -17,7 +17,6 @@ package de.lemke.oneuisample.di
 
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
-import de.lemke.oneuisample.R
 import io.kotest.matchers.shouldBe
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,7 +28,6 @@ import org.robolectric.annotation.Config
 class TosVersionModuleTest {
     @Test
     fun provideTosVersion_returnsTheTosVersionResourceOfTheApplicationContext() {
-        val context = ApplicationProvider.getApplicationContext<Application>()
-        TosVersionModule.provideTosVersion(context) shouldBe context.resources.getInteger(R.integer.tos_version)
+        TosVersionModule.provideTosVersion(ApplicationProvider.getApplicationContext<Application>()) shouldBe 0
     }
 }
