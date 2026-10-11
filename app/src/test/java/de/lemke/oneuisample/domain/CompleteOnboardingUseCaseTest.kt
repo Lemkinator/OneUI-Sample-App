@@ -15,36 +15,31 @@
  */
 package de.lemke.oneuisample.domain
 
-import android.content.Context
-import android.content.res.Resources
-import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CompleteOnboardingUseCaseTest : ShouldSpec(
     {
-        lateinit var mockContext: Context
-        lateinit var mockResources: Resources
         lateinit var settings: UserSettings
         lateinit var useCase: CompleteOnboardingUseCase
 
         beforeEach {
-            mockContext = mockk()
-            mockResources = mockk()
             settings = fakeUserSettings()
-            useCase = CompleteOnboardingUseCase(mockContext, settings, UnconfinedTestDispatcher())
-            every { mockContext.resources } returns mockResources
-            every { mockResources.getInteger(R.integer.tos_version) } returns 2
+            useCase =
+                CompleteOnboardingUseCase(
+                    tosVersion = 2,
+                    settings,
+                    CheckAppStartUseCase(settings, tosVersion = 2),
+                    UnconfinedTestDispatcher(),
+                )
         }
 
-        should("update acceptedTosVersion to tos_version resource value") {
+        should("update acceptedTosVersion to the injected TOS version") {
             useCase(versionCode = 10, versionName = "1.0")
             settings.acceptedTosVersion shouldBe 2
         }

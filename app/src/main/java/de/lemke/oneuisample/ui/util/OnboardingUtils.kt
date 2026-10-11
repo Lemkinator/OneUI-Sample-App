@@ -17,9 +17,8 @@ package de.lemke.oneuisample.ui.util
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
-import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.domain.AppStart
-import de.lemke.oneuisample.domain.checkAppStart
+import de.lemke.oneuisample.domain.CheckAppStartUseCase
 import de.lemke.oneuisample.ui.OOBEActivity
 
 const val EXTRA_SKIP_ONBOARDING = "skipOnboarding"
@@ -27,12 +26,12 @@ const val EXTRA_VERSION_CODE = "versionCode"
 const val EXTRA_VERSION_NAME = "versionName"
 
 fun AppCompatActivity.onboardIfNeeded(
-    userSettings: UserSettings,
+    checkAppStart: CheckAppStartUseCase,
     versionCode: Int,
     versionName: String,
     allowSkip: Boolean = false,
 ): AppStart? {
-    val appStart = checkAppStart(userSettings, versionCode, versionName)
+    val appStart = checkAppStart(versionCode, versionName)
     if (!(allowSkip && intent.getBooleanExtra(EXTRA_SKIP_ONBOARDING, false)) && appStart.shouldShowOOBE) {
         startActivity(
             Intent(this, OOBEActivity::class.java)
@@ -43,8 +42,7 @@ fun AppCompatActivity.onboardIfNeeded(
         finishWithFade()
         return null
     }
-    userSettings.lastVersionCode = versionCode
-    userSettings.lastVersionName = versionName
+    checkAppStart.recordLaunchedVersion(appStart.versionCode, appStart.versionName)
     overrideFadeOpenTransition()
     return appStart
 }

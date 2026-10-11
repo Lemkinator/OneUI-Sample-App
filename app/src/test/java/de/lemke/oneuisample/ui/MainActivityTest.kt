@@ -15,12 +15,14 @@
  */
 package de.lemke.oneuisample.ui
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.content.Intent.ACTION_SEARCH
 import android.os.Looper
-import android.view.MenuItem
+import android.os.SystemClock
+import androidx.appcompat.view.menu.MenuItemImpl
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -30,10 +32,9 @@ import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
+import de.lemke.oneuisample.ui.util.onNavigationSingleClick
 import dev.oneuiproject.oneui.navigation.widget.DrawerNavigationView
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
 import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
@@ -44,6 +45,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.fakes.RoboMenuItem
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -218,6 +220,29 @@ class MainActivityTest {
     }
 
     @Test
+    fun onNavigationSingleClick_rapidRepeat_isBlocked() {
+        launch {
+            onActivity { activity ->
+                val navigationView = activity.findViewById<DrawerNavigationView>(R.id.navigationView)
+                var delegateCallCount = 0
+                // Robolectric's elapsedRealtime() starts near 0, below the interval.
+                SystemClock.sleep(1_000_001L)
+                navigationView.onNavigationSingleClick(interval = 1_000_000L) {
+                    delegateCallCount++
+                    true
+                }
+
+                @SuppressLint("RestrictedApi")
+                val select = { (navigationView.findMenuItem(R.id.bottom_sheet_dest) as MenuItemImpl).invoke() }
+                select() shouldBe true
+                delegateCallCount shouldBe 1
+                select() shouldBe false
+                delegateCallCount shouldBe 1
+            }
+        }
+    }
+
+    @Test
     fun onPopupMenuItemClick_drawerClosed_opensDrawer() {
         launch {
             onActivity { activity -> activity.onPopupMenuItemClick() }
@@ -261,7 +286,7 @@ class MainActivityTest {
     fun onPopupMenuItemClicked_setsActivityTitleAndShowsSnackBar() {
         launch {
             onActivity { activity ->
-                val menuItem = mockk<MenuItem> { every { title } returns "Test Item" }
+                val menuItem = RoboMenuItem().apply { title = "Test Item" }
                 activity.onPopupMenuItemClicked(menuItem)
             }
             shadowOf(Looper.getMainLooper()).idle()

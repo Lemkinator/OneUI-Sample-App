@@ -17,7 +17,6 @@ package de.lemke.oneuisample.ui
 
 import android.content.Intent
 import android.os.Looper
-import android.view.MenuItem
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -25,8 +24,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,6 +31,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.fakes.RoboMenuItem
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -91,7 +89,7 @@ class LateralActivitiesTest {
         ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
-                val item = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_search }
+                val item = RoboMenuItem(R.id.menu_app_picker_search)
                 activity.onOptionsItemSelected(item) shouldBe true
             }
             shadowOf(Looper.getMainLooper()).idle()
@@ -103,7 +101,7 @@ class LateralActivitiesTest {
         ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
-                val item = mockk<MenuItem> { every { itemId } returns -1 }
+                val item = RoboMenuItem(-1)
                 activity.onOptionsItemSelected(item) shouldBe false
             }
             shadowOf(Looper.getMainLooper()).idle()

@@ -15,11 +15,9 @@
  */
 package de.lemke.oneuisample.domain
 
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
-import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.di.DefaultDispatcher
+import de.lemke.oneuisample.di.TosVersion
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
@@ -27,16 +25,16 @@ import kotlinx.coroutines.withContext
 
 @Singleton
 class CompleteOnboardingUseCase @Inject constructor(
-    @param:ApplicationContext private val context: Context,
+    @param:TosVersion private val tosVersion: Int,
     private val userSettings: UserSettings,
+    private val checkAppStart: CheckAppStartUseCase,
     @param:DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
         versionCode: Int,
         versionName: String,
     ) = withContext(defaultDispatcher) {
-        userSettings.acceptedTosVersion = context.resources.getInteger(R.integer.tos_version)
-        userSettings.lastVersionCode = versionCode
-        userSettings.lastVersionName = versionName
+        userSettings.acceptedTosVersion = tosVersion
+        checkAppStart.recordLaunchedVersion(versionCode, versionName)
     }
 }

@@ -19,7 +19,6 @@ import android.app.Application
 import android.content.DialogInterface.BUTTON_NEUTRAL
 import android.content.pm.PackageManager
 import android.os.Looper
-import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
@@ -32,8 +31,6 @@ import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.fragments.SubtabQrFragment
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.every
-import io.mockk.mockk
 import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
@@ -43,6 +40,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.fakes.RoboMenuItem
 import org.robolectric.shadows.ShadowDialog
 
 @HiltAndroidTest
@@ -122,7 +120,7 @@ class SubtabQrFragmentTest {
     @Test
     fun onScanMenuItemSelected_noCameraFeature_showsSnackBar() {
         withFragment {
-            val item = mockk<MenuItem> { every { itemId } returns R.id.menu_item_scan_qr }
+            val item = RoboMenuItem(R.id.menu_item_scan_qr)
             onScanMenuItemSelected(item) shouldBe true
         }
     }
@@ -130,7 +128,7 @@ class SubtabQrFragmentTest {
     @Test
     fun onScanMenuItemSelected_unknownItem_returnsFalse() {
         withFragment {
-            val item = mockk<MenuItem> { every { itemId } returns -1 }
+            val item = RoboMenuItem(-1)
             onScanMenuItemSelected(item) shouldBe false
         }
     }

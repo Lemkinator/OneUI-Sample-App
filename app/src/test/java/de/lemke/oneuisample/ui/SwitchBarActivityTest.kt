@@ -17,6 +17,7 @@ package de.lemke.oneuisample.ui
 
 import android.content.Intent
 import android.os.Looper
+import androidx.appcompat.widget.SwitchCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -24,7 +25,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.data.UserSettings
 import io.kotest.matchers.shouldBe
-import io.mockk.mockk
 import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
@@ -66,7 +66,7 @@ class SwitchBarActivityTest {
     fun onSwitchChanged_true_updatesViewModel() {
         userSettings.sampleSwitchBar = false
         launch {
-            onSwitchChanged(mockk(relaxed = true), true)
+            onSwitchChanged(SwitchCompat(this), true)
         }
         // onSwitchChanged → viewModel.onSwitchChanged(true) → userSettings.sampleSwitchBar = true
         userSettings.sampleSwitchBar shouldBe true
@@ -77,7 +77,7 @@ class SwitchBarActivityTest {
         // Pre-set to true so toggling to false produces a meaningful observable change
         userSettings.sampleSwitchBar = true
         launch {
-            onSwitchChanged(mockk(relaxed = true), false)
+            onSwitchChanged(SwitchCompat(this), false)
         }
         userSettings.sampleSwitchBar shouldBe false
     }
