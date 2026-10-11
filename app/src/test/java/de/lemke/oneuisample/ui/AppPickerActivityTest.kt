@@ -277,7 +277,9 @@ class AppPickerActivityTest {
     @Test
     fun onPrepareOptionsMenu_missingMenuItem_showsMenu() {
         launch {
-            onPrepareOptionsMenu(RoboMenu(this)) shouldBe true
+            val menu = RoboMenu(this)
+            onPrepareOptionsMenu(menu) shouldBe true
+            menu.size() shouldBe 0
         }
     }
 
