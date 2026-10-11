@@ -15,11 +15,14 @@
  */
 package de.lemke.oneuisample.ui
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.content.Intent.ACTION_SEARCH
 import android.os.Looper
+import android.os.SystemClock
+import androidx.appcompat.view.menu.MenuItemImpl
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -29,6 +32,7 @@ import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
+import de.lemke.oneuisample.ui.util.onNavigationSingleClick
 import dev.oneuiproject.oneui.navigation.widget.DrawerNavigationView
 import io.kotest.matchers.shouldBe
 import javax.inject.Inject
@@ -213,6 +217,29 @@ class MainActivityTest {
     @Test
     fun navItem_popupMenu_hitsElseBranch() {
         withNavClick(R.id.popup_menu)
+    }
+
+    @Test
+    fun onNavigationSingleClick_rapidRepeat_isBlocked() {
+        launch {
+            onActivity { activity ->
+                val navigationView = activity.findViewById<DrawerNavigationView>(R.id.navigationView)
+                var delegateCallCount = 0
+                // Robolectric's elapsedRealtime() starts near 0, below the interval.
+                SystemClock.sleep(1_000_001L)
+                navigationView.onNavigationSingleClick(interval = 1_000_000L) {
+                    delegateCallCount++
+                    true
+                }
+
+                @SuppressLint("RestrictedApi")
+                val select = { (navigationView.findMenuItem(R.id.bottom_sheet_dest) as MenuItemImpl).invoke() }
+                select() shouldBe true
+                delegateCallCount shouldBe 1
+                select() shouldBe false
+                delegateCallCount shouldBe 1
+            }
+        }
     }
 
     @Test
