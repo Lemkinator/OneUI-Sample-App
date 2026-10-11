@@ -33,7 +33,6 @@ import de.lemke.oneuisample.BuildConfig.FIRST_RUN_SKIPPABLE
 import de.lemke.oneuisample.BuildConfig.VERSION_CODE
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.databinding.ActivityMainBinding
 import de.lemke.oneuisample.domain.CheckAppStartUseCase
 import de.lemke.oneuisample.openLeakCanary
@@ -53,15 +52,12 @@ class MainActivity : AppCompatActivity() {
     private var isUIReady = false
 
     @Inject
-    lateinit var userSettings: UserSettings
-
-    @Inject
     lateinit var checkAppStart: CheckAppStartUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        onboardIfNeeded(checkAppStart, userSettings, VERSION_CODE, VERSION_NAME, allowSkip = FIRST_RUN_SKIPPABLE) ?: return
+        onboardIfNeeded(checkAppStart, VERSION_CODE, VERSION_NAME, allowSkip = FIRST_RUN_SKIPPABLE) ?: return
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         configureSplashScreen(splashScreen, binding.root) { !isUIReady }

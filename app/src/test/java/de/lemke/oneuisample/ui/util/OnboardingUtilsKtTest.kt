@@ -113,7 +113,7 @@ class OnboardingUtilsKtTest {
                 val checkAppStart = CheckAppStartUseCase(testSettings, TOS_VERSION)
                 // No EXTRA_SKIP_ONBOARDING in intent → getBooleanExtra=false
                 // allowSkip=true && false = false → !(false)=true → shouldShowOOBE=true → OOBE
-                val result = activity.onboardIfNeeded(checkAppStart, testSettings, 1, "1.0", allowSkip = true)
+                val result = activity.onboardIfNeeded(checkAppStart, 1, "1.0", allowSkip = true)
                 result shouldBe null
             }
         }
@@ -132,9 +132,10 @@ class OnboardingUtilsKtTest {
                 testSettings.lastVersionCode = 1
                 testSettings.acceptedTosVersion = Int.MAX_VALUE
                 // omit allowSkip — exercises the $default synthetic wrapper (default = false)
-                val result = activity.onboardIfNeeded(checkAppStart, testSettings, 1, "1.0")
+                val result = activity.onboardIfNeeded(checkAppStart, 1, "1.0")
                 result shouldNotBe null
                 testSettings.lastVersionCode shouldBe 1
+                testSettings.lastVersionName shouldBe "1.0"
             }
         }
     }
@@ -152,9 +153,10 @@ class OnboardingUtilsKtTest {
                 val checkAppStart = CheckAppStartUseCase(testSettings, TOS_VERSION)
                 // fresh store: lastVersionCode = -1 → shouldShowOOBE = true
                 // but allowSkip=true + intent has EXTRA_SKIP_ONBOARDING=true → condition is false → no OOBE
-                val result = activity.onboardIfNeeded(checkAppStart, testSettings, 1, "1.0", allowSkip = true)
+                val result = activity.onboardIfNeeded(checkAppStart, 1, "1.0", allowSkip = true)
                 result shouldNotBe null
                 testSettings.lastVersionCode shouldBe 1
+                testSettings.lastVersionName shouldBe "1.0"
             }
         }
     }

@@ -17,7 +17,6 @@ package de.lemke.oneuisample.ui.util
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
-import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.domain.AppStart
 import de.lemke.oneuisample.domain.CheckAppStartUseCase
 import de.lemke.oneuisample.ui.OOBEActivity
@@ -28,7 +27,6 @@ const val EXTRA_VERSION_NAME = "versionName"
 
 fun AppCompatActivity.onboardIfNeeded(
     checkAppStart: CheckAppStartUseCase,
-    userSettings: UserSettings,
     versionCode: Int,
     versionName: String,
     allowSkip: Boolean = false,
@@ -44,8 +42,7 @@ fun AppCompatActivity.onboardIfNeeded(
         finishWithFade()
         return null
     }
-    userSettings.lastVersionCode = versionCode
-    userSettings.lastVersionName = versionName
+    checkAppStart.commit(appStart)
     overrideFadeOpenTransition()
     return appStart
 }

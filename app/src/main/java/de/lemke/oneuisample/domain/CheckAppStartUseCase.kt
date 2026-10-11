@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 private const val TAG = "AppStart"
 
-/** Checks whether this is the first run, a version upgrade, or a normal start. The caller commits version info. */
+/** Checks whether this is the first run, a version upgrade, or a normal start; [commit] records a launch that proceeds. */
 class CheckAppStartUseCase @Inject constructor(
     private val userSettings: UserSettings,
     @param:TosVersion private val tosVersion: Int,
@@ -57,5 +57,11 @@ class CheckAppStartUseCase @Inject constructor(
         return AppStart(result, versionCode, versionName, lastVersionCode, lastVersionName, tosVersion, acceptedTosVersion).apply {
             Log.d(TAG, this.toString())
         }
+    }
+
+    /** Records [appStart]'s version as the last launched one, so the next check compares against it. */
+    fun commit(appStart: AppStart) {
+        userSettings.lastVersionCode = appStart.versionCode
+        userSettings.lastVersionName = appStart.versionName
     }
 }

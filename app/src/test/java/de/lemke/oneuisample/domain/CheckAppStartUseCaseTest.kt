@@ -82,4 +82,14 @@ class CheckAppStartUseCaseTest {
         appStart.versionName shouldBe "1.0"
         appStart.tosAccepted shouldBe false
     }
+
+    @Test
+    fun `commit records the launched version for the next check`() {
+        settings.lastVersionCode = 4
+        settings.lastVersionName = "0.4"
+        checkAppStart.commit(checkAppStart(versionCode = 10, versionName = "1.0"))
+        settings.lastVersionCode shouldBe 10
+        settings.lastVersionName shouldBe "1.0"
+        checkAppStart(versionCode = 10, versionName = "1.0").result shouldBe AppStartResult.NORMAL
+    }
 }
