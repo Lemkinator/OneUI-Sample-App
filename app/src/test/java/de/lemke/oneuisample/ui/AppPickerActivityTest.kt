@@ -275,9 +275,9 @@ class AppPickerActivityTest {
     }
 
     @Test
-    fun onPrepareOptionsMenu_missingMenuItem_noError() {
+    fun onPrepareOptionsMenu_missingMenuItem_showsMenu() {
         launch {
-            onPrepareOptionsMenu(RoboMenu(this))
+            onPrepareOptionsMenu(RoboMenu(this)) shouldBe true
         }
     }
 
