@@ -16,17 +16,16 @@
 package de.lemke.oneuisample.ui.util
 
 import android.app.Activity
-import android.content.ActivityNotFoundException
-import android.content.Intent
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
-import io.mockk.every
-import io.mockk.spyk
+import io.kotest.matchers.shouldBe
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowToast
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -45,8 +44,9 @@ class ShareUtilsKtRobolectricTest {
 
     @Test
     fun `Context shareText ActivityNotFoundException fallback shows toast returns false`() {
-        val a = spyk(Robolectric.buildActivity(Activity::class.java).setup().get())
-        every { a.startActivity(any<Intent>()) } throws ActivityNotFoundException("no share")
+        val a = activity()
+        shadowOf(a.application).checkActivities(true)
         a.shareText("hello", "Test title").shouldBeFalse()
+        ShadowToast.getTextOfLatestToast() shouldBe "Error: Sharing content is not supported on your device."
     }
 }
