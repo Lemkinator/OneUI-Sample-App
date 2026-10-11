@@ -16,6 +16,7 @@
 package de.lemke.oneuisample.ui.util
 
 import android.app.Activity
+import de.lemke.oneuisample.R
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
@@ -47,6 +48,6 @@ class ShareUtilsKtRobolectricTest {
         val a = activity()
         shadowOf(a.application).checkActivities(true)
         a.shareText("hello", "Test title").shouldBeFalse()
-        ShadowToast.getTextOfLatestToast() shouldBe "Error: Sharing content is not supported on your device."
+        ShadowToast.getTextOfLatestToast() shouldBe a.getString(R.string.error_share_content_not_supported_on_device)
     }
 }
