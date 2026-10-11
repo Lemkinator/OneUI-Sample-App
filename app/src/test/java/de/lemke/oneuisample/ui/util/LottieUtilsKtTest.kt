@@ -15,21 +15,28 @@
  */
 package de.lemke.oneuisample.ui.util
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.app.Activity
+import android.os.Looper
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieCompositionFactory
 import de.lemke.oneuisample.App
+import de.lemke.oneuisample.R
 import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
-import io.mockk.spyk
-import io.mockk.verify
+import io.kotest.matchers.shouldBe
 import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowLooper
@@ -67,12 +74,12 @@ class LottieUtilsKtTest {
             SimpleLifecycleOwner().also {
                 it.registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
             }
-        val v = spyk(view)
-        v.setViewTreeLifecycleOwner(owner)
+        val v = attachedView(owner)
+        val starts = v.countAnimationStarts()
         v.play(delay = DEFAULT_LOTTIE_DELAY)
-        verify(exactly = 0) { v.playAnimation() } // not yet — delay has not elapsed
+        starts.size shouldBe 0
         ShadowLooper.shadowMainLooper().idleFor(DEFAULT_LOTTIE_DELAY.inWholeMilliseconds + 100, TimeUnit.MILLISECONDS)
-        verify(exactly = 1) { v.playAnimation() } // fired once after delay
+        starts.size shouldBe 1
     }
 
     @Test
@@ -89,14 +96,37 @@ class LottieUtilsKtTest {
             SimpleLifecycleOwner().also {
                 it.registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
             }
-        val v = spyk(view)
-        v.setViewTreeLifecycleOwner(owner)
+        val v = attachedView(owner)
+        val starts = v.countAnimationStarts()
         v.play(delay = DEFAULT_LOTTIE_DELAY)
-        v.play(delay = DEFAULT_LOTTIE_DELAY) // cancels the first pending job
-        verify(exactly = 0) { v.playAnimation() } // neither job has fired yet
+        v.play(delay = DEFAULT_LOTTIE_DELAY)
+        starts.size shouldBe 0
         ShadowLooper.shadowMainLooper().idleFor(DEFAULT_LOTTIE_DELAY.inWholeMilliseconds + 100, TimeUnit.MILLISECONDS)
-        verify(exactly = 1) { v.playAnimation() } // exactly one play — first job was cancelled
+        starts.size shouldBe 1
     }
+
+    // LottieDrawable defers playAnimation until the drawable is visible, and ImageView marks it visible
+    // only while the view is attached to a visible window.
+    private fun attachedView(owner: LifecycleOwner): LottieAnimationView {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        return view.also {
+            activity.setContentView(it)
+            shadowOf(Looper.getMainLooper()).idle()
+            it.setViewTreeLifecycleOwner(owner)
+            it.setComposition(checkNotNull(LottieCompositionFactory.fromRawResSync(it.context, R.raw.lottie_swipe_up_anim).value))
+        }
+    }
+
+    private fun LottieAnimationView.countAnimationStarts(): List<Animator> =
+        mutableListOf<Animator>().also { starts ->
+            addAnimatorListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationStart(animation: Animator) {
+                        starts += animation
+                    }
+                },
+            )
+        }
 
     private class SimpleLifecycleOwner : LifecycleOwner {
         val registry = LifecycleRegistry(this)
