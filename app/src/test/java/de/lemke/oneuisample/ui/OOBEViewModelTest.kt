@@ -19,6 +19,7 @@ import androidx.lifecycle.SavedStateHandle
 import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.fakeUserSettings
+import de.lemke.oneuisample.domain.CheckAppStartUseCase
 import de.lemke.oneuisample.domain.CompleteOnboardingUseCase
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_CODE
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_NAME
@@ -48,7 +49,13 @@ class OOBEViewModelTest : ShouldSpec(
         beforeEach {
             mainScheduler = UnconfinedTestDispatcher().scheduler
             settings = fakeUserSettings()
-            completeOnboarding = CompleteOnboardingUseCase(TOS_VERSION, settings, UnconfinedTestDispatcher(mainScheduler))
+            completeOnboarding =
+                CompleteOnboardingUseCase(
+                    TOS_VERSION,
+                    settings,
+                    CheckAppStartUseCase(settings, TOS_VERSION),
+                    UnconfinedTestDispatcher(mainScheduler),
+                )
             viewModel = OOBEViewModel(SavedStateHandle(mapOf(EXTRA_VERSION_CODE to 5, EXTRA_VERSION_NAME to "2.0")), completeOnboarding)
         }
 

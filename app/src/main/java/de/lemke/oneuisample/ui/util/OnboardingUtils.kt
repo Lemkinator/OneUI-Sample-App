@@ -42,7 +42,7 @@ fun AppCompatActivity.onboardIfNeeded(
         finishWithFade()
         return null
     }
-    checkAppStart.commit(appStart)
+    checkAppStart.recordLaunchedVersion(appStart.versionCode, appStart.versionName)
     overrideFadeOpenTransition()
     return appStart
 }

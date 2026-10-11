@@ -30,7 +30,13 @@ class CompleteOnboardingUseCaseTest : ShouldSpec(
 
         beforeEach {
             settings = fakeUserSettings()
-            useCase = CompleteOnboardingUseCase(tosVersion = 2, settings, UnconfinedTestDispatcher())
+            useCase =
+                CompleteOnboardingUseCase(
+                    tosVersion = 2,
+                    settings,
+                    CheckAppStartUseCase(settings, tosVersion = 2),
+                    UnconfinedTestDispatcher(),
+                )
         }
 
         should("update acceptedTosVersion to the injected TOS version") {

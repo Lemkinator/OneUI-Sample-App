@@ -27,6 +27,7 @@ import kotlinx.coroutines.withContext
 class CompleteOnboardingUseCase @Inject constructor(
     @param:TosVersion private val tosVersion: Int,
     private val userSettings: UserSettings,
+    private val checkAppStart: CheckAppStartUseCase,
     @param:DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ) {
     suspend operator fun invoke(
@@ -34,7 +35,6 @@ class CompleteOnboardingUseCase @Inject constructor(
         versionName: String,
     ) = withContext(defaultDispatcher) {
         userSettings.acceptedTosVersion = tosVersion
-        userSettings.lastVersionCode = versionCode
-        userSettings.lastVersionName = versionName
+        checkAppStart.recordLaunchedVersion(versionCode, versionName)
     }
 }
