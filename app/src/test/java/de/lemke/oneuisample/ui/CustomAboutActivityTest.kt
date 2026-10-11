@@ -21,7 +21,6 @@ import android.content.res.Configuration
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Looper
-import android.view.MenuItem
 import androidx.activity.BackEventCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -40,6 +39,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.fakes.RoboMenuItem
 import org.robolectric.shadows.ShadowActivity
 
 @HiltAndroidTest
@@ -63,7 +63,7 @@ class CustomAboutActivityTest {
     @Test
     fun onOptionsItemSelected_appInfo_returnsTrue() {
         launch {
-            val item = mockk<MenuItem> { every { itemId } returns R.id.menu_item_app_info }
+            val item = RoboMenuItem(R.id.menu_item_app_info)
             onOptionsItemSelected(item) shouldBe true
         }
     }
@@ -71,7 +71,7 @@ class CustomAboutActivityTest {
     @Test
     fun onOptionsItemSelected_unknown_returnsFalse() {
         launch {
-            val item = mockk<MenuItem> { every { itemId } returns -1 }
+            val item = RoboMenuItem(-1)
             onOptionsItemSelected(item) shouldBe false
         }
     }

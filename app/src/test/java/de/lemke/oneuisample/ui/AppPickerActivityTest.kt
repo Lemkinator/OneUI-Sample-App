@@ -18,7 +18,6 @@ package de.lemke.oneuisample.ui
 import android.content.Intent
 import android.os.Looper
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
@@ -36,9 +35,7 @@ import de.lemke.oneuisample.ui.util.ListTypes
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,6 +43,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.fakes.RoboMenu
+import org.robolectric.fakes.RoboMenuItem
 
 private fun View.findSearchView(): SearchView? =
     this as? SearchView ?: (this as? ViewGroup)?.let { vg ->
@@ -223,7 +222,7 @@ class AppPickerActivityTest {
     @Test
     fun onOptionsItemSelected_search_startsSearchMode() {
         launch {
-            val item = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_search }
+            val item = RoboMenuItem(R.id.menu_app_picker_search)
             onOptionsItemSelected(item) shouldBe true
         }
     }
@@ -231,7 +230,7 @@ class AppPickerActivityTest {
     @Test
     fun onOptionsItemSelected_search_triggersQueryAndEnd() {
         launch {
-            val item = mockk<MenuItem> { every { itemId } returns R.id.menu_app_picker_search }
+            val item = RoboMenuItem(R.id.menu_app_picker_search)
             onOptionsItemSelected(item)
             shadowOf(Looper.getMainLooper()).idle()
             val toolbarLayout = this.findViewById<ToolbarLayout>(R.id.toolbar_layout)
@@ -245,42 +244,41 @@ class AppPickerActivityTest {
     @Test
     fun onOptionsItemSelected_layoutMode_togglesSelectLayoutModeAndUpdatesTitle() {
         launch {
-            val item = mockk<MenuItem>(relaxed = true) { every { itemId } returns R.id.menu_app_picker_layout_mode }
+            val item = RoboMenuItem(R.id.menu_app_picker_layout_mode)
             onOptionsItemSelected(item) shouldBe true
-            verify { item.title = getString(R.string.simple_picker_mode) }
+            item.title shouldBe getString(R.string.simple_picker_mode)
             onOptionsItemSelected(item) shouldBe true
-            verify { item.title = getString(R.string.select_layout_mode) }
+            item.title shouldBe getString(R.string.select_layout_mode)
         }
     }
 
     @Test
     fun onPrepareOptionsMenu_simpleMode_showsSelectLayoutTitle() {
         launch {
-            val menuItem = mockk<MenuItem>(relaxed = true)
-            val menu = mockk<Menu> { every { findItem(R.id.menu_app_picker_layout_mode) } returns menuItem }
+            val menu = RoboMenu(this)
+            val menuItem = menu.add(Menu.NONE, R.id.menu_app_picker_layout_mode, Menu.NONE, "")
             onPrepareOptionsMenu(menu)
-            verify { menuItem.title = getString(R.string.select_layout_mode) }
+            menuItem.title shouldBe getString(R.string.select_layout_mode)
         }
     }
 
     @Test
     fun onPrepareOptionsMenu_selectLayoutMode_showsSimpleModeTitle() {
         launch {
-            val toggleItem = mockk<MenuItem>(relaxed = true) { every { itemId } returns R.id.menu_app_picker_layout_mode }
+            val toggleItem = RoboMenuItem(R.id.menu_app_picker_layout_mode)
             onOptionsItemSelected(toggleItem)
             shadowOf(Looper.getMainLooper()).idle()
-            val menuItem = mockk<MenuItem>(relaxed = true)
-            val menu = mockk<Menu> { every { findItem(R.id.menu_app_picker_layout_mode) } returns menuItem }
+            val menu = RoboMenu(this)
+            val menuItem = menu.add(Menu.NONE, R.id.menu_app_picker_layout_mode, Menu.NONE, "")
             onPrepareOptionsMenu(menu)
-            verify { menuItem.title = getString(R.string.simple_picker_mode) }
+            menuItem.title shouldBe getString(R.string.simple_picker_mode)
         }
     }
 
     @Test
     fun onPrepareOptionsMenu_missingMenuItem_noError() {
         launch {
-            val menu = mockk<Menu> { every { findItem(R.id.menu_app_picker_layout_mode) } returns null }
-            onPrepareOptionsMenu(menu)
+            onPrepareOptionsMenu(RoboMenu(this))
         }
     }
 
@@ -324,7 +322,7 @@ class AppPickerActivityTest {
     @Test
     fun applyFilter_selectLayoutMode_noError() {
         launch {
-            val toggleItem = mockk<MenuItem>(relaxed = true) { every { itemId } returns R.id.menu_app_picker_layout_mode }
+            val toggleItem = RoboMenuItem(R.id.menu_app_picker_layout_mode)
             onOptionsItemSelected(toggleItem)
             shadowOf(Looper.getMainLooper()).idle()
             applyFilter("test")

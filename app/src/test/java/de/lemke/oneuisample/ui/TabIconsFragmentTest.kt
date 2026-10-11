@@ -19,7 +19,6 @@ import android.app.Application
 import android.content.Intent
 import android.os.Looper
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -45,7 +44,6 @@ import dev.oneuiproject.oneui.widget.RadioItemViewGroup
 import dev.oneuiproject.oneui.widget.SwitchItemView
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.every
 import io.mockk.mockk
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -58,6 +56,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.fakes.RoboMenuItem
 import org.robolectric.shadows.ShadowDialog
 import com.google.android.material.R as MaterialR
 
@@ -100,8 +99,6 @@ class TabIconsFragmentTest {
         }
     }
 
-    private fun mockMenuItem(id: Int): MenuItem = mockk { every { itemId } returns id }
-
     private fun TabIconsFragment.snackbarText(): String? {
         shadowOf(Looper.getMainLooper()).idle()
         return requireActivity().findViewById<TextView>(MaterialR.id.snackbar_text)?.text?.toString()
@@ -118,20 +115,20 @@ class TabIconsFragmentTest {
 
     @Test
     fun onIconTabMenuItemSelected_search_startsSearchMode() {
-        withFragment { actionModeHandler.onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_search)) shouldBe true }
+        withFragment { actionModeHandler.onIconTabMenuItemSelected(RoboMenuItem(R.id.menu_item_search)) shouldBe true }
     }
 
     @Test
     fun onIconTabMenuItemSelected_settings_showsDialog() {
         withFragment {
-            actionModeHandler.onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_settings)) shouldBe true
+            actionModeHandler.onIconTabMenuItemSelected(RoboMenuItem(R.id.menu_item_settings)) shouldBe true
             ShadowDialog.getLatestDialog() shouldNotBe null
         }
     }
 
     @Test
     fun onIconTabMenuItemSelected_unknown_returnsFalse() {
-        withFragment { actionModeHandler.onIconTabMenuItemSelected(mockMenuItem(-1)) shouldBe false }
+        withFragment { actionModeHandler.onIconTabMenuItemSelected(RoboMenuItem(-1)) shouldBe false }
     }
 
     @Test
@@ -190,7 +187,7 @@ class TabIconsFragmentTest {
     @Test
     fun onActionModeMenuItemSelected_item1_showsSnackbar() {
         withFragment {
-            actionModeHandler.onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_1)) shouldBe true
+            actionModeHandler.onActionModeMenuItemSelected(RoboMenuItem(R.id.menu_item_1)) shouldBe true
             snackbarText() shouldBe getString(R.string.menu_item_1_selected)
         }
     }
@@ -198,7 +195,7 @@ class TabIconsFragmentTest {
     @Test
     fun onActionModeMenuItemSelected_item2_showsSnackbar() {
         withFragment {
-            actionModeHandler.onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_2)) shouldBe true
+            actionModeHandler.onActionModeMenuItemSelected(RoboMenuItem(R.id.menu_item_2)) shouldBe true
             snackbarText() shouldBe getString(R.string.menu_item_2_selected)
         }
     }
@@ -206,14 +203,14 @@ class TabIconsFragmentTest {
     @Test
     fun onActionModeMenuItemSelected_item3_showsSnackbar() {
         withFragment {
-            actionModeHandler.onActionModeMenuItemSelected(mockMenuItem(R.id.menu_item_3)) shouldBe true
+            actionModeHandler.onActionModeMenuItemSelected(RoboMenuItem(R.id.menu_item_3)) shouldBe true
             snackbarText() shouldBe getString(R.string.menu_item_3_selected)
         }
     }
 
     @Test
     fun onActionModeMenuItemSelected_unknown_returnsFalse() {
-        withFragment { actionModeHandler.onActionModeMenuItemSelected(mockMenuItem(-1)) shouldBe false }
+        withFragment { actionModeHandler.onActionModeMenuItemSelected(RoboMenuItem(-1)) shouldBe false }
     }
 
     @Test
@@ -286,7 +283,7 @@ class TabIconsFragmentTest {
                         .childFragmentManager.primaryNavigationFragment as? TabIconsFragment
                 requireNotNull(fragment) { "TabIconsFragment was not displayed" }
                     .actionModeHandler
-                    .onIconTabMenuItemSelected(mockMenuItem(R.id.menu_item_settings))
+                    .onIconTabMenuItemSelected(RoboMenuItem(R.id.menu_item_settings))
             }
             shadowOf(Looper.getMainLooper()).idle()
             val expectedShowIndexScroll = !userSettings.showIndexScroll

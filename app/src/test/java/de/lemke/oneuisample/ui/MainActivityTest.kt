@@ -20,7 +20,6 @@ import android.app.Application
 import android.content.Intent
 import android.content.Intent.ACTION_SEARCH
 import android.os.Looper
-import android.view.MenuItem
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -32,8 +31,6 @@ import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
 import dev.oneuiproject.oneui.navigation.widget.DrawerNavigationView
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
 import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
@@ -44,6 +41,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.fakes.RoboMenuItem
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -261,7 +259,7 @@ class MainActivityTest {
     fun onPopupMenuItemClicked_setsActivityTitleAndShowsSnackBar() {
         launch {
             onActivity { activity ->
-                val menuItem = mockk<MenuItem> { every { title } returns "Test Item" }
+                val menuItem = RoboMenuItem().apply { title = "Test Item" }
                 activity.onPopupMenuItemClicked(menuItem)
             }
             shadowOf(Looper.getMainLooper()).idle()
