@@ -18,9 +18,8 @@ package de.lemke.oneuisample.ui.util
 import android.app.Application
 import android.content.Intent
 import android.os.Looper
-import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ActivityScenario
@@ -33,10 +32,7 @@ import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.MainActivity
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
 import javax.inject.Inject
-import kotlin.reflect.KProperty
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
@@ -56,6 +52,8 @@ class AutoClearedTest {
 
     @Inject
     lateinit var userSettings: UserSettings
+
+    private val binding = Unit
 
     @Before
     fun setup() {
@@ -83,9 +81,8 @@ class AutoClearedTest {
         withFragment { fragment ->
             var initCount = 0
             val delegate = fragment.autoCleared { initCount++ }
-            val prop = mockk<KProperty<*>>()
-            delegate.getValue(fragment, prop)
-            delegate.getValue(fragment, prop)
+            delegate.getValue(fragment, ::binding)
+            delegate.getValue(fragment, ::binding)
             initCount shouldBe 1
         }
     }
@@ -95,25 +92,24 @@ class AutoClearedTest {
         val fragment = Fragment()
         var initCount = 0
         val delegate = fragment.autoCleared { initCount++ }
-        val prop = mockk<KProperty<*>>(relaxed = true)
-        assertThrows(IllegalStateException::class.java) { delegate.getValue(fragment, prop) }
+        assertThrows(IllegalStateException::class.java) { delegate.getValue(fragment, ::binding) }
         initCount shouldBe 0
     }
 
     @Test
     fun `getValue skips caching when viewLifecycleOwner lifecycle is DESTROYED`() {
-        val lifecycle = mockk<Lifecycle>()
-        every { lifecycle.currentState } returns Lifecycle.State.DESTROYED
-        val lifecycleOwner = mockk<LifecycleOwner>()
-        every { lifecycleOwner.lifecycle } returns lifecycle
-        val fragment = mockk<Fragment>()
-        every { fragment.view } returns mockk<View>()
-        every { fragment.viewLifecycleOwner } returns lifecycleOwner
         var initCount = 0
-        val delegate = fragment.autoCleared { initCount++ }
-        val prop = mockk<KProperty<*>>()
-        delegate.getValue(fragment, prop)
-        delegate.getValue(fragment, prop)
+        withFragment { fragment ->
+            val delegate = fragment.autoCleared { initCount++ }
+            fragment.viewLifecycleOwner.lifecycle.addObserver(
+                object : DefaultLifecycleObserver {
+                    override fun onDestroy(owner: LifecycleOwner) {
+                        delegate.getValue(fragment, ::binding)
+                        delegate.getValue(fragment, ::binding)
+                    }
+                },
+            )
+        }
         initCount shouldBe 2
     }
 }
