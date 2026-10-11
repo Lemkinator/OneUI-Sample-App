@@ -17,25 +17,26 @@ package de.lemke.oneuisample.ui
 
 import androidx.lifecycle.SavedStateHandle
 import de.lemke.oneuisample.BuildConfig
+import de.lemke.oneuisample.data.UserSettings
+import de.lemke.oneuisample.data.fakeUserSettings
 import de.lemke.oneuisample.domain.CompleteOnboardingUseCase
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_CODE
 import de.lemke.oneuisample.ui.util.EXTRA_VERSION_NAME
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.clearMocks
-import io.mockk.coJustRun
-import io.mockk.coVerify
-import io.mockk.mockk
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
+private const val TOS_VERSION = 3
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class OOBEViewModelTest : ShouldSpec(
     {
         lateinit var mainScheduler: TestCoroutineScheduler
-        val completeOnboarding = mockk<CompleteOnboardingUseCase>()
+        lateinit var settings: UserSettings
+        lateinit var completeOnboarding: CompleteOnboardingUseCase
 
         lateinit var viewModel: OOBEViewModel
 
@@ -46,8 +47,8 @@ class OOBEViewModelTest : ShouldSpec(
 
         beforeEach {
             mainScheduler = UnconfinedTestDispatcher().scheduler
-            clearMocks(completeOnboarding)
-            coJustRun { completeOnboarding(any(), any()) }
+            settings = fakeUserSettings()
+            completeOnboarding = CompleteOnboardingUseCase(TOS_VERSION, settings, UnconfinedTestDispatcher(mainScheduler))
             viewModel = OOBEViewModel(SavedStateHandle(mapOf(EXTRA_VERSION_CODE to 5, EXTRA_VERSION_NAME to "2.0")), completeOnboarding)
         }
 
@@ -57,12 +58,15 @@ class OOBEViewModelTest : ShouldSpec(
 
         should("onAcceptTos completes onboarding with the version from the extras") {
             viewModel.onAcceptTos()
-            coVerify(exactly = 1) { completeOnboarding(5, "2.0") }
+            settings.lastVersionCode shouldBe 5
+            settings.lastVersionName shouldBe "2.0"
+            settings.acceptedTosVersion shouldBe TOS_VERSION
         }
 
         should("onAcceptTos completes onboarding with the build version without extras") {
             OOBEViewModel(SavedStateHandle(), completeOnboarding).onAcceptTos()
-            coVerify(exactly = 1) { completeOnboarding(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME) }
+            settings.lastVersionCode shouldBe BuildConfig.VERSION_CODE
+            settings.lastVersionName shouldBe BuildConfig.VERSION_NAME
         }
 
         should("onAcceptTos stays Accepting until 500 ms have passed, then turns Accepted") {
@@ -76,16 +80,18 @@ class OOBEViewModelTest : ShouldSpec(
 
         should("onAcceptTos while Accepting is ignored") {
             viewModel.onAcceptTos()
+            settings.lastVersionCode = -1
             viewModel.onAcceptTos()
-            coVerify(exactly = 1) { completeOnboarding(5, "2.0") }
+            settings.lastVersionCode shouldBe -1
         }
 
         should("onAcceptTos after Accepted is ignored") {
             viewModel.onAcceptTos()
             mainScheduler.advanceBy(500)
+            settings.lastVersionCode = -1
             viewModel.onAcceptTos()
             viewModel.tosAcceptance.value shouldBe TosAcceptance.Accepted
-            coVerify(exactly = 1) { completeOnboarding(5, "2.0") }
+            settings.lastVersionCode shouldBe -1
         }
 
         should("onTosAcceptedHandled moves Accepted to Navigated") {
@@ -107,9 +113,10 @@ class OOBEViewModelTest : ShouldSpec(
             viewModel.onAcceptTos()
             mainScheduler.advanceBy(500)
             viewModel.onTosAcceptedHandled()
+            settings.lastVersionCode = -1
             viewModel.onAcceptTos()
             viewModel.tosAcceptance.value shouldBe TosAcceptance.Navigated
-            coVerify(exactly = 1) { completeOnboarding(5, "2.0") }
+            settings.lastVersionCode shouldBe -1
         }
     },
 )

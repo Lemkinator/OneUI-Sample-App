@@ -19,8 +19,6 @@ import android.content.SharedPreferences
 import de.lemke.oneuisample.freshTestPreferences
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchOnActionMode
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -396,9 +394,14 @@ class SharedPreferenceDelegatesTest {
 
     @Test
     fun `string getter returns default when getString returns null`() {
-        val mockPrefs = mockk<SharedPreferences>()
-        every { mockPrefs.getString(any(), any()) } returns null
-        val d = SharedPreferenceDelegates(mockPrefs)
+        val prefs =
+            object : SharedPreferences by FakeSharedPreferences() {
+                override fun getString(
+                    key: String?,
+                    defValue: String?,
+                ): String? = null
+            }
+        val d = SharedPreferenceDelegates(prefs)
         val h =
             object {
                 var s: String by d.string(default = "fallback")
@@ -408,9 +411,14 @@ class SharedPreferenceDelegatesTest {
 
     @Test
     fun `stringSet getter returns default when getStringSet returns null`() {
-        val mockPrefs = mockk<SharedPreferences>()
-        every { mockPrefs.getStringSet(any(), any()) } returns null
-        val d = SharedPreferenceDelegates(mockPrefs)
+        val prefs =
+            object : SharedPreferences by FakeSharedPreferences() {
+                override fun getStringSet(
+                    key: String?,
+                    defValues: MutableSet<String>?,
+                ): MutableSet<String>? = null
+            }
+        val d = SharedPreferenceDelegates(prefs)
         val h =
             object {
                 var ss: Set<String> by d.stringSet(default = setOf("x"))
