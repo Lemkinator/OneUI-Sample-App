@@ -10,8 +10,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew build              # full build (used in CI)
 ```
 
-Test suite: unit tests (Kotest/MockK), Robolectric integration tests, Roborazzi screenshot tests, Kover coverage. Run with
-`./gradlew testDebugUnitTest`.
+Test suite: unit tests (Kotest), Robolectric integration tests, Roborazzi screenshot tests, Kover coverage. Run with
+`./gradlew testDebugUnitTest`. Tests use real objects, fakes and Robolectric fakes (`RoboMenuItem`, `RoboMenu`). MockK stays only
+for the `SplashScreen` boundary in `SplashUtilsKtTest`: its constructor is private and it exposes no keep-on-screen getter.
 
 Instrumented tests run via Gradle Managed Device (no physical device needed):
 
@@ -62,12 +63,14 @@ Single-module (`:app`) Android app demonstrating OneUI-Design components. Layere
   `StateFlow<UserSettingsSnapshot>`. All writes assign directly, single- or multi-field: `userSettings.search = "query"`. No batch write
   API — `SharedPreferences` already skips no-op writes for unchanged keys, and no consumer needs atomic multi-field emission.
 - **`domain/`** - Use cases with `operator fun invoke()`. Suspend use cases (e.g. `CompleteOnboardingUseCase`) switch to
-  `Dispatchers.Default`; flow-based use cases (e.g. `ObserveIconListUseCase`) return a `Flow` directly.
+  `Dispatchers.Default`; flow-based use cases (e.g. `ObserveIconListUseCase`) return a `Flow` directly. `CheckAppStartUseCase`
+  classifies a launch as first run, upgrade or normal start for `onboardIfNeeded`.
 - **`ui/`** - Activities for settings/about/OOBE/pickers; Fragments for main tabs (`TabDesign`, `TabIcons`, `TabPicker`) with nested subtabs
   via ViewPager2. Screens with non-trivial async state use ViewModels (`AboutViewModel`, `SettingsViewModel`, `OOBEViewModel`,
   `SwitchBarViewModel`, `AppPickerViewModel`); simpler screens inject use cases or `UserSettings` directly.
 - **`App.kt`** - `@HiltAndroidApp` entry point; `PersistenceModule.kt` - Hilt singleton providing `SharedPreferences` and
-  `UserSettings` (with an `@ApplicationScope` `CoroutineScope` for the `StateFlow`).
+  `UserSettings` (with an `@ApplicationScope` `CoroutineScope` for the `StateFlow`); `DispatchersModule.kt` - the
+  `@DefaultDispatcher`; `TosVersionModule.kt` - the `@TosVersion` from `R.integer.tos_version`, the single source of the TOS version.
 
 ViewBinding uses the `autoCleared` delegate (`ui/util/AutoClearedUtils.kt`) to prevent leaks.
 
