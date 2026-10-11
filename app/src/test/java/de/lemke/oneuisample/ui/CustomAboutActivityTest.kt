@@ -21,17 +21,21 @@ import android.content.res.Configuration
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Looper
+import android.view.View
+import android.view.View.MeasureSpec.EXACTLY
+import android.view.View.MeasureSpec.makeMeasureSpec
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.activity.BackEventCompat
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,6 +63,20 @@ class CustomAboutActivityTest {
             shadowOf(Looper.getMainLooper()).idle()
         }
     }
+
+    private fun Activity.appBarLayoutAt(
+        y: Float,
+        top: Int,
+    ): AppBarLayout =
+        AppBarLayout(this).apply {
+            // SESL onMeasure casts its own layout params to CoordinatorLayout.LayoutParams and dereferences them.
+            layoutParams = CoordinatorLayout.LayoutParams(MATCH_PARENT, 400)
+            addView(View(context), AppBarLayout.LayoutParams(MATCH_PARENT, 200).apply { scrollFlags = SCROLL_FLAG_SCROLL })
+            measure(makeMeasureSpec(1000, EXACTLY), makeMeasureSpec(400, EXACTLY))
+            layout(0, top, 1000, top + 400)
+            this.y = y
+            totalScrollRange shouldBe 200
+        }
 
     @Test
     fun onOptionsItemSelected_appInfo_returnsTrue() {
@@ -95,14 +113,7 @@ class CustomAboutActivityTest {
     @Test
     fun appBarOffsetChanged_collapsed_setsCallbackActive() {
         launch {
-            val appBarLayout =
-                mockk<AppBarLayout>(relaxed = true) {
-                    every { totalScrollRange } returns 200
-                    every { getTotalScrollRange() } returns 200
-                    every { y } returns -200f
-                    every { top } returns 0
-                    every { height } returns 400
-                }
+            val appBarLayout = appBarLayoutAt(y = -200f, top = 0)
             // abs(-200) >= 200/2 → alpha=0, setBottomContentEnabled(true)
             // updateCallbackState(200 + (-200) == 0) = updateCallbackState(true)
             appBarListener.onOffsetChanged(appBarLayout, -200)
@@ -113,14 +124,7 @@ class CustomAboutActivityTest {
     @Test
     fun appBarOffsetChanged_expanded_setsCallbackInactive() {
         launch {
-            val appBarLayout =
-                mockk<AppBarLayout>(relaxed = true) {
-                    every { totalScrollRange } returns 200
-                    every { getTotalScrollRange() } returns 200
-                    every { y } returns 0f
-                    every { top } returns 0
-                    every { height } returns 400
-                }
+            val appBarLayout = appBarLayoutAt(y = 0f, top = 0)
             callbackIsActive.value = true
             // abs(0) == 0 → alpha=1, setBottomContentEnabled(false)
             // updateCallbackState(200 + 0 == 0) = updateCallbackState(false)
@@ -132,14 +136,7 @@ class CustomAboutActivityTest {
     @Test
     fun appBarOffsetChanged_partial_setsOffsetAlpha() {
         launch {
-            val appBarLayout =
-                mockk<AppBarLayout>(relaxed = true) {
-                    every { totalScrollRange } returns 200
-                    every { getTotalScrollRange() } returns 200
-                    every { y } returns -20f
-                    every { top } returns -20
-                    every { height } returns 400
-                }
+            val appBarLayout = appBarLayoutAt(y = -20f, top = -20)
             // 0 < abs(-20) = 20 < 100 → calculate offset alpha
             // updateCallbackState(200 + (-20) == 0) = updateCallbackState(false)
             appBarListener.onOffsetChanged(appBarLayout, -20)
@@ -166,16 +163,9 @@ class CustomAboutActivityTest {
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
                 activity.onBackPressedDispatcher.dispatchOnBackStarted(BackEventCompat(0f, 0f, 0f, BackEventCompat.EDGE_LEFT))
-                val mockAppBar =
-                    mockk<AppBarLayout>(relaxed = true) {
-                        every { totalScrollRange } returns 200
-                        every { getTotalScrollRange() } returns 200
-                        every { y } returns -20f
-                        every { top } returns -20
-                        every { height } returns 400
-                    }
+                val appBarLayout = activity.appBarLayoutAt(y = -20f, top = -20)
                 // Would set callbackIsActive=false, but isBackProgressing=true blocks updateCallbackState
-                activity.appBarListener.onOffsetChanged(mockAppBar, -100)
+                activity.appBarListener.onOffsetChanged(appBarLayout, -100)
             }
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
@@ -189,14 +179,7 @@ class CustomAboutActivityTest {
         launch {
             // Force CTL height to 0 so alphaRange == 0f, hitting the else { 0f } guard
             window.decorView.findViewById<android.view.View>(R.id.aboutCTL)?.layout(0, 0, 1000, 0)
-            val appBarLayout =
-                mockk<AppBarLayout>(relaxed = true) {
-                    every { totalScrollRange } returns 200
-                    every { getTotalScrollRange() } returns 200
-                    every { y } returns -200f
-                    every { top } returns -200
-                    every { height } returns 400
-                }
+            val appBarLayout = appBarLayoutAt(y = -200f, top = -200)
             appBarListener.onOffsetChanged(appBarLayout, -200)
             window.decorView.findViewById<android.view.View>(R.id.aboutBottomContainer)?.alpha shouldBe 0f
         }
