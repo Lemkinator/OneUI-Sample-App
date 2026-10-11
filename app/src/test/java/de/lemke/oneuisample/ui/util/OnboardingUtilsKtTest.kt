@@ -25,6 +25,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.data.UserSettings
+import de.lemke.oneuisample.domain.CheckAppStartUseCase
 import de.lemke.oneuisample.freshTestPreferences
 import de.lemke.oneuisample.ui.MainActivity
 import io.kotest.matchers.shouldBe
@@ -109,9 +110,10 @@ class OnboardingUtilsKtTest {
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
                 val testSettings = UserSettings(freshTestPreferences(context), testScope)
+                val checkAppStart = CheckAppStartUseCase(testSettings, TOS_VERSION)
                 // No EXTRA_SKIP_ONBOARDING in intent → getBooleanExtra=false
                 // allowSkip=true && false = false → !(false)=true → shouldShowOOBE=true → OOBE
-                val result = activity.onboardIfNeeded(testSettings, 1, "1.0", allowSkip = true)
+                val result = activity.onboardIfNeeded(checkAppStart, testSettings, 1, "1.0", allowSkip = true)
                 result shouldBe null
             }
         }
@@ -126,10 +128,11 @@ class OnboardingUtilsKtTest {
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
                 val testSettings = UserSettings(freshTestPreferences(context), testScope)
+                val checkAppStart = CheckAppStartUseCase(testSettings, TOS_VERSION)
                 testSettings.lastVersionCode = 1
                 testSettings.acceptedTosVersion = Int.MAX_VALUE
                 // omit allowSkip — exercises the $default synthetic wrapper (default = false)
-                val result = activity.onboardIfNeeded(testSettings, 1, "1.0")
+                val result = activity.onboardIfNeeded(checkAppStart, testSettings, 1, "1.0")
                 result shouldNotBe null
                 testSettings.lastVersionCode shouldBe 1
             }
@@ -146,12 +149,17 @@ class OnboardingUtilsKtTest {
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
                 val testSettings = UserSettings(freshTestPreferences(context), testScope)
+                val checkAppStart = CheckAppStartUseCase(testSettings, TOS_VERSION)
                 // fresh store: lastVersionCode = -1 → shouldShowOOBE = true
                 // but allowSkip=true + intent has EXTRA_SKIP_ONBOARDING=true → condition is false → no OOBE
-                val result = activity.onboardIfNeeded(testSettings, 1, "1.0", allowSkip = true)
+                val result = activity.onboardIfNeeded(checkAppStart, testSettings, 1, "1.0", allowSkip = true)
                 result shouldNotBe null
                 testSettings.lastVersionCode shouldBe 1
             }
         }
+    }
+
+    private companion object {
+        const val TOS_VERSION = 1
     }
 }

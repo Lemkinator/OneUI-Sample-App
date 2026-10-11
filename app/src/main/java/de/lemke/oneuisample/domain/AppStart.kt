@@ -15,13 +15,6 @@
  */
 package de.lemke.oneuisample.domain
 
-import android.content.Context
-import android.util.Log
-import de.lemke.oneuisample.R
-import de.lemke.oneuisample.data.UserSettings
-
-private const val TAG = "AppStart"
-
 /** Result category of an app launch relative to the previously recorded version. */
 enum class AppStartResult {
     /** No previous installation was recorded (version code -1). */
@@ -73,39 +66,4 @@ class AppStart(
 
     /** `true` if [threshold] falls within the range of version codes updated across on this launch. */
     fun versionThresholdPassed(threshold: Int) = lastVersionCode >= 0 && threshold in lastVersionCode..<versionCode
-}
-
-/** Checks whether this is the first run, a version upgrade, or a normal start. Version info is committed by the caller. */
-internal fun Context.checkAppStart(
-    userSettings: UserSettings,
-    versionCode: Int,
-    versionName: String,
-): AppStart {
-    val lastVersionCode = userSettings.lastVersionCode
-    val lastVersionName = userSettings.lastVersionName
-    val tosVersion = resources.getInteger(R.integer.tos_version)
-    val acceptedTosVersion = userSettings.acceptedTosVersion
-    val result =
-        when {
-            lastVersionCode == -1 -> {
-                AppStartResult.FIRST_TIME
-            }
-
-            lastVersionCode < versionCode -> {
-                AppStartResult.FIRST_TIME_VERSION
-            }
-
-            lastVersionCode > versionCode -> {
-                Log.w(TAG, "Current version code ($versionCode) is less than the one recognized on last startup ($lastVersionCode). ")
-                Log.w(TAG, "Defensively assuming normal app start.")
-                AppStartResult.NORMAL
-            }
-
-            else -> {
-                AppStartResult.NORMAL
-            }
-        }
-    return AppStart(result, versionCode, versionName, lastVersionCode, lastVersionName, tosVersion, acceptedTosVersion).apply {
-        Log.d(TAG, this.toString())
-    }
 }
