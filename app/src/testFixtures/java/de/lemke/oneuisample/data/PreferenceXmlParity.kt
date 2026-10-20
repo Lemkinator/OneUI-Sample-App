@@ -143,9 +143,7 @@ private fun findGetter(
     key: String,
 ): Method? {
     val getterName = "get" + key.replaceFirstChar(Char::uppercaseChar)
-    settingsClass.methods.firstOrNull { it.name == getterName && it.parameterCount == 0 }?.let { return it }
-    if (!key.startsWith("is")) return null
-    return settingsClass.methods.firstOrNull { it.name == key && it.parameterCount == 0 }
+    return settingsClass.findMethod(listOfNotNull(getterName, key.takeIf { it.startsWith("is") }), parameterCount = 0)
 }
 
 /** Setter twin of [findGetter]: `darkMode` -> `setDarkMode(...)`, `isFoo` -> `setFoo(...)`. */
@@ -154,10 +152,23 @@ private fun findSetter(
     key: String,
 ): Method? {
     val setterName = "set" + key.replaceFirstChar(Char::uppercaseChar)
-    settingsClass.methods.firstOrNull { it.name == setterName && it.parameterCount == 1 }?.let { return it }
-    if (!key.startsWith("is")) return null
-    return settingsClass.methods.firstOrNull { it.name == "set" + key.removePrefix("is") && it.parameterCount == 1 }
+    return settingsClass.findMethod(
+        listOfNotNull(
+            setterName,
+            key
+                .takeIf {
+                    it.startsWith("is")
+                }?.let { "set" + it.removePrefix("is") },
+        ),
+        parameterCount = 1,
+    )
 }
+
+/** The public method named like the first of [names] that has one, with [parameterCount] parameters. */
+private fun Class<*>.findMethod(
+    names: List<String>,
+    parameterCount: Int,
+): Method? = names.firstNotNullOfOrNull { name -> methods.firstOrNull { it.name == name && it.parameterCount == parameterCount } }
 
 /** The value a freshly inflated widget displays, in its persistence wire type. */
 private fun Preference.displayedValue(): Any? =
@@ -216,76 +227,113 @@ private fun <T : Any> checkXml(
 
         val empty = factory(freshTestPreferences(context))
         val settingsClass = empty::class.java
-
-        for (pref in containers) {
-            val key = pref.key ?: continue
-            if (findGetter(settingsClass, key) != null) {
-                error(
-                    "Non-persisting preference \"$key\" (${pref.javaClass.simpleName}, xml $xmlRes) collides with a " +
-                        "${settingsClass.simpleName} property name - rename the XML key or the property.",
-                )
-            }
-        }
-
-        val valueBearingKeys =
-            valueBearing.map { pref ->
-                pref.key ?: error("Persisting preference of type ${pref.javaClass.simpleName} (xml $xmlRes) has no android:key.")
-            }
-        val duplicateKeys =
-            valueBearingKeys
-                .groupingBy { it }
-                .eachCount()
-                .filterValues { it > 1 }
-                .keys
-        if (duplicateKeys.isNotEmpty()) {
-            error(
-                "Multiple value-bearing preferences in xml $xmlRes share key(s) $duplicateKeys - " +
-                    "each android:key must be unique, or the collision hides a mis-bound widget.",
-            )
-        }
-
-        val keyToGetter =
-            valueBearing.associate { pref ->
-                val key = pref.key!!
-                val getter =
-                    findGetter(settingsClass, key)
-                        ?: error(
-                            "Preference key \"$key\" (${pref.javaClass.simpleName}, xml $xmlRes) has no matching " +
-                                "${settingsClass.simpleName} property - typo'd key, or the property was renamed without " +
-                                "updating the XML.",
-                        )
-                key to getter
-            }
-
-        val declaredDefaultKeys = collectDeclaredDefaultValueKeys(context, xmlRes)
-        for (key in keyToGetter.keys) {
-            if (key !in declaredDefaultKeys) {
-                error(
-                    "Preference \"$key\" (xml $xmlRes) has no android:defaultValue - it must be declared and equal " +
-                        "${settingsClass.simpleName}.$key's delegate default.",
-                )
-            }
-        }
+        checkContainerKeysFree(containers, settingsClass, xmlRes)
+        val keys = uniqueKeysOf(valueBearing, xmlRes)
+        val getters = gettersFor(valueBearing, settingsClass, xmlRes)
+        checkDefaultsDeclared(keys, collectDeclaredDefaultValueKeys(context, xmlRes), settingsClass, xmlRes)
 
         val scratch = freshTestPreferences(context)
-        val scratchSettings = factory(scratch)
-        for (pref in valueBearing) {
-            val key = pref.key!!
-            val setter =
-                findSetter(settingsClass, key)
-                    ?: error("${settingsClass.simpleName}.$key (xml $xmlRes) has no setter - preference-backed properties must be `var`.")
-            setter.invoke(scratchSettings, keyToGetter.getValue(key).invoke(empty))
-            val stored = scratch.all[key]
-            val shown = pref.displayedValue()
-            if (stored != shown) {
-                error(
-                    "Preference \"$key\" (${pref.javaClass.simpleName}, xml $xmlRes) displays ${shown.describe()} on an " +
-                        "empty store but ${settingsClass.simpleName}.$key stores ${stored.describe()} as its default - " +
-                        "align android:defaultValue with the delegate default, or bridge the wire type with .mapped().",
-                )
-            }
-        }
+        checkDisplayedDefaults(valueBearing, getters, empty, factory(scratch), scratch, xmlRes)
     } finally {
         controller.destroy()
+    }
+}
+
+private fun checkContainerKeysFree(
+    containers: List<Preference>,
+    settingsClass: Class<*>,
+    xmlRes: Int,
+) {
+    for (pref in containers) {
+        val key = pref.key ?: continue
+        if (findGetter(settingsClass, key) != null) {
+            error(
+                "Non-persisting preference \"$key\" (${pref.javaClass.simpleName}, xml $xmlRes) collides with a " +
+                    "${settingsClass.simpleName} property name - rename the XML key or the property.",
+            )
+        }
+    }
+}
+
+private fun uniqueKeysOf(
+    valueBearing: List<Preference>,
+    xmlRes: Int,
+): List<String> {
+    val keys =
+        valueBearing.map { pref ->
+            pref.key ?: error("Persisting preference of type ${pref.javaClass.simpleName} (xml $xmlRes) has no android:key.")
+        }
+    val duplicateKeys =
+        keys
+            .groupingBy { it }
+            .eachCount()
+            .filterValues { it > 1 }
+            .keys
+    if (duplicateKeys.isNotEmpty()) {
+        error(
+            "Multiple value-bearing preferences in xml $xmlRes share key(s) $duplicateKeys - " +
+                "each android:key must be unique, or the collision hides a mis-bound widget.",
+        )
+    }
+    return keys
+}
+
+private fun gettersFor(
+    valueBearing: List<Preference>,
+    settingsClass: Class<*>,
+    xmlRes: Int,
+): Map<String, Method> =
+    valueBearing.associate { pref ->
+        val key = pref.key!!
+        val getter =
+            findGetter(settingsClass, key)
+                ?: error(
+                    "Preference key \"$key\" (${pref.javaClass.simpleName}, xml $xmlRes) has no matching " +
+                        "${settingsClass.simpleName} property - typo'd key, or the property was renamed without " +
+                        "updating the XML.",
+                )
+        key to getter
+    }
+
+private fun checkDefaultsDeclared(
+    keys: List<String>,
+    declaredDefaultKeys: Set<String>,
+    settingsClass: Class<*>,
+    xmlRes: Int,
+) {
+    for (key in keys) {
+        if (key !in declaredDefaultKeys) {
+            error(
+                "Preference \"$key\" (xml $xmlRes) has no android:defaultValue - it must be declared and equal " +
+                    "${settingsClass.simpleName}.$key's delegate default.",
+            )
+        }
+    }
+}
+
+private fun checkDisplayedDefaults(
+    valueBearing: List<Preference>,
+    getters: Map<String, Method>,
+    empty: Any,
+    scratchSettings: Any,
+    scratch: SharedPreferences,
+    xmlRes: Int,
+) {
+    val settingsClass = empty::class.java
+    for (pref in valueBearing) {
+        val key = pref.key!!
+        val setter =
+            findSetter(settingsClass, key)
+                ?: error("${settingsClass.simpleName}.$key (xml $xmlRes) has no setter - preference-backed properties must be `var`.")
+        setter.invoke(scratchSettings, getters.getValue(key).invoke(empty))
+        val stored = scratch.all[key]
+        val shown = pref.displayedValue()
+        if (stored != shown) {
+            error(
+                "Preference \"$key\" (${pref.javaClass.simpleName}, xml $xmlRes) displays ${shown.describe()} on an " +
+                    "empty store but ${settingsClass.simpleName}.$key stores ${stored.describe()} as its default - " +
+                    "align android:defaultValue with the delegate default, or bridge the wire type with .mapped().",
+            )
+        }
     }
 }
