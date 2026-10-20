@@ -34,7 +34,7 @@ class DebugToolsTest {
         if (!AppWatcher.isInstalled) {
             AppWatcher.manualInstall(app)
         }
-        openLeakCanary(app)
+        app.openLeakCanary()
         assertNotNull(shadowOf(app).nextStartedActivity)
     }
 }

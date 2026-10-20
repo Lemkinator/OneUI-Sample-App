@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
             R.id.about_custom_dest -> startActivity(Intent(this, CustomAboutActivity::class.java))
             R.id.settings_dest -> startActivity(Intent(this, SettingsActivity::class.java))
             R.id.bottom_sheet_dest -> BottomSheetFragment().show(supportFragmentManager, null)
-            R.id.leaks_dest -> openLeakCanary(this)
+            R.id.leaks_dest -> openLeakCanary()
             else -> return false
         }
         return true
