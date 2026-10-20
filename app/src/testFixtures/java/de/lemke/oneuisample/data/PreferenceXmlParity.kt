@@ -143,8 +143,7 @@ private fun findGetter(
     key: String,
 ): Method? {
     val getterName = "get" + key.replaceFirstChar(Char::uppercaseChar)
-    return settingsClass.methods.firstOrNull { it.name == getterName && it.parameterCount == 0 }
-        ?: settingsClass.methods.firstOrNull { key.startsWith("is") && it.name == key && it.parameterCount == 0 }
+    return settingsClass.findMethod(listOfNotNull(getterName, key.takeIf { it.startsWith("is") }), parameterCount = 0)
 }
 
 /** Setter twin of [findGetter]: `darkMode` -> `setDarkMode(...)`, `isFoo` -> `setFoo(...)`. */
@@ -153,11 +152,23 @@ private fun findSetter(
     key: String,
 ): Method? {
     val setterName = "set" + key.replaceFirstChar(Char::uppercaseChar)
-    return settingsClass.methods.firstOrNull { it.name == setterName && it.parameterCount == 1 }
-        ?: settingsClass.methods.firstOrNull {
-            key.startsWith("is") && it.name == "set" + key.removePrefix("is") && it.parameterCount == 1
-        }
+    return settingsClass.findMethod(
+        listOfNotNull(
+            setterName,
+            key
+                .takeIf {
+                    it.startsWith("is")
+                }?.let { "set" + it.removePrefix("is") },
+        ),
+        parameterCount = 1,
+    )
 }
+
+/** The public method named like the first of [names] that has one, with [parameterCount] parameters. */
+private fun Class<*>.findMethod(
+    names: List<String>,
+    parameterCount: Int,
+): Method? = names.firstNotNullOfOrNull { name -> methods.firstOrNull { it.name == name && it.parameterCount == parameterCount } }
 
 /** The value a freshly inflated widget displays, in its persistence wire type. */
 private fun Preference.displayedValue(): Any? =
@@ -216,18 +227,19 @@ private fun <T : Any> checkXml(
 
         val empty = factory(freshTestPreferences(context))
         val settingsClass = empty::class.java
+        checkContainerKeysFree(containers, settingsClass, xmlRes)
+        val keys = uniqueKeysOf(valueBearing, xmlRes)
+        val getters = gettersFor(valueBearing, settingsClass, xmlRes)
+        checkDefaultsDeclared(keys, collectDeclaredDefaultValueKeys(context, xmlRes), settingsClass, xmlRes)
 
-        assertContainersDoNotCollide(containers, settingsClass, xmlRes)
-        assertUniqueKeys(valueBearing, xmlRes)
-        val keyToGetter = resolveGetters(valueBearing, settingsClass, xmlRes)
-        assertDefaultsDeclared(keyToGetter.keys, collectDeclaredDefaultValueKeys(context, xmlRes), settingsClass, xmlRes)
-        assertDisplayedMatchesDelegateDefault(valueBearing, keyToGetter, empty, factory, context, xmlRes)
+        val scratch = freshTestPreferences(context)
+        checkDisplayedDefaults(valueBearing, getters, empty, factory(scratch), scratch, xmlRes)
     } finally {
         controller.destroy()
     }
 }
 
-private fun assertContainersDoNotCollide(
+private fun checkContainerKeysFree(
     containers: List<Preference>,
     settingsClass: Class<*>,
     xmlRes: Int,
@@ -243,15 +255,17 @@ private fun assertContainersDoNotCollide(
     }
 }
 
-private fun assertUniqueKeys(
+private fun uniqueKeysOf(
     valueBearing: List<Preference>,
     xmlRes: Int,
-) {
+): List<String> {
+    val keys =
+        valueBearing.map { pref ->
+            pref.key ?: error("Persisting preference of type ${pref.javaClass.simpleName} (xml $xmlRes) has no android:key.")
+        }
     val duplicateKeys =
-        valueBearing
-            .map { pref ->
-                pref.key ?: error("Persisting preference of type ${pref.javaClass.simpleName} (xml $xmlRes) has no android:key.")
-            }.groupingBy { it }
+        keys
+            .groupingBy { it }
             .eachCount()
             .filterValues { it > 1 }
             .keys
@@ -261,9 +275,10 @@ private fun assertUniqueKeys(
                 "each android:key must be unique, or the collision hides a mis-bound widget.",
         )
     }
+    return keys
 }
 
-private fun resolveGetters(
+private fun gettersFor(
     valueBearing: List<Preference>,
     settingsClass: Class<*>,
     xmlRes: Int,
@@ -280,8 +295,8 @@ private fun resolveGetters(
         key to getter
     }
 
-private fun assertDefaultsDeclared(
-    keys: Set<String>,
+private fun checkDefaultsDeclared(
+    keys: List<String>,
     declaredDefaultKeys: Set<String>,
     settingsClass: Class<*>,
     xmlRes: Int,
@@ -296,23 +311,21 @@ private fun assertDefaultsDeclared(
     }
 }
 
-private fun <T : Any> assertDisplayedMatchesDelegateDefault(
+private fun checkDisplayedDefaults(
     valueBearing: List<Preference>,
-    keyToGetter: Map<String, Method>,
-    empty: T,
-    factory: (SharedPreferences) -> T,
-    context: Context,
+    getters: Map<String, Method>,
+    empty: Any,
+    scratchSettings: Any,
+    scratch: SharedPreferences,
     xmlRes: Int,
 ) {
     val settingsClass = empty::class.java
-    val scratch = freshTestPreferences(context)
-    val scratchSettings = factory(scratch)
     for (pref in valueBearing) {
         val key = pref.key!!
         val setter =
             findSetter(settingsClass, key)
                 ?: error("${settingsClass.simpleName}.$key (xml $xmlRes) has no setter - preference-backed properties must be `var`.")
-        setter.invoke(scratchSettings, keyToGetter.getValue(key).invoke(empty))
+        setter.invoke(scratchSettings, getters.getValue(key).invoke(empty))
         val stored = scratch.all[key]
         val shown = pref.displayedValue()
         if (stored != shown) {
