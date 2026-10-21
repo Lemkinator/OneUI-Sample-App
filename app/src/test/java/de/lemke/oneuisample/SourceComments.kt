@@ -20,7 +20,6 @@ import java.io.File
 internal object SourceComments {
     private const val RAW_QUOTE = "\"\"\""
     private const val TEMPLATE_START = "\${"
-    private const val BACKTICK_BLANKED = "`'\""
     private const val LINE_BREAKS = "\r\n"
 
     /** [source] with every comment blanked to spaces; strings, chars and backtick identifiers stay. Line breaks stay. */

@@ -22,6 +22,7 @@ import android.text.style.ClickableSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -39,6 +40,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowDialog
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -68,12 +70,17 @@ class OOBEActivityTest {
             spans[0].onClick(tosTextView)
             shadowOf(Looper.getMainLooper()).idle()
         }
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        dialog.isShowing shouldBe true
+        dialog.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)!!.text.toString() shouldBe "Terms of Service"
     }
 
     @Test
     @Config(sdk = [28])
-    fun onCreate_belowApi34_noTransitionOverride() {
-        launch()
+    fun onCreate_belowApi34_inflatesTipsWithoutTransitionOverride() {
+        launch {
+            findViewById<ViewGroup>(R.id.oobe_intro_tips_container).childCount shouldBe 3
+        }
     }
 
     @Test
