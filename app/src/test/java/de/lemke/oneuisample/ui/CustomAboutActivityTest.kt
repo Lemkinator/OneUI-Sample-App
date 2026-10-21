@@ -217,6 +217,8 @@ class CustomAboutActivityTest {
                 val high = BackEventCompat(0f, 0f, 0.6f, BackEventCompat.EDGE_LEFT)
                 val low = BackEventCompat(0f, 0f, 0.0f, BackEventCompat.EDGE_LEFT)
                 activity.onBackPressedDispatcher.dispatchOnBackStarted(high)
+                activity.onBackPressedDispatcher.dispatchOnBackProgressed(low)
+                activity.onBackPressedDispatcher.dispatchOnBackProgressed(high)
                 activity.onBackPressedDispatcher.dispatchOnBackProgressed(high)
                 activity.onBackPressedDispatcher.dispatchOnBackProgressed(low)
                 activity.onBackPressedDispatcher.dispatchOnBackCancelled()
