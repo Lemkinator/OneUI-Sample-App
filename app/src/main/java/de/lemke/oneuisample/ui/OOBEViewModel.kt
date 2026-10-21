@@ -28,7 +28,6 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /** The terms-of-service acceptance. The activity opens the main screen on [Accepted] and then reports it handled. */
@@ -61,6 +60,6 @@ class OOBEViewModel @Inject constructor(
     }
 
     fun onTosAcceptedHandled() {
-        tosAcceptance.update { if (it == TosAcceptance.Accepted) TosAcceptance.Navigated else it }
+        tosAcceptance.compareAndSet(TosAcceptance.Accepted, TosAcceptance.Navigated)
     }
 }
