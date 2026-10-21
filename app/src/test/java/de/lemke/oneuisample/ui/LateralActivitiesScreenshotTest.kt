@@ -40,7 +40,6 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import dev.oneuiproject.oneui.design.R as designR
 
-// sdk = [36]: Robolectric 4.16.1 max supported SDK; bump when 4.17+ adds SDK 37.
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @Config(application = HiltTestApplication::class, sdk = [36])
@@ -78,16 +77,12 @@ class LateralActivitiesScreenshotTest {
     // would break on every version bump - pin it to a fixed value instead of re-recording.
     private val pinnedVersion = "1.0.0"
 
-    // Settings
-
     @Test
     fun settings_light() = captureScreenshot<SettingsActivity>("src/test/screenshots/settings_light.png")
 
     @Test
     @Config(qualifiers = "+night")
     fun settings_dark() = captureScreenshot<SettingsActivity>("src/test/screenshots/settings_dark.png")
-
-    // About
 
     private fun AboutActivity.pinVersion() {
         findViewById<TextView>(designR.id.app_info_version).text =
@@ -100,8 +95,6 @@ class LateralActivitiesScreenshotTest {
     @Test
     @Config(qualifiers = "+night")
     fun about_dark() = captureScreenshot<AboutActivity>("src/test/screenshots/about_dark.png") { it.pinVersion() }
-
-    // Custom About
 
     private fun CustomAboutActivity.pinVersion() {
         val text = getString(R.string.version, pinnedVersion)
@@ -116,16 +109,12 @@ class LateralActivitiesScreenshotTest {
     @Config(qualifiers = "+night")
     fun customAbout_dark() = captureScreenshot<CustomAboutActivity>("src/test/screenshots/custom_about_dark.png") { it.pinVersion() }
 
-    // OOBE
-
     @Test
     fun oobe_light() = captureScreenshot<OOBEActivity>("src/test/screenshots/oobe_light.png")
 
     @Test
     @Config(qualifiers = "+night")
     fun oobe_dark() = captureScreenshot<OOBEActivity>("src/test/screenshots/oobe_dark.png")
-
-    // SwitchBar
 
     @Test
     fun switchBar_light() = captureScreenshot<SwitchBarActivity>("src/test/screenshots/switch_bar_light.png")
@@ -134,16 +123,12 @@ class LateralActivitiesScreenshotTest {
     @Config(qualifiers = "+night")
     fun switchBar_dark() = captureScreenshot<SwitchBarActivity>("src/test/screenshots/switch_bar_dark.png")
 
-    // SeekBar
-
     @Test
     fun seekBar_light() = captureScreenshot<SeekBarActivity>("src/test/screenshots/seek_bar_light.png")
 
     @Test
     @Config(qualifiers = "+night")
     fun seekBar_dark() = captureScreenshot<SeekBarActivity>("src/test/screenshots/seek_bar_dark.png")
-
-    // App Picker
 
     @Test
     fun appPicker_light() = captureScreenshot<AppPickerActivity>("src/test/screenshots/app_picker_light.png")

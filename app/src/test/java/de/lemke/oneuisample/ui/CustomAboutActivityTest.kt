@@ -114,8 +114,6 @@ class CustomAboutActivityTest {
     fun appBarOffsetChanged_collapsed_setsCallbackActive() {
         launch {
             val appBarLayout = appBarLayoutAt(y = -200f, top = 0)
-            // abs(-200) >= 200/2 → alpha=0, setBottomContentEnabled(true)
-            // updateCallbackState(200 + (-200) == 0) = updateCallbackState(true)
             appBarListener.onOffsetChanged(appBarLayout, -200)
             callbackIsActive.value shouldBe true
         }
@@ -126,8 +124,6 @@ class CustomAboutActivityTest {
         launch {
             val appBarLayout = appBarLayoutAt(y = 0f, top = 0)
             callbackIsActive.value = true
-            // abs(0) == 0 → alpha=1, setBottomContentEnabled(false)
-            // updateCallbackState(200 + 0 == 0) = updateCallbackState(false)
             appBarListener.onOffsetChanged(appBarLayout, 0)
             callbackIsActive.value shouldBe false
         }
@@ -137,8 +133,6 @@ class CustomAboutActivityTest {
     fun appBarOffsetChanged_partial_setsOffsetAlpha() {
         launch {
             val appBarLayout = appBarLayoutAt(y = -20f, top = -20)
-            // 0 < abs(-20) = 20 < 100 → calculate offset alpha
-            // updateCallbackState(200 + (-20) == 0) = updateCallbackState(false)
             appBarListener.onOffsetChanged(appBarLayout, -20)
             callbackIsActive.value shouldBe false
         }
@@ -146,7 +140,6 @@ class CustomAboutActivityTest {
 
     @Test
     fun computeBottomAlpha_withPositiveCtlHeight_computesAlpha() {
-        // ctlHeight=700, layoutPosition=350: alphaRange=100.1f → positive via if-branch
         launch { computeBottomAlpha(700, 350f) shouldBe (150f / (700 * 0.143f) * (350f - 700 * 0.35f)).coerceIn(0f, 255f) }
     }
 
@@ -164,7 +157,6 @@ class CustomAboutActivityTest {
             scenario.onActivity { activity ->
                 activity.onBackPressedDispatcher.dispatchOnBackStarted(BackEventCompat(0f, 0f, 0f, BackEventCompat.EDGE_LEFT))
                 val appBarLayout = activity.appBarLayoutAt(y = -20f, top = -20)
-                // Would set callbackIsActive=false, but isBackProgressing=true blocks updateCallbackState
                 activity.appBarListener.onOffsetChanged(appBarLayout, -100)
             }
             shadowOf(Looper.getMainLooper()).idle()
@@ -177,7 +169,6 @@ class CustomAboutActivityTest {
     @Test
     fun appBarOffsetChanged_withZeroCtlHeight_usesZeroBottomAlpha() {
         launch {
-            // Force CTL height to 0 so alphaRange == 0f, hitting the else { 0f } guard
             window.decorView.findViewById<android.view.View>(R.id.aboutCTL)?.layout(0, 0, 1000, 0)
             val appBarLayout = appBarLayoutAt(y = -200f, top = -200)
             appBarListener.onOffsetChanged(appBarLayout, -200)
@@ -211,8 +202,6 @@ class CustomAboutActivityTest {
             }
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
-                // onConfigurationChanged → updateCallbackState(null) → isCallbackEnabled()
-                // → isInMultiWindowModeCompat=true → false → callbackIsActive=false
                 activity.callbackIsActive.value shouldBe false
             }
         }
@@ -228,13 +217,9 @@ class CustomAboutActivityTest {
                 val high = BackEventCompat(0f, 0f, 0.6f, BackEventCompat.EDGE_LEFT)
                 val low = BackEventCompat(0f, 0f, 0.0f, BackEventCompat.EDGE_LEFT)
                 activity.onBackPressedDispatcher.dispatchOnBackStarted(high)
-                // isExpanding=false: > .5 FALSE, < .3 TRUE, isExpanding FALSE → skip (all FALSE branches)
                 activity.onBackPressedDispatcher.dispatchOnBackProgressed(low)
-                // isExpanding=false: > .5 TRUE, !isExpanding TRUE → IF body → isExpanding=true
                 activity.onBackPressedDispatcher.dispatchOnBackProgressed(high)
-                // isExpanding=true: > .5 TRUE, !isExpanding FALSE → else-if, < .3 FALSE → skip
                 activity.onBackPressedDispatcher.dispatchOnBackProgressed(high)
-                // isExpanding=true: > .5 FALSE, < .3 TRUE, isExpanding TRUE → ELSE-IF body → isExpanding=false
                 activity.onBackPressedDispatcher.dispatchOnBackProgressed(low)
                 activity.onBackPressedDispatcher.dispatchOnBackCancelled()
             }

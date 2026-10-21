@@ -80,7 +80,6 @@ class MainActivity : AppCompatActivity() {
         binding.drawerLayout.apply {
             setupHeaderAndNavRail(getString(R.string.about_app))
             setAppBarSuggestView(createSuggestAppBarModel())
-            // isImmersiveScroll = true
             setupNavigation(binding.bottomTab, binding.navigationHost.getFragment())
         }
         binding.navigationView.findMenuItem(R.id.leaks_dest)!!.isVisible = BuildConfig.DEBUG

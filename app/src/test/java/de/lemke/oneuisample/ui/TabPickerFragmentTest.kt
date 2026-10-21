@@ -134,7 +134,6 @@ class TabPickerFragmentTest {
         withFragment {
             pickerDialogHandler.onColorPicked(0xFF0000)
             pickerDialogHandler.onColorPicked(0xFF0000)
-            // Picked color deduped: list stays at 2 (0xFF0000 + initial default), not 3
             userSettings.recentColors.count { it == 0xFF0000 } shouldBe 1
         }
     }

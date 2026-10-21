@@ -37,8 +37,6 @@ class SharedPreferenceDelegatesTest {
         delegates = SharedPreferenceDelegates(prefs)
     }
 
-    // float
-
     @Test
     fun `float default returns 0f`() {
         val h =
@@ -67,8 +65,6 @@ class SharedPreferenceDelegatesTest {
         h.f shouldBe 3.14f
     }
 
-    // long
-
     @Test
     fun `long default returns 0L`() {
         val h =
@@ -87,8 +83,6 @@ class SharedPreferenceDelegatesTest {
         h.l = 9_999_999_999L
         h.l shouldBe 9_999_999_999L
     }
-
-    // stringSet
 
     @Test
     fun `stringSet default returns empty set`() {
@@ -118,8 +112,6 @@ class SharedPreferenceDelegatesTest {
         h.ss = emptySet()
         h.ss shouldBe emptySet()
     }
-
-    // darkMode
 
     @Test
     fun `darkMode default returns false`() {
@@ -162,8 +154,6 @@ class SharedPreferenceDelegatesTest {
         prefs.getString("dm", null) shouldBe "0"
     }
 
-    // searchOnActionMode
-
     @Test
     fun `searchOnActionMode default is Dismiss`() {
         val h =
@@ -203,8 +193,6 @@ class SharedPreferenceDelegatesTest {
         h.mode = SearchOnActionMode.Dismiss
         h.mode shouldBe SearchOnActionMode.Dismiss
     }
-
-    // intList
 
     @Test
     fun `intList default returns empty list`() {
@@ -266,8 +254,6 @@ class SharedPreferenceDelegatesTest {
         h.list shouldBe listOf(-1, 2, -3)
     }
 
-    // sanitized
-
     @Test
     fun `sanitized clamps a value already out of range in storage on read`() {
         prefs.edit().putInt("size", 9999).apply()
@@ -308,8 +294,6 @@ class SharedPreferenceDelegatesTest {
         h.colors shouldBe listOf(1, 2, 3, 4, 5, 6)
     }
 
-    // custom key
-
     @Test
     fun `custom key overrides property name for storage`() {
         val h =
@@ -331,8 +315,6 @@ class SharedPreferenceDelegatesTest {
         h.alpha = true
         h.beta shouldBe false
     }
-
-    // no-arg factory calls exercise the Kotlin $default synthetic wrapper's "use default for first param" branch
 
     @Test
     fun `float no-arg factory uses 0f default`() {
@@ -388,10 +370,6 @@ class SharedPreferenceDelegatesTest {
         h.dm shouldBe false
     }
 
-    // null-fallback branches: SharedPreferences.getString / getStringSet can return null even
-    // with a default argument (e.g. from a mock or a buggy implementation), so the ?: d path
-    // in the string() and stringSet() getters must be covered explicitly.
-
     @Test
     fun `string getter returns default when getString returns null`() {
         val prefs =
@@ -425,8 +403,6 @@ class SharedPreferenceDelegatesTest {
             }
         h.ss shouldBe setOf("x")
     }
-
-    // mapped
 
     @Test
     fun `mapped exposes a String delegate as another type and writes the wire form`() {

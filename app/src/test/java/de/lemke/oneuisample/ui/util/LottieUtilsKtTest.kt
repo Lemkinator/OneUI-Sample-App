@@ -45,7 +45,6 @@ import org.robolectric.shadows.ShadowLooper
 @Config(application = App::class, sdk = [36])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class LottieUtilsKtTest {
-    // Application context → view has no view-tree lifecycle owner → launch branch skipped
     private val view get() = LottieAnimationView(ApplicationProvider.getApplicationContext<android.app.Application>())
 
     @Test

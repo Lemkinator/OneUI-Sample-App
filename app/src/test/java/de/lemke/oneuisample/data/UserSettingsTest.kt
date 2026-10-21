@@ -214,7 +214,7 @@ class UserSettingsTest {
     fun `flow reflects property write`() =
         testScope.runTest {
             repo.flow.test {
-                awaitItem() // consume initial snapshot
+                awaitItem()
                 repo.sampleSwitchBar = true
                 awaitItem().sampleSwitchBar shouldBe true
             }

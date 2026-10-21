@@ -217,7 +217,6 @@ class CustomAboutActivity : AppCompatActivity() {
             appBarLayout: AppBarLayout,
             verticalOffset: Int,
         ) {
-            // Handle the SwipeUp anim view
             val totalScrollRange = appBarLayout.totalScrollRange
             val abs = abs(verticalOffset)
             if (abs >= totalScrollRange / 2) {
@@ -230,7 +229,6 @@ class CustomAboutActivity : AppCompatActivity() {
                 val offsetAlpha = appBarLayout.y / totalScrollRange
                 binding.aboutSwipeUpContainer.alpha = (1 + offsetAlpha * SWIPE_UP_ALPHA_SPEED).coerceIn(0f, 1f)
             }
-            // Handle the bottom part of the UI
             val layoutPosition = abs(appBarLayout.top).toFloat()
             binding.aboutBottomContainer.alpha =
                 this@CustomAboutActivity.computeBottomAlpha(binding.aboutCTL.height, layoutPosition) / ALPHA_RANGE

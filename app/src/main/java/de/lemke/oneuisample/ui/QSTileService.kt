@@ -29,15 +29,11 @@ private const val TAG = "QSTileService"
 @Suppress("unused")
 class QSTileService : TileService() {
     override fun onCreate() {
-        // Called by the system when the service is first created.
         super.onCreate()
         Log.d(TAG, "onCreate")
     }
 
     override fun onStartListening() {
-        // Called when this tile moves into a listening state.
-        // When this tile is in a listening state, it is expected to keep the UI up to date.
-        // Any listeners or callbacks needed to keep this tile up to date should be registered here.
         super.onStartListening()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             qsTile.subtitle = getString(R.string.qs_tile_subtitle)
@@ -46,8 +42,6 @@ class QSTileService : TileService() {
     }
 
     override fun onStopListening() {
-        // Called when this tile moves out of a listening state.
-        // Any listeners or callbacks registered in onStartListening() should be unregistered here.
         super.onStopListening()
         Log.d(TAG, "onStopListening")
     }

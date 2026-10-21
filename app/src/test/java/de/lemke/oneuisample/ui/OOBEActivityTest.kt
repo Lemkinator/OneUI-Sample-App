@@ -64,8 +64,7 @@ class OOBEActivityTest {
             val tosTextView = findViewById<TextView>(R.id.oobe_intro_footer_tos_text)!!
             val spanned = tosTextView.text as android.text.Spanned
             val spans = spanned.getSpans(0, spanned.length, ClickableSpan::class.java)
-            spans.size shouldBe 1 // initToSView sets exactly one TOS ClickableSpan
-            // clicking exercises dialog code (Kover-excluded; AppCompat dialog not tracked by ShadowAlertDialog)
+            spans.size shouldBe 1
             spans[0].onClick(tosTextView)
             shadowOf(Looper.getMainLooper()).idle()
         }
@@ -74,7 +73,6 @@ class OOBEActivityTest {
     @Test
     @Config(sdk = [28])
     fun onCreate_belowApi34_noTransitionOverride() {
-        // Verifies the activity launches without crash on pre-API-34 (no overrideActivityTransition)
         launch()
     }
 
@@ -82,7 +80,6 @@ class OOBEActivityTest {
     @Config(qualifiers = "w320dp")
     fun initFooterButton_narrowScreen_setsMatchParent() {
         launch {
-            // screenWidthDp (320) < 360 → button width forced to MATCH_PARENT
             window.decorView
                 .findViewById<View>(R.id.oobe_intro_footer_button)!!
                 .layoutParams.width shouldBe ViewGroup.LayoutParams.MATCH_PARENT
@@ -93,7 +90,6 @@ class OOBEActivityTest {
     @Config(qualifiers = "w400dp")
     fun initFooterButton_wideScreen_leavesWrapContent() {
         launch {
-            // screenWidthDp (400) >= 360 → button keeps XML width (296dp), not MATCH_PARENT
             window.decorView
                 .findViewById<View>(R.id.oobe_intro_footer_button)!!
                 .layoutParams.width shouldNotBe ViewGroup.LayoutParams.MATCH_PARENT
