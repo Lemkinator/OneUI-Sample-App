@@ -221,6 +221,11 @@ class CustomAboutActivityTest {
                 activity.onBackPressedDispatcher.dispatchOnBackProgressed(high)
                 activity.onBackPressedDispatcher.dispatchOnBackProgressed(high)
                 activity.onBackPressedDispatcher.dispatchOnBackProgressed(low)
+                activity.onBackPressedDispatcher.dispatchOnBackProgressed(high)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                activity.findViewById<AppBarLayout>(R.id.aboutAppBar).seslIsCollapsed() shouldBe false
                 activity.onBackPressedDispatcher.dispatchOnBackCancelled()
             }
             shadowOf(Looper.getMainLooper()).idle()
