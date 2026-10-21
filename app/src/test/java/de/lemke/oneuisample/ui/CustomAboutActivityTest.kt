@@ -208,7 +208,7 @@ class CustomAboutActivityTest {
     }
 
     @Test
-    fun backCallbacks_enabled_allHandlersInvoked() {
+    fun backGesture_cancelled_collapsesAppBar() {
         ActivityScenario.launch<CustomAboutActivity>(Intent(context, CustomAboutActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { it.callbackIsActive.value = true }
@@ -217,12 +217,21 @@ class CustomAboutActivityTest {
                 val high = BackEventCompat(0f, 0f, 0.6f, BackEventCompat.EDGE_LEFT)
                 val low = BackEventCompat(0f, 0f, 0.0f, BackEventCompat.EDGE_LEFT)
                 activity.onBackPressedDispatcher.dispatchOnBackStarted(high)
-                activity.onBackPressedDispatcher.dispatchOnBackProgressed(low)
-                activity.onBackPressedDispatcher.dispatchOnBackProgressed(high)
                 activity.onBackPressedDispatcher.dispatchOnBackProgressed(high)
                 activity.onBackPressedDispatcher.dispatchOnBackProgressed(low)
                 activity.onBackPressedDispatcher.dispatchOnBackCancelled()
             }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                activity.findViewById<AppBarLayout>(R.id.aboutAppBar).seslIsCollapsed() shouldBe true
+                activity.callbackIsActive.value shouldBe true
+            }
+        }
+    }
+
+    @Test
+    fun backGesture_pressed_expandsAppBarAndDisablesCallback() {
+        ActivityScenario.launch<CustomAboutActivity>(Intent(context, CustomAboutActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { it.callbackIsActive.value = true }
             shadowOf(Looper.getMainLooper()).idle()
@@ -232,6 +241,10 @@ class CustomAboutActivityTest {
                 activity.onBackPressedDispatcher.onBackPressed()
             }
             shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                activity.findViewById<AppBarLayout>(R.id.aboutAppBar).seslIsCollapsed() shouldBe false
+                activity.callbackIsActive.value shouldBe false
+            }
         }
     }
 }
