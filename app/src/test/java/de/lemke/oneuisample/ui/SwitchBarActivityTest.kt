@@ -68,13 +68,11 @@ class SwitchBarActivityTest {
         launch {
             onSwitchChanged(SwitchCompat(this), true)
         }
-        // onSwitchChanged → viewModel.onSwitchChanged(true) → userSettings.sampleSwitchBar = true
         userSettings.sampleSwitchBar shouldBe true
     }
 
     @Test
     fun onSwitchChanged_false_updatesViewModel() {
-        // Pre-set to true so toggling to false produces a meaningful observable change
         userSettings.sampleSwitchBar = true
         launch {
             onSwitchChanged(SwitchCompat(this), false)

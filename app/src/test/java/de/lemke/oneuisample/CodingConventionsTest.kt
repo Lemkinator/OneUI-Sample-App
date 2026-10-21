@@ -144,5 +144,8 @@ class CodingConventionsTest : ShouldSpec() {
                         firstNonPrivateClassTypeIndex > lastNonClassTypeIndex
                 }
         }
+        should("tests mock no type this project declares") {
+            Konsist.scopeFromTest().assertNoMockedOwnTypes()
+        }
     }
 }

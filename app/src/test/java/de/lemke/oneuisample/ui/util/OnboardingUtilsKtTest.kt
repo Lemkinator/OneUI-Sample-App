@@ -69,17 +69,14 @@ class OnboardingUtilsKtTest {
         testScope.cancel()
     }
 
-    // firstInstall: lastVersionCode = -1 → shouldShowOOBE = true → startActivity(OOBE) + finishWithFade + return null
     @Test
     fun `onboardIfNeeded starts OOBEActivity and returns null on first install`() {
         ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use {
             shadowOf(Looper.getMainLooper()).idle()
         }
-        // version NOT updated because onboardIfNeeded returned null early
         userSettings.lastVersionCode shouldBe -1
     }
 
-    // upgrade: 0 < lastVersionCode < versionCode → FIRST_TIME_VERSION → shouldShowOOBE = false → updates + returns AppStart
     @Test
     fun `onboardIfNeeded updates version and returns AppStart on upgrade`() {
         userSettings.lastVersionCode = 0
@@ -90,7 +87,6 @@ class OnboardingUtilsKtTest {
         userSettings.lastVersionCode shouldBe BuildConfig.VERSION_CODE
     }
 
-    // else branch: lastVersionCode == versionCode → NORMAL (no Log.w) → updates + returns AppStart
     @Test
     fun `onboardIfNeeded returns AppStart on same version launch`() {
         userSettings.lastVersionCode = BuildConfig.VERSION_CODE
@@ -101,7 +97,6 @@ class OnboardingUtilsKtTest {
         userSettings.lastVersionCode shouldBe BuildConfig.VERSION_CODE
     }
 
-    // allowSkip=true + no EXTRA_SKIP_ONBOARDING → getBooleanExtra=false → !(true&&false)=true → shouldShowOOBE=true → OOBE
     @Test
     fun `onboardIfNeeded redirects to OOBE when allowSkip is true but extra not in intent`() {
         userSettings.lastVersionCode = Int.MAX_VALUE
@@ -111,15 +106,12 @@ class OnboardingUtilsKtTest {
             scenario.onActivity { activity ->
                 val testSettings = UserSettings(freshTestPreferences(context), testScope)
                 val checkAppStart = CheckAppStartUseCase(testSettings, TOS_VERSION)
-                // No EXTRA_SKIP_ONBOARDING in intent → getBooleanExtra=false
-                // allowSkip=true && false = false → !(false)=true → shouldShowOOBE=true → OOBE
                 val result = activity.onboardIfNeeded(checkAppStart, 1, "1.0", allowSkip = true)
                 result shouldBe null
             }
         }
     }
 
-    // no allowSkip arg → $default wrapper provides false → behaves same as allowSkip=false
     @Test
     fun `onboardIfNeeded default allowSkip is false and returns AppStart when no OOBE needed`() {
         userSettings.lastVersionCode = Int.MAX_VALUE
@@ -131,7 +123,6 @@ class OnboardingUtilsKtTest {
                 val checkAppStart = CheckAppStartUseCase(testSettings, TOS_VERSION)
                 testSettings.lastVersionCode = 1
                 testSettings.acceptedTosVersion = Int.MAX_VALUE
-                // omit allowSkip — exercises the $default synthetic wrapper (default = false)
                 val result = activity.onboardIfNeeded(checkAppStart, 1, "1.0")
                 result shouldNotBe null
                 testSettings.lastVersionCode shouldBe 1
@@ -140,7 +131,6 @@ class OnboardingUtilsKtTest {
         }
     }
 
-    // allowSkip path: !(allowSkip=true && EXTRA_SKIP_ONBOARDING=true) = false → skip OOBE even when shouldShowOOBE=true
     @Test
     fun `onboardIfNeeded skips OOBE when allowSkip is true and intent has EXTRA_SKIP_ONBOARDING`() {
         userSettings.lastVersionCode = Int.MAX_VALUE
@@ -151,8 +141,6 @@ class OnboardingUtilsKtTest {
             scenario.onActivity { activity ->
                 val testSettings = UserSettings(freshTestPreferences(context), testScope)
                 val checkAppStart = CheckAppStartUseCase(testSettings, TOS_VERSION)
-                // fresh store: lastVersionCode = -1 → shouldShowOOBE = true
-                // but allowSkip=true + intent has EXTRA_SKIP_ONBOARDING=true → condition is false → no OOBE
                 val result = activity.onboardIfNeeded(checkAppStart, 1, "1.0", allowSkip = true)
                 result shouldNotBe null
                 testSettings.lastVersionCode shouldBe 1

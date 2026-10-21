@@ -129,14 +129,7 @@ class DrawerUtilsKtTest {
     }
 
     @Test
-    fun `restoreSearchAndActionMode uses default bundleIsNull lambda when not provided`() {
-        // calls default no-op bundleIsNull — covers the default lambda
-        null.restoreSearchAndActionMode()
-    }
-
-    @Test
     fun `restoreSearchAndActionMode passes empty set when KEY_SELECTED_IDS absent from bundle`() {
-        // putBoolean only — no putLongArray, so getLongArray returns null → ?: emptySet() fires
         val bundle = Bundle()
         bundle.putBoolean(KEY_IS_ACTION_MODE, true)
         var receivedIds: Set<Long>? = null
@@ -145,18 +138,15 @@ class DrawerUtilsKtTest {
     }
 
     @Test
-    fun `restoreSearchAndActionMode uses default onActionMode lambda when isActionMode is set`() {
-        // no onActionMode arg → $default provides {} → invokes default lambda with emptySet
-        val bundle = Bundle()
-        bundle.putBoolean(KEY_IS_ACTION_MODE, true)
-        bundle.restoreSearchAndActionMode()
-    }
+    fun `restoreSearchAndActionMode with all defaults leaves the bundle unchanged`() {
+        val flagged = Bundle().apply { saveSearchAndActionMode(isSearchMode = true, isActionMode = true, selectedIds = setOf(5L)) }
 
-    @Test
-    fun `restoreSearchAndActionMode uses default onSearchMode lambda when isSearchMode is set`() {
-        // no onSearchMode arg → $default provides {} → invokes default lambda
-        val bundle = Bundle()
-        bundle.putBoolean(KEY_IS_SEARCH_MODE, true)
-        bundle.restoreSearchAndActionMode()
+        null.restoreSearchAndActionMode()
+        flagged.restoreSearchAndActionMode()
+        Bundle().restoreSearchAndActionMode()
+
+        flagged.getBoolean(KEY_IS_SEARCH_MODE) shouldBe true
+        flagged.getBoolean(KEY_IS_ACTION_MODE) shouldBe true
+        flagged.getLongArray(KEY_SELECTED_IDS)?.toList() shouldBe listOf(5L)
     }
 }

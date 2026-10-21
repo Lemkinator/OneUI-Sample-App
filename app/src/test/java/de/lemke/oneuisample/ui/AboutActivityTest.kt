@@ -86,7 +86,6 @@ class AboutActivityTest {
     @Test
     fun changeStatus_cyclesThroughAllStatuses() {
         launch {
-            // Unset→Loading→UpdateAvailable→UpdateDownloaded→NoUpdate→NotUpdatable→NoConnection→Failed→Unset→Loading
             repeat(9) { changeStatus() }
             shadowOf(Looper.getMainLooper()).idle()
             window.decorView

@@ -283,7 +283,6 @@ class SettingsActivityTest {
     @Config(sdk = [28])
     fun languagePref_belowTiramisu_prefCatNotVisible() {
         launch {
-            // languageCategory starts hidden in XML; only shown on SDK >= TIRAMISU
             findPreference<PreferenceCategory>("languageCategory")?.isVisible shouldBe false
         }
     }
@@ -315,8 +314,6 @@ class SettingsActivityTest {
                 fragment?.onSuggestionCardActionButtonClicked()
             }
             scenario.moveToState(Lifecycle.State.DESTROYED)
-            // viewLifecycleOwner.lifecycleScope must cancel the pending delay so the destroyed
-            // fragment's preferenceScreen is never touched
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
         }
     }

@@ -42,7 +42,6 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-// sdk = [36]: Robolectric 4.16.1 max supported SDK; bump when 4.17+ adds SDK 37.
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @Config(application = HiltTestApplication::class, sdk = [36])
@@ -93,8 +92,6 @@ class MainActivityScreenshotTest {
             }
     }
 
-    // Design tab – Widgets subtab (default)
-
     @Test
     fun mainActivity_design_light() {
         captureMainScreenshot("src/test/screenshots/main_design_light.png")
@@ -105,8 +102,6 @@ class MainActivityScreenshotTest {
     fun mainActivity_design_dark() {
         captureMainScreenshot("src/test/screenshots/main_design_dark.png")
     }
-
-    // Design tab – ProgressBar subtab
 
     @Test
     fun mainActivity_design_progressBar_light() {
@@ -119,8 +114,6 @@ class MainActivityScreenshotTest {
         captureMainScreenshot("src/test/screenshots/main_design_progress_bar_dark.png", designSubtabIndex = 1)
     }
 
-    // Design tab – QR subtab
-
     @Test
     fun mainActivity_design_qr_light() {
         captureMainScreenshot("src/test/screenshots/main_design_qr_light.png", designSubtabIndex = 2)
@@ -132,8 +125,6 @@ class MainActivityScreenshotTest {
         captureMainScreenshot("src/test/screenshots/main_design_qr_dark.png", designSubtabIndex = 2)
     }
 
-    // Picker tab
-
     @Test
     fun mainActivity_picker_light() {
         captureMainScreenshot("src/test/screenshots/main_picker_light.png", navDestId = R.id.picker_dest)
@@ -144,8 +135,6 @@ class MainActivityScreenshotTest {
     fun mainActivity_picker_dark() {
         captureMainScreenshot("src/test/screenshots/main_picker_dark.png", navDestId = R.id.picker_dest)
     }
-
-    // Icons tab
 
     @Test
     fun mainActivity_icons_light() {

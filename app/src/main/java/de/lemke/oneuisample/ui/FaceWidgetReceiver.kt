@@ -27,14 +27,13 @@ class FaceWidgetReceiver : BroadcastReceiver() {
         intent: Intent,
     ) {
         if ("com.samsung.android.intent.action.REQUEST_SERVICEBOX_REMOTEVIEWS" == intent.action) {
-            // code will be executed when the system asks for an update
             with(Intent("com.samsung.android.intent.action.RESPONSE_SERVICEBOX_REMOTEVIEWS")) {
                 setPackage("com.android.systemui")
-                putExtra("package", context.packageName) // your app packageName
-                putExtra("pageId", intent.getStringExtra("pageId")) // the pageId that you received in the BroadcastReceiver
+                putExtra("package", context.packageName)
+                putExtra("pageId", intent.getStringExtra("pageId"))
                 putExtra("show", true)
-                putExtra("origin", RemoteViews(context.packageName, R.layout.face_widget)) // the RemoteViews for the lockscreen
-                putExtra("aod", RemoteViews(context.packageName, R.layout.face_widget_aod)) // the RemoteViews for the AOD
+                putExtra("origin", RemoteViews(context.packageName, R.layout.face_widget))
+                putExtra("aod", RemoteViews(context.packageName, R.layout.face_widget_aod))
                 context.sendBroadcast(this@with)
             }
         }

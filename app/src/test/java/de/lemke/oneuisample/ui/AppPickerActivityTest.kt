@@ -187,7 +187,6 @@ class AppPickerActivityTest {
             render(AppPickerUiState(pickerType = 0))
             val firstPicker = currentPicker
             render(AppPickerUiState(pickerType = 0))
-            // Early return: same instance, picker not recreated
             currentPicker shouldBe firstPicker
         }
     }
@@ -195,9 +194,9 @@ class AppPickerActivityTest {
     @Test
     fun render_differentPickerType_updatesType() {
         launch {
-            render(AppPickerUiState(pickerType = 0)) // LIST_TYPE → appPickerList
+            render(AppPickerUiState(pickerType = 0))
             val firstPicker = currentPicker
-            render(AppPickerUiState(pickerType = 5)) // TYPE_GRID → appPickerGrid
+            render(AppPickerUiState(pickerType = 5))
             currentPicker shouldNotBe firstPicker
         }
     }

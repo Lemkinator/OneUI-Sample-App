@@ -22,6 +22,7 @@ import android.text.style.ClickableSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -39,6 +40,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowDialog
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -64,25 +66,27 @@ class OOBEActivityTest {
             val tosTextView = findViewById<TextView>(R.id.oobe_intro_footer_tos_text)!!
             val spanned = tosTextView.text as android.text.Spanned
             val spans = spanned.getSpans(0, spanned.length, ClickableSpan::class.java)
-            spans.size shouldBe 1 // initToSView sets exactly one TOS ClickableSpan
-            // clicking exercises dialog code (Kover-excluded; AppCompat dialog not tracked by ShadowAlertDialog)
+            spans.size shouldBe 1
             spans[0].onClick(tosTextView)
             shadowOf(Looper.getMainLooper()).idle()
         }
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        dialog.isShowing shouldBe true
+        dialog.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)!!.text.toString() shouldBe "Terms of Service"
     }
 
     @Test
     @Config(sdk = [28])
-    fun onCreate_belowApi34_noTransitionOverride() {
-        // Verifies the activity launches without crash on pre-API-34 (no overrideActivityTransition)
-        launch()
+    fun onCreate_belowApi34_inflatesTipsWithoutTransitionOverride() {
+        launch {
+            findViewById<ViewGroup>(R.id.oobe_intro_tips_container).childCount shouldBe 3
+        }
     }
 
     @Test
     @Config(qualifiers = "w320dp")
     fun initFooterButton_narrowScreen_setsMatchParent() {
         launch {
-            // screenWidthDp (320) < 360 → button width forced to MATCH_PARENT
             window.decorView
                 .findViewById<View>(R.id.oobe_intro_footer_button)!!
                 .layoutParams.width shouldBe ViewGroup.LayoutParams.MATCH_PARENT
@@ -93,7 +97,6 @@ class OOBEActivityTest {
     @Config(qualifiers = "w400dp")
     fun initFooterButton_wideScreen_leavesWrapContent() {
         launch {
-            // screenWidthDp (400) >= 360 → button keeps XML width (296dp), not MATCH_PARENT
             window.decorView
                 .findViewById<View>(R.id.oobe_intro_footer_button)!!
                 .layoutParams.width shouldNotBe ViewGroup.LayoutParams.MATCH_PARENT
