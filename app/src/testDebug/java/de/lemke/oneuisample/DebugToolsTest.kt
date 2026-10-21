@@ -18,6 +18,8 @@ package de.lemke.oneuisample
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
 import leakcanary.AppWatcher
+import leakcanary.LeakCanary
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,12 +31,14 @@ import org.robolectric.annotation.Config
 @Config(application = Application::class, sdk = [36])
 class DebugToolsTest {
     @Test
-    fun openLeakCanary_startsActivity() {
+    fun opensLeakCanaryDisplayActivity() {
         val app = ApplicationProvider.getApplicationContext<Application>()
         if (!AppWatcher.isInstalled) {
             AppWatcher.manualInstall(app)
         }
         app.openLeakCanary()
-        assertNotNull(shadowOf(app).nextStartedActivity)
+        val started = shadowOf(app).nextStartedActivity
+        assertNotNull(started)
+        assertEquals(LeakCanary.newLeakDisplayActivityIntent().component, started.component)
     }
 }
