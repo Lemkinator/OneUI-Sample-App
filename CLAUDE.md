@@ -125,6 +125,12 @@ Four tools run as part of `./gradlew build`:
 - **Konsist** - architecture rules in `app/src/test/java/de/lemke/oneuisample/ArchitectureTest.kt`. Enforces `data/domain/ui` layering. Runs
   as part of `./gradlew test`.
 
+**Dependency analysis** - `./gradlew buildHealth` runs in the `check-formatting` CI job. It fails on unused
+dependencies, incorrect configurations and unused annotation processors; other advice warns. The `dependencyAnalysis {}`
+block in the root `build.gradle.kts` holds the facade bundles and the narrow guava exclude. Each bundle names its
+primary and only the transitive internals the report lists, so it never masks a declared artifact. The `leakcanary`
+bundle also folds the `testDebug` leakcanary advice. Report: `build/reports/dependency-analysis/build-health-report.txt`.
+
 **Pre-commit hook** - blocks commits with formatting violations. Opt in once per clone:
 
 ```powershell
@@ -138,7 +144,7 @@ message if `core.autocrlf=true` is detected.
 **After any change** run the full local CI suite before declaring work done:
 
 ```powershell
-./gradlew spotlessCheck detekt lintDebug testDebugUnitTest koverVerifyDebug verifyRoborazziDebug pixel9Api35DebugAndroidTest assembleRelease
+./gradlew spotlessCheck detekt buildHealth lintDebug testDebugUnitTest koverVerifyDebug verifyRoborazziDebug pixel9Api35DebugAndroidTest assembleRelease
 ```
 
 If `spotlessCheck` fails, fix with `./gradlew spotlessApply` then re-run. Screenshot test failures (`verifyRoborazziDebug`) mean the code
