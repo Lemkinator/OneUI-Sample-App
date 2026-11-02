@@ -28,7 +28,7 @@ konsist = "0.18.1"
 kotest = "6.2.6"
 kotlin = "2.4.21"
 kover = "0.9.11"
-ksp = "2.3.12"
+ksp = "2.3.13"
 # Used via spotless { kotlin { ktlint(libs.versions.ktlint.get()) } } — version-only ref, no library/plugin alias
 #noinspection UnusedVersionCatalogEntry
 ktlint = "1.8.0"
