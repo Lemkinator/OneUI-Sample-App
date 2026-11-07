@@ -232,6 +232,7 @@ class MainActivityTest {
                 val started = shadowOf(activity as Activity).nextStartedActivityForResult.shouldNotBeNull()
                 started.intent.component?.className shouldBe SettingsActivity::class.java.name
                 (started.intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP) shouldBe Intent.FLAG_ACTIVITY_SINGLE_TOP
+                started.options.shouldNotBeNull()
             }
         }
     }
@@ -264,6 +265,7 @@ class MainActivityTest {
                 val started = shadowOf(activity as Activity).nextStartedActivityForResult.shouldNotBeNull()
                 started.intent.component?.className shouldBe AboutActivity::class.java.name
                 (started.intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP) shouldBe Intent.FLAG_ACTIVITY_SINGLE_TOP
+                started.options.shouldNotBeNull()
             }
         }
     }
