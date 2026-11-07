@@ -30,7 +30,12 @@ import dev.oneuiproject.oneui.utils.DeviceLayoutUtil
  */
 @MainThread
 fun View.launchDrawerPage(cls: Class<*>) {
-    context.activity?.launchDrawerPage(cls) ?: context.startActivity(Intent(context, cls))
+    val activity = context.activity
+    if (activity != null) {
+        activity.launchDrawerPage(cls)
+    } else {
+        context.startActivity(Intent(context, cls))
+    }
 }
 
 /**
