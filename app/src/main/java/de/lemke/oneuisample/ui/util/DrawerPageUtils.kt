@@ -27,16 +27,10 @@ import dev.oneuiproject.oneui.utils.DeviceLayoutUtil
 
 /**
  * Opens the page of [cls] from this drawer item or header button; see the [Activity] overload.
- * A view outside an activity starts the page as a new task.
  */
 @MainThread
 fun View.launchDrawerPage(cls: Class<*>) {
-    val activity = context.activity
-    if (activity != null) {
-        activity.launchDrawerPage(cls)
-    } else {
-        context.startActivity(Intent(context, cls).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-    }
+    context.activity?.launchDrawerPage(cls) ?: context.startActivity(Intent(context, cls))
 }
 
 /**

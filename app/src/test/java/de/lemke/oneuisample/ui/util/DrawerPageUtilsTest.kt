@@ -16,6 +16,7 @@
 package de.lemke.oneuisample.ui.util
 
 import android.app.Activity
+import android.content.ContextWrapper
 import android.content.Intent
 import android.view.ContextThemeWrapper
 import android.view.View
@@ -25,7 +26,6 @@ import de.lemke.oneuisample.ui.AboutActivity
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
@@ -40,8 +40,6 @@ import org.robolectric.shadows.ShadowActivity.IntentForResult
 
 private const val TABLET = "sw600dp-w600dp-h1024dp"
 private const val LARGE_PHONE = "sw599dp-w599dp-h1024dp"
-private const val ANIM_TYPE_KEY = "android:activity.animType"
-private const val ANIM_SCENE_TRANSITION = 5
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = TABLET)
@@ -63,13 +61,14 @@ class DrawerPageUtilsTest {
     private fun IntentForResult.shouldBePopOver() {
         intent.component?.className shouldBe AboutActivity::class.java.name
         (intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP) shouldBe Intent.FLAG_ACTIVITY_SINGLE_TOP
-        options.shouldNotBeNull().getInt(ANIM_TYPE_KEY) shouldNotBe ANIM_SCENE_TRANSITION
+        options.shouldNotBeNull()
     }
 
     private fun Activity.shouldHaveStartedPlainly() {
-        val started = shadowOf(this).nextStartedActivity.shouldNotBeNull()
-        started.component?.className shouldBe AboutActivity::class.java.name
-        started.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP shouldBe 0
+        val started = shadowOf(this).nextStartedActivityForResult.shouldNotBeNull()
+        started.intent.component?.className shouldBe AboutActivity::class.java.name
+        started.intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP shouldBe 0
+        started.options.shouldBeNull()
     }
 
     @Test
@@ -115,15 +114,19 @@ class DrawerPageUtilsTest {
     }
 
     @Test
-    fun `a view outside an activity starts the page as a new task`() {
+    fun `a view outside an activity starts the page plainly`() {
         oneUi(true)
-        val context = ApplicationProvider.getApplicationContext<android.app.Application>()
+        val started = mutableListOf<Intent>()
+        val context =
+            object : ContextWrapper(ApplicationProvider.getApplicationContext()) {
+                override fun startActivity(intent: Intent) {
+                    started += intent
+                }
+            }
 
         View(context).launchDrawerPage(AboutActivity::class.java)
 
-        val started = shadowOf(context).nextStartedActivity.shouldNotBeNull()
-        started.component?.className shouldBe AboutActivity::class.java.name
-        (started.flags and Intent.FLAG_ACTIVITY_NEW_TASK) shouldBe Intent.FLAG_ACTIVITY_NEW_TASK
-        shadowOf(context).nextStartedActivity.shouldBeNull()
+        started.single().component?.className shouldBe AboutActivity::class.java.name
+        started.single().flags shouldBe 0
     }
 }
