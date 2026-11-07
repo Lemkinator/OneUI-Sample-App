@@ -12,7 +12,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Test suite: unit tests (Kotest), Robolectric integration tests, Roborazzi screenshot tests, Kover coverage. Run with
 `./gradlew testDebugUnitTest`. Tests use real objects, fakes and Robolectric fakes (`RoboMenuItem`, `RoboMenu`). MockK stays only
-for the `SplashScreen` boundary in `SplashUtilsKtTest`: its constructor is private and it exposes no keep-on-screen getter.
+for two boundaries: the `SplashScreen` in `SplashUtilsKtTest` (its constructor is private and it exposes no keep-on-screen getter)
+and the `androidx.reflect.DeviceInfo` static in `DrawerPageUtilsTest` and `MainActivityTest` (the One UI check, which the tests flip per case).
 
 Instrumented tests run via Gradle Managed Device (no physical device needed):
 
