@@ -22,8 +22,13 @@ import android.content.Intent
 import android.content.Intent.ACTION_SEARCH
 import android.os.Looper
 import android.os.SystemClock
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.view.menu.MenuItemImpl
+import androidx.core.view.children
 import androidx.navigation.fragment.NavHostFragment
+import androidx.reflect.DeviceInfo
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -34,8 +39,13 @@ import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.util.onNavigationSingleClick
 import dev.oneuiproject.oneui.navigation.widget.DrawerNavigationView
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import javax.inject.Inject
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -46,6 +56,8 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.fakes.RoboMenuItem
+
+private const val TABLET = "sw600dp-w600dp-h1024dp"
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -60,6 +72,11 @@ class MainActivityTest {
     @Inject
     lateinit var userSettings: UserSettings
 
+    @After
+    fun unmockDeviceInfo() {
+        unmockkStatic(DeviceInfo::class)
+    }
+
     @Before
     fun setup() {
         hiltRule.inject()
@@ -72,6 +89,21 @@ class MainActivityTest {
             scenario.block()
         }
     }
+
+    private fun oneUi(isOneUi: Boolean) {
+        mockkStatic(DeviceInfo::class)
+        every { DeviceInfo.isOneUI() } returns isOneUi
+    }
+
+    private fun MainActivity.drawerItem(itemId: Int): MenuItem =
+        findViewById<DrawerNavigationView>(R.id.navigationView).findMenuItem(itemId).shouldNotBeNull()
+
+    private fun View.findByTooltip(tooltip: String): View? =
+        if (tooltipText == tooltip) {
+            this
+        } else {
+            (this as? ViewGroup)?.children?.firstNotNullOfOrNull { it.findByTooltip(tooltip) }
+        }
 
     private fun withNavClick(itemId: Int) {
         launch {
@@ -186,6 +218,52 @@ class MainActivityTest {
                     .nextStartedActivity
                     ?.component
                     ?.className shouldBe SettingsActivity::class.java.name
+            }
+        }
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun navItem_settings_opensPopOverOnOneUiTablet() {
+        oneUi(true)
+        launch {
+            onActivity { activity ->
+                activity.onNavigationItemSelected(activity.drawerItem(R.id.settings_dest))
+                val started = shadowOf(activity as Activity).nextStartedActivityForResult.shouldNotBeNull()
+                started.intent.component?.className shouldBe SettingsActivity::class.java.name
+                (started.intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP) shouldBe Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+        }
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun navItem_oobe_startsPlainlyOnOneUiTablet() {
+        oneUi(true)
+        launch {
+            onActivity { activity ->
+                activity.onNavigationItemSelected(activity.drawerItem(R.id.oobe_dest))
+                val started = shadowOf(activity as Activity).nextStartedActivity.shouldNotBeNull()
+                started.component?.className shouldBe OOBEActivity::class.java.name
+                (started.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP) shouldBe 0
+            }
+        }
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun headerButton_opensAboutPopOverOnOneUiTablet() {
+        oneUi(true)
+        launch {
+            onActivity { activity ->
+                activity
+                    .findViewById<View>(android.R.id.content)
+                    .findByTooltip("About OneUI Sample")
+                    .shouldNotBeNull()
+                    .performClick()
+                val started = shadowOf(activity as Activity).nextStartedActivityForResult.shouldNotBeNull()
+                started.intent.component?.className shouldBe AboutActivity::class.java.name
+                (started.intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP) shouldBe Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
         }
     }

@@ -15,7 +15,6 @@
  */
 package de.lemke.oneuisample.ui.util
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.SystemClock
 import androidx.appcompat.content.res.AppCompatResources
@@ -33,7 +32,7 @@ fun NavDrawerLayout.setupHeaderAndNavRail(aboutApp: String) {
     setupHeaderButton(
         icon = AppCompatResources.getDrawable(context, iconsR.drawable.ic_oui_info_outline)!!,
         tooltipText = aboutApp,
-        listener = { context.startActivity(Intent(context, AboutActivity::class.java)) },
+        listener = { it.launchDrawerPage(AboutActivity::class.java) },
     )
     setNavRailContentMinSideMargin(NAV_RAIL_MIN_SIDE_MARGIN_DP)
     closeNavRailOnBack = true
