@@ -163,8 +163,9 @@ use the inline form), plus one source-level suppress:
 
 ## Key Patterns
 
-**Navigation** - Navigation Component (`main_navigation.xml`) handles fragment destinations. About, CustomAbout and Settings are
-launched via `popOverOrStartActivity` (`ui/util/PopOverOrStartActivityUtils.kt`); other lateral activities via
+**Navigation** - Navigation Component (`main_navigation.xml`) handles fragment destinations. The drawer items About, CustomAbout and
+Settings and the header About button launch via `popOverOrStartActivity` (`ui/util/PopOverOrStartActivityUtils.kt`; pop-over on a One UI
+tablet layout, plain launch otherwise); every other activity launch, including CustomAbout from Settings, uses
 `startActivity(Intent(...))`. `NavigationView.onNavigationSingleClick` debounces rapid taps.
 
 **Compose is minimal** - only the `AboutLibraries` screen uses Compose + Material3; all other UI is View-based with OneUI components (
