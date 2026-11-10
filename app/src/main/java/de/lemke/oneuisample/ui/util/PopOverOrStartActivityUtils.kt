@@ -26,26 +26,27 @@ import dev.oneuiproject.oneui.popover.PopOverOptions
 import dev.oneuiproject.oneui.utils.DeviceLayoutUtil
 
 /**
- * Opens the page of [cls] from this drawer item or header button; see the [Activity] overload.
+ * Opens [cls] from this view's activity as a pop-over where the device shows one, otherwise with a plain launch.
+ * Also launches plainly when the view has no activity.
  */
 @MainThread
-fun View.launchDrawerPage(cls: Class<*>) {
+fun View.popOverOrStartActivity(cls: Class<*>) {
     val activity = context.activity
     if (activity != null) {
-        activity.launchDrawerPage(cls)
+        activity.popOverOrStartActivity(cls)
     } else {
         context.startActivity(Intent(context, cls))
     }
 }
 
 /**
- * Opens the page of [cls] from this activity's drawer.
+ * Opens [cls] as a One UI pop-over where the device shows one, and with a plain launch everywhere else.
  *
- * On a One UI device whose smallest width is at least 600dp, the page starts as a pop-over with
+ * On a One UI device whose smallest width is at least 600dp, [cls] starts as a pop-over with
  * [Intent.FLAG_ACTIVITY_SINGLE_TOP]. Every other device gets a plain launch.
  */
 @MainThread
-fun Activity.launchDrawerPage(cls: Class<*>) {
+fun Activity.popOverOrStartActivity(cls: Class<*>) {
     val intent = Intent(this, cls)
     if (showsPopOver()) {
         startPopOverActivity(intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), PopOverOptions.topCenterAnchored(this))

@@ -39,9 +39,9 @@ import de.lemke.oneuisample.openLeakCanary
 import de.lemke.oneuisample.ui.fragments.BottomSheetFragment
 import de.lemke.oneuisample.ui.util.configureSplashScreen
 import de.lemke.oneuisample.ui.util.finishWithFade
-import de.lemke.oneuisample.ui.util.launchDrawerPage
 import de.lemke.oneuisample.ui.util.onNavigationSingleClick
 import de.lemke.oneuisample.ui.util.onboardIfNeeded
+import de.lemke.oneuisample.ui.util.popOverOrStartActivity
 import de.lemke.oneuisample.ui.util.setupHeaderAndNavRail
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.navigation.setupNavigation
@@ -91,9 +91,9 @@ class MainActivity : AppCompatActivity() {
     internal fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.oobe_dest -> openOOBEAndFinish()
-            R.id.about_app_dest -> launchDrawerPage(AboutActivity::class.java)
-            R.id.about_custom_dest -> launchDrawerPage(CustomAboutActivity::class.java)
-            R.id.settings_dest -> launchDrawerPage(SettingsActivity::class.java)
+            R.id.about_app_dest -> popOverOrStartActivity(AboutActivity::class.java)
+            R.id.about_custom_dest -> popOverOrStartActivity(CustomAboutActivity::class.java)
+            R.id.settings_dest -> popOverOrStartActivity(SettingsActivity::class.java)
             R.id.bottom_sheet_dest -> BottomSheetFragment().show(supportFragmentManager, null)
             R.id.leaks_dest -> openLeakCanary()
             else -> return false

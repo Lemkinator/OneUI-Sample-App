@@ -32,7 +32,7 @@ fun NavDrawerLayout.setupHeaderAndNavRail(aboutApp: String) {
     setupHeaderButton(
         icon = AppCompatResources.getDrawable(context, iconsR.drawable.ic_oui_info_outline)!!,
         tooltipText = aboutApp,
-        listener = { it.launchDrawerPage(AboutActivity::class.java) },
+        listener = { it.popOverOrStartActivity(AboutActivity::class.java) },
     )
     setNavRailContentMinSideMargin(NAV_RAIL_MIN_SIDE_MARGIN_DP)
     closeNavRailOnBack = true
