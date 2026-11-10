@@ -72,7 +72,7 @@ class PopOverOrStartActivityUtilsTest {
     }
 
     @Test
-    fun `a One UI device at 600dp smallest width opens the activity as a pop-over`() {
+    fun `a One UI device at 600dp smallest width opens the target as a pop-over`() {
         oneUi(true)
         val activity = activity()
 
@@ -83,7 +83,7 @@ class PopOverOrStartActivityUtilsTest {
 
     @Test
     @Config(qualifiers = LARGE_PHONE)
-    fun `a One UI device below 600dp smallest width starts the activity plainly`() {
+    fun `a One UI device below 600dp smallest width starts the target plainly`() {
         oneUi(true)
         val activity = activity()
 
@@ -93,7 +93,7 @@ class PopOverOrStartActivityUtilsTest {
     }
 
     @Test
-    fun `a large screen without One UI starts the activity plainly`() {
+    fun `a large screen without One UI starts the target plainly`() {
         oneUi(false)
         val activity = activity()
 
@@ -103,7 +103,7 @@ class PopOverOrStartActivityUtilsTest {
     }
 
     @Test
-    fun `a view in an activity opens the activity as a pop-over on One UI`() {
+    fun `a view in an activity opens the target as a pop-over on One UI`() {
         oneUi(true)
         val activity = activity()
         val view = View(ContextThemeWrapper(activity, android.R.style.Theme))
@@ -114,7 +114,7 @@ class PopOverOrStartActivityUtilsTest {
     }
 
     @Test
-    fun `a view outside an activity starts the activity plainly`() {
+    fun `a view outside an activity starts the target plainly`() {
         oneUi(true)
         val started = mutableListOf<Intent>()
         val context =
