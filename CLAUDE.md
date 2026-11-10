@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Test suite: unit tests (Kotest), Robolectric integration tests, Roborazzi screenshot tests, Kover coverage. Run with
 `./gradlew testDebugUnitTest`. Tests use real objects, fakes and Robolectric fakes (`RoboMenuItem`, `RoboMenu`). MockK stays only
 for two boundaries: the `SplashScreen` in `SplashUtilsKtTest` (its constructor is private and it exposes no keep-on-screen getter)
-and the `androidx.reflect.DeviceInfo` static in `DrawerPageUtilsTest` and `MainActivityTest` (the One UI check, which the tests flip per case).
+and the `androidx.reflect.DeviceInfo` static in `PopOverOrStartActivityUtilsTest` and `MainActivityTest` (the One UI check, which the tests flip per case).
 
 Instrumented tests run via Gradle Managed Device (no physical device needed):
 
@@ -163,7 +163,8 @@ use the inline form), plus one source-level suppress:
 
 ## Key Patterns
 
-**Navigation** - Navigation Component (`main_navigation.xml`) handles fragment destinations. Lateral activities are launched via
+**Navigation** - Navigation Component (`main_navigation.xml`) handles fragment destinations. About, CustomAbout and Settings are
+launched via `popOverOrStartActivity` (`ui/util/PopOverOrStartActivityUtils.kt`); other lateral activities via
 `startActivity(Intent(...))`. `NavigationView.onNavigationSingleClick` debounces rapid taps.
 
 **Compose is minimal** - only the `AboutLibraries` screen uses Compose + Material3; all other UI is View-based with OneUI components (

@@ -43,7 +43,7 @@ private const val LARGE_PHONE = "sw599dp-w599dp-h1024dp"
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = TABLET)
-class DrawerPageUtilsTest {
+class PopOverOrStartActivityUtilsTest {
     @After
     fun unmockDeviceInfo() {
         unmockkStatic(DeviceInfo::class)
@@ -72,49 +72,49 @@ class DrawerPageUtilsTest {
     }
 
     @Test
-    fun `a One UI device at 600dp smallest width opens the page as a pop-over`() {
+    fun `a One UI device at 600dp smallest width opens the activity as a pop-over`() {
         oneUi(true)
         val activity = activity()
 
-        activity.launchDrawerPage(AboutActivity::class.java)
+        activity.popOverOrStartActivity(AboutActivity::class.java)
 
         activity.popOverLaunch().shouldBePopOver()
     }
 
     @Test
     @Config(qualifiers = LARGE_PHONE)
-    fun `a One UI device below 600dp smallest width starts the page plainly`() {
+    fun `a One UI device below 600dp smallest width starts the activity plainly`() {
         oneUi(true)
         val activity = activity()
 
-        activity.launchDrawerPage(AboutActivity::class.java)
+        activity.popOverOrStartActivity(AboutActivity::class.java)
 
         activity.shouldHaveStartedPlainly()
     }
 
     @Test
-    fun `a large screen without One UI starts the page plainly`() {
+    fun `a large screen without One UI starts the activity plainly`() {
         oneUi(false)
         val activity = activity()
 
-        activity.launchDrawerPage(AboutActivity::class.java)
+        activity.popOverOrStartActivity(AboutActivity::class.java)
 
         activity.shouldHaveStartedPlainly()
     }
 
     @Test
-    fun `a view in an activity opens the page as a pop-over on One UI`() {
+    fun `a view in an activity opens the activity as a pop-over on One UI`() {
         oneUi(true)
         val activity = activity()
         val view = View(ContextThemeWrapper(activity, android.R.style.Theme))
 
-        view.launchDrawerPage(AboutActivity::class.java)
+        view.popOverOrStartActivity(AboutActivity::class.java)
 
         activity.popOverLaunch().shouldBePopOver()
     }
 
     @Test
-    fun `a view outside an activity starts the page plainly`() {
+    fun `a view outside an activity starts the activity plainly`() {
         oneUi(true)
         val started = mutableListOf<Intent>()
         val context =
@@ -124,7 +124,7 @@ class DrawerPageUtilsTest {
                 }
             }
 
-        View(context).launchDrawerPage(AboutActivity::class.java)
+        View(context).popOverOrStartActivity(AboutActivity::class.java)
 
         started.single().component?.className shouldBe AboutActivity::class.java.name
         started.single().flags shouldBe 0
