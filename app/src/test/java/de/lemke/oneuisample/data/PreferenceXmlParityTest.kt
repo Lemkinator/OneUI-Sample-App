@@ -16,10 +16,9 @@
 package de.lemke.oneuisample.data
 
 import de.lemke.oneuisample.R
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -35,9 +34,8 @@ import org.robolectric.annotation.Config
 @Config(sdk = [36])
 class PreferenceXmlParityTest {
     @Test
-    fun `preferences is bound to UserSettings`() {
-        assertPreferenceXmlBoundToSettings(R.xml.preferences) { prefs ->
-            UserSettings(prefs, CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher()))
+    fun `preferences is bound to UserSettings`() =
+        runTest(UnconfinedTestDispatcher()) {
+            assertPreferenceXmlBoundToSettings(R.xml.preferences) { prefs -> UserSettings(prefs, backgroundScope) }
         }
-    }
 }

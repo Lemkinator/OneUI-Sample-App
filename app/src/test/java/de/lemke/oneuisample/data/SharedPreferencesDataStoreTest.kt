@@ -21,10 +21,9 @@ import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -97,9 +96,10 @@ class SharedPreferencesDataStoreTest {
     }
 
     @Test
-    fun `UserSettings preferenceDataStore targets the settings' own store`() {
-        val settings = UserSettings(prefs, CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher()))
-        settings.preferenceDataStore().putBoolean("devModeEnabled", true)
-        settings.devModeEnabled.shouldBeTrue()
-    }
+    fun `UserSettings preferenceDataStore targets the settings' own store`() =
+        runTest(UnconfinedTestDispatcher()) {
+            val settings = UserSettings(prefs, backgroundScope)
+            settings.preferenceDataStore().putBoolean("devModeEnabled", true)
+            settings.devModeEnabled.shouldBeTrue()
+        }
 }
