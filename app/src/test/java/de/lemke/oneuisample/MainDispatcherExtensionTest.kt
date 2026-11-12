@@ -23,6 +23,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -93,11 +94,16 @@ class MainDispatcherExtensionTest : ShouldSpec(
             Dispatchers.setMain(StandardTestDispatcher(scheduler))
 
             should("keep that Main in a nested test") {
-                var launched = false
-                CoroutineScope(Dispatchers.Main).launch { launched = true }
-                launched shouldBe false
-                scheduler.runCurrent()
-                launched shouldBe true
+                val scope = CoroutineScope(Dispatchers.Main)
+                try {
+                    var launched = false
+                    scope.launch { launched = true }
+                    launched shouldBe false
+                    scheduler.runCurrent()
+                    launched shouldBe true
+                } finally {
+                    scope.cancel()
+                }
             }
         }
     },
