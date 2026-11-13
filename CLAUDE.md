@@ -79,6 +79,12 @@ ViewBinding uses the `autoCleared` delegate (`ui/util/AutoClearedUtils.kt`) to p
 
 See the shared Robolectric/JUnit 5 policy in `A:\repo\android\CLAUDE.md`.
 
+**Robolectric jars**: Gradle resolves the `android-all-instrumented` jars (catalog entries `robolectric-android-all-<api>`,
+one per SDK level the tests use: 26, 28 and 36) into `app/build/robolectric-jars` through `syncRobolectricJars`, and the unit-test tasks pass
+that directory as `robolectric.dependency.dir`. Unit tests run without network access. After a Robolectric bump or a new
+`@Config(sdk)`, update the catalog coordinates to the jar names Robolectric's `DefaultSdkProvider` lists; a stale entry fails the
+test with `Path is not a file` naming the missing jar.
+
 **Kover + inline functions**: JUnit 4 + `RobolectricTestRunner` enables JaCoCo SMAP attribution — inlined call-site coverage is mapped back
 to the original `inline fun` definition. Simple delegating `inline fun` therefore don't need `@NoCoverage` here (tests calling them cover
 the definition via SMAP). The exception is `crossinline` default-value lambdas: the default compiles to a definition-site private static
