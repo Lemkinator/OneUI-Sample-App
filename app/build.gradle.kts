@@ -17,6 +17,10 @@
 @file:OptIn(ExperimentalRoborazziApi::class)
 
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
+import org.gradle.api.file.Directory
+import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.process.CommandLineArgumentProvider
 
 plugins {
     alias(libs.plugins.android.application)
@@ -36,6 +40,23 @@ plugins {
 fun String.toEnvVarStyle(): String = replace(Regex("([a-z])([A-Z])"), "$1_$2").uppercase()
 
 fun getProperty(key: String): String? = rootProject.findProperty(key)?.toString() ?: System.getenv(key.toEnvVarStyle())
+
+// One configuration per jar: the jars share a module, so a single configuration would keep only the newest.
+val robolectricAndroidAllJars =
+    libs.bundles.robolectric.android.all
+        .get()
+        .map { jar -> configurations.detachedConfiguration(dependencies.create(jar)).apply { isTransitive = false } }
+val syncRobolectricJars =
+    tasks.register<Sync>("syncRobolectricJars") {
+        from(robolectricAndroidAllJars)
+        into(layout.buildDirectory.dir("robolectric-jars"))
+    }
+
+class RobolectricDependencyDir(
+    @get:InputDirectory @get:PathSensitive(PathSensitivity.NAME_ONLY) val dir: Provider<Directory>,
+) : CommandLineArgumentProvider {
+    override fun asArguments() = listOf("-Drobolectric.dependency.dir=${dir.get().asFile}")
+}
 
 android {
     namespace = "de.lemke.oneuisample"
@@ -147,10 +168,8 @@ android {
                     "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
                     "--add-opens=java.desktop/java.awt.font=ALL-UNNAMED",
                 )
-                if (System.getenv("CI") != null) {
-                    test.testLogging { events("started", "failed", "standard_out", "standard_error") }
-                    test.systemProperty("robolectric.logging.enabled", "true")
-                }
+                test.testLogging.exceptionFormat = TestExceptionFormat.FULL
+                test.jvmArgumentProviders += RobolectricDependencyDir(layout.dir(syncRobolectricJars.map { it.destinationDir }))
                 test.systemProperty("robolectric.graphicsMode", "NATIVE")
                 test.systemProperty("roborazzi.test.record", project.findProperty("roborazzi.record") ?: "false")
                 test.systemProperty("roborazzi.test.verify", project.findProperty("roborazzi.verify") ?: "true")
@@ -177,29 +196,12 @@ dependencies {
     implementation(libs.aboutlibraries.compose.core)
     implementation(libs.aboutlibraries.compose.m3)
     implementation(libs.aboutlibraries.core)
-    implementation(libs.androidx.activity)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.annotation)
-    implementation(libs.androidx.appcompat.resources)
-    implementation(libs.androidx.compose.foundation)
-    implementation(libs.androidx.compose.foundation.layout)
-    implementation(libs.androidx.compose.runtime)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.text)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.lifecycle.common)
-    implementation(libs.androidx.lifecycle.runtime)
-    implementation(libs.androidx.lifecycle.viewmodel)
-    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.navigation.fragment)
-    implementation(libs.androidx.navigation.ui)
     implementation(libs.core.splashscreen)
     implementation(libs.coroutines.core)
     runtimeOnly(libs.coroutines.android)
     implementation(libs.hilt.android)
-    implementation(libs.jspecify)
     ksp(libs.hilt.compiler)
 
     runtimeOnly(libs.profileinstaller)
@@ -208,9 +210,6 @@ dependencies {
 
     testImplementation(libs.bundles.unit.test)
     testImplementation(libs.bundles.robolectric.test)
-    testImplementation(libs.androidx.compose.ui.geometry)
-    testImplementation(libs.androidx.navigation.runtime)
-    testImplementation(libs.hamcrest.core)
     testImplementation(libs.hilt.android.testing)
     testImplementation(libs.konsist)
     testImplementation(libs.junit4)
@@ -220,7 +219,6 @@ dependencies {
     testRuntimeOnly(libs.junit.vintage.engine)
     kspTest(libs.hilt.compiler)
 
-    androidTestImplementation(libs.androidx.test.monitor)
     androidTestImplementation(libs.bundles.android.test)
     androidTestImplementation(libs.junit4)
     androidTestImplementation(libs.turbine)
@@ -229,9 +227,6 @@ dependencies {
     androidTestImplementation(libs.hilt.android.testing)
     kspAndroidTest(libs.hilt.compiler)
 
-    testFixturesImplementation(libs.androidx.annotation)
-    testFixturesImplementation(libs.androidx.compose.runtime)
-    testFixturesImplementation(libs.androidx.lifecycle.viewmodel)
     testFixturesImplementation(libs.androidx.test.core)
     testFixturesImplementation(libs.androidx.material3)
     testFixturesImplementation(libs.coroutines.test)
