@@ -304,6 +304,7 @@ class AppPickerActivityTest {
     @Test
     fun render_selectLayoutMode_showsSelectLayout() {
         launch {
+            onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode))
             render(AppPickerUiState(isSelectLayoutMode = true))
             window.decorView.findViewById<View>(R.id.appPickerSelectLayout)?.isVisible shouldBe true
         }
@@ -327,6 +328,45 @@ class AppPickerActivityTest {
             shadowOf(Looper.getMainLooper()).idle()
             applyFilter("test")
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        }
+    }
+
+    @Test
+    fun render_selectLayoutLoading_showsProgress() {
+        launch {
+            onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode))
+            render(AppPickerUiState(isSelectLayoutMode = true, selectLayoutApps = SelectLayoutApps.Loading))
+            findViewById<View>(R.id.app_picker_progress).isVisible shouldBe true
+        }
+    }
+
+    @Test
+    fun render_selectLayoutLoaded_hidesProgress() {
+        launch {
+            onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode))
+            render(AppPickerUiState(isSelectLayoutMode = true, selectLayoutApps = SelectLayoutApps.Loaded(emptyList())))
+            findViewById<View>(R.id.app_picker_progress).isVisible shouldBe false
+        }
+    }
+
+    @Test
+    fun render_selectLayoutLoadedThenSameState_keepsProgressHidden() {
+        launch {
+            onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode))
+            val loaded = AppPickerUiState(isSelectLayoutMode = true, selectLayoutApps = SelectLayoutApps.Loaded(emptyList()))
+            render(loaded)
+            findViewById<View>(R.id.app_picker_progress).isVisible = true
+            render(loaded.copy(pickerType = 3))
+            findViewById<View>(R.id.app_picker_progress).isVisible shouldBe true
+        }
+    }
+
+    @Test
+    fun layoutModeToggle_loadsInstalledAppsAndHidesProgress() {
+        launch {
+            onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode))
+            shadowOf(Looper.getMainLooper()).idle()
+            findViewById<View>(R.id.app_picker_progress).isVisible shouldBe false
         }
     }
 }

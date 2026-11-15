@@ -15,20 +15,45 @@
  */
 package de.lemke.oneuisample.ui
 
+import androidx.picker.model.AppInfo
+import androidx.picker.model.AppInfoDataImpl
 import app.cash.turbine.test
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.fakeUserSettings
+import de.lemke.oneuisample.ui.util.AppListSource
+import de.lemke.oneuisample.ui.util.ListTypes
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
+private val FAKE_APPS = listOf(AppInfoDataImpl(AppInfo("de.lemke.first", "")), AppInfoDataImpl(AppInfo("de.lemke.second", "")))
+
+@OptIn(ExperimentalCoroutinesApi::class)
 class AppPickerViewModelTest : ShouldSpec(
     {
         lateinit var settings: UserSettings
         lateinit var viewModel: AppPickerViewModel
+        lateinit var scheduler: TestCoroutineScheduler
+        val requestedTypes = mutableListOf<ListTypes>()
+
+        fun newViewModel() =
+            AppPickerViewModel(
+                settings,
+                AppListSource { listType ->
+                    requestedTypes += listType
+                    FAKE_APPS
+                },
+                StandardTestDispatcher(scheduler),
+            )
 
         beforeEach {
+            scheduler = UnconfinedTestDispatcher().scheduler
+            requestedTypes.clear()
             settings = fakeUserSettings()
-            viewModel = AppPickerViewModel(settings)
+            viewModel = newViewModel()
         }
 
         should("initial state has pickerType = 0") {
@@ -37,7 +62,7 @@ class AppPickerViewModelTest : ShouldSpec(
 
         should("initial state reflects settings appPickerType = 1") {
             settings.appPickerType = 1
-            val vm = AppPickerViewModel(settings)
+            val vm = newViewModel()
             vm.state.value shouldBe AppPickerUiState(pickerType = 1)
         }
 
@@ -52,7 +77,7 @@ class AppPickerViewModelTest : ShouldSpec(
 
         should("initial state reflects settings appPickerSelectLayoutMode = true") {
             settings.appPickerSelectLayoutMode = true
-            val vm = AppPickerViewModel(settings)
+            val vm = newViewModel()
             vm.state.value shouldBe AppPickerUiState(isSelectLayoutMode = true)
         }
 
@@ -64,6 +89,25 @@ class AppPickerViewModelTest : ShouldSpec(
                 settings.appPickerSelectLayoutMode shouldBe true
                 awaitItem() shouldBe AppPickerUiState(isSelectLayoutMode = true)
             }
+        }
+
+        should("selectLayoutApps stays Loading and loads nothing until onSelectLayoutShown") {
+            viewModel.state.test {
+                awaitItem().selectLayoutApps shouldBe SelectLayoutApps.Loading
+                scheduler.runCurrent()
+                requestedTypes shouldBe emptyList()
+            }
+        }
+
+        should("onSelectLayoutShown loads the checkbox list once and exposes it as Loaded") {
+            viewModel.state.test {
+                awaitItem().selectLayoutApps shouldBe SelectLayoutApps.Loading
+                viewModel.onSelectLayoutShown()
+                viewModel.onSelectLayoutShown()
+                scheduler.runCurrent()
+                awaitItem().selectLayoutApps shouldBe SelectLayoutApps.Loaded(FAKE_APPS)
+            }
+            requestedTypes shouldBe listOf(ListTypes.TYPE_LIST_CHECKBOX)
         }
     },
 )

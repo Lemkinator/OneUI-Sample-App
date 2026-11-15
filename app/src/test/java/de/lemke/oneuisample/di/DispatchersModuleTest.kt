@@ -37,5 +37,9 @@ class DispatchersModuleTest : ShouldSpec(
             dispatcher.toString() shouldBe "Dispatchers.Default"
             dispatchedThread shouldNotBe callerThread
         }
+
+        should("provideIoDispatcher provides Dispatchers.IO") {
+            DispatchersModule.provideIoDispatcher().toString() shouldBe "Dispatchers.IO"
+        }
     },
 )

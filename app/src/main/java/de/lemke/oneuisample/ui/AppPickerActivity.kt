@@ -15,7 +15,6 @@
  */
 package de.lemke.oneuisample.ui
 
-import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -23,11 +22,8 @@ import androidx.activity.viewModels
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
 import androidx.picker.di.AppPickerContext
-import androidx.picker.helper.SeslAppInfoDataHelper
 import androidx.picker.model.AppInfo
 import androidx.picker.model.AppInfoData
 import androidx.picker.model.viewdata.AllAppsViewData
@@ -39,6 +35,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
+import de.lemke.oneuisample.ui.util.AppListSource
 import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
 import de.lemke.oneuisample.ui.util.ListTypes
 import de.lemke.oneuisample.ui.util.collectState
@@ -53,15 +50,16 @@ import dev.oneuiproject.oneui.ktx.setEntries
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
 import dev.oneuiproject.oneui.layout.startSearchMode
 import dev.oneuiproject.oneui.recyclerview.ktx.seslSetFastScrollerAdditionalPadding
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTranslator() {
     private lateinit var binding: ActivityAppPickerBinding
     private val viewModel: AppPickerViewModel by viewModels()
+
+    @Inject
+    lateinit var appListSource: AppListSource
+
     private val packageManagerHelper by lazy { AppPickerContext(this).packageManagerHelper }
 
     @VisibleForTesting(otherwise = PRIVATE)
@@ -140,7 +138,10 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         renderedState = state
         val modeChanged = previous == null || previous.isSelectLayoutMode != state.isSelectLayoutMode
         if (modeChanged) showAppPickerMode(state.isSelectLayoutMode)
-        if (state.isSelectLayoutMode) return
+        if (state.isSelectLayoutMode) {
+            if (modeChanged || previous?.selectLayoutApps != state.selectLayoutApps) renderSelectLayoutApps(state.selectLayoutApps)
+            return
+        }
         if (!modeChanged && previous.pickerType == state.pickerType) return
         setAppPickerType(ListTypes.entries.getOrElse(state.pickerType) { ListTypes.entries.first() })
     }
@@ -158,14 +159,23 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
-    internal fun configureSelectLayout(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
+    internal fun configureSelectLayout() {
         binding.appPickerProgress.isVisible = true
         binding.appPickerSelectLayout.appPickerStateView.appListOrder = ORDER_ASCENDING
         binding.appPickerSelectLayout.enableSelectedAppPickerView(true)
-        lifecycleScope.launch {
-            val packages = withContext(ioDispatcher) { getAppList(this@AppPickerActivity, ListTypes.TYPE_LIST_CHECKBOX) }
-            binding.appPickerSelectLayout.submitList(packages)
-            binding.appPickerProgress.isVisible = false
+        viewModel.onSelectLayoutShown()
+    }
+
+    private fun renderSelectLayoutApps(apps: SelectLayoutApps) {
+        when (apps) {
+            SelectLayoutApps.Loading -> {
+                binding.appPickerProgress.isVisible = true
+            }
+
+            is SelectLayoutApps.Loaded -> {
+                binding.appPickerSelectLayout.submitList(apps.apps)
+                binding.appPickerProgress.isVisible = false
+            }
         }
     }
 
@@ -245,24 +255,10 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             }
         currentPicker = picker
         configureAppPicker(picker)
-        val packages = getAppList(this, listType)
+        val packages = appListSource.load(listType)
         picker.submitList(packages)
         updateAppPickerVisibility(packages.isNotEmpty())
         binding.appPickerProgress.isVisible = false
-    }
-
-    fun getAppList(
-        context: Context,
-        listType: ListTypes,
-    ): List<AppInfoData> {
-        val actionIconState by lazy {
-            val drawable = ContextCompat.getDrawable(context, dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline)
-            requireFound(requireFound(drawable, "settings icon").constantState, "settings icon state")
-        }
-        return SeslAppInfoDataHelper(context, listType.builder).getPackages().onEach {
-            it.subLabel = it.packageName
-            if (listType == ListTypes.TYPE_LIST_ACTION_BUTTON) it.actionIcon = actionIconState.newDrawable()
-        }
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
