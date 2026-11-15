@@ -31,6 +31,7 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.di.PausableTestDispatcher
 import de.lemke.oneuisample.ui.util.ListTypes
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import io.kotest.matchers.shouldBe
@@ -304,7 +305,6 @@ class AppPickerActivityTest {
     @Test
     fun render_selectLayoutMode_showsSelectLayout() {
         launch {
-            onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode))
             render(AppPickerUiState(isSelectLayoutMode = true))
             window.decorView.findViewById<View>(R.id.appPickerSelectLayout)?.isVisible shouldBe true
         }
@@ -331,42 +331,58 @@ class AppPickerActivityTest {
         }
     }
 
-    @Test
-    fun render_selectLayoutLoading_showsProgress() {
-        launch {
-            onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode))
-            render(AppPickerUiState(isSelectLayoutMode = true, selectLayoutApps = SelectLayoutApps.Loading))
-            findViewById<View>(R.id.app_picker_progress).isVisible shouldBe true
-        }
-    }
+    private fun AppPickerActivity.pausedIo() = (ioDispatcher as PausableTestDispatcher).also { it.paused = true }
+
+    private fun AppPickerActivity.progressVisible() = findViewById<View>(R.id.app_picker_progress).isVisible
 
     @Test
-    fun render_selectLayoutLoaded_hidesProgress() {
+    fun selectLayout_load_runsThroughInjectedDispatcher() {
         launch {
-            onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode))
-            render(AppPickerUiState(isSelectLayoutMode = true, selectLayoutApps = SelectLayoutApps.Loaded(emptyList())))
-            findViewById<View>(R.id.app_picker_progress).isVisible shouldBe false
-        }
-    }
-
-    @Test
-    fun render_selectLayoutLoadedThenSameState_keepsProgressHidden() {
-        launch {
-            onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode))
-            val loaded = AppPickerUiState(isSelectLayoutMode = true, selectLayoutApps = SelectLayoutApps.Loaded(emptyList()))
-            render(loaded)
-            findViewById<View>(R.id.app_picker_progress).isVisible = true
-            render(loaded.copy(pickerType = 3))
-            findViewById<View>(R.id.app_picker_progress).isVisible shouldBe true
-        }
-    }
-
-    @Test
-    fun layoutModeToggle_loadsInstalledAppsAndHidesProgress() {
-        launch {
+            val io = pausedIo()
             onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode))
             shadowOf(Looper.getMainLooper()).idle()
-            findViewById<View>(R.id.app_picker_progress).isVisible shouldBe false
+            io.heldCount shouldBe 1
+            progressVisible() shouldBe true
+            io.resume()
+            shadowOf(Looper.getMainLooper()).idle()
+            io.heldCount shouldBe 0
+            progressVisible() shouldBe false
+        }
+    }
+
+    @Test
+    fun selectLayout_reentry_loadsAgain() {
+        launch {
+            val io = pausedIo()
+            val toggle = RoboMenuItem(R.id.menu_app_picker_layout_mode)
+            onOptionsItemSelected(toggle)
+            shadowOf(Looper.getMainLooper()).idle()
+            io.resume()
+            shadowOf(Looper.getMainLooper()).idle()
+            onOptionsItemSelected(toggle)
+            shadowOf(Looper.getMainLooper()).idle()
+            io.paused = true
+            onOptionsItemSelected(toggle)
+            shadowOf(Looper.getMainLooper()).idle()
+            io.heldCount shouldBe 1
+            progressVisible() shouldBe true
+        }
+    }
+
+    @Test
+    fun selectLayout_recreate_loadsAgain() {
+        ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            var io: PausableTestDispatcher? = null
+            scenario.onActivity {
+                io = it.ioDispatcher as PausableTestDispatcher
+                it.onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode))
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            io?.dispatchCount shouldBe 1
+            scenario.recreate()
+            shadowOf(Looper.getMainLooper()).idle()
+            io?.dispatchCount shouldBe 2
         }
     }
 }

@@ -19,14 +19,16 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 /**
  * Replaces [DispatchersModule] in `@HiltAndroidTest` Robolectric tests so coroutines launched on
- * [DefaultDispatcher] and [IoDispatcher] run unconfined instead of on real background threads - required so
- * `shadowOf(Looper.getMainLooper()).idle()` can observe their result deterministically.
+ * [DefaultDispatcher] run unconfined instead of on real background threads - required so
+ * `shadowOf(Looper.getMainLooper()).idle()` can observe their result deterministically. [IoDispatcher] is a
+ * [PausableTestDispatcher] that runs inline until a test pauses it.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Module
@@ -37,6 +39,7 @@ object TestDispatchersModule {
     fun provideDefaultDispatcher(): CoroutineDispatcher = UnconfinedTestDispatcher()
 
     @Provides
+    @Singleton
     @IoDispatcher
-    fun provideIoDispatcher(): CoroutineDispatcher = UnconfinedTestDispatcher()
+    fun provideIoDispatcher(): CoroutineDispatcher = PausableTestDispatcher()
 }

@@ -16,8 +16,9 @@
 package de.lemke.oneuisample.di
 
 import io.kotest.core.spec.style.ShouldSpec
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
@@ -34,12 +35,12 @@ class DispatchersModuleTest : ShouldSpec(
                 runBlocking {
                     withContext(dispatcher) { Thread.currentThread() }
                 }
-            dispatcher.toString() shouldBe "Dispatchers.Default"
+            dispatcher shouldBeSameInstanceAs Dispatchers.Default
             dispatchedThread shouldNotBe callerThread
         }
 
         should("provideIoDispatcher provides Dispatchers.IO") {
-            DispatchersModule.provideIoDispatcher().toString() shouldBe "Dispatchers.IO"
+            DispatchersModule.provideIoDispatcher() shouldBeSameInstanceAs Dispatchers.IO
         }
     },
 )
