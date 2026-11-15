@@ -127,7 +127,14 @@ Four tools run as part of `./gradlew build`:
 
 - **Spotless** - enforces formatting via ktlint (sole ktlint driver; Detekt has no ktlint wrapper). Fix violations with
   `./gradlew spotlessApply`.
-- **Detekt** - static analysis; config at `config/detekt/detekt.yml`. `autoCorrect = false`.
+- **Detekt** - static analysis; config at `config/detekt/detekt.yml`. `autoCorrect = false` - fixes are manual. Run
+  `./gradlew detektMain detektTest`: together they analyze every source set once with type resolution. `detekt { ignoredBuildTypes }`
+  drops the variants that only repeat `release`, and the `release` tasks skip the source sets `debug` already analyzes.
+  `app/build.gradle.kts` adds each component's javac output to its task classpath, so generated view binding, `BuildConfig` and Hilt
+  classes resolve. Each report's `number of kt files` line counts the analyzed files. `check` depends on, and CI runs, `detektMain` and
+  `detektTest`, not the plain `detekt` task, which has no type resolution, so rules that need it stay silent. The pre-commit hook runs
+  plain `detekt` only, so type-aware rules run in `check`/CI. The hook does not replace `./gradlew detektMain detektTest`; run it before
+  you push.
 - **Kover** - coverage; verify threshold with `./gradlew koverVerifyDebug`. CI strips zero-instruction `<line>` entries from the
   Kover XML (`.github/scripts/strip-zero-instruction-lines.py`) before the Codecov upload.
 - **Konsist** - architecture rules in `app/src/test/java/de/lemke/oneuisample/ArchitectureTest.kt`. Enforces `data/domain/ui` layering. Runs
@@ -147,13 +154,13 @@ git config core.autocrlf input           # Windows: prevents CRLF violations
 git config core.hooksPath .githooks
 ```
 
-The hook runs `spotlessCheck detekt` and exits 1 with a `./gradlew spotlessApply` reminder on failure. It also fails fast with a targeted
+The hook runs `spotlessCheck detekt` (plain detekt, no type resolution, for a fast commit) and exits 1 with a `./gradlew spotlessApply` reminder on failure. It also fails fast with a targeted
 message if `core.autocrlf=true` is detected.
 
 **After any change** run the full local CI suite before declaring work done:
 
 ```powershell
-./gradlew spotlessCheck detekt buildHealth lintDebug testDebugUnitTest koverVerifyDebug verifyRoborazziDebug pixel9Api35DebugAndroidTest assembleRelease
+./gradlew spotlessCheck detektMain detektTest buildHealth lintDebug testDebugUnitTest koverVerifyDebug verifyRoborazziDebug pixel9Api35DebugAndroidTest assembleRelease
 ```
 
 If `spotlessCheck` fails, fix with `./gradlew spotlessApply` then re-run. Screenshot test failures (`verifyRoborazziDebug`) mean the code
