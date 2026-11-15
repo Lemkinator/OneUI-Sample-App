@@ -121,7 +121,7 @@ class CustomAboutActivity : AppCompatActivity() {
         setSupportActionBar(binding.aboutToolbar)
         // Should be called after setSupportActionBar
         binding.aboutToolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
-        supportActionBar!!.apply {
+        checkNotNull(supportActionBar).apply {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(false)
         }

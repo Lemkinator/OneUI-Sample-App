@@ -52,6 +52,7 @@ import dev.oneuiproject.oneui.ktx.setEntries
 import dev.oneuiproject.oneui.layout.ToolbarLayout.SearchModeOnBackBehavior.CLEAR_DISMISS
 import dev.oneuiproject.oneui.layout.startSearchMode
 import dev.oneuiproject.oneui.recyclerview.ktx.seslSetFastScrollerAdditionalPadding
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -75,7 +76,10 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         collectState(viewModel.state) { render(it) }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean = menuInflater.inflate(R.menu.app_picker, menu).let { true }
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.app_picker, menu)
+        return true
+    }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(R.id.menu_app_picker_layout_mode)?.title =
@@ -153,12 +157,12 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
-    internal fun configureSelectLayout() {
+    internal fun configureSelectLayout(ioDispatcher: CoroutineDispatcher = Dispatchers.IO) {
         binding.appPickerProgress.isVisible = true
         binding.appPickerSelectLayout.appPickerStateView.appListOrder = ORDER_ASCENDING
         binding.appPickerSelectLayout.enableSelectedAppPickerView(true)
         lifecycleScope.launch {
-            val packages = withContext(Dispatchers.IO) { getAppList(this@AppPickerActivity, ListTypes.TYPE_LIST_CHECKBOX) }
+            val packages = withContext(ioDispatcher) { getAppList(this@AppPickerActivity, ListTypes.TYPE_LIST_CHECKBOX) }
             binding.appPickerSelectLayout.submitList(packages)
             binding.appPickerProgress.isVisible = false
         }
@@ -222,7 +226,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun setAppPickerType(listType: ListTypes) {
         binding.appPickerProgress.isVisible = true
-        currentPicker =
+        val picker =
             when (listType) {
                 ListTypes.TYPE_GRID, ListTypes.TYPE_GRID_CHECKBOX -> {
                     binding.appPickerGrid.also {
@@ -238,7 +242,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
                     }
                 }
             }
-        val picker = currentPicker!!
+        currentPicker = picker
         configureAppPicker(picker)
         val packages = getAppList(this, listType)
         picker.submitList(packages)
@@ -251,7 +255,8 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         listType: ListTypes,
     ): List<AppInfoData> {
         val actionIconState by lazy {
-            ContextCompat.getDrawable(context, dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline)!!.constantState!!
+            val drawable = checkNotNull(ContextCompat.getDrawable(context, dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline))
+            checkNotNull(drawable.constantState)
         }
         return SeslAppInfoDataHelper(context, listType.builder).getPackages().onEach {
             it.subLabel = it.packageName
@@ -261,13 +266,14 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun updateAppPickerVisibility(visible: Boolean) {
+        val picker = checkNotNull(currentPicker)
         if (visible) {
             binding.noEntryScrollView.isVisible = false
-            currentPicker!!.isVisible = true
+            picker.isVisible = true
         } else {
             binding.noEntryScrollView.isVisible = true
             binding.noEntryLottie.play(delay = DEFAULT_LOTTIE_DELAY)
-            currentPicker!!.isVisible = false
+            picker.isVisible = false
         }
     }
 }

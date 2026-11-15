@@ -41,7 +41,7 @@ fun <T> Fragment.autoCleared(initialize: () -> T): ReadOnlyProperty<Fragment, T>
         ): T {
             val current = cachedValue
             if (current != null) return current
-            check(thisRef.view != null) {
+            checkNotNull(thisRef.view) {
                 "${property.name} accessed after onDestroyView — do not access view-bound properties outside the view lifecycle"
             }
             val value = initialize()

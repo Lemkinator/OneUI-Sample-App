@@ -16,9 +16,8 @@
 package de.lemke.oneuisample.di
 
 import io.kotest.core.spec.style.ShouldSpec
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import kotlinx.coroutines.Dispatchers
+import io.kotest.matchers.string.shouldStartWith
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
@@ -29,13 +28,13 @@ import kotlinx.coroutines.withContext
 class DispatchersModuleTest : ShouldSpec(
     {
         should("provideDefaultDispatcher dispatches work onto Dispatchers.Default's thread pool") {
-            val dispatcher = DispatchersModule.provideDefaultDispatcher()
+            val dispatcher = DispatchersModule().provideDefaultDispatcher()
             val callerThread = Thread.currentThread()
             val dispatchedThread =
                 runBlocking {
                     withContext(dispatcher) { Thread.currentThread() }
                 }
-            dispatcher shouldBe Dispatchers.Default
+            dispatchedThread.name shouldStartWith "DefaultDispatcher-worker"
             dispatchedThread shouldNotBe callerThread
         }
     },

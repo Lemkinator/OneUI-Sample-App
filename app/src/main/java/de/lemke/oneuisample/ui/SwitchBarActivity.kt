@@ -23,7 +23,6 @@ import androidx.appcompat.widget.SeslSwitchBar
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.isVisible
 import dagger.hilt.android.AndroidEntryPoint
-import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivitySwitchbarBinding
 import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
 import de.lemke.oneuisample.ui.util.collectState

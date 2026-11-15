@@ -80,9 +80,7 @@ class SubtabWidgetsFragment : Fragment() {
         binding.relativeLink2.setOnClickListener { suggestiveSnackBar(getString(R.string.relative_link_2_clicked)) }
         binding.switchBar.addOnSwitchChangeListener { _, _ -> onSwitchToggled() }
         binding.fragmentSpinner.setEntries(faceJsonNames) { position, _ ->
-            position?.let {
-                binding.faceIconLottie.play(faceJsons[position])
-            }
+            if (position != null) binding.faceIconLottie.play(faceJsons[position])
         }
         binding.searchView.apply {
             requireContext().withSystemService(SearchManager::class.java) {

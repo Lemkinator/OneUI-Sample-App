@@ -160,7 +160,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun onSpinnerItemSelected(position: Int?) {
-        position?.let {
+        if (position != null) {
             binding.numberPicker.isVisible = position == SPINNER_NUMBER_PICKER
             binding.timePicker.isVisible = position == SPINNER_TIME_PICKER
             binding.datePicker.isVisible = position == SPINNER_DATE_PICKER

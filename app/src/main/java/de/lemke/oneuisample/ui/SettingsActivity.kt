@@ -39,6 +39,7 @@ import androidx.core.net.toUri
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
+import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
@@ -133,17 +134,17 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun initPreferences() {
-            devOptionsPref = findPreference("devOptions")!!
-            switchScreenPref = findPreference("sampleSwitchBar")!!
-            suggestionCardPref = findPreference("suggestion")!!
-            suggestionInsetPref = findPreference("suggestionInset")!!
+            devOptionsPref = requirePreference("devOptions")
+            switchScreenPref = requirePreference("sampleSwitchBar")
+            suggestionCardPref = requirePreference("suggestion")
+            suggestionInsetPref = requirePreference("suggestionInset")
             initDarkModePrefs()
             initSwitchBarPref()
             initLanguagePref()
             initTosPref()
             initDeleteAppDataPref()
             initSuggestionCard()
-            findPreference<UpdatableWidgetPreference>("updatable")!!.onClick {
+            requirePreference<UpdatableWidgetPreference>("updatable").onClick {
                 widgetResetJob?.cancel()
                 it.widgetLayoutResource = R.layout.sample_pref_widget_progress
                 widgetResetJob =
@@ -152,10 +153,10 @@ class SettingsActivity : AppCompatActivity() {
                         it.widgetLayoutResource = R.layout.sample_pref_widget_check
                     }
             }
-            findPreference<TipsCardPreference>(
+            requirePreference<TipsCardPreference>(
                 "tip",
-            )!!.addButton(getString(R.string.button)) { suggestiveSnackBar(getString(R.string.on_click)) }
-            findPreference<EditTextPreference>("editText")!!.onNewValue { suggestiveSnackBar(getString(R.string.new_value, it)) }
+            ).addButton(getString(R.string.button)) { suggestiveSnackBar(getString(R.string.on_click)) }
+            requirePreference<EditTextPreference>("editText").onNewValue { suggestiveSnackBar(getString(R.string.new_value, it)) }
         }
 
         /**
@@ -164,8 +165,8 @@ class SettingsActivity : AppCompatActivity() {
          * effect are wired here, reading widget state rather than [userSettings].
          */
         private fun initDarkModePrefs() {
-            darkModePref = findPreference("darkMode")!!
-            autoDarkModePref = findPreference("autoDarkMode")!!
+            darkModePref = requirePreference("darkMode")
+            autoDarkModePref = requirePreference("autoDarkMode")
             darkModePref.isEnabled = !autoDarkModePref.isChecked
             darkModePref.onNewValue { newValue ->
                 AppCompatDelegate.setDefaultNightMode(if (newValue == "1") MODE_NIGHT_YES else MODE_NIGHT_NO)
@@ -193,8 +194,8 @@ class SettingsActivity : AppCompatActivity() {
 
         private fun initLanguagePref() {
             if (SDK_INT >= TIRAMISU) {
-                findPreference<PreferenceCategory>("languageCategory")!!.isVisible = true
-                findPreference<PreferenceScreen>("language")!!.onClick { openAppLocaleSettings() }
+                requirePreference<PreferenceCategory>("languageCategory").isVisible = true
+                requirePreference<PreferenceScreen>("language").onClick { openAppLocaleSettings() }
             }
         }
 
@@ -210,7 +211,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun initTosPref() {
-            findPreference<PreferenceScreen>("tos")!!.onClick {
+            requirePreference<PreferenceScreen>("tos").onClick {
                 AlertDialog
                     .Builder(requireContext())
                     .setTitle(getString(R.string.tos))
@@ -221,7 +222,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun initDeleteAppDataPref() {
-            findPreference<PreferenceScreen>("deleteAppData")!!.onClick {
+            requirePreference<PreferenceScreen>("deleteAppData").onClick {
                 AlertDialog
                     .Builder(settingsActivity)
                     .setTitle(R.string.delete_appdata_and_exit)
@@ -262,3 +263,6 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 }
+
+private inline fun <reified T : Preference> PreferenceFragmentCompat.requirePreference(key: String): T =
+    checkNotNull(findPreference<T>(key)) { "Preference $key is missing from preferences.xml" }
