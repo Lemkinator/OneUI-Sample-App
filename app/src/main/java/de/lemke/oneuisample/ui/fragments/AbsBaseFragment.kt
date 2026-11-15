@@ -20,7 +20,7 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import com.google.android.material.transition.MaterialElevationScale
 
-open class AbsBaseFragment(
+abstract class AbsBaseFragment(
     @LayoutRes layoutResId: Int,
 ) : Fragment(layoutResId) {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -40,6 +40,8 @@ complexity:
 
 style:
   active: true
+  AbstractClassCanBeConcreteClass:
+    active: false
   MagicNumber:
     active: true
     ignoreNumbers: [ '-1', '0', '1', '2' ]
@@ -65,6 +67,9 @@ style:
     active: true
   UseIfEmptyOrIfBlank:
     active: true
+  VarCouldBeVal:
+    active: true
+    ignoreLateinitVar: true
 
 naming:
   FunctionNaming:

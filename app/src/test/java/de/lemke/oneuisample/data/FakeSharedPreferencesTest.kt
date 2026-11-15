@@ -29,7 +29,7 @@ class FakeSharedPreferencesTest : ShouldSpec(
             )
 
         lateinit var prefs: FakeSharedPreferences
-        val notifiedKeys = mutableListOf<String?>()
+        lateinit var notifiedKeys: MutableList<String?>
 
         beforeEach {
             prefs = FakeSharedPreferences()
@@ -38,7 +38,7 @@ class FakeSharedPreferencesTest : ShouldSpec(
                 .putString("old", "o")
                 .putString("removed", "r")
                 .commit()
-            notifiedKeys.clear()
+            notifiedKeys = mutableListOf()
             prefs.registerOnSharedPreferenceChangeListener { _, key -> notifiedKeys += key }
         }
 
