@@ -30,7 +30,7 @@ private const val NAV_RAIL_MIN_SIDE_MARGIN_DP = 14
 /** Sets up the drawer header button with an info icon navigating to [AboutActivity] and configures the nav rail. */
 fun NavDrawerLayout.setupHeaderAndNavRail(aboutApp: String) {
     setupHeaderButton(
-        icon = checkNotNull(AppCompatResources.getDrawable(context, iconsR.drawable.ic_oui_info_outline)),
+        icon = requireFound(AppCompatResources.getDrawable(context, iconsR.drawable.ic_oui_info_outline), "info icon"),
         tooltipText = aboutApp,
         listener = { it.popOverOrStartActivity(AboutActivity::class.java) },
     )

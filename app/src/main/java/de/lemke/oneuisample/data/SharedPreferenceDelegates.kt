@@ -72,7 +72,11 @@ fun <R, T, S> ReadWriteProperty<R, T>.mapped(
 
 /** Parses [raw] as a comma-joined int list; null (→ delegate falls back to its default) if null, empty, or unparsable. */
 private fun parseIntList(raw: String?): List<Int>? =
-    raw?.split(",")?.mapNotNull { part -> part.toIntOrNull() }?.takeIf { list -> list.isNotEmpty() }
+    raw
+        .orEmpty()
+        .split(",")
+        .mapNotNull { part -> part.toIntOrNull() }
+        .takeIf { list -> list.isNotEmpty() }
 
 /** Factory for type-safe [ReadWriteProperty] delegates backed by [SharedPreferences]. */
 class SharedPreferenceDelegates(

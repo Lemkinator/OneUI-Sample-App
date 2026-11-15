@@ -43,6 +43,7 @@ import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
 import de.lemke.oneuisample.ui.util.ListTypes
 import de.lemke.oneuisample.ui.util.collectState
 import de.lemke.oneuisample.ui.util.play
+import de.lemke.oneuisample.ui.util.requireFound
 import de.lemke.oneuisample.ui.util.showSoftInput
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
@@ -255,8 +256,8 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         listType: ListTypes,
     ): List<AppInfoData> {
         val actionIconState by lazy {
-            val drawable = checkNotNull(ContextCompat.getDrawable(context, dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline))
-            checkNotNull(drawable.constantState)
+            val drawable = ContextCompat.getDrawable(context, dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline)
+            requireFound(requireFound(drawable, "settings icon").constantState, "settings icon state")
         }
         return SeslAppInfoDataHelper(context, listType.builder).getPackages().onEach {
             it.subLabel = it.packageName
@@ -266,7 +267,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun updateAppPickerVisibility(visible: Boolean) {
-        val picker = checkNotNull(currentPicker)
+        val picker = requireFound(currentPicker, "app picker")
         if (visible) {
             binding.noEntryScrollView.isVisible = false
             picker.isVisible = true

@@ -51,6 +51,7 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.databinding.ActivitySettingsBinding
 import de.lemke.oneuisample.ui.util.collectState
+import de.lemke.oneuisample.ui.util.requireFound
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import de.lemke.oneuisample.ui.util.withSystemService
 import dev.oneuiproject.oneui.ktx.addRelativeLinksCard
@@ -265,4 +266,4 @@ class SettingsActivity : AppCompatActivity() {
 }
 
 private inline fun <reified T : Preference> PreferenceFragmentCompat.requirePreference(key: String): T =
-    checkNotNull(findPreference<T>(key)) { "Preference $key is missing from preferences.xml" }
+    requireFound(findPreference<T>(key), "preference $key")

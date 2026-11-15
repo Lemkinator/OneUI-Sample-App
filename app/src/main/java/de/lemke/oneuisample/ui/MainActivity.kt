@@ -42,6 +42,7 @@ import de.lemke.oneuisample.ui.util.finishWithFade
 import de.lemke.oneuisample.ui.util.onNavigationSingleClick
 import de.lemke.oneuisample.ui.util.onboardIfNeeded
 import de.lemke.oneuisample.ui.util.popOverOrStartActivity
+import de.lemke.oneuisample.ui.util.requireFound
 import de.lemke.oneuisample.ui.util.setupHeaderAndNavRail
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.navigation.setupNavigation
@@ -83,7 +84,7 @@ class MainActivity : AppCompatActivity() {
             setAppBarSuggestView(createSuggestAppBarModel())
             setupNavigation(binding.bottomTab, binding.navigationHost.getFragment())
         }
-        checkNotNull(binding.navigationView.findMenuItem(R.id.leaks_dest)).isVisible = BuildConfig.DEBUG
+        requireFound(binding.navigationView.findMenuItem(R.id.leaks_dest), "leaks menu item").isVisible = BuildConfig.DEBUG
         binding.navigationView.onNavigationSingleClick { item -> onNavigationItemSelected(item) }
     }
 
@@ -102,7 +103,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initPopupMenu() {
-        checkNotNull(binding.navigationView.findMenuItem(R.id.popup_menu)).setOnMenuItemClickListener { onPopupMenuItemClick() }
+        requireFound(
+            binding.navigationView.findMenuItem(R.id.popup_menu),
+            "popup menu item",
+        ).setOnMenuItemClickListener { onPopupMenuItemClick() }
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
