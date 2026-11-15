@@ -13,6 +13,9 @@ coroutines:
   active: true
   GlobalCoroutineUsage:
     active: true
+  InjectDispatcher:
+    active: true
+    excludes: ['**/di/**']
   RedundantSuspendModifier:
     active: true
   SleepInsteadOfDelay:
