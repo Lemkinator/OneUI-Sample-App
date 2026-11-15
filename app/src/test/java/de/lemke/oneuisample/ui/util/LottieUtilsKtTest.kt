@@ -28,7 +28,6 @@ import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieCompositionFactory
 import de.lemke.oneuisample.App
 import de.lemke.oneuisample.R
-import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
 import io.kotest.matchers.shouldBe
 import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit

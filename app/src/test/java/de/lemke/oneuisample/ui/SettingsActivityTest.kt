@@ -205,12 +205,10 @@ class SettingsActivityTest {
         launch {
             findPreference<SeslSwitchPreferenceScreen>("sampleSwitchBar")?.performClick()
             shadowOf(Looper.getMainLooper()).idle()
-            requireActivity().let { activity ->
-                shadowOf(activity)
-                    .nextStartedActivity
-                    ?.component
-                    ?.className shouldBe SwitchBarActivity::class.java.name
-            }
+            shadowOf(requireActivity())
+                .nextStartedActivity
+                ?.component
+                ?.className shouldBe SwitchBarActivity::class.java.name
         }
     }
 

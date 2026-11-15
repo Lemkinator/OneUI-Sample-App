@@ -25,12 +25,10 @@ class AppStartTest : ShouldSpec(
         fun appStart(
             result: AppStartResult = AppStartResult.NORMAL,
             versionCode: Int = 10,
-            versionName: String = "1.0",
             lastVersionCode: Int = 10,
-            lastVersionName: String = "1.0",
             tosVersion: Int = 1,
             acceptedTosVersion: Int = 1,
-        ) = AppStart(result, versionCode, versionName, lastVersionCode, lastVersionName, tosVersion, acceptedTosVersion)
+        ) = AppStart(result, versionCode, "1.0", lastVersionCode, "1.0", tosVersion, acceptedTosVersion)
 
         context("isFirstTime") {
             should("true when lastVersionCode is -1") {
@@ -116,7 +114,7 @@ class AppStartTest : ShouldSpec(
         context("toString") {
             should("includes all fields") {
                 val s =
-                    appStart(
+                    AppStart(
                         result = AppStartResult.FIRST_TIME,
                         versionCode = 5,
                         versionName = "2.0",
