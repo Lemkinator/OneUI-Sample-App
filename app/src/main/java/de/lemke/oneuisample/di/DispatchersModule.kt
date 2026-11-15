@@ -29,10 +29,8 @@ annotation class DefaultDispatcher
 
 @Module
 @InstallIn(SingletonComponent::class)
-class DispatchersModule(
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
-) {
+object DispatchersModule {
     @Provides
     @DefaultDispatcher
-    fun provideDefaultDispatcher(): CoroutineDispatcher = dispatcher
+    fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
 }
