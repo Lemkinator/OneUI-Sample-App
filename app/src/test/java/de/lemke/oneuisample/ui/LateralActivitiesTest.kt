@@ -78,7 +78,7 @@ class LateralActivitiesTest {
         ActivityScenario.launch<AboutActivity>(Intent(context, AboutActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
             repeat(8) {
-                scenario.onActivity { it.changeStatus() }
+                scenario.onActivity { activity -> activity.changeStatus() }
                 shadowOf(Looper.getMainLooper()).idle()
             }
         }

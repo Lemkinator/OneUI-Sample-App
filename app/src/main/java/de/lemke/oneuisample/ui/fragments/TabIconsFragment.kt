@@ -103,13 +103,13 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     val searchModeListener: ToolbarLayout.SearchModeListener by autoCleared {
         object : ToolbarLayout.SearchModeListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                userSettings.search = query ?: ""
+                userSettings.search = query.orEmpty()
                 requireActivity().hideSoftInput()
                 return true
             }
 
             override fun onQueryTextChange(query: String?): Boolean {
-                userSettings.search = query ?: ""
+                userSettings.search = query.orEmpty()
                 return true
             }
 
@@ -200,7 +200,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             binding.noEntryScrollView.isVisible = false
             binding.iconList.isVisible = true
             val icons = iconsAndSearch.first
-            iconAdapter.highlight = iconsAndSearch.second ?: ""
+            iconAdapter.highlight = iconsAndSearch.second.orEmpty()
             iconAdapter.submitList(icons)
             val names = ArrayList<String>(icons.size)
             val indexChars = LinkedHashSet<Char>()
@@ -410,9 +410,19 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         @VisibleForTesting(otherwise = PRIVATE)
         internal fun onIconTabMenuItemSelected(menuItem: MenuItem): Boolean =
             when (menuItem.itemId) {
-                R.id.menu_item_search -> startSearch().let { true }
-                R.id.menu_item_settings -> onSettingsMenuItemSelected(menuItem).let { true }
-                else -> false
+                R.id.menu_item_search -> {
+                    startSearch()
+                    true
+                }
+
+                R.id.menu_item_settings -> {
+                    onSettingsMenuItemSelected(menuItem)
+                    true
+                }
+
+                else -> {
+                    false
+                }
             }
 
         @VisibleForTesting(otherwise = PRIVATE)

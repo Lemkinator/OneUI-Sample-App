@@ -41,7 +41,7 @@ class SharedPreferenceDelegatesTest {
     fun `float default returns 0f`() {
         val h =
             object {
-                var f: Float by delegates.float(0f)
+                val f: Float by delegates.float(0f)
             }
         h.f shouldBe 0f
     }
@@ -50,7 +50,7 @@ class SharedPreferenceDelegatesTest {
     fun `float custom default returned before write`() {
         val h =
             object {
-                var f: Float by delegates.float(1.5f)
+                val f: Float by delegates.float(1.5f)
             }
         h.f shouldBe 1.5f
     }
@@ -69,7 +69,7 @@ class SharedPreferenceDelegatesTest {
     fun `long default returns 0L`() {
         val h =
             object {
-                var l: Long by delegates.long(0L)
+                val l: Long by delegates.long(0L)
             }
         h.l shouldBe 0L
     }
@@ -88,7 +88,7 @@ class SharedPreferenceDelegatesTest {
     fun `stringSet default returns empty set`() {
         val h =
             object {
-                var ss: Set<String> by delegates.stringSet()
+                val ss: Set<String> by delegates.stringSet()
             }
         h.ss shouldBe emptySet()
     }
@@ -117,7 +117,7 @@ class SharedPreferenceDelegatesTest {
     fun `darkMode default returns false`() {
         val h =
             object {
-                var dm: Boolean by delegates.darkMode(false)
+                val dm: Boolean by delegates.darkMode(false)
             }
         h.dm shouldBe false
     }
@@ -158,7 +158,7 @@ class SharedPreferenceDelegatesTest {
     fun `searchOnActionMode default is Dismiss`() {
         val h =
             object {
-                var mode: SearchOnActionMode by delegates.searchOnActionMode()
+                val mode: SearchOnActionMode by delegates.searchOnActionMode()
             }
         h.mode shouldBe SearchOnActionMode.Dismiss
     }
@@ -198,7 +198,7 @@ class SharedPreferenceDelegatesTest {
     fun `intList default returns empty list`() {
         val h =
             object {
-                var list: List<Int> by delegates.intList()
+                val list: List<Int> by delegates.intList()
             }
         h.list shouldBe emptyList()
     }
@@ -229,7 +229,7 @@ class SharedPreferenceDelegatesTest {
         prefs.edit().putString("list", "a,b,c").apply()
         val h =
             object {
-                var list: List<Int> by delegates.intList(default = listOf(9))
+                val list: List<Int> by delegates.intList(default = listOf(9))
             }
         h.list shouldBe listOf(9)
     }
@@ -239,7 +239,7 @@ class SharedPreferenceDelegatesTest {
         prefs.edit().putString("list", "1,,2").apply()
         val h =
             object {
-                var list: List<Int> by delegates.intList(default = emptyList())
+                val list: List<Int> by delegates.intList(default = emptyList())
             }
         h.list shouldBe listOf(1, 2)
     }
@@ -249,7 +249,7 @@ class SharedPreferenceDelegatesTest {
         prefs.edit().putString("list", "-1,2,-3").apply()
         val h =
             object {
-                var list: List<Int> by delegates.intList(default = emptyList())
+                val list: List<Int> by delegates.intList(default = emptyList())
             }
         h.list shouldBe listOf(-1, 2, -3)
     }
@@ -259,7 +259,7 @@ class SharedPreferenceDelegatesTest {
         prefs.edit().putInt("size", 9999).apply()
         val h =
             object {
-                var size: Int by delegates.int(default = 512).sanitized { it.coerceIn(16, 1024) }
+                val size: Int by delegates.int(default = 512).sanitized { it.coerceIn(16, 1024) }
             }
         h.size shouldBe 1024
     }
@@ -289,7 +289,7 @@ class SharedPreferenceDelegatesTest {
         prefs.edit().putString("colors", "1,2,3,4,5,6,7,8").apply()
         val h =
             object {
-                var colors: List<Int> by delegates.intList(default = emptyList()).sanitized { it.take(6) }
+                val colors: List<Int> by delegates.intList(default = emptyList()).sanitized { it.take(6) }
             }
         h.colors shouldBe listOf(1, 2, 3, 4, 5, 6)
     }
@@ -299,7 +299,7 @@ class SharedPreferenceDelegatesTest {
         val h =
             object {
                 var a: Boolean by delegates.boolean(false, key = "sharedKey")
-                var b: Boolean by delegates.boolean(true, key = "sharedKey")
+                val b: Boolean by delegates.boolean(true, key = "sharedKey")
             }
         h.a = true
         h.b shouldBe true
@@ -310,7 +310,7 @@ class SharedPreferenceDelegatesTest {
         val h =
             object {
                 var alpha: Boolean by delegates.boolean(false)
-                var beta: Boolean by delegates.boolean(false)
+                val beta: Boolean by delegates.boolean(false)
             }
         h.alpha = true
         h.beta shouldBe false
@@ -320,7 +320,7 @@ class SharedPreferenceDelegatesTest {
     fun `float no-arg factory uses 0f default`() {
         val h =
             object {
-                var f: Float by delegates.float()
+                val f: Float by delegates.float()
             }
         h.f shouldBe 0f
     }
@@ -329,7 +329,7 @@ class SharedPreferenceDelegatesTest {
     fun `long no-arg factory uses 0L default`() {
         val h =
             object {
-                var l: Long by delegates.long()
+                val l: Long by delegates.long()
             }
         h.l shouldBe 0L
     }
@@ -338,7 +338,7 @@ class SharedPreferenceDelegatesTest {
     fun `boolean no-arg factory uses false default`() {
         val h =
             object {
-                var b: Boolean by delegates.boolean()
+                val b: Boolean by delegates.boolean()
             }
         h.b shouldBe false
     }
@@ -347,7 +347,7 @@ class SharedPreferenceDelegatesTest {
     fun `int no-arg factory uses 0 default`() {
         val h =
             object {
-                var i: Int by delegates.int()
+                val i: Int by delegates.int()
             }
         h.i shouldBe 0
     }
@@ -356,7 +356,7 @@ class SharedPreferenceDelegatesTest {
     fun `string no-arg factory uses empty string default`() {
         val h =
             object {
-                var s: String by delegates.string()
+                val s: String by delegates.string()
             }
         h.s shouldBe ""
     }
@@ -365,7 +365,7 @@ class SharedPreferenceDelegatesTest {
     fun `darkMode no-arg factory uses false default`() {
         val h =
             object {
-                var dm: Boolean by delegates.darkMode()
+                val dm: Boolean by delegates.darkMode()
             }
         h.dm shouldBe false
     }
@@ -382,7 +382,7 @@ class SharedPreferenceDelegatesTest {
         val d = SharedPreferenceDelegates(prefs)
         val h =
             object {
-                var s: String by d.string(default = "fallback")
+                val s: String by d.string(default = "fallback")
             }
         h.s shouldBe "fallback"
     }
@@ -399,7 +399,7 @@ class SharedPreferenceDelegatesTest {
         val d = SharedPreferenceDelegates(prefs)
         val h =
             object {
-                var ss: Set<String> by d.stringSet(default = setOf("x"))
+                val ss: Set<String> by d.stringSet(default = setOf("x"))
             }
         h.ss shouldBe setOf("x")
     }

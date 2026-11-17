@@ -37,11 +37,7 @@ import kotlinx.coroutines.launch
 @NoCoverage
 inline fun Fragment.showTipPopup(
     message: String,
-    mode: Mode = Mode.TRANSLUCENT,
-    direction: Direction = Direction.DEFAULT,
     delay: Duration = Duration.ZERO,
-    expanded: Boolean = false,
-    dismissOnPaused: Boolean = true,
     crossinline getAnchor: () -> View?,
     crossinline onCreate: TipPopup.() -> Unit = {},
 ) {
@@ -49,21 +45,19 @@ inline fun Fragment.showTipPopup(
         delay(delay)
         if (!isActive || !isResumed) return@launch
         val anchor = getAnchor() ?: return@launch
-        TipPopup(anchor, mode).apply {
+        TipPopup(anchor, Mode.TRANSLUCENT).apply {
             setMessage(message)
             onCreate()
-            setExpanded(expanded)
-            if (dismissOnPaused) {
-                viewLifecycleOwner.lifecycle.addObserver(
-                    object : DefaultLifecycleObserver {
-                        override fun onPause(owner: LifecycleOwner) {
-                            dismiss(true)
-                            owner.lifecycle.removeObserver(this)
-                        }
-                    },
-                )
-            }
-            show(direction)
+            setExpanded(false)
+            viewLifecycleOwner.lifecycle.addObserver(
+                object : DefaultLifecycleObserver {
+                    override fun onPause(owner: LifecycleOwner) {
+                        dismiss(true)
+                        owner.lifecycle.removeObserver(this)
+                    }
+                },
+            )
+            show(Direction.DEFAULT)
         }
     }
 }
