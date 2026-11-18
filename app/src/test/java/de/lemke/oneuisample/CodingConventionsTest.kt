@@ -114,9 +114,8 @@ class CodingConventionsTest : ShouldSpec() {
                         }
                     val lastNonClassTypeIndex =
                         declarations.indexOfLast { decl ->
-                            decl is KoPropertyDeclaration || decl is KoFunctionDeclaration ||
-                                decl is KoInitBlockDeclaration ||
-                                (decl is KoObjectDeclaration && decl.hasModifier(KoModifier.COMPANION))
+                            val isCompanion = decl is KoObjectDeclaration && decl.hasModifier(KoModifier.COMPANION)
+                            decl is KoPropertyDeclaration || decl is KoFunctionDeclaration || decl is KoInitBlockDeclaration || isCompanion
                         }
                     firstNonPrivateClassTypeIndex == -1 || lastNonClassTypeIndex == -1 ||
                         firstNonPrivateClassTypeIndex > lastNonClassTypeIndex
@@ -136,9 +135,8 @@ class CodingConventionsTest : ShouldSpec() {
                         }
                     val lastNonClassTypeIndex =
                         declarations.indexOfLast { decl ->
-                            decl is KoPropertyDeclaration || decl is KoFunctionDeclaration ||
-                                decl is KoInitBlockDeclaration ||
-                                (decl is KoObjectDeclaration && decl.hasModifier(KoModifier.COMPANION))
+                            val isCompanion = decl is KoObjectDeclaration && decl.hasModifier(KoModifier.COMPANION)
+                            decl is KoPropertyDeclaration || decl is KoFunctionDeclaration || decl is KoInitBlockDeclaration || isCompanion
                         }
                     firstNonPrivateClassTypeIndex == -1 || lastNonClassTypeIndex == -1 ||
                         firstNonPrivateClassTypeIndex > lastNonClassTypeIndex

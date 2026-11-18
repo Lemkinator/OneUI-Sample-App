@@ -60,7 +60,8 @@ class PopOverOrStartActivityUtilsTest {
 
     private fun IntentForResult.shouldBePopOver() {
         intent.component?.className shouldBe AboutActivity::class.java.name
-        (intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP) shouldBe Intent.FLAG_ACTIVITY_SINGLE_TOP
+        val singleTopFlag = intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP
+        singleTopFlag shouldBe Intent.FLAG_ACTIVITY_SINGLE_TOP
         options.shouldNotBeNull()
     }
 
