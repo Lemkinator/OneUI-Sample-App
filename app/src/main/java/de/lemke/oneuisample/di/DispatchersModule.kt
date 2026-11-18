@@ -36,9 +36,11 @@ annotation class IoDispatcher
 object DispatchersModule {
     @Provides
     @DefaultDispatcher
+    @Suppress("InjectDispatcher")
     fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
 
     @Provides
     @IoDispatcher
+    @Suppress("InjectDispatcher")
     fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
 }

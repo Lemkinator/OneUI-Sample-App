@@ -18,13 +18,12 @@
     <color name="primary_color">#ff0381fe</color>
     <color name="primary_color_themed">@color/primary_color</color>
 
-    <color name="sesl_blue_color_light" tools:ignore="PrivateResource">@color/primary_color_themed</color>
-    <color name="sesl_blue_color_dark" tools:ignore="PrivateResource">@color/primary_color_themed</color>
-    <color name="sesl_blue_dark_color_light" tools:ignore="PrivateResource">@color/primary_color_themed</color>
-    <color name="sesl_blue_dark_color_dark" tools:ignore="PrivateResource">@color/primary_color_themed</color>
+    <color name="sesl_blue_color_light" tools:ignore="PrivateResource,UnusedResources">@color/primary_color_themed</color>
+    <color name="sesl_blue_color_dark" tools:ignore="PrivateResource,UnusedResources">@color/primary_color_themed</color>
+    <color name="sesl_blue_dark_color_light" tools:ignore="PrivateResource,UnusedResources">@color/primary_color_themed</color>
+    <color name="sesl_blue_dark_color_dark" tools:ignore="PrivateResource,UnusedResources">@color/primary_color_themed</color>
 
     <color name="primary_text_icon_color">@color/oui_des_primary_text_color</color>
     <color name="primary_text_icon_color_themed">@color/oui_des_appinfolayout_app_label_text_color</color>
-    <color name="secondary_text_icon_color">#ff8c8c8c</color>
     <color name="secondary_text_icon_color_themed">@color/oui_des_appinfolayout_sub_text_color</color>
 </resources>

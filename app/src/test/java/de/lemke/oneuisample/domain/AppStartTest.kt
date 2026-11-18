@@ -23,12 +23,26 @@ class AppStartTest : ShouldSpec(
     {
 
         fun appStart(
-            result: AppStartResult = AppStartResult.NORMAL,
             versionCode: Int = 10,
             lastVersionCode: Int = 10,
             tosVersion: Int = 1,
             acceptedTosVersion: Int = 1,
-        ) = AppStart(result, versionCode, "1.0", lastVersionCode, "1.0", tosVersion, acceptedTosVersion)
+        ) = AppStart(versionCode, "1.0", lastVersionCode, "1.0", tosVersion, acceptedTosVersion)
+
+        context("result") {
+            should("be FIRST_TIME when lastVersionCode is -1") {
+                appStart(versionCode = 10, lastVersionCode = -1).result shouldBe AppStartResult.FIRST_TIME
+            }
+            should("be FIRST_TIME_VERSION when lastVersionCode is below versionCode") {
+                appStart(versionCode = 10, lastVersionCode = 9).result shouldBe AppStartResult.FIRST_TIME_VERSION
+            }
+            should("be NORMAL when the codes are equal") {
+                appStart(versionCode = 10, lastVersionCode = 10).result shouldBe AppStartResult.NORMAL
+            }
+            should("be NORMAL on a downgrade") {
+                appStart(versionCode = 9, lastVersionCode = 10).result shouldBe AppStartResult.NORMAL
+            }
+        }
 
         context("isFirstTime") {
             should("true when lastVersionCode is -1") {
@@ -115,7 +129,6 @@ class AppStartTest : ShouldSpec(
             should("includes all fields") {
                 val s =
                     AppStart(
-                        result = AppStartResult.FIRST_TIME,
                         versionCode = 5,
                         versionName = "2.0",
                         lastVersionCode = 0,
@@ -123,16 +136,12 @@ class AppStartTest : ShouldSpec(
                         tosVersion = 3,
                         acceptedTosVersion = 2,
                     ).toString()
-                s shouldContain "FIRST_TIME"
+                s shouldContain "result=FIRST_TIME_VERSION"
                 s shouldContain "versionCode=5"
                 s shouldContain "versionName='2.0'"
                 s shouldContain "lastVersionCode=0"
                 s shouldContain "tosVersion=3"
                 s shouldContain "acceptedTosVersion=2"
-            }
-
-            should("includes FIRST_TIME_VERSION result") {
-                appStart(result = AppStartResult.FIRST_TIME_VERSION).toString() shouldContain "FIRST_TIME_VERSION"
             }
         }
     },

@@ -231,7 +231,8 @@ class MainActivityTest {
                 activity.onNavigationItemSelected(activity.drawerItem(R.id.settings_dest))
                 val started = shadowOf(activity as Activity).nextStartedActivityForResult.shouldNotBeNull()
                 started.intent.component?.className shouldBe SettingsActivity::class.java.name
-                (started.intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP) shouldBe Intent.FLAG_ACTIVITY_SINGLE_TOP
+                val singleTopFlag = started.intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP
+                singleTopFlag shouldBe Intent.FLAG_ACTIVITY_SINGLE_TOP
                 started.options.shouldNotBeNull()
             }
         }
@@ -246,7 +247,8 @@ class MainActivityTest {
                 activity.onNavigationItemSelected(activity.drawerItem(R.id.oobe_dest))
                 val started = shadowOf(activity as Activity).nextStartedActivity.shouldNotBeNull()
                 started.component?.className shouldBe OOBEActivity::class.java.name
-                (started.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP) shouldBe 0
+                val singleTopFlag = started.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP
+                singleTopFlag shouldBe 0
             }
         }
     }
@@ -264,7 +266,8 @@ class MainActivityTest {
                     .performClick()
                 val started = shadowOf(activity as Activity).nextStartedActivityForResult.shouldNotBeNull()
                 started.intent.component?.className shouldBe AboutActivity::class.java.name
-                (started.intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP) shouldBe Intent.FLAG_ACTIVITY_SINGLE_TOP
+                val singleTopFlag = started.intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP
+                singleTopFlag shouldBe Intent.FLAG_ACTIVITY_SINGLE_TOP
                 started.options.shouldNotBeNull()
             }
         }
