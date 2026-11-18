@@ -243,6 +243,8 @@ class AppPickerActivityTest {
     @Test
     fun render_outOfBoundsPickerType_usesFirstEntry() {
         launch {
+            render(AppPickerUiState(pickerType = 5))
+            currentPicker shouldBe findViewById<View>(R.id.appPickerGrid)
             render(AppPickerUiState(pickerType = 999))
             currentPicker shouldBe findViewById<View>(R.id.appPickerList)
         }
@@ -251,6 +253,8 @@ class AppPickerActivityTest {
     @Test
     fun render_negativePickerType_usesFirstEntry() {
         launch {
+            render(AppPickerUiState(pickerType = 5))
+            currentPicker shouldBe findViewById<View>(R.id.appPickerGrid)
             render(AppPickerUiState(pickerType = -1))
             currentPicker shouldBe findViewById<View>(R.id.appPickerList)
         }
@@ -355,6 +359,8 @@ class AppPickerActivityTest {
             render(AppPickerUiState(isSelectLayoutMode = true))
             render(AppPickerUiState(pickerType = 0, isSelectLayoutMode = false))
             currentPicker shouldBe findViewById<View>(R.id.appPickerList)
+            findViewById<View>(R.id.appPickerList).isVisible shouldBe true
+            window.decorView.findViewById<View>(R.id.appPickerSelectLayout)?.isVisible shouldBe false
         }
     }
 
