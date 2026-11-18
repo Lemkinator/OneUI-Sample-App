@@ -25,6 +25,5 @@
 
     <color name="primary_text_icon_color">@color/oui_des_primary_text_color</color>
     <color name="primary_text_icon_color_themed">@color/oui_des_appinfolayout_app_label_text_color</color>
-    <color name="secondary_text_icon_color">#ff8c8c8c</color>
     <color name="secondary_text_icon_color_themed">@color/oui_des_appinfolayout_sub_text_color</color>
 </resources>

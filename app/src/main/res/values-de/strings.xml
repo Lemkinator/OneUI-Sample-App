@@ -19,7 +19,6 @@
 
     <string name="no_browser_app_installed">Keine Browser-App installiert…</string>
     <string name="error_cant_open_url">Fehler: URL konnte nicht geöffnet werden.</string>
-    <string name="error_loading_apps">Fehler beim Laden der Apps</string>
 
     <!--About-->
     <string name="version">Version %1$s</string>
@@ -76,10 +75,8 @@
     <string name="list">Liste</string>
     <string name="list_action_button">Liste, Action Button</string>
     <string name="list_checkbox">Liste, CheckBox</string>
-    <string name="list_checkbox_all_apps">Liste, CheckBox, alle apps</string>
     <string name="list_radiobutton">Liste, RadioButton</string>
     <string name="list_switch">Liste, Switch</string>
-    <string name="list_switch_all_apps">Liste, Switch, alle apps</string>
     <string name="grid">Grid</string>
     <string name="grid_checkbox">Grid, CheckBox</string>
 
