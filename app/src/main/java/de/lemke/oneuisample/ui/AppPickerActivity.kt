@@ -23,7 +23,7 @@ import androidx.activity.viewModels
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.picker.di.AppPickerContext
@@ -44,7 +44,6 @@ import de.lemke.oneuisample.ui.util.DEFAULT_LOTTIE_DELAY
 import de.lemke.oneuisample.ui.util.ListTypes
 import de.lemke.oneuisample.ui.util.collectState
 import de.lemke.oneuisample.ui.util.play
-import de.lemke.oneuisample.ui.util.requireFound
 import de.lemke.oneuisample.ui.util.showSoftInput
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.delegates.AppBarAwareYTranslator
@@ -69,8 +68,21 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     @IoDispatcher
     lateinit var ioDispatcher: CoroutineDispatcher
 
+    private var currentListType = ListTypes.entries.first()
+
     @VisibleForTesting(otherwise = PRIVATE)
-    internal var currentPicker: SeslAppPickerView? = null
+    internal val currentPicker: SeslAppPickerView
+        get() =
+            when (currentListType) {
+                ListTypes.TYPE_GRID, ListTypes.TYPE_GRID_CHECKBOX -> binding.appPickerGrid
+
+                ListTypes.LIST_TYPE,
+                ListTypes.TYPE_LIST_ACTION_BUTTON,
+                ListTypes.TYPE_LIST_CHECKBOX,
+                ListTypes.TYPE_LIST_RADIOBUTTON,
+                ListTypes.TYPE_LIST_SWITCH,
+                -> binding.appPickerList
+            }
     private var renderedState: AppPickerUiState? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -199,7 +211,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         if (viewModel.state.value.isSelectLayoutMode) {
             binding.appPickerSelectLayout.setSearchFilter(query)
         } else {
-            currentPicker?.setSearchFilter(query) { updateAppPickerVisibility(it > 0) }
+            currentPicker.setSearchFilter(query) { updateAppPickerVisibility(it > 0) }
         }
     }
 
@@ -232,23 +244,10 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun setAppPickerType(listType: ListTypes) {
         binding.appPickerProgress.isVisible = true
-        val picker =
-            when (listType) {
-                ListTypes.TYPE_GRID, ListTypes.TYPE_GRID_CHECKBOX -> {
-                    binding.appPickerGrid.also {
-                        it.isVisible = true
-                        binding.appPickerList.isVisible = false
-                    }
-                }
-
-                else -> {
-                    binding.appPickerList.also {
-                        it.isVisible = true
-                        binding.appPickerGrid.isVisible = false
-                    }
-                }
-            }
-        currentPicker = picker
+        currentListType = listType
+        val picker = currentPicker
+        binding.appPickerGrid.isVisible = picker === binding.appPickerGrid
+        binding.appPickerList.isVisible = picker === binding.appPickerList
         configureAppPicker(picker)
         val packages = getAppList(this, listType)
         picker.submitList(packages)
@@ -259,27 +258,28 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     fun getAppList(
         context: Context,
         listType: ListTypes,
-    ): List<AppInfoData> {
-        val actionIconState by lazy {
-            val drawable = ContextCompat.getDrawable(context, dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline)
-            requireFound(requireFound(drawable, "settings icon").constantState, "settings icon state")
-        }
-        return SeslAppInfoDataHelper(context, listType.builder).getPackages().onEach {
+    ): List<AppInfoData> =
+        SeslAppInfoDataHelper(context, listType.builder).getPackages().onEach {
             it.subLabel = it.packageName
-            if (listType == ListTypes.TYPE_LIST_ACTION_BUTTON) it.actionIcon = actionIconState.newDrawable()
+            if (listType == ListTypes.TYPE_LIST_ACTION_BUTTON) {
+                it.actionIcon =
+                    ResourcesCompat.getDrawable(
+                        context.resources,
+                        dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline,
+                        context.theme,
+                    )
+            }
         }
-    }
 
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun updateAppPickerVisibility(visible: Boolean) {
-        val picker = requireFound(currentPicker, "app picker")
         if (visible) {
             binding.noEntryScrollView.isVisible = false
-            picker.isVisible = true
+            currentPicker.isVisible = true
         } else {
             binding.noEntryScrollView.isVisible = true
             binding.noEntryLottie.play(delay = DEFAULT_LOTTIE_DELAY)
-            picker.isVisible = false
+            currentPicker.isVisible = false
         }
     }
 }

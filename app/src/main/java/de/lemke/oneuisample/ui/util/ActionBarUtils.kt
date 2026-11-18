@@ -15,19 +15,9 @@
  */
 package de.lemke.oneuisample.ui.util
 
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.ShouldSpec
-import io.kotest.matchers.shouldBe
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
 
-class RequireFoundUtilsTest : ShouldSpec(
-    {
-        should("requireFound returns the value when present") {
-            requireFound("icon", "drawable") shouldBe "icon"
-        }
-
-        should("requireFound throws naming the missing item when null") {
-            shouldThrow<IllegalStateException> { requireFound<String>(null, "menu item popup_menu") }
-                .message shouldBe "menu item popup_menu not found"
-        }
-    },
-)
+/** Returns the [ActionBar] of this activity, or throws an [IllegalStateException] if the theme has none and no toolbar was set. */
+internal fun AppCompatActivity.requireSupportActionBar(): ActionBar =
+    checkNotNull(supportActionBar) { "${javaClass.simpleName} has no support action bar" }

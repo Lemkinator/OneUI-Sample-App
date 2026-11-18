@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.picker.model.AppInfo
+import androidx.picker.model.AppInfoData
 import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
 import androidx.test.core.app.ActivityScenario
@@ -34,6 +35,8 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.di.PausableTestDispatcher
 import de.lemke.oneuisample.ui.util.ListTypes
 import dev.oneuiproject.oneui.layout.ToolbarLayout
+import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.Rule
@@ -50,6 +53,8 @@ private fun View.findSearchView(): SearchView? =
     this as? SearchView ?: (this as? ViewGroup)?.let { vg ->
         (0 until vg.childCount).firstNotNullOfOrNull { vg.getChildAt(it).findSearchView() }
     }
+
+private const val NO_MATCH_QUERY = "zzzzzz-no-app-matches"
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -73,7 +78,9 @@ class AppPickerActivityTest {
     fun setAppPickerType_list_configuresList() {
         launch {
             setAppPickerType(ListTypes.LIST_TYPE)
-            currentPicker shouldNotBe null
+            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
+            findViewById<View>(R.id.appPickerList).isVisible shouldBe true
+            findViewById<View>(R.id.appPickerGrid).isVisible shouldBe false
         }
     }
 
@@ -81,7 +88,9 @@ class AppPickerActivityTest {
     fun setAppPickerType_grid_configuresGrid() {
         launch {
             setAppPickerType(ListTypes.TYPE_GRID)
-            currentPicker shouldNotBe null
+            currentPicker shouldBe findViewById<View>(R.id.appPickerGrid)
+            findViewById<View>(R.id.appPickerList).isVisible shouldBe false
+            findViewById<View>(R.id.appPickerGrid).isVisible shouldBe true
         }
     }
 
@@ -89,7 +98,9 @@ class AppPickerActivityTest {
     fun setAppPickerType_gridCheckbox_configuresGrid() {
         launch {
             setAppPickerType(ListTypes.TYPE_GRID_CHECKBOX)
-            currentPicker shouldNotBe null
+            currentPicker shouldBe findViewById<View>(R.id.appPickerGrid)
+            findViewById<View>(R.id.appPickerList).isVisible shouldBe false
+            findViewById<View>(R.id.appPickerGrid).isVisible shouldBe true
         }
     }
 
@@ -97,7 +108,29 @@ class AppPickerActivityTest {
     fun setAppPickerType_listCheckbox_configuresList() {
         launch {
             setAppPickerType(ListTypes.TYPE_LIST_CHECKBOX)
-            currentPicker shouldNotBe null
+            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
+            findViewById<View>(R.id.appPickerList).isVisible shouldBe true
+            findViewById<View>(R.id.appPickerGrid).isVisible shouldBe false
+        }
+    }
+
+    @Test
+    fun setAppPickerType_listRadioButton_configuresList() {
+        launch {
+            setAppPickerType(ListTypes.TYPE_LIST_RADIOBUTTON)
+            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
+            findViewById<View>(R.id.appPickerList).isVisible shouldBe true
+            findViewById<View>(R.id.appPickerGrid).isVisible shouldBe false
+        }
+    }
+
+    @Test
+    fun setAppPickerType_listSwitch_configuresList() {
+        launch {
+            setAppPickerType(ListTypes.TYPE_LIST_SWITCH)
+            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
+            findViewById<View>(R.id.appPickerList).isVisible shouldBe true
+            findViewById<View>(R.id.appPickerGrid).isVisible shouldBe false
         }
     }
 
@@ -105,7 +138,9 @@ class AppPickerActivityTest {
     fun setAppPickerType_actionButton_setsActionIconOnItems() {
         launch {
             setAppPickerType(ListTypes.TYPE_LIST_ACTION_BUTTON)
-            currentPicker shouldNotBe null
+            val items = currentPicker.appDataList.filterIsInstance<AppInfoData>()
+            items.shouldNotBeEmpty()
+            items.forEach { it.actionIcon.shouldNotBeNull() }
         }
     }
 
@@ -115,7 +150,7 @@ class AppPickerActivityTest {
             setAppPickerType(ListTypes.LIST_TYPE)
             updateAppPickerVisibility(true)
             window.decorView.findViewById<View>(R.id.noEntryScrollView)?.isVisible shouldBe false
-            currentPicker?.isVisible shouldBe true
+            currentPicker.isVisible shouldBe true
         }
     }
 
@@ -126,7 +161,7 @@ class AppPickerActivityTest {
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
             updateAppPickerVisibility(false)
             window.decorView.findViewById<View>(R.id.noEntryScrollView)?.isVisible shouldBe true
-            currentPicker?.isVisible shouldBe false
+            currentPicker.isVisible shouldBe false
         }
     }
 
@@ -157,19 +192,22 @@ class AppPickerActivityTest {
     }
 
     @Test
-    fun applyFilter_withNullPicker_isNoOp() {
-        launch {
-            currentPicker = null
-            applyFilter("test")
-        }
-    }
-
-    @Test
     fun applyFilter_withQuery_noError() {
         launch {
             setAppPickerType(ListTypes.LIST_TYPE)
             applyFilter("test")
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        }
+    }
+
+    @Test
+    fun applyFilter_noMatchOnCurrentPicker_showsNoEntry() {
+        launch {
+            setAppPickerType(ListTypes.LIST_TYPE)
+            applyFilter(NO_MATCH_QUERY)
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+            findViewById<View>(R.id.noEntryScrollView).isVisible shouldBe true
+            findViewById<View>(R.id.appPickerList).isVisible shouldBe false
         }
     }
 
@@ -205,16 +243,20 @@ class AppPickerActivityTest {
     @Test
     fun render_outOfBoundsPickerType_usesFirstEntry() {
         launch {
+            render(AppPickerUiState(pickerType = 5))
+            currentPicker shouldBe findViewById<View>(R.id.appPickerGrid)
             render(AppPickerUiState(pickerType = 999))
-            currentPicker shouldNotBe null
+            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
         }
     }
 
     @Test
     fun render_negativePickerType_usesFirstEntry() {
         launch {
+            render(AppPickerUiState(pickerType = 5))
+            currentPicker shouldBe findViewById<View>(R.id.appPickerGrid)
             render(AppPickerUiState(pickerType = -1))
-            currentPicker shouldNotBe null
+            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
         }
     }
 
@@ -316,7 +358,9 @@ class AppPickerActivityTest {
             render(AppPickerUiState(pickerType = 0, isSelectLayoutMode = false))
             render(AppPickerUiState(isSelectLayoutMode = true))
             render(AppPickerUiState(pickerType = 0, isSelectLayoutMode = false))
-            currentPicker shouldNotBe null
+            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
+            findViewById<View>(R.id.appPickerList).isVisible shouldBe true
+            window.decorView.findViewById<View>(R.id.appPickerSelectLayout)?.isVisible shouldBe false
         }
     }
 

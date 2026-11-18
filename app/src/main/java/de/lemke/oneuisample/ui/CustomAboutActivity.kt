@@ -45,7 +45,7 @@ import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityCustomAboutBinding
 import de.lemke.oneuisample.ui.util.openURL
-import de.lemke.oneuisample.ui.util.requireFound
+import de.lemke.oneuisample.ui.util.requireSupportActionBar
 import dev.oneuiproject.oneui.ktx.invokeOnBack
 import dev.oneuiproject.oneui.ktx.isInMultiWindowModeCompat
 import dev.oneuiproject.oneui.ktx.semSetToolTipText
@@ -122,7 +122,7 @@ class CustomAboutActivity : AppCompatActivity() {
         setSupportActionBar(binding.aboutToolbar)
         // Should be called after setSupportActionBar
         binding.aboutToolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
-        requireFound(supportActionBar, "support action bar").apply {
+        requireSupportActionBar().apply {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(false)
         }
