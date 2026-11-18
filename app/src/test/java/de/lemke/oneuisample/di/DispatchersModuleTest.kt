@@ -26,6 +26,7 @@ import kotlinx.coroutines.withContext
  * [TestDispatchersModule] replaces [DispatchersModule] in every `@HiltAndroidTest`, so no
  * Hilt-injected activity/fragment test ever exercises the real bindings. Cover them directly here.
  */
+@Suppress("InjectDispatcher")
 class DispatchersModuleTest : ShouldSpec(
     {
         should("provideDefaultDispatcher dispatches work onto Dispatchers.Default's thread pool") {

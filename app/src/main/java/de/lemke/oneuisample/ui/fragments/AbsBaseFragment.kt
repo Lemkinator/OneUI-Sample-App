@@ -20,6 +20,7 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import com.google.android.material.transition.MaterialElevationScale
 
+@Suppress("AbstractClassCanBeConcreteClass")
 abstract class AbsBaseFragment(
     @LayoutRes layoutResId: Int,
 ) : Fragment(layoutResId) {
