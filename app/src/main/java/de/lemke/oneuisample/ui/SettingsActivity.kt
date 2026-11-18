@@ -39,7 +39,6 @@ import androidx.core.net.toUri
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
-import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
@@ -51,7 +50,7 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.databinding.ActivitySettingsBinding
 import de.lemke.oneuisample.ui.util.collectState
-import de.lemke.oneuisample.ui.util.requireFound
+import de.lemke.oneuisample.ui.util.requirePreference
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import de.lemke.oneuisample.ui.util.withSystemService
 import dev.oneuiproject.oneui.ktx.addRelativeLinksCard
@@ -264,6 +263,3 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 }
-
-private inline fun <reified T : Preference> PreferenceFragmentCompat.requirePreference(key: String): T =
-    requireFound(findPreference<T>(key), "preference $key")

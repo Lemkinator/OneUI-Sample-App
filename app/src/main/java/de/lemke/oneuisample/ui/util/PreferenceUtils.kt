@@ -15,8 +15,9 @@
  */
 package de.lemke.oneuisample.ui.util
 
-/** Returns [value], or throws an [IllegalStateException] naming [what] when a framework lookup found nothing. */
-fun <T : Any> requireFound(
-    value: T?,
-    what: String,
-): T = checkNotNull(value) { "$what not found" }
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+
+/** Returns the preference with [key] as [T], or throws an [IllegalStateException] if the fragment's preferences hold none. */
+internal fun <T : Preference> PreferenceFragmentCompat.requirePreference(key: CharSequence): T =
+    checkNotNull(findPreference<T>(key)) { "Preference $key is missing from the preference screen" }
