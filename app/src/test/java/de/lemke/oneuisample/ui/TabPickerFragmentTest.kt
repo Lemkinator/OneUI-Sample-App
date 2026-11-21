@@ -29,6 +29,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.picker.app.SeslDatePickerDialog
 import androidx.picker.app.SeslTimePickerDialog
 import androidx.picker.widget.SeslNumberPicker
+import androidx.picker3.app.SeslColorPickerDialog
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -177,6 +178,19 @@ class TabPickerFragmentTest {
     }
 
     @Test
+    fun colorButton_confirmAnotherColor_savesItAsCurrentAndFirstRecent() {
+        userSettings.currentColor = PRESET_COLOR
+        userSettings.recentColors = listOf(PRESET_COLOR, OTHER_COLOR)
+        withFragment {
+            click(R.id.colorButton)
+            (latestDialog() as SeslColorPickerDialog).setNewColor(NEW_COLOR)
+            confirmLatestDialog()
+            userSettings.currentColor shouldBe NEW_COLOR
+            userSettings.recentColors shouldBe listOf(NEW_COLOR, PRESET_COLOR, OTHER_COLOR)
+        }
+    }
+
+    @Test
     fun colorButton_showsTheColorPickerDialog() {
         withFragment {
             click(R.id.colorButton)
@@ -320,5 +334,6 @@ class TabPickerFragmentTest {
     companion object {
         private const val PRESET_COLOR = 0xFF123456.toInt()
         private const val OTHER_COLOR = 0xFF654321.toInt()
+        private const val NEW_COLOR = 0xFF00AA55.toInt()
     }
 }

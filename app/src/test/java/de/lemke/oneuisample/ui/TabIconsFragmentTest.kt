@@ -380,7 +380,9 @@ class TabIconsFragmentTest {
             startActionMode()
             requireActivity().findViewById<View>(designR.id.toolbarlayout_selectall).performClick()
             shadowOf(Looper.getMainLooper()).idle()
-            adapter().isSelected(adapter().getItemId(0)) shouldBe true
+            val adapter = adapter()
+            adapter.itemCount shouldBe ALL_ICON_COUNT
+            (0 until adapter.itemCount).all { adapter.isSelected(adapter.getItemId(it)) } shouldBe true
         }
     }
 
@@ -568,8 +570,9 @@ class TabIconsFragmentTest {
     @Test
     fun fab_click_showsTheTip() {
         withFragment {
+            shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldBe null
             requireView().findViewById<View>(R.id.fabIcons).performClick()
-            shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
+            shadowOf(Looper.getMainLooper()).idle()
             shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldNotBe null
         }
     }

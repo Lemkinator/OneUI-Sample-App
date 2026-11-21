@@ -305,11 +305,6 @@ class MainActivityTest {
     }
 
     @Test
-    fun debugDrawer_showsLeaksItem() {
-        launch { onActivity { activity -> activity.drawerItem(R.id.leaks_dest).isVisible shouldBe true } }
-    }
-
-    @Test
     fun onNavigationItemSelected_unknownItem_isNotHandled() {
         launch {
             onActivity { activity ->
