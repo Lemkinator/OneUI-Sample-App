@@ -153,7 +153,6 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         val modeChanged = previous == null || previous.isSelectLayoutMode != state.isSelectLayoutMode
         if (modeChanged) showAppPickerMode(state.isSelectLayoutMode)
         if (state.isSelectLayoutMode) return
-        if (!modeChanged && previous.pickerType == state.pickerType) return
         setAppPickerType(state.listType)
     }
 
