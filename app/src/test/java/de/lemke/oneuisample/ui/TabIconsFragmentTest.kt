@@ -35,6 +35,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.longClick
+import androidx.test.espresso.action.ViewActions.swipeLeft
+import androidx.test.espresso.action.ViewActions.swipeRight
 import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -52,6 +54,7 @@ import dev.oneuiproject.oneui.widget.SwitchItemView
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import org.junit.Before
@@ -115,6 +118,30 @@ class TabIconsFragmentTest {
             }
             shadowOf(Looper.getMainLooper()).idle()
         }
+    }
+
+    private fun withIconsScreen(block: ActivityScenario<MainActivity>.() -> Unit) {
+        ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
+                    .navController
+                    .navigate(R.id.icons_dest)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.block()
+        }
+    }
+
+    private fun ActivityScenario<MainActivity>.snackbarTextAfterSwipe(): String? {
+        var text: String? = null
+        repeat(SWIPE_SETTLE_STEPS) {
+            if (text == null) {
+                shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(SWIPE_SETTLE_STEP_MS))
+                onActivity { text = it.findViewById<TextView>(MaterialR.id.snackbar_text)?.text?.toString() }
+            }
+        }
+        return text
     }
 
     private fun TabIconsFragment.snackbarText(): String? {
@@ -279,6 +306,32 @@ class TabIconsFragmentTest {
         withFragment {
             itemView(0).performClick()
             snackbarText() shouldBe "360"
+        }
+    }
+
+    @Test
+    fun item_swipeLeft_showsTheRightToLeftSnackBar() {
+        withIconsScreen {
+            onView(withText("360")).perform(swipeLeft())
+            snackbarTextAfterSwipe() shouldBe "360: Right to Left"
+        }
+    }
+
+    @Test
+    fun item_swipeRight_showsTheLeftToRightSnackBar() {
+        withIconsScreen {
+            onView(withText("360")).perform(swipeRight())
+            snackbarTextAfterSwipe() shouldBe "360: Left to Right"
+        }
+    }
+
+    @Test
+    fun item_swipeInActionMode_showsNoSnackBar() {
+        withIconsScreen {
+            onView(withText("360")).perform(longClick())
+            shadowOf(Looper.getMainLooper()).idle()
+            onView(withText("360")).perform(swipeLeft())
+            snackbarTextAfterSwipe() shouldBe null
         }
     }
 
@@ -509,6 +562,8 @@ class TabIconsFragmentTest {
 
     companion object {
         private const val UNKNOWN_ITEM_ID = 12345
+        private const val SWIPE_SETTLE_STEPS = 30
+        private const val SWIPE_SETTLE_STEP_MS = 100L
         private const val ALL_ICON_COUNT = 883
         private const val NO_MATCH_QUERY = "zzzzzz-no-icon-matches"
         private const val FEW_MATCHES_QUERY = "page_settings"
