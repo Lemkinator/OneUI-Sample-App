@@ -156,7 +156,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                     menuInflater: MenuInflater,
                 ) {
                     menuInflater.inflate(R.menu.icon_tab_menu, menu)
-                    menu.findItem(R.id.menu_item_settings)?.setBadge(Badge.DOT)
+                    menu.findItem(R.id.menu_item_settings).setBadge(Badge.DOT)
                 }
 
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean = actionModeHandler.onIconTabMenuItemSelected(menuItem)
@@ -244,7 +244,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         showTipPopup(
             message = getString(R.string.tip_long_press_multiselect),
             delay = MULTISELECT_TIP_DELAY,
-            getAnchor = { binding.iconList.layoutManager?.findViewByPosition(MULTISELECT_TIP_ANCHOR_POSITION) },
+            getAnchor = { binding.iconList.findViewHolderForLayoutPosition(MULTISELECT_TIP_ANCHOR_POSITION)?.itemView },
         )
     }
 
