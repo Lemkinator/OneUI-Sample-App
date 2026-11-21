@@ -24,6 +24,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
 import androidx.picker.model.AppInfoData
 import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
@@ -308,6 +309,28 @@ class AppPickerActivityTest {
             itemView(list(), 0).performClick()
             shadowOf(Looper.getMainLooper()).idle()
             list().appDataList.filterIsInstance<AppInfoData>().map { it.selected } shouldBe listOf(true)
+        }
+    }
+
+    @Test
+    fun checkboxList_selection_survivesStopAndStart() {
+        ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity {
+                it.selectType(ListTypes.TYPE_LIST_CHECKBOX)
+                it.itemView(it.list(), 0).performClick()
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.moveToState(Lifecycle.State.CREATED)
+            scenario.moveToState(Lifecycle.State.RESUMED)
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity {
+                it
+                    .list()
+                    .appDataList
+                    .filterIsInstance<AppInfoData>()
+                    .map { item -> item.selected } shouldBe listOf(true)
+            }
         }
     }
 
