@@ -19,21 +19,14 @@ import android.content.Context
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
-import de.lemke.oneuisample.NoCoverage
 
-/**
- * Looks up [serviceClass] via [ContextCompat.getSystemService] and, if present, runs [action] on it.
- * The null case (service unregistered for this Context) can't be produced under Robolectric for any
- * real platform service, so it stays untested here deliberately.
- */
-@NoCoverage
+/** Looks up [serviceClass] via [ContextCompat.getSystemService] and, if present, runs [action] on it. */
 fun <T, R> Context.withSystemService(
     serviceClass: Class<T>,
     action: (T) -> R,
 ): R? = ContextCompat.getSystemService(this, serviceClass)?.let(action)
 
 /** Shows the soft keyboard for this view. Focus is requested by `ToolbarLayout.startSearchMode()`'s `isIconified = false`. */
-@NoCoverage
 fun View.showSoftInput(flags: Int = 0) {
     context.withSystemService(InputMethodManager::class.java) { it.showSoftInput(this, flags) }
 }

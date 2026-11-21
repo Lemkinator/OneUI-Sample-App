@@ -17,6 +17,7 @@ package de.lemke.oneuisample.ui
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Looper
 import android.text.style.ClickableSpan
 import android.view.View
@@ -32,7 +33,9 @@ import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import java.time.Duration
+import java.util.Locale
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -100,6 +103,15 @@ class OOBEActivityTest {
             window.decorView
                 .findViewById<View>(R.id.oobe_intro_footer_button)!!
                 .layoutParams.width shouldNotBe ViewGroup.LayoutParams.MATCH_PARENT
+        }
+    }
+
+    @Test
+    fun tosText_everyLocale_containsTheTermsLinkText() {
+        listOf(Locale.ENGLISH, Locale.GERMAN).forEach { locale ->
+            val localized = context.createConfigurationContext(Configuration().apply { setLocale(locale) })
+            val tos = localized.getString(R.string.tos)
+            localized.getString(R.string.oobe_tos_text, tos) shouldContain tos
         }
     }
 

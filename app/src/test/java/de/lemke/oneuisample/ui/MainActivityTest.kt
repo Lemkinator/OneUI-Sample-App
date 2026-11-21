@@ -37,6 +37,8 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
@@ -64,6 +66,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.fakes.RoboMenuItem
+import org.robolectric.shadows.ShadowDialog
 import com.google.android.material.R as MaterialR
 
 private const val TABLET = "sw600dp-w600dp-h1024dp"
@@ -276,8 +279,14 @@ class MainActivityTest {
     }
 
     @Test
-    fun navItem_bottomSheet_showsBottomSheet() {
-        withNavClick(R.id.bottom_sheet_dest)
+    fun navItem_bottomSheet_showsAnExpandedSheetThatSkipsTheCollapsedState() {
+        launch {
+            onActivity { activity -> activity.select(R.id.bottom_sheet_dest) shouldBe true }
+            shadowOf(Looper.getMainLooper()).idle()
+            val behavior = (ShadowDialog.getLatestDialog() as BottomSheetDialog).behavior
+            behavior.state shouldBe BottomSheetBehavior.STATE_EXPANDED
+            behavior.skipCollapsed shouldBe true
+        }
     }
 
     @Test

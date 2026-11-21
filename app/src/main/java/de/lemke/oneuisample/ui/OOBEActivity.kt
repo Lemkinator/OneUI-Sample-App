@@ -98,7 +98,6 @@ class OOBEActivity : AppCompatActivity() {
         }
     }
 
-    @NoCoverage
     private fun initToSView() {
         val tos = getString(R.string.tos)
         val tosText = getString(R.string.oobe_tos_text, tos)
