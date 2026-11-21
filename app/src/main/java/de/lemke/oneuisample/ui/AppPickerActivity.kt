@@ -28,8 +28,6 @@ import androidx.picker.di.AppPickerContext
 import androidx.picker.helper.SeslAppInfoDataHelper
 import androidx.picker.model.AppInfo
 import androidx.picker.model.AppInfoData
-import androidx.picker.model.viewdata.AllAppsViewData
-import androidx.picker.widget.AppPickerState.OnStateChangeListener
 import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
 import androidx.picker.widget.SeslAppPickerView.Companion.ORDER_ASCENDING
@@ -213,19 +211,6 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             seslSetFastScrollerAdditionalPadding(10.dpToPx(resources))
             setOnItemClickEventListener { _, appInfo -> onAppItemClick(this, appInfo) }
             setOnItemActionClickEventListener { _, appInfo -> onAppItemActionClick(appInfo) }
-            setOnStateChangeListener(
-                object : OnStateChangeListener {
-                    override fun onStateAllChanged(isAllSelected: Boolean) = setStateAll(isAllSelected)
-
-                    override fun onStateChanged(
-                        appInfo: AppInfo,
-                        isSelected: Boolean,
-                    ) {
-                        val allItemsSelected = appPicker.appDataList.filterIsInstance<AppInfoData>().none { !it.selected }
-                        (headerFooterAdapter.getItem(0) as? AllAppsViewData)?.selectableItem?.setValueSilence(allItemsSelected)
-                    }
-                },
-            )
         }
     }
 
