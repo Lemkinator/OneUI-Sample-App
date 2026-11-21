@@ -16,10 +16,13 @@
 package de.lemke.oneuisample.ui
 
 import android.app.ActivityManager
+import android.app.Application
 import android.content.DialogInterface.BUTTON_NEGATIVE
 import android.content.DialogInterface.BUTTON_POSITIVE
 import android.content.Intent
 import android.os.Looper
+import android.provider.Settings
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
@@ -33,7 +36,10 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
+import dev.oneuiproject.oneui.preference.InsetPreferenceCategory
+import dev.oneuiproject.oneui.preference.SuggestionCardPreference
 import io.kotest.matchers.shouldBe
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
@@ -44,6 +50,8 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowDialog
+import com.google.android.material.R as MaterialR
+import dev.oneuiproject.oneui.design.R as designR
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -296,23 +304,47 @@ class SettingsActivityTest {
     }
 
     @Test
-    fun suggestionCard_actionButtonClicked_startsAnimation() {
+    fun suggestionCard_actionButton_click_removesCardAfterDelay() {
         launch {
-            onSuggestionCardActionButtonClicked()
+            requireView().findViewById<View>(designR.id.action_button_container).performClick()
+            shadowOf(Looper.getMainLooper()).idleFor(1_500, TimeUnit.MILLISECONDS)
+            findPreference<SuggestionCardPreference>("suggestion") shouldBe null
+            findPreference<InsetPreferenceCategory>("suggestionInset") shouldBe null
+        }
+    }
+
+    @Test
+    fun suggestionCard_actionButton_fragmentDetachedBeforeDelayFires_keepsScreenIntact() {
+        ActivityScenario.launch<SettingsActivity>(Intent(context, SettingsActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { activity ->
+                val fragment = activity.supportFragmentManager.findFragmentById(R.id.settings) as SettingsActivity.SettingsFragment
+                fragment.requireView().findViewById<View>(designR.id.action_button_container).performClick()
+            }
+            scenario.moveToState(Lifecycle.State.DESTROYED)
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
         }
     }
 
     @Test
-    fun suggestionCard_actionButtonClicked_fragmentDetachedBeforeDelayFires_doesNotCrash() {
-        ActivityScenario.launch<SettingsActivity>(Intent(context, SettingsActivity::class.java)).use { scenario ->
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                val fragment = activity.supportFragmentManager.findFragmentById(R.id.settings) as? SettingsActivity.SettingsFragment
-                fragment?.onSuggestionCardActionButtonClicked()
+    fun languagePref_click_opensAppLocaleSettings() {
+        launch {
+            findPreference<PreferenceScreen>("language")!!.performClick()
+            shadowOf(requireActivity()).nextStartedActivity.let { intent ->
+                intent.action shouldBe Settings.ACTION_APP_LOCALE_SETTINGS
+                intent.data.toString() shouldBe "package:de.lemke.oneuisample.debug"
             }
-            scenario.moveToState(Lifecycle.State.DESTROYED)
-            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        }
+    }
+
+    @Test
+    fun languagePref_click_noLocaleSettingsOnDevice_showsSnackBar() {
+        shadowOf(context as Application).checkActivities(true)
+        launch {
+            findPreference<PreferenceScreen>("language")!!.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            requireActivity().findViewById<TextView>(MaterialR.id.snackbar_text).text.toString() shouldBe
+                "Change language is not supported by your device."
         }
     }
 
