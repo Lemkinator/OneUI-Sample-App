@@ -25,6 +25,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
+import androidx.fragment.app.commitNow
 import androidx.navigation.fragment.NavHostFragment
 import androidx.picker.app.SeslDatePickerDialog
 import androidx.picker.app.SeslTimePickerDialog
@@ -113,15 +114,6 @@ class TabPickerFragmentTest {
 
     private fun TabPickerFragment.numberPicker(viewId: Int) = requireView().findViewById<SeslNumberPicker>(viewId)
 
-    private fun navigateToIcons(scenario: ActivityScenario<MainActivity>) {
-        scenario.onActivity { activity ->
-            (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
-                .navController
-                .navigate(R.id.icons_dest)
-            activity.supportFragmentManager.executePendingTransactions()
-        }
-    }
-
     @Test
     fun dateButton_confirm_showsPickedDate() {
         withFragment {
@@ -172,10 +164,9 @@ class TabPickerFragmentTest {
     }
 
     @Test
-    fun colorDialog_viewDestroyedBeforeThePostedBitmapListener_doesNotCrashAndDismissesTheDialog() {
+    fun colorDialog_fragmentRemovedBeforeThePostedBitmapListenerRuns_doesNotCrashAndShowsNoDialog() {
         ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
-            lateinit var dialog: AlertDialog
             scenario.onActivity { activity ->
                 (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
                     .navController
@@ -188,11 +179,10 @@ class TabPickerFragmentTest {
                         .childFragmentManager
                         .primaryNavigationFragment as TabPickerFragment
                 fragment.requireView().findViewById<View>(R.id.colorButton).performClick()
-                dialog = latestDialog()
+                fragment.parentFragmentManager.commitNow { remove(fragment) }
             }
-            navigateToIcons(scenario)
             shadowOf(Looper.getMainLooper()).idle()
-            dialog.isShowing shouldBe false
+            latestDialog().isShowing shouldBe false
         }
     }
 
