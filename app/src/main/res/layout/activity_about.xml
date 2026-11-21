@@ -15,10 +15,12 @@
     limitations under the License.
 -->
 <dev.oneuiproject.oneui.layout.AppInfoLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/appInfoLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?roundedCornerColor">
+    android:background="?roundedCornerColor"
+    tools:ignore="Overdraw">
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/aboutButtonStatus"

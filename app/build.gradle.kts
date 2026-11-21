@@ -132,7 +132,6 @@ android {
         // Explicit: pins intent against future AGP default changes.
         checkReleaseBuilds = true
         abortOnError = true
-        baseline = file("lint-baseline.xml")
         // Avatar PNGs in drawable/ are intentionally densityless (photos, not icons)
         disable += setOf("IconLocation", "IconMissingDensityFolder")
     }
