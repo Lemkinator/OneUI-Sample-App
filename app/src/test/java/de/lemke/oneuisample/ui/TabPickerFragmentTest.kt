@@ -21,9 +21,13 @@ import android.content.res.Configuration
 import android.os.Looper
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.NavHostFragment
+import androidx.picker.app.SeslDatePickerDialog
+import androidx.picker.app.SeslTimePickerDialog
 import androidx.picker.widget.SeslNumberPicker
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -34,8 +38,12 @@ import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.fragments.TabPickerFragment
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.matchers.types.shouldNotBeSameInstanceAs
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import org.junit.Before
 import org.junit.Rule
@@ -87,214 +95,87 @@ class TabPickerFragmentTest {
         }
     }
 
-    @Test
-    fun onDatePicked_showsSnackBar() {
-        withFragment {
-            val snackbar = pickerDialogHandler.onDatePicked(2025, 11, 25)
-            snackbar.view
-                .findViewById<TextView>(MaterialR.id.snackbar_text)
-                ?.text
-                .toString() shouldBe "2025-12-25"
+    private fun TabPickerFragment.click(viewId: Int) {
+        requireView().findViewById<View>(viewId).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun latestDialog(): AlertDialog = ShadowDialog.getLatestDialog() as AlertDialog
+
+    private fun confirmLatestDialog() {
+        shadowOf(Looper.getMainLooper()).idleFor(1, TimeUnit.SECONDS)
+        latestDialog().getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun TabPickerFragment.snackbarText(): String? =
+        requireActivity().findViewById<TextView>(MaterialR.id.snackbar_text)?.text?.toString()
+
+    private fun TabPickerFragment.numberPicker(viewId: Int) = requireView().findViewById<SeslNumberPicker>(viewId)
+
+    private fun navigateToIcons(scenario: ActivityScenario<MainActivity>) {
+        scenario.onActivity { activity ->
+            (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
+                .navController
+                .navigate(R.id.icons_dest)
+            activity.supportFragmentManager.executePendingTransactions()
         }
     }
 
     @Test
-    fun onTimePicked_showsSnackBar() {
+    fun dateButton_confirm_showsPickedDate() {
         withFragment {
-            val snackbar = pickerDialogHandler.onTimePicked(14, 30)
-            snackbar.view
-                .findViewById<TextView>(MaterialR.id.snackbar_text)
-                ?.text
-                .toString() shouldBe "14:30"
+            click(R.id.dateButton)
+            (latestDialog() as SeslDatePickerDialog).datePicker.updateDate(2025, Calendar.DECEMBER, 25)
+            confirmLatestDialog()
+            snackbarText() shouldBe "2025-12-25"
         }
     }
 
     @Test
-    fun onStartEndTimePicked_showsSnackBar() {
+    fun timeButton_confirm_showsPickedTime() {
         withFragment {
-            val snackbar = pickerDialogHandler.onStartEndTimePicked(480, 1020)
-            snackbar.view
-                .findViewById<TextView>(MaterialR.id.snackbar_text)
-                ?.text
-                .toString() shouldBe
-                getString(R.string.start_end_time_result, "08:00", "17:00")
+            click(R.id.timeButton)
+            (latestDialog() as SeslTimePickerDialog).updateTime(14, 30)
+            confirmLatestDialog()
+            snackbarText() shouldBe "14:30"
         }
     }
 
     @Test
-    fun onColorPicked_updatesCurrentColor() {
+    fun startEndTimeButton_confirm_showsDefaultRange() {
         withFragment {
-            pickerDialogHandler.onColorPicked(0xFF0000)
-            userSettings.currentColor shouldBe 0xFF0000
+            click(R.id.startEndTimeButton)
+            confirmLatestDialog()
+            snackbarText() shouldBe "Start time: 00:00\nEnd time: 10:00"
         }
     }
 
     @Test
-    fun onColorPicked_deduplicatesRecentColors() {
+    fun colorButton_confirm_keepsThePresetColorAsCurrentAndFirstRecent() {
+        userSettings.currentColor = PRESET_COLOR
+        userSettings.recentColors = listOf(PRESET_COLOR, OTHER_COLOR)
         withFragment {
-            pickerDialogHandler.onColorPicked(0xFF0000)
-            pickerDialogHandler.onColorPicked(0xFF0000)
-            userSettings.recentColors.count { it == 0xFF0000 } shouldBe 1
+            click(R.id.colorButton)
+            confirmLatestDialog()
+            userSettings.currentColor shouldBe PRESET_COLOR
+            userSettings.recentColors shouldBe listOf(PRESET_COLOR, OTHER_COLOR)
         }
     }
 
     @Test
-    fun onColorPicked_keepsAtMostSixRecentColors() {
+    fun colorButton_showsTheColorPickerDialog() {
         withFragment {
-            repeat(8) { i -> pickerDialogHandler.onColorPicked(i) }
-            userSettings.recentColors.size shouldBe 6
+            click(R.id.colorButton)
+            ShadowDialog.getLatestDialog().isShowing shouldBe true
         }
     }
 
     @Test
-    fun openDatePickerDialog_showsDialog() {
-        withFragment { pickerDialogHandler.openDatePickerDialog() }
-        ShadowDialog.getLatestDialog() shouldNotBe null
-    }
-
-    @Test
-    fun openTimePickerDialog_showsDialog() {
-        withFragment { pickerDialogHandler.openTimePickerDialog() }
-        ShadowDialog.getLatestDialog() shouldNotBe null
-    }
-
-    @Test
-    fun openStartEndTimePickerDialog_showsDialog() {
-        withFragment { pickerDialogHandler.openStartEndTimePickerDialog() }
-        ShadowDialog.getLatestDialog() shouldNotBe null
-    }
-
-    @Test
-    fun openColorPickerDialog_showsDialog() {
-        withFragment {
-            pickerDialogHandler.openColorPickerDialog()
-            colorPickerDialog shouldNotBe null
-        }
-    }
-
-    @Test
-    fun onConfigurationChanged_withNoDialog_doesNothing() {
-        withFragment {
-            val config = Configuration(resources.configuration)
-            onConfigurationChanged(config)
-        }
-    }
-
-    @Test
-    fun onConfigurationChanged_withDismissedDialog_doesNotReopen() {
-        withFragment {
-            pickerDialogHandler.openColorPickerDialog()
-            shadowOf(Looper.getMainLooper()).idle()
-            colorPickerDialog?.dismiss()
-            val config = Configuration(resources.configuration)
-            onConfigurationChanged(config)
-            colorPickerDialog?.isShowing shouldBe false
-        }
-    }
-
-    @Test
-    fun onNumberPicker3EditorAction_done_disablesEditTextMode() {
-        withFragment { onNumberPicker3EditorAction(EditorInfo.IME_ACTION_DONE) shouldBe false }
-    }
-
-    @Test
-    fun onNumberPicker3EditorAction_other_noChange() {
-        withFragment { onNumberPicker3EditorAction(EditorInfo.IME_ACTION_GO) shouldBe false }
-    }
-
-    @Test
-    fun onNumberPicker2EditorAction_next_movesToPicker3() {
-        withFragment { onNumberPicker2EditorAction(EditorInfo.IME_ACTION_NEXT) shouldBe false }
-    }
-
-    @Test
-    fun onNumberPicker2EditorAction_other_noChange() {
-        withFragment { onNumberPicker2EditorAction(EditorInfo.IME_ACTION_GO) shouldBe false }
-    }
-
-    @Test
-    fun onNumberPicker1EditorAction_next_movesToPicker2() {
-        withFragment { onNumberPicker1EditorAction(EditorInfo.IME_ACTION_NEXT) shouldBe false }
-    }
-
-    @Test
-    fun onNumberPicker1EditorAction_other_noChange() {
-        withFragment { onNumberPicker1EditorAction(EditorInfo.IME_ACTION_GO) shouldBe false }
-    }
-
-    @Test
-    fun onSpinnerItemSelected_null_doesNothing() {
-        withFragment { onSpinnerItemSelected(null) }
-    }
-
-    @Test
-    fun onSpinnerItemSelected_position0_showsNumberPicker() {
-        withFragment {
-            onSpinnerItemSelected(0)
-            requireView().findViewById<View>(R.id.numberPicker)?.visibility shouldBe View.VISIBLE
-            requireView().findViewById<View>(R.id.timePicker)?.visibility shouldBe View.GONE
-        }
-    }
-
-    @Test
-    fun onSpinnerItemSelected_position1_showsTimePicker() {
-        withFragment {
-            onSpinnerItemSelected(1)
-            requireView().findViewById<View>(R.id.timePicker)?.visibility shouldBe View.VISIBLE
-            requireView().findViewById<View>(R.id.numberPicker)?.visibility shouldBe View.GONE
-        }
-    }
-
-    @Test
-    fun onSpinnerItemSelected_position2_showsDatePicker() {
-        withFragment {
-            onSpinnerItemSelected(2)
-            requireView().findViewById<View>(R.id.datePicker)?.visibility shouldBe View.VISIBLE
-        }
-    }
-
-    @Test
-    fun onSpinnerItemSelected_position3_showsSpinningDatePicker() {
-        withFragment {
-            onSpinnerItemSelected(3)
-            requireView().findViewById<View>(R.id.spinningDatePicker)?.visibility shouldBe View.VISIBLE
-        }
-    }
-
-    @Test
-    fun onSpinnerItemSelected_position4_showsSleepPicker() {
-        withFragment {
-            onSpinnerItemSelected(4)
-            requireView().findViewById<View>(R.id.sleepPicker)?.visibility shouldBe View.VISIBLE
-        }
-    }
-
-    @Test
-    fun onConfigurationChanged_withDialogShowing_dismissesAndReopens() {
-        withFragment {
-            pickerDialogHandler.openColorPickerDialog()
-            val config = Configuration(resources.configuration)
-            onConfigurationChanged(config)
-            shadowOf(Looper.getMainLooper()).idle()
-            colorPickerDialog?.isShowing shouldBe true
-        }
-    }
-
-    @Test
-    fun onConfigurationChanged_withDialogExistingNotShowing_doesNothing() {
-        withFragment {
-            pickerDialogHandler.openColorPickerDialog()
-            colorPickerDialog?.dismiss()
-            val config = Configuration(resources.configuration)
-            onConfigurationChanged(config)
-            colorPickerDialog?.isShowing shouldBe false
-        }
-    }
-
-    @Test
-    fun openStartEndTimePickerDialog_positiveButton_callsOnStartEndTimePicked() {
+    fun colorDialog_viewDestroyedBeforeThePostedBitmapListener_doesNotCrashAndDismissesTheDialog() {
         ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
+            lateinit var dialog: AlertDialog
             scenario.onActivity { activity ->
                 (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
                     .navController
@@ -305,44 +186,138 @@ class TabPickerFragmentTest {
                 val fragment =
                     (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
                         .childFragmentManager
-                        .primaryNavigationFragment as? TabPickerFragment
-                fragment?.pickerDialogHandler?.openStartEndTimePickerDialog()
+                        .primaryNavigationFragment as TabPickerFragment
+                fragment.requireView().findViewById<View>(R.id.colorButton).performClick()
+                dialog = latestDialog()
             }
+            navigateToIcons(scenario)
             shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity {
-                (ShadowDialog.getLatestDialog() as? AlertDialog)?.getButton(AlertDialog.BUTTON_POSITIVE)?.performClick()
-            }
+            dialog.isShowing shouldBe false
+        }
+    }
+
+    @Test
+    fun configurationChanged_withoutDialog_opensNoDialog() {
+        withFragment {
+            onConfigurationChanged(Configuration(resources.configuration))
+            ShadowDialog.getLatestDialog() shouldBe null
+        }
+    }
+
+    @Test
+    fun configurationChanged_withDismissedDialog_doesNotReopen() {
+        withFragment {
+            click(R.id.colorButton)
+            val dialog = latestDialog()
+            dialog.dismiss()
+            onConfigurationChanged(Configuration(resources.configuration))
             shadowOf(Looper.getMainLooper()).idle()
+            ShadowDialog.getLatestDialog() shouldBeSameInstanceAs dialog
+            dialog.isShowing shouldBe false
         }
     }
 
     @Test
-    fun numberPicker3_editorAction_triggersCallback() {
+    fun configurationChanged_withShowingDialog_dismissesAndReopens() {
         withFragment {
-            requireView()
-                .findViewById<SeslNumberPicker>(R.id.numberPicker3)
-                ?.editText
-                ?.onEditorAction(EditorInfo.IME_ACTION_DONE)
+            click(R.id.colorButton)
+            val dialog = latestDialog()
+            onConfigurationChanged(Configuration(resources.configuration))
+            shadowOf(Looper.getMainLooper()).idle()
+            dialog.isShowing shouldBe false
+            ShadowDialog.getLatestDialog() shouldNotBeSameInstanceAs dialog
+            ShadowDialog.getLatestDialog().isShowing shouldBe true
         }
     }
 
     @Test
-    fun numberPicker2_editorAction_triggersCallback() {
+    fun numberPicker1_next_movesEditingToPicker2() {
         withFragment {
-            requireView()
-                .findViewById<SeslNumberPicker>(R.id.numberPicker2)
-                ?.editText
-                ?.onEditorAction(EditorInfo.IME_ACTION_NEXT)
+            numberPicker(R.id.numberPicker1).editText.onEditorAction(EditorInfo.IME_ACTION_NEXT)
+            numberPicker(R.id.numberPicker1).isEditTextMode shouldBe false
+            numberPicker(R.id.numberPicker2).isEditTextMode shouldBe true
         }
     }
 
     @Test
-    fun numberPicker1_editorAction_triggersCallback() {
+    fun numberPicker1_otherAction_keepsPicker2Unchanged() {
         withFragment {
-            requireView()
-                .findViewById<SeslNumberPicker>(R.id.numberPicker1)
-                ?.editText
-                ?.onEditorAction(EditorInfo.IME_ACTION_NEXT)
+            numberPicker(R.id.numberPicker1).editText.onEditorAction(EditorInfo.IME_ACTION_GO)
+            numberPicker(R.id.numberPicker2).isEditTextMode shouldBe false
         }
+    }
+
+    @Test
+    fun numberPicker2_next_movesEditingToPicker3() {
+        withFragment {
+            numberPicker(R.id.numberPicker2).editText.onEditorAction(EditorInfo.IME_ACTION_NEXT)
+            numberPicker(R.id.numberPicker2).isEditTextMode shouldBe false
+            numberPicker(R.id.numberPicker3).isEditTextMode shouldBe true
+        }
+    }
+
+    @Test
+    fun numberPicker2_otherAction_keepsPicker3Unchanged() {
+        withFragment {
+            numberPicker(R.id.numberPicker2).editText.onEditorAction(EditorInfo.IME_ACTION_GO)
+            numberPicker(R.id.numberPicker3).isEditTextMode shouldBe false
+        }
+    }
+
+    @Test
+    fun numberPicker3_done_leavesEditMode() {
+        withFragment {
+            numberPicker(R.id.numberPicker3).isEditTextMode = true
+            numberPicker(R.id.numberPicker3).editText.onEditorAction(EditorInfo.IME_ACTION_DONE)
+            numberPicker(R.id.numberPicker3).isEditTextMode shouldBe false
+        }
+    }
+
+    @Test
+    fun numberPicker3_otherAction_keepsEditMode() {
+        withFragment {
+            numberPicker(R.id.numberPicker3).isEditTextMode = true
+            numberPicker(R.id.numberPicker3).editText.onEditorAction(EditorInfo.IME_ACTION_GO)
+            numberPicker(R.id.numberPicker3).isEditTextMode shouldBe true
+        }
+    }
+
+    private fun TabPickerFragment.selectPicker(position: Int) {
+        requireView().findViewById<Spinner>(R.id.pickerSpinner).setSelection(position)
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun TabPickerFragment.visiblePickers(): List<Int> =
+        listOf(R.id.numberPicker, R.id.timePicker, R.id.datePicker, R.id.spinningDatePicker, R.id.sleepPicker)
+            .filter { requireView().findViewById<View>(it).isVisible }
+
+    @Test
+    fun pickerSpinner_nothingSelected_keepsTheVisiblePicker() {
+        withFragment {
+            val spinner = requireView().findViewById<Spinner>(R.id.pickerSpinner)
+            spinner.onItemSelectedListener.shouldNotBeNull().onNothingSelected(spinner)
+            visiblePickers() shouldBe listOf(R.id.numberPicker)
+        }
+    }
+
+    @Test
+    fun pickerSpinner_selection_showsOnlyTheMatchingPicker() {
+        withFragment {
+            selectPicker(1)
+            visiblePickers() shouldBe listOf(R.id.timePicker)
+            selectPicker(2)
+            visiblePickers() shouldBe listOf(R.id.datePicker)
+            selectPicker(3)
+            visiblePickers() shouldBe listOf(R.id.spinningDatePicker)
+            selectPicker(4)
+            visiblePickers() shouldBe listOf(R.id.sleepPicker)
+            selectPicker(0)
+            visiblePickers() shouldBe listOf(R.id.numberPicker)
+        }
+    }
+
+    companion object {
+        private const val PRESET_COLOR = 0xFF123456.toInt()
+        private const val OTHER_COLOR = 0xFF654321.toInt()
     }
 }
