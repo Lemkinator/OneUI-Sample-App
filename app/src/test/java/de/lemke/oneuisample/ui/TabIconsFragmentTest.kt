@@ -135,7 +135,7 @@ class TabIconsFragmentTest {
 
     private fun ActivityScenario<MainActivity>.snackbarTextAfterSwipe(): String? {
         var text: String? = null
-        repeat(SWIPE_SETTLE_STEPS) {
+        repeat(SWIPE_SETTLE_STEPS) { _ ->
             if (text == null) {
                 shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(SWIPE_SETTLE_STEP_MS))
                 onActivity { text = it.findViewById<TextView>(MaterialR.id.snackbar_text)?.text?.toString() }
