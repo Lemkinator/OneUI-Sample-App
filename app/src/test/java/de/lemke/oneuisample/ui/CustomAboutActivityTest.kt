@@ -42,6 +42,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.fakes.RoboMenuItem
@@ -63,6 +64,21 @@ class CustomAboutActivityTest {
             scenario.onActivity { it.block() }
             shadowOf(Looper.getMainLooper()).idle()
         }
+    }
+
+    private fun withController(block: (ActivityController<CustomAboutActivity>) -> Unit) {
+        val controller = Robolectric.buildActivity(CustomAboutActivity::class.java).setup()
+        shadowOf(Looper.getMainLooper()).idle()
+        try {
+            block(controller)
+        } finally {
+            controller.pause().stop().destroy()
+        }
+    }
+
+    private fun ActivityController<CustomAboutActivity>.changeConfiguration() {
+        configurationChange(Configuration(get().resources.configuration).apply { screenWidthDp += 1 })
+        shadowOf(Looper.getMainLooper()).idle()
     }
 
     private fun CustomAboutActivity.appBar() = findViewById<AppBarLayout>(R.id.aboutAppBar)
@@ -168,12 +184,12 @@ class CustomAboutActivityTest {
 
     @Test
     fun configurationChanged_portraitWithCollapsedBar_expandsTheBar() {
-        launch {
-            collapseAppBar()
-            onConfigurationChanged(Configuration(resources.configuration))
-            shadowOf(Looper.getMainLooper()).idle()
-            appBar().seslIsCollapsed() shouldBe false
-            backCallbackActive shouldBe false
+        withController { controller ->
+            val activity = controller.get()
+            activity.collapseAppBar()
+            controller.changeConfiguration()
+            activity.appBar().seslIsCollapsed() shouldBe false
+            activity.backCallbackActive shouldBe false
         }
     }
 
@@ -190,13 +206,13 @@ class CustomAboutActivityTest {
 
     @Test
     fun multiWindow_collapsedBar_deactivatesBackCallback() {
-        launch {
-            collapseAppBar()
-            backCallbackActive shouldBe true
-            (shadowOf(this as Activity) as ShadowActivity).setInMultiWindowMode(true)
-            onConfigurationChanged(Configuration(resources.configuration))
-            shadowOf(Looper.getMainLooper()).idle()
-            backCallbackActive shouldBe false
+        withController { controller ->
+            val activity = controller.get()
+            activity.collapseAppBar()
+            activity.backCallbackActive shouldBe true
+            (shadowOf(activity as Activity) as ShadowActivity).setInMultiWindowMode(true)
+            controller.changeConfiguration()
+            activity.backCallbackActive shouldBe false
         }
     }
 

@@ -50,8 +50,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowDialog
@@ -94,6 +96,24 @@ class TabPickerFragmentTest {
             }
             shadowOf(Looper.getMainLooper()).idle()
         }
+    }
+
+    private fun withFragmentController(block: (ActivityController<MainActivity>, TabPickerFragment) -> Unit) {
+        val controller = Robolectric.buildActivity(MainActivity::class.java, Intent(context, MainActivity::class.java)).setup()
+        shadowOf(Looper.getMainLooper()).idle()
+        try {
+            val host = controller.get().supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment
+            host.navController.navigate(R.id.picker_dest)
+            shadowOf(Looper.getMainLooper()).idle()
+            block(controller, host.childFragmentManager.primaryNavigationFragment as TabPickerFragment)
+        } finally {
+            controller.pause().stop().destroy()
+        }
+    }
+
+    private fun ActivityController<MainActivity>.changeConfiguration() {
+        configurationChange(Configuration(get().resources.configuration).apply { screenWidthDp += 1 })
+        shadowOf(Looper.getMainLooper()).idle()
     }
 
     private fun TabPickerFragment.click(viewId: Int) {
@@ -188,20 +208,19 @@ class TabPickerFragmentTest {
 
     @Test
     fun configurationChanged_withoutDialog_opensNoDialog() {
-        withFragment {
-            onConfigurationChanged(Configuration(resources.configuration))
+        withFragmentController { controller, _ ->
+            controller.changeConfiguration()
             ShadowDialog.getLatestDialog() shouldBe null
         }
     }
 
     @Test
     fun configurationChanged_withDismissedDialog_doesNotReopen() {
-        withFragment {
-            click(R.id.colorButton)
+        withFragmentController { controller, fragment ->
+            fragment.click(R.id.colorButton)
             val dialog = latestDialog()
             dialog.dismiss()
-            onConfigurationChanged(Configuration(resources.configuration))
-            shadowOf(Looper.getMainLooper()).idle()
+            controller.changeConfiguration()
             ShadowDialog.getLatestDialog() shouldBeSameInstanceAs dialog
             dialog.isShowing shouldBe false
         }
@@ -209,11 +228,10 @@ class TabPickerFragmentTest {
 
     @Test
     fun configurationChanged_withShowingDialog_dismissesAndReopens() {
-        withFragment {
-            click(R.id.colorButton)
+        withFragmentController { controller, fragment ->
+            fragment.click(R.id.colorButton)
             val dialog = latestDialog()
-            onConfigurationChanged(Configuration(resources.configuration))
-            shadowOf(Looper.getMainLooper()).idle()
+            controller.changeConfiguration()
             dialog.isShowing shouldBe false
             ShadowDialog.getLatestDialog() shouldNotBeSameInstanceAs dialog
             ShadowDialog.getLatestDialog().isShowing shouldBe true

@@ -133,6 +133,9 @@ class ObserveIconListUseCaseTest {
                 override fun getResources(): Resources = resources
             }
 
-        ObserveIconListUseCase(contextWithFailingResources, repo).iconsId shouldBe useCase.iconsId.filter { it.resId != failingId }
+        val listed = ObserveIconListUseCase(contextWithFailingResources, repo).iconsId
+
+        listed shouldBe useCase.iconsId.filter { it.resId != failingId }
+        listed.size shouldBe 882
     }
 }

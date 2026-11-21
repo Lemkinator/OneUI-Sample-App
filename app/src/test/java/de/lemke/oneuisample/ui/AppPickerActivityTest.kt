@@ -363,6 +363,8 @@ class AppPickerActivityTest {
         launch {
             val item = RoboMenuItem(R.id.menu_app_picker_search)
             onOptionsItemSelected(item) shouldBe true
+            shadowOf(Looper.getMainLooper()).idle()
+            findViewById<ToolbarLayout>(R.id.toolbar_layout).isSearchMode shouldBe true
         }
     }
 
