@@ -24,8 +24,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
@@ -92,8 +90,7 @@ class SubtabWidgetsFragment : Fragment() {
         if (SDK_INT >= Q) binding.root.seslSetGoToTopEnabled(true)
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onSwitchToggled() {
+    private fun onSwitchToggled() {
         binding.switchBar.setProgressBarVisible(true)
         progressJob?.cancel()
         progressJob =

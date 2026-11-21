@@ -18,6 +18,7 @@ package de.lemke.oneuisample.ui
 import android.app.Application
 import android.content.Intent
 import android.os.Looper
+import android.view.View
 import androidx.appcompat.widget.SeslSwitchBar
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ActivityScenario
@@ -30,6 +31,7 @@ import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.fragments.SubtabWidgetsFragment
 import de.lemke.oneuisample.ui.fragments.TabDesignFragment
+import io.kotest.matchers.shouldBe
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import org.junit.Before
@@ -80,19 +82,32 @@ class SubtabWidgetsFragmentTest {
         }
     }
 
+    private fun SubtabWidgetsFragment.switchBar() = requireView().findViewById<SeslSwitchBar>(R.id.switchBar)
+
+    private fun SeslSwitchBar.progress() = findViewById<View>(androidx.appcompat.R.id.sesl_switchbar_progress)
+
     @Test
-    fun switchBar_click_triggersListenerAndCompletesAfterDelay() {
+    fun switchBar_click_showsProgressUntilDelayElapsed() {
         withFragment {
-            requireView().findViewById<SeslSwitchBar>(R.id.switchBar)?.performClick()
+            val progress = switchBar().progress()
+            switchBar().performClick()
+            progress.visibility shouldBe View.VISIBLE
             shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
+            progress.visibility shouldBe View.GONE
         }
     }
 
     @Test
-    fun onSwitchToggled_secondCall_cancelsPreviousJob() {
+    fun switchBar_secondClickWithinDelay_restartsTheDelay() {
         withFragment {
-            onSwitchToggled()
-            onSwitchToggled()
+            val progress = switchBar().progress()
+            switchBar().performClick()
+            shadowOf(Looper.getMainLooper()).idleFor(600, TimeUnit.MILLISECONDS)
+            switchBar().performClick()
+            shadowOf(Looper.getMainLooper()).idleFor(600, TimeUnit.MILLISECONDS)
+            progress.visibility shouldBe View.VISIBLE
+            shadowOf(Looper.getMainLooper()).idleFor(600, TimeUnit.MILLISECONDS)
+            progress.visibility shouldBe View.GONE
         }
     }
 }
