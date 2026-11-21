@@ -23,7 +23,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.domain.Icon
 import de.lemke.oneuisample.ui.util.IconAdapter.Payload.HIGHLIGHT
@@ -89,7 +88,6 @@ class IconAdapter(
             itemView.setOnLongClickListener { handleItemLongClick() }
         }
 
-    @NoCoverage
     override fun onBindViewHolder(
         holder: ViewHolder,
         position: Int,
@@ -107,8 +105,6 @@ class IconAdapter(
                     HIGHLIGHT -> {
                         holder.bindHighlight(currentList[position])
                     }
-
-                    else -> {}
                 }
             }
         }
@@ -125,7 +121,6 @@ class IconAdapter(
 
     fun getItemByPosition(position: Int): Icon = currentList[position]
 
-    @NoCoverage
     private fun ViewHolder.handleItemClick() {
         val position = bindingAdapterPosition
         if (position != RecyclerView.NO_POSITION) {
@@ -133,7 +128,6 @@ class IconAdapter(
         }
     }
 
-    @NoCoverage
     private fun ViewHolder.handleItemLongClick(): Boolean {
         if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
             onLongClickItem()

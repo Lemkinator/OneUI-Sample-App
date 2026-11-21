@@ -21,8 +21,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.View.VISIBLE
-import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
@@ -31,12 +29,10 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.indexscroll.widget.SeslArrayIndexer
 import androidx.lifecycle.Lifecycle
-import androidx.recyclerview.widget.ItemTouchHelper.END
 import androidx.recyclerview.widget.ItemTouchHelper.START
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
-import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.UserSettingsSnapshot
@@ -81,12 +77,10 @@ import dev.oneuiproject.oneui.R as iconsR
 class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTranslator by AppBarAwareYTranslator() {
     private val binding by autoCleared { FragmentTabIconsBinding.bind(requireView()) }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal lateinit var drawerLayout: DrawerLayout
+    private lateinit var drawerLayout: DrawerLayout
     private val allSelectorStateFlow: MutableStateFlow<AllSelectorState> = MutableStateFlow(AllSelectorState())
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal val iconAdapter: IconAdapter by autoCleared {
+    private val iconAdapter: IconAdapter by autoCleared {
         IconAdapter(
             requireContext(),
             onAllSelectorStateChanged = { allSelectorStateFlow.value = it },
@@ -100,16 +94,16 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     @Inject
     lateinit var userSettings: UserSettings
 
-    val searchModeListener: ToolbarLayout.SearchModeListener by autoCleared {
+    private val searchModeListener: ToolbarLayout.SearchModeListener by autoCleared {
         object : ToolbarLayout.SearchModeListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                userSettings.search = query.orEmpty()
+            override fun onQueryTextSubmit(query: String): Boolean {
+                userSettings.search = query
                 requireActivity().hideSoftInput()
                 return true
             }
 
-            override fun onQueryTextChange(query: String?): Boolean {
-                userSettings.search = query.orEmpty()
+            override fun onQueryTextChange(query: String): Boolean {
+                userSettings.search = query
                 return true
             }
 
@@ -131,14 +125,11 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal val swipeHandler = SwipeHandler()
+    private val swipeHandler = SwipeHandler()
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal val settingsDialogHandler = SettingsDialogHandler()
+    private val settingsDialogHandler = SettingsDialogHandler()
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal val actionModeHandler = ActionModeHandler()
+    private val actionModeHandler = ActionModeHandler()
 
     override fun onViewCreated(
         view: View,
@@ -157,7 +148,6 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         binding.fabIcons.setOnClickListener { showFabTip() }
     }
 
-    @NoCoverage
     private fun setupMenuProvider() =
         requireActivity().addMenuProvider(
             object : MenuProvider {
@@ -190,8 +180,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun updateList(iconsAndSearch: Pair<List<Icon>, String?>) {
+    private fun updateList(iconsAndSearch: Pair<List<Icon>, String?>) {
         if (iconsAndSearch.first.isEmpty()) {
             binding.iconList.isVisible = false
             binding.noEntryScrollView.isVisible = true
@@ -218,8 +207,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         onLongClickItem = { onIconItemLongClicked() }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onIconItemClicked(
+    private fun onIconItemClicked(
         position: Int,
         icon: Icon,
     ) {
@@ -230,21 +218,18 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         }
     }
 
-    @NoCoverage
-    internal fun onIconItemLongClicked() {
+    private fun onIconItemLongClicked() {
         if (!iconAdapter.isActionMode) actionModeHandler.launchActionMode()
         binding.iconList.seslStartLongPressMultiSelection()
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun applyUserSettings(settings: UserSettingsSnapshot) {
+    private fun applyUserSettings(settings: UserSettingsSnapshot) {
         binding.iconList.seslSetFastScrollerEnabled(!settings.showIndexScroll)
         binding.iconIndexScroll.isVisible = settings.showIndexScroll
         binding.iconIndexScroll.setIndexBarTextMode(settings.indexScrollShowLetters)
         binding.iconIndexScroll.setAutoHide(settings.indexScrollAutoHide)
     }
 
-    @NoCoverage
     private fun SearchView.onSearchOverflowClicked() {
         clearFocus()
         AlertDialog.Builder(requireContext()).apply {
@@ -255,8 +240,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun showMultiSelectTip() {
+    private fun showMultiSelectTip() {
         showTipPopup(
             message = getString(R.string.tip_long_press_multiselect),
             delay = MULTISELECT_TIP_DELAY,
@@ -264,8 +248,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
         )
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun showFabTip() {
+    private fun showFabTip() {
         showTipPopup(
             message = getString(R.string.tip_icons_tab),
             getAnchor = { binding.fabIcons },
@@ -278,12 +261,10 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     }
 
     /** Swipe-to-reveal actions for the icon list: shows a directional snackbar per swipe. */
-    internal inner class SwipeHandler {
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal val isSwipeEnabled: (RecyclerView.ViewHolder) -> Boolean = { !drawerLayout.isActionMode }
+    private inner class SwipeHandler {
+        private val isSwipeEnabled: (RecyclerView.ViewHolder) -> Boolean = { !drawerLayout.isActionMode }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal val onIconSwipeCallback: (Int, Int, Int) -> Boolean = { position, direction, _ -> onIconSwiped(position, direction) }
+        private val onIconSwipeCallback: (Int, Int, Int) -> Boolean = { position, direction, _ -> onIconSwiped(position, direction) }
 
         fun configureItemSwipeAnimator() {
             binding.iconList.configureItemSwipeAnimator(
@@ -299,24 +280,20 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             )
         }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onIconSwiped(
+        private fun onIconSwiped(
             position: Int,
             swipeDirection: Int,
         ): Boolean {
             val icon = iconAdapter.getItemByPosition(position)
-            when (swipeDirection) {
-                START -> suggestiveSnackBar("${icon.name}: ${getString(R.string.right_to_left)}")
-                END -> suggestiveSnackBar("${icon.name}: ${getString(R.string.left_to_right)}")
-            }
+            val direction = if (swipeDirection == START) R.string.right_to_left else R.string.left_to_right
+            suggestiveSnackBar("${icon.name}: ${getString(direction)}")
             return true
         }
     }
 
     /** Builds, shows, and applies the icon tab's settings dialog. */
-    internal inner class SettingsDialogHandler {
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun buildSettingsDialogView(): DialogSettingsBinding =
+    private inner class SettingsDialogHandler {
+        private fun buildSettingsDialogView(): DialogSettingsBinding =
             DialogSettingsBinding.inflate(layoutInflater).apply {
                 actionModeShowCancel.isChecked = userSettings.actionModeShowCancel
                 showIndexScroll.isChecked = userSettings.showIndexScroll
@@ -334,8 +311,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                 }
             }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun showSettingsDialog() {
+        fun showSettingsDialog() {
             val dialogBinding = buildSettingsDialogView()
             AlertDialog.Builder(requireContext()).apply {
                 setTitle(getString(R.string.settings))
@@ -348,8 +324,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             }
         }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun applySettingsFromDialog(dialogBinding: DialogSettingsBinding) =
+        private fun applySettingsFromDialog(dialogBinding: DialogSettingsBinding) =
             applySettings(
                 actionModeShowCancel = dialogBinding.actionModeShowCancel.isChecked,
                 showIndexScroll = dialogBinding.showIndexScroll.isChecked,
@@ -358,8 +333,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                 checkedSearchOnActionModeId = dialogBinding.amsOptions.checkedRadioButtonId,
             )
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun applySettings(
+        private fun applySettings(
             actionModeShowCancel: Boolean,
             showIndexScroll: Boolean,
             indexScrollShowLetters: Boolean,
@@ -378,8 +352,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                 }
         }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onShowIndexScrollChanged(
+        private fun onShowIndexScrollChanged(
             dialogBinding: DialogSettingsBinding,
             isChecked: Boolean,
         ) {
@@ -389,11 +362,10 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
     }
 
     /** Search and selection (action mode) menu handling for the icon tab. */
-    internal inner class ActionModeHandler {
+    private inner class ActionModeHandler {
         private fun startSearch() = drawerLayout.startSearchMode(searchModeListener, DISMISS)
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun launchActionMode(initialSelected: Set<Long>? = null) {
+        fun launchActionMode(initialSelected: Set<Long>? = null) {
             val adapter = iconAdapter
             adapter.toggleActionMode(true, initialSelected)
             drawerLayout.startActionMode(
@@ -407,8 +379,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
             )
         }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onIconTabMenuItemSelected(menuItem: MenuItem): Boolean =
+        fun onIconTabMenuItemSelected(menuItem: MenuItem): Boolean =
             when (menuItem.itemId) {
                 R.id.menu_item_search -> {
                     startSearch()
@@ -425,14 +396,12 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
                 }
             }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onSettingsMenuItemSelected(menuItem: MenuItem) {
+        private fun onSettingsMenuItemSelected(menuItem: MenuItem) {
             settingsDialogHandler.showSettingsDialog()
             menuItem.clearBadge()
         }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onActionModeMenuItemSelected(item: MenuItem): Boolean =
+        private fun onActionModeMenuItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 R.id.menu_item_1 -> {
                     suggestiveSnackBar(getString(R.string.menu_item_1_selected))
