@@ -157,6 +157,15 @@ class CustomAboutActivityTest {
     }
 
     @Test
+    fun appBar_scrolledWhileTheCollapsingLayoutHasNoHeight_keepsTheBottomContentHidden() {
+        launch {
+            findViewById<View>(R.id.aboutCTL).layout(0, 0, 1000, 0)
+            scrollAppBarBy(600)
+            bottomAlpha shouldBe 0f
+        }
+    }
+
+    @Test
     fun configurationChanged_portraitWithCollapsedBar_expandsTheBar() {
         launch {
             collapseAppBar()

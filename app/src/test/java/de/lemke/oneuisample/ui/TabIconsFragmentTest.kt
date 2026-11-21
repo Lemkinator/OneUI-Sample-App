@@ -299,6 +299,15 @@ class TabIconsFragmentTest {
     }
 
     @Test
+    fun item_longClickWhileInActionMode_keepsTheActionMode() {
+        withFragment {
+            startActionMode()
+            startActionMode()
+            drawer().isActionMode shouldBe true
+        }
+    }
+
+    @Test
     fun actionMode_selectAll_selectsEveryIcon() {
         withFragment {
             startActionMode()
