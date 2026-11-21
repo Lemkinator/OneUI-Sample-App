@@ -47,8 +47,6 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowDialog
 
-private val LOCALE_FOLDER = Regex("values-[a-z]{2,3}(-r[A-Z]{2})?")
-
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @Config(application = HiltTestApplication::class, sdk = [36])
@@ -126,9 +124,13 @@ class OOBEActivityTest {
             File("src/main/res")
                 .listFiles()
                 .orEmpty()
-                .map { it.name }
-                .filter { LOCALE_FOLDER.matches(it) }
-                .map { Locale.forLanguageTag(it.removePrefix("values-").replace("-r", "-")) }
+                .filter { it.name.startsWith("values-") && File(it, "strings.xml").declaresTosText() }
+                .map { it.name.removePrefix("values-").toLanguageTag() }
+                .map { Locale.forLanguageTag(it) }
+
+    private fun File.declaresTosText(): Boolean = isFile && readText().contains("name=\"oobe_tos_text\"")
+
+    private fun String.toLanguageTag(): String = if (startsWith("b+")) removePrefix("b+").replace('+', '-') else replace("-r", "-")
 
     @Test
     fun buildTosSpannable_wrapsLastOccurrence_inClickableSpan() {
