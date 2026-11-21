@@ -18,7 +18,6 @@ package de.lemke.oneuisample.ui
 import android.app.Application
 import android.content.Intent
 import android.os.Looper
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +29,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.NavHostFragment
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -45,9 +43,6 @@ import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsSnapshot
-import de.lemke.oneuisample.databinding.DialogSettingsBinding
-import de.lemke.oneuisample.domain.Icon
 import de.lemke.oneuisample.ui.fragments.TabIconsFragment
 import de.lemke.oneuisample.ui.util.IconAdapter
 import dev.oneuiproject.oneui.layout.DrawerLayout

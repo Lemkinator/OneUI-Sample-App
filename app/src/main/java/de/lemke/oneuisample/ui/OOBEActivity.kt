@@ -36,7 +36,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import dagger.hilt.android.AndroidEntryPoint
-import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityOobeBinding
 import de.lemke.oneuisample.ui.util.collectState
