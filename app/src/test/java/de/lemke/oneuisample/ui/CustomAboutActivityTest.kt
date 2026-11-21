@@ -39,6 +39,7 @@ import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -208,6 +209,22 @@ class CustomAboutActivityTest {
             )
             listOf(root.paddingLeft, root.paddingTop, root.paddingRight, root.paddingBottom) shouldBe listOf(1, 2, 3, 4)
         }
+    }
+
+    @Test
+    fun systemBarInsets_withFitsSystemWindowsDecor_leaveTheRootPaddingUntouched() {
+        val controller = Robolectric.buildActivity(CustomAboutActivity::class.java)
+        controller
+            .get()
+            .window.decorView.fitsSystemWindows = true
+        controller.setup()
+        shadowOf(Looper.getMainLooper()).idle()
+        val root = controller.get().findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
+        root.dispatchApplyWindowInsets(
+            WindowInsets.Builder().setInsets(WindowInsets.Type.systemBars(), Insets.of(1, 2, 3, 4)).build(),
+        )
+        listOf(root.paddingLeft, root.paddingTop, root.paddingRight, root.paddingBottom) shouldBe listOf(0, 0, 0, 0)
+        controller.pause().stop().destroy()
     }
 
     @Test
