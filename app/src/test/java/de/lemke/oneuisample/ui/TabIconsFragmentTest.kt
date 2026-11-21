@@ -18,32 +18,43 @@ package de.lemke.oneuisample.ui
 import android.app.Application
 import android.content.Intent
 import android.os.Looper
-import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
+import android.view.ViewGroup
+import android.view.Window
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.NavHostFragment
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.longClick
+import androidx.test.espresso.action.ViewActions.swipeLeft
+import androidx.test.espresso.action.ViewActions.swipeRight
+import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
-import de.lemke.oneuisample.data.UserSettingsSnapshot
-import de.lemke.oneuisample.databinding.DialogSettingsBinding
-import de.lemke.oneuisample.domain.Icon
 import de.lemke.oneuisample.ui.fragments.TabIconsFragment
+import de.lemke.oneuisample.ui.util.IconAdapter
 import dev.oneuiproject.oneui.layout.DrawerLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import dev.oneuiproject.oneui.widget.RadioItemViewGroup
 import dev.oneuiproject.oneui.widget.SwitchItemView
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import org.junit.Before
@@ -58,6 +69,17 @@ import org.robolectric.annotation.GraphicsMode
 import org.robolectric.fakes.RoboMenuItem
 import org.robolectric.shadows.ShadowDialog
 import com.google.android.material.R as MaterialR
+import dev.oneuiproject.oneui.design.R as designR
+
+private fun View.findSearchView(): SearchView? =
+    this as? SearchView ?: (this as? ViewGroup)?.children?.firstNotNullOfOrNull { it.findSearchView() }
+
+private fun View.findByTitle(title: String): View? =
+    if (tooltipText?.toString() == title || contentDescription?.toString() == title) {
+        this
+    } else {
+        (this as? ViewGroup)?.children?.firstNotNullOfOrNull { it.findByTitle(title) }
+    }
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -98,176 +120,7 @@ class TabIconsFragmentTest {
         }
     }
 
-    private fun TabIconsFragment.snackbarText(): String? {
-        shadowOf(Looper.getMainLooper()).idle()
-        return requireActivity().findViewById<TextView>(MaterialR.id.snackbar_text)?.text?.toString()
-    }
-
-    /** [IconAdapter.submitList] diffs on a background thread; wait for it to land before reading [IconAdapter.getItemByPosition]. */
-    private fun TabIconsFragment.awaitIconListSize(size: Int) {
-        repeat(100) {
-            if (iconAdapter.itemCount == size) return
-            Thread.sleep(5)
-            shadowOf(Looper.getMainLooper()).idle()
-        }
-    }
-
-    @Test
-    fun onIconTabMenuItemSelected_search_startsSearchMode() {
-        withFragment { actionModeHandler.onIconTabMenuItemSelected(RoboMenuItem(R.id.menu_item_search)) shouldBe true }
-    }
-
-    @Test
-    fun onIconTabMenuItemSelected_settings_showsDialog() {
-        withFragment {
-            actionModeHandler.onIconTabMenuItemSelected(RoboMenuItem(R.id.menu_item_settings)) shouldBe true
-            ShadowDialog.getLatestDialog() shouldNotBe null
-        }
-    }
-
-    @Test
-    fun onIconTabMenuItemSelected_unknown_returnsFalse() {
-        withFragment { actionModeHandler.onIconTabMenuItemSelected(RoboMenuItem(-1)) shouldBe false }
-    }
-
-    @Test
-    fun searchModeListener_onQueryTextSubmit_updatesSearch() {
-        withFragment {
-            searchModeListener.onQueryTextSubmit("query") shouldBe true
-            userSettings.search shouldBe "query"
-        }
-    }
-
-    @Test
-    fun searchModeListener_onQueryTextSubmit_withNullQuery_storesEmptyString() {
-        withFragment {
-            searchModeListener.onQueryTextSubmit(null) shouldBe true
-            userSettings.search shouldBe ""
-        }
-    }
-
-    @Test
-    fun searchModeListener_onQueryTextChange_updatesSearch() {
-        withFragment {
-            searchModeListener.onQueryTextChange("change") shouldBe true
-            userSettings.search shouldBe "change"
-        }
-    }
-
-    @Test
-    fun searchModeListener_onQueryTextChange_withNullQuery_storesEmptyString() {
-        withFragment {
-            searchModeListener.onQueryTextChange(null) shouldBe true
-            userSettings.search shouldBe ""
-        }
-    }
-
-    @Test
-    fun searchModeListener_onSearchModeToggle_activating_restoresSearchAndSetsActive() {
-        withFragment {
-            userSettings.search = "prev"
-            val searchView = SearchView(requireContext())
-            searchModeListener.onSearchModeToggle(searchView, true)
-            userSettings.searchActive shouldBe true
-            searchView.query.toString() shouldBe "prev"
-        }
-    }
-
-    @Test
-    fun searchModeListener_onSearchModeToggle_deactivating_setsSearchInactive() {
-        withFragment {
-            userSettings.searchActive = true
-            val searchView = SearchView(requireContext())
-            searchModeListener.onSearchModeToggle(searchView, false)
-            userSettings.searchActive shouldBe false
-        }
-    }
-
-    @Test
-    fun onActionModeMenuItemSelected_item1_showsSnackbar() {
-        withFragment {
-            actionModeHandler.onActionModeMenuItemSelected(RoboMenuItem(R.id.menu_item_1)) shouldBe true
-            snackbarText() shouldBe getString(R.string.menu_item_1_selected)
-        }
-    }
-
-    @Test
-    fun onActionModeMenuItemSelected_item2_showsSnackbar() {
-        withFragment {
-            actionModeHandler.onActionModeMenuItemSelected(RoboMenuItem(R.id.menu_item_2)) shouldBe true
-            snackbarText() shouldBe getString(R.string.menu_item_2_selected)
-        }
-    }
-
-    @Test
-    fun onActionModeMenuItemSelected_item3_showsSnackbar() {
-        withFragment {
-            actionModeHandler.onActionModeMenuItemSelected(RoboMenuItem(R.id.menu_item_3)) shouldBe true
-            snackbarText() shouldBe getString(R.string.menu_item_3_selected)
-        }
-    }
-
-    @Test
-    fun onActionModeMenuItemSelected_unknown_returnsFalse() {
-        withFragment { actionModeHandler.onActionModeMenuItemSelected(RoboMenuItem(-1)) shouldBe false }
-    }
-
-    @Test
-    fun updateList_emptyList_showsNoEntryView() {
-        withFragment {
-            updateList(Pair(emptyList(), null))
-            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
-            requireView().findViewById<View>(R.id.noEntryScrollView)?.visibility shouldBe View.VISIBLE
-            requireView().findViewById<View>(R.id.iconList)?.visibility shouldBe View.GONE
-        }
-    }
-
-    @Test
-    fun updateList_nonEmptyList_showsIconList() {
-        withFragment {
-            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
-            updateList(Pair(listOf(icon), null))
-            requireView().findViewById<View>(R.id.iconList)?.visibility shouldBe View.VISIBLE
-            requireView().findViewById<View>(R.id.noEntryScrollView)?.visibility shouldBe View.GONE
-        }
-    }
-
-    @Test
-    fun updateList_nonEmptyListWithHighlight_setsHighlight() {
-        withFragment {
-            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
-            updateList(Pair(listOf(icon), "set"))
-        }
-    }
-
-    @Test
-    fun onIconItemClicked_notInActionMode_showsSnackBar() {
-        withFragment {
-            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
-            onIconItemClicked(0, icon)
-        }
-    }
-
-    @Test
-    fun onIconItemClicked_inActionMode_togglesSelection() {
-        withFragment {
-            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
-            updateList(Pair(listOf(icon), null))
-            actionModeHandler.launchActionMode()
-            onIconItemClicked(0, icon)
-        }
-    }
-
-    @Test
-    fun launchActionMode_startsActionMode() {
-        withFragment {
-            actionModeHandler.launchActionMode()
-            drawerLayout.isActionMode shouldBe true
-        }
-    }
-
-    @Test
-    fun settingsDialog_positiveButton_appliesSettings() {
+    private fun withIconsScreen(block: ActivityScenario<MainActivity>.() -> Unit) {
         ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
@@ -276,297 +129,462 @@ class TabIconsFragmentTest {
                     .navigate(R.id.icons_dest)
             }
             shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                val fragment =
-                    (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
-                        .childFragmentManager.primaryNavigationFragment as? TabIconsFragment
-                requireNotNull(fragment) { "TabIconsFragment was not displayed" }
-                    .actionModeHandler
-                    .onIconTabMenuItemSelected(RoboMenuItem(R.id.menu_item_settings))
+            scenario.block()
+        }
+    }
+
+    private fun ActivityScenario<MainActivity>.snackbarTextAfterSwipe(): String? {
+        var text: String? = null
+        repeat(SWIPE_SETTLE_STEPS) { _ ->
+            if (text == null) {
+                shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(SWIPE_SETTLE_STEP_MS))
+                onActivity { text = it.findViewById<TextView>(MaterialR.id.snackbar_text)?.text?.toString() }
             }
+        }
+        return text
+    }
+
+    private fun TabIconsFragment.snackbarText(): String? {
+        shadowOf(Looper.getMainLooper()).idle()
+        return requireActivity().findViewById<TextView>(MaterialR.id.snackbar_text)?.text?.toString()
+    }
+
+    private fun TabIconsFragment.iconList() = requireView().findViewById<RecyclerView>(R.id.iconList)
+
+    private fun TabIconsFragment.adapter() = iconList().adapter as IconAdapter
+
+    /**
+     * `ListAdapter.submitList` diffs on a real background thread and posts the result to the main looper, so the
+     * virtual-time looper cannot advance it. Drain the looper until the adapter has committed the new list.
+     */
+    private fun TabIconsFragment.awaitListCommit(isCommitted: (IconAdapter) -> Boolean) {
+        val deadline = System.nanoTime() + LIST_COMMIT_TIMEOUT_NANOS
+        shadowOf(Looper.getMainLooper()).idle()
+        while (!isCommitted(adapter())) {
+            check(System.nanoTime() < deadline) { "The icon list was not committed within the timeout" }
+            Thread.sleep(LIST_COMMIT_POLL_MS)
             shadowOf(Looper.getMainLooper()).idle()
-            val expectedShowIndexScroll = !userSettings.showIndexScroll
-            scenario.onActivity {
-                val dialog = requireNotNull(ShadowDialog.getLatestDialog() as? AlertDialog) { "settings dialog was not shown" }
-                requireNotNull(dialog.findViewById<SwitchItemView>(R.id.showIndexScroll)).isChecked = expectedShowIndexScroll
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
-            }
-            shadowOf(Looper.getMainLooper()).idle()
-            userSettings.showIndexScroll shouldBe expectedShowIndexScroll
+        }
+    }
+
+    private fun TabIconsFragment.drawer() = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
+
+    private fun TabIconsFragment.menu(itemId: Int): Boolean =
+        requireActivity().onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, RoboMenuItem(itemId))
+
+    private fun TabIconsFragment.searchView(): SearchView =
+        requireActivity().findViewById<View>(android.R.id.content).findSearchView().shouldNotBeNull()
+
+    private fun TabIconsFragment.actionModeMenu() =
+        requireActivity().findViewById<Toolbar>(designR.id.toolbarlayout_action_mode_toolbar).menu
+
+    private fun TabIconsFragment.actionModeItem(title: String): View =
+        requireActivity().findViewById<View>(android.R.id.content).findByTitle(title).shouldNotBeNull()
+
+    private fun TabIconsFragment.itemView(position: Int): View {
+        shadowOf(Looper.getMainLooper()).idle()
+        return iconList().findViewHolderForAdapterPosition(position).shouldNotBeNull().itemView
+    }
+
+    private fun TabIconsFragment.startActionMode() {
+        shadowOf(Looper.getMainLooper()).idle()
+        onView(withText(adapter().getItemByPosition(0).name)).perform(longClick())
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun latestDialog(): AlertDialog = ShadowDialog.getLatestDialog() as AlertDialog
+
+    private fun TabIconsFragment.openSettingsDialog(): AlertDialog {
+        menu(R.id.menu_item_settings) shouldBe true
+        shadowOf(Looper.getMainLooper()).idle()
+        return latestDialog()
+    }
+
+    private fun AlertDialog.pressApply() {
+        getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    @Test
+    fun menu_search_startsSearchMode() {
+        withFragment {
+            menu(R.id.menu_item_search) shouldBe true
+            drawer().isSearchMode shouldBe true
         }
     }
 
     @Test
-    fun applySettings_dismiss_updatesSearchOnActionMode() {
+    fun menu_settings_showsTheSettingsDialog() {
         withFragment {
-            settingsDialogHandler.applySettings(
-                actionModeShowCancel = false,
-                showIndexScroll = false,
-                indexScrollShowLetters = false,
-                indexScrollAutoHide = false,
-                checkedSearchOnActionModeId = R.id.amsDismiss,
-            )
+            openSettingsDialog().findViewById<TextView>(androidx.appcompat.R.id.alertTitle)!!.text.toString() shouldBe "Settings"
+        }
+    }
+
+    @Test
+    fun menu_unknownItem_isNotHandled() {
+        withFragment { menu(UNKNOWN_ITEM_ID) shouldBe false }
+    }
+
+    @Test
+    fun search_submit_storesTheQuery() {
+        withFragment {
+            menu(R.id.menu_item_search)
+            searchView().setQuery("query", true)
+            userSettings.search shouldBe "query"
+        }
+    }
+
+    @Test
+    fun search_typing_storesTheQuery() {
+        withFragment {
+            menu(R.id.menu_item_search)
+            searchView().setQuery("change", false)
+            userSettings.search shouldBe "change"
+        }
+    }
+
+    @Test
+    fun search_clearing_storesAnEmptyQuery() {
+        withFragment {
+            menu(R.id.menu_item_search)
+            searchView().setQuery("change", false)
+            searchView().setQuery("", false)
+            userSettings.search shouldBe ""
+        }
+    }
+
+    @Test
+    fun search_started_restoresThePreviousQueryAndMarksSearchActive() {
+        userSettings.search = "prev"
+        withFragment {
+            menu(R.id.menu_item_search)
+            searchView().query.toString() shouldBe "prev"
+            userSettings.searchActive shouldBe true
+        }
+    }
+
+    @Test
+    fun search_ended_marksSearchInactive() {
+        withFragment {
+            menu(R.id.menu_item_search)
+            drawer().endSearchMode()
+            shadowOf(Looper.getMainLooper()).idle()
+            userSettings.searchActive shouldBe false
+        }
+    }
+
+    @Test
+    fun search_overflowButton_opensTheFilterDialog() {
+        withFragment {
+            menu(R.id.menu_item_search)
+            searchView().findViewById<View>(androidx.appcompat.R.id.search_more_btn).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            latestDialog().findViewById<TextView>(androidx.appcompat.R.id.alertTitle)!!.text.toString() shouldBe "Search Filter"
+        }
+    }
+
+    @Test
+    fun list_withoutSearch_showsEveryIcon() {
+        withFragment {
+            shadowOf(Looper.getMainLooper()).idle()
+            iconList().isVisible shouldBe true
+            requireView().findViewById<View>(R.id.noEntryScrollView).isVisible shouldBe false
+            adapter().itemCount shouldBe ALL_ICON_COUNT
+        }
+    }
+
+    @Test
+    fun list_withMatchingSearch_showsOnlyMatches() {
+        withFragment {
+            userSettings.searchActive = true
+            userSettings.search = "settings"
+            awaitListCommit { it.itemCount == 3 }
+            adapter().itemCount shouldBe 3
+            adapter().getItemByPosition(0).name shouldBe "page_settings"
+        }
+    }
+
+    @Test
+    fun list_withoutMatch_showsNoEntryView() {
+        withFragment {
+            userSettings.searchActive = true
+            userSettings.search = NO_MATCH_QUERY
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+            requireView().findViewById<View>(R.id.noEntryScrollView).isVisible shouldBe true
+            iconList().isVisible shouldBe false
+        }
+    }
+
+    @Test
+    fun item_click_showsTheBeautifiedNameInASnackBar() {
+        withFragment {
+            itemView(0).performClick()
+            snackbarText() shouldBe "360"
+        }
+    }
+
+    @Test
+    fun item_swipeLeft_showsTheRightToLeftSnackBar() {
+        withIconsScreen {
+            onView(withText("360")).perform(swipeLeft())
+            snackbarTextAfterSwipe() shouldBe "360: Right to Left"
+        }
+    }
+
+    @Test
+    fun item_swipeRight_showsTheLeftToRightSnackBar() {
+        withIconsScreen {
+            onView(withText("360")).perform(swipeRight())
+            snackbarTextAfterSwipe() shouldBe "360: Left to Right"
+        }
+    }
+
+    @Test
+    fun item_swipeInActionMode_showsNoSnackBar() {
+        withIconsScreen {
+            onView(withText("360")).perform(longClick())
+            shadowOf(Looper.getMainLooper()).idle()
+            onView(withText("360")).perform(swipeLeft())
+            snackbarTextAfterSwipe() shouldBe null
+        }
+    }
+
+    @Test
+    fun item_longClick_startsActionModeAndClickTogglesSelection() {
+        withFragment {
+            startActionMode()
+            drawer().isActionMode shouldBe true
+            val itemId = adapter().getItemId(0)
+            adapter().isSelected(itemId) shouldBe true
+            itemView(0).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            adapter().isSelected(itemId) shouldBe false
+            itemView(0).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            adapter().isSelected(itemId) shouldBe true
+        }
+    }
+
+    @Test
+    fun item_longClickWhileInActionMode_keepsTheActionMode() {
+        withFragment {
+            startActionMode()
+            startActionMode()
+            drawer().isActionMode shouldBe true
+        }
+    }
+
+    @Test
+    fun actionMode_selectAll_selectsEveryIcon() {
+        withFragment {
+            startActionMode()
+            requireActivity().findViewById<View>(designR.id.toolbarlayout_selectall).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            val adapter = adapter()
+            adapter.itemCount shouldBe ALL_ICON_COUNT
+            (0 until adapter.itemCount).all { adapter.isSelected(adapter.getItemId(it)) } shouldBe true
+        }
+    }
+
+    @Test
+    fun actionMode_end_leavesSelectionMode() {
+        withFragment {
+            startActionMode()
+            drawer().endActionMode()
+            shadowOf(Looper.getMainLooper()).idle()
+            drawer().isActionMode shouldBe false
+            adapter().isActionMode shouldBe false
+        }
+    }
+
+    @Test
+    fun actionMode_menuItem1_showsSnackBarAndEndsActionMode() {
+        withFragment {
+            startActionMode()
+            actionModeItem("Item 1").performClick()
+            snackbarText() shouldBe "Menu item 1 selected"
+            drawer().isActionMode shouldBe false
+        }
+    }
+
+    @Test
+    fun actionMode_menuItem2_showsSnackBarAndEndsActionMode() {
+        withFragment {
+            startActionMode()
+            actionModeItem("Item 2").performClick()
+            snackbarText() shouldBe "Menu item 2 selected"
+            drawer().isActionMode shouldBe false
+        }
+    }
+
+    @Test
+    fun actionMode_menuItem3_showsSnackBarAndEndsActionMode() {
+        withFragment {
+            startActionMode()
+            actionModeItem(getString(androidx.appcompat.R.string.abc_action_menu_overflow_description)).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            onView(withText("Item 3")).inRoot(isPlatformPopup()).perform(click())
+            shadowOf(Looper.getMainLooper()).idle()
+            snackbarText() shouldBe "Menu item 3 selected"
+            drawer().isActionMode shouldBe false
+        }
+    }
+
+    @Test
+    fun actionMode_unknownMenuItem_keepsActionMode() {
+        withFragment {
+            startActionMode()
+            actionModeMenu().add(Menu.NONE, UNKNOWN_ITEM_ID, Menu.NONE, "unknown")
+            actionModeMenu().performIdentifierAction(UNKNOWN_ITEM_ID, 0)
+            drawer().isActionMode shouldBe true
+        }
+    }
+
+    @Test
+    fun settingsDialog_dismissPreset_checksTheDismissRadio() {
+        userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.Dismiss
+        withFragment {
+            openSettingsDialog().findViewById<RadioItemViewGroup>(R.id.amsOptions)!!.checkedRadioButtonId shouldBe
+                R.id.amsDismiss
+        }
+    }
+
+    @Test
+    fun settingsDialog_noDismissPreset_checksTheNoDismissRadio() {
+        userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.NoDismiss
+        withFragment {
+            openSettingsDialog().findViewById<RadioItemViewGroup>(R.id.amsOptions)!!.checkedRadioButtonId shouldBe R.id.amsNoDismiss
+        }
+    }
+
+    @Test
+    fun settingsDialog_concurrentPreset_checksTheConcurrentRadio() {
+        userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.Concurrent(null)
+        withFragment {
+            openSettingsDialog().findViewById<RadioItemViewGroup>(R.id.amsOptions)!!.checkedRadioButtonId shouldBe R.id.amsConcurrent
+        }
+    }
+
+    @Test
+    fun settingsDialog_dismissRadio_storesDismiss() {
+        userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.NoDismiss
+        withFragment {
+            val dialog = openSettingsDialog()
+            dialog.findViewById<RadioItemViewGroup>(R.id.amsOptions)!!.check(R.id.amsDismiss)
+            dialog.pressApply()
             userSettings.searchOnActionMode shouldBe ToolbarLayout.SearchOnActionMode.Dismiss
-            userSettings.showIndexScroll shouldBe false
         }
     }
 
     @Test
-    fun applySettings_noDismiss_updatesSearchOnActionMode() {
+    fun settingsDialog_noDismissRadio_storesNoDismiss() {
+        userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.Dismiss
         withFragment {
-            settingsDialogHandler.applySettings(
-                actionModeShowCancel = true,
-                showIndexScroll = true,
-                indexScrollShowLetters = true,
-                indexScrollAutoHide = true,
-                checkedSearchOnActionModeId = R.id.amsNoDismiss,
-            )
+            val dialog = openSettingsDialog()
+            dialog.findViewById<RadioItemViewGroup>(R.id.amsOptions)!!.check(R.id.amsNoDismiss)
+            dialog.pressApply()
             userSettings.searchOnActionMode shouldBe ToolbarLayout.SearchOnActionMode.NoDismiss
-            userSettings.actionModeShowCancel shouldBe true
         }
     }
 
     @Test
-    fun applySettings_concurrent_updatesSearchOnActionMode() {
+    fun settingsDialog_concurrentRadio_storesConcurrent() {
+        userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.Dismiss
         withFragment {
-            settingsDialogHandler.applySettings(
-                actionModeShowCancel = false,
-                showIndexScroll = true,
-                indexScrollShowLetters = false,
-                indexScrollAutoHide = true,
-                checkedSearchOnActionModeId = -1,
-            )
+            val dialog = openSettingsDialog()
+            dialog.findViewById<RadioItemViewGroup>(R.id.amsOptions)!!.check(R.id.amsConcurrent)
+            dialog.pressApply()
             userSettings.searchOnActionMode shouldBe ToolbarLayout.SearchOnActionMode.Concurrent(null)
         }
     }
 
     @Test
-    fun onShowIndexScrollChanged_true_enablesSubOptions() {
+    fun settingsDialog_switches_areStoredOnApply() {
+        userSettings.actionModeShowCancel = false
+        userSettings.showIndexScroll = false
+        userSettings.indexScrollShowLetters = false
+        userSettings.indexScrollAutoHide = false
         withFragment {
-            val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
-            settingsDialogHandler.onShowIndexScrollChanged(dialogBinding, true)
-            dialogBinding.indexScrollShowLetters.isEnabled shouldBe true
-            dialogBinding.indexScrollAutoHide.isEnabled shouldBe true
+            val dialog = openSettingsDialog()
+            dialog.findViewById<SwitchItemView>(R.id.actionModeShowCancel)!!.isChecked = true
+            dialog.findViewById<SwitchItemView>(R.id.showIndexScroll)!!.isChecked = true
+            dialog.findViewById<SwitchItemView>(R.id.indexScrollShowLetters)!!.isChecked = true
+            dialog.findViewById<SwitchItemView>(R.id.indexScrollAutoHide)!!.isChecked = true
+            dialog.pressApply()
+            listOf(
+                userSettings.actionModeShowCancel,
+                userSettings.showIndexScroll,
+                userSettings.indexScrollShowLetters,
+                userSettings.indexScrollAutoHide,
+            ) shouldBe listOf(true, true, true, true)
         }
     }
 
     @Test
-    fun onShowIndexScrollChanged_false_disablesSubOptions() {
+    fun settingsDialog_indexScrollSwitch_enablesTheSubOptions() {
+        userSettings.showIndexScroll = false
         withFragment {
-            val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
-            settingsDialogHandler.onShowIndexScrollChanged(dialogBinding, false)
-            dialogBinding.indexScrollShowLetters.isEnabled shouldBe false
-            dialogBinding.indexScrollAutoHide.isEnabled shouldBe false
+            val dialog = openSettingsDialog()
+            dialog.findViewById<SwitchItemView>(R.id.indexScrollShowLetters)!!.isEnabled shouldBe false
+            dialog.findViewById<SwitchItemView>(R.id.indexScrollAutoHide)!!.isEnabled shouldBe false
+            dialog.findViewById<SwitchItemView>(R.id.showIndexScroll)!!.performClick()
+            dialog.findViewById<SwitchItemView>(R.id.indexScrollShowLetters)!!.isEnabled shouldBe true
+            dialog.findViewById<SwitchItemView>(R.id.indexScrollAutoHide)!!.isEnabled shouldBe true
+            dialog.findViewById<SwitchItemView>(R.id.showIndexScroll)!!.performClick()
+            dialog.findViewById<SwitchItemView>(R.id.indexScrollShowLetters)!!.isEnabled shouldBe false
         }
     }
 
     @Test
-    fun buildSettingsDialogView_showIndexScrollToggle_triggersCallback() {
+    fun indexScroll_setting_switchesBetweenIndexScrollAndFastScroller() {
         withFragment {
-            val dialogBinding = settingsDialogHandler.buildSettingsDialogView()
-            val expectedEnabled = !dialogBinding.showIndexScroll.isChecked
-            dialogBinding.showIndexScroll.performClick()
-            dialogBinding.indexScrollShowLetters.isEnabled shouldBe expectedEnabled
-            dialogBinding.indexScrollAutoHide.isEnabled shouldBe expectedEnabled
-        }
-    }
-
-    @Test
-    fun showSettingsDialog_withDismissSearchMode_checksCorrectRadio() {
-        withFragment {
-            userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.Dismiss
-            settingsDialogHandler.showSettingsDialog()
-            val amsOptions = (ShadowDialog.getLatestDialog() as AlertDialog).findViewById<RadioItemViewGroup>(R.id.amsOptions)
-            amsOptions?.checkedRadioButtonId shouldBe R.id.amsDismiss
-        }
-    }
-
-    @Test
-    fun showSettingsDialog_withNoDismissSearchMode_checksCorrectRadio() {
-        withFragment {
-            userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.NoDismiss
-            settingsDialogHandler.showSettingsDialog()
-            val amsOptions = (ShadowDialog.getLatestDialog() as AlertDialog).findViewById<RadioItemViewGroup>(R.id.amsOptions)
-            amsOptions?.checkedRadioButtonId shouldBe R.id.amsNoDismiss
-        }
-    }
-
-    @Test
-    fun showSettingsDialog_withConcurrentSearchMode_checksCorrectRadio() {
-        withFragment {
-            userSettings.searchOnActionMode = ToolbarLayout.SearchOnActionMode.Concurrent(null)
-            settingsDialogHandler.showSettingsDialog()
-            val amsOptions = (ShadowDialog.getLatestDialog() as AlertDialog).findViewById<RadioItemViewGroup>(R.id.amsOptions)
-            amsOptions?.checkedRadioButtonId shouldBe R.id.amsConcurrent
-        }
-    }
-
-    @Test
-    fun onIconSwiped_startDirection_showsSnackBar() {
-        withFragment {
-            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
-            updateList(Pair(listOf(icon), null))
-            awaitIconListSize(1)
-            swipeHandler.onIconSwiped(0, androidx.recyclerview.widget.ItemTouchHelper.START)
-            snackbarText() shouldBe "${icon.name}: ${getString(R.string.right_to_left)}"
-        }
-    }
-
-    @Test
-    fun onIconSwiped_endDirection_showsSnackBar() {
-        withFragment {
-            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
-            updateList(Pair(listOf(icon), null))
-            awaitIconListSize(1)
-            swipeHandler.onIconSwiped(0, androidx.recyclerview.widget.ItemTouchHelper.END)
-            snackbarText() shouldBe "${icon.name}: ${getString(R.string.left_to_right)}"
-        }
-    }
-
-    @Test
-    fun onIconSwiped_unknownDirection_returnsTrue() {
-        withFragment {
-            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
-            updateList(Pair(listOf(icon), null))
-            awaitIconListSize(1)
-            swipeHandler.onIconSwiped(0, -1) shouldBe true
-        }
-    }
-
-    @Test
-    fun observeIconList_withActiveSearch_emitsFilteredList() {
-        withFragment {
-            userSettings.searchActive = true
-            userSettings.search = "settings"
+            userSettings.showIndexScroll = true
             shadowOf(Looper.getMainLooper()).idle()
+            requireView().findViewById<View>(R.id.iconIndexScroll).isVisible shouldBe true
+            iconList().seslIsFastScrollerEnabled() shouldBe false
+            userSettings.showIndexScroll = false
+            shadowOf(Looper.getMainLooper()).idle()
+            iconList().seslIsFastScrollerEnabled() shouldBe true
         }
     }
 
     @Test
-    fun applySettingsFromDialog_withDefaultDialogBinding_appliesSettings() {
+    fun multiSelectTip_withThreeIcons_isShownAfterTheDelay() {
         withFragment {
-            val dialogBinding = DialogSettingsBinding.inflate(LayoutInflater.from(requireContext()))
-            settingsDialogHandler.applySettingsFromDialog(dialogBinding)
-            userSettings.actionModeShowCancel shouldBe dialogBinding.actionModeShowCancel.isChecked
-            userSettings.showIndexScroll shouldBe dialogBinding.showIndexScroll.isChecked
-            userSettings.indexScrollShowLetters shouldBe dialogBinding.indexScrollShowLetters.isChecked
-            userSettings.indexScrollAutoHide shouldBe dialogBinding.indexScrollAutoHide.isChecked
-        }
-    }
-
-    @Test
-    fun iconAdapter_toggleSelectAll_updatesAllSelectorState() {
-        withFragment {
-            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
-            updateList(Pair(listOf(icon), null))
-            shadowOf(Looper.getMainLooper()).idle()
-            actionModeHandler.launchActionMode()
-            shadowOf(Looper.getMainLooper()).idle()
-            iconAdapter.onToggleSelectAll(true)
-            shadowOf(Looper.getMainLooper()).idle()
-        }
-    }
-
-    @Test
-    fun endActionMode_afterLaunchActionMode_triggersOnEnd() {
-        withFragment {
-            actionModeHandler.launchActionMode()
-            shadowOf(Looper.getMainLooper()).idle()
-            requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout).endActionMode()
-            shadowOf(Looper.getMainLooper()).idle()
-        }
-    }
-
-    @Test
-    fun selectAll_afterLaunchActionMode_triggersOnSelectAll() {
-        withFragment {
-            actionModeHandler.launchActionMode()
-            shadowOf(Looper.getMainLooper()).idle()
-            requireActivity()
-                .findViewById<android.view.View>(dev.oneuiproject.oneui.design.R.id.toolbarlayout_selectall)
-                ?.performClick()
-            shadowOf(Looper.getMainLooper()).idle()
-        }
-    }
-
-    @Test
-    fun menuItemClick_afterLaunchActionMode_triggersOnSelectMenuItem() {
-        withFragment {
-            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
-            updateList(Pair(listOf(icon), null))
-            shadowOf(Looper.getMainLooper()).idle()
-            actionModeHandler.launchActionMode()
-            shadowOf(Looper.getMainLooper()).idle()
-            iconAdapter.onToggleSelectAll(true)
-            shadowOf(Looper.getMainLooper()).idle()
-            requireActivity()
-                .findViewById<androidx.appcompat.widget.Toolbar>(
-                    dev.oneuiproject.oneui.design.R.id.toolbarlayout_action_mode_toolbar,
-                )?.menu
-                ?.performIdentifierAction(R.id.menu_item_1, 0)
-            shadowOf(Looper.getMainLooper()).idle()
-        }
-    }
-
-    @Test
-    fun applyUserSettings_updatesBindings() {
-        withFragment { applyUserSettings(UserSettingsSnapshot()) }
-    }
-
-    @Test
-    fun isSwipeEnabled_notInActionMode_returnsTrue() {
-        withFragment { swipeHandler.isSwipeEnabled(object : RecyclerView.ViewHolder(View(requireContext())) {}) shouldBe true }
-    }
-
-    @Test
-    fun onIconSwipeCallback_startDirection_returnsTrue() {
-        withFragment {
-            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
-            updateList(Pair(listOf(icon), null))
-            awaitIconListSize(1)
-            swipeHandler.onIconSwipeCallback(0, ItemTouchHelper.START, 0) shouldBe true
-        }
-    }
-
-    @Test
-    fun onIconSwipeCallback_endDirection_returnsTrue() {
-        withFragment {
-            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
-            updateList(Pair(listOf(icon), null))
-            awaitIconListSize(1)
-            swipeHandler.onIconSwipeCallback(0, ItemTouchHelper.END, 0) shouldBe true
-        }
-    }
-
-    @Test
-    fun showMultiSelectTip_withAnchorView_showsTip() {
-        withFragment {
-            val icon = Icon(R.drawable.ic_launcher, "ic_oui_settings")
-            updateList(Pair(listOf(icon, icon, icon), null))
-            shadowOf(Looper.getMainLooper()).idle()
-            requireView().findViewById<RecyclerView>(R.id.iconList).layoutManager?.findViewByPosition(0) shouldNotBe null
-            showMultiSelectTip()
             shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
             shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldNotBe null
         }
     }
 
     @Test
-    fun showMultiSelectTip_noAnchorView_doesNothing() {
+    fun multiSelectTip_withTooFewIcons_isNotShown() {
         withFragment {
-            requireView().findViewById<RecyclerView>(R.id.iconList).layoutManager = null
-            showMultiSelectTip()
+            userSettings.searchActive = true
+            userSettings.search = FEW_MATCHES_QUERY
+            awaitListCommit { it.itemCount < ALL_ICON_COUNT }
             shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
             shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldBe null
         }
     }
 
     @Test
-    fun showFabTip_showsTip() {
+    fun fab_click_showsTheTip() {
         withFragment {
-            showFabTip()
-            shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
+            shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldBe null
+            requireView().findViewById<View>(R.id.fabIcons).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
             shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldNotBe null
         }
+    }
+
+    companion object {
+        private const val UNKNOWN_ITEM_ID = 12345
+        private const val SWIPE_SETTLE_STEPS = 30
+        private const val SWIPE_SETTLE_STEP_MS = 100L
+        private const val LIST_COMMIT_TIMEOUT_NANOS = 10_000_000_000L
+        private const val LIST_COMMIT_POLL_MS = 1L
+        private const val ALL_ICON_COUNT = 883
+        private const val NO_MATCH_QUERY = "zzzzzz-no-icon-matches"
+        private const val FEW_MATCHES_QUERY = "page_settings"
     }
 }

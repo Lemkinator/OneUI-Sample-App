@@ -18,10 +18,12 @@ package de.lemke.oneuisample.ui.util
 import androidx.picker.di.AppPickerContext
 import androidx.picker.model.AppInfo
 import androidx.picker.model.AppInfoDataImpl
+import androidx.picker.model.appdata.GroupAppData
 import androidx.picker.model.viewdata.AppInfoViewData
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.App
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import org.junit.Before
 import org.junit.Test
@@ -54,5 +56,15 @@ class AppPickerStrategyTest {
         val data = AppInfoDataImpl(appInfo, label = null)
         val results = strategy.convert(listOf(data), null).filterIsInstance<AppInfoViewData>()
         results.first().searchable shouldContain "de.lemke.oneuisample"
+    }
+
+    @Test
+    fun `convert keeps group titles and still marks the apps searchable`() {
+        val appInfo = AppInfo(packageName = "de.lemke.oneuisample", activityName = "")
+        val group =
+            GroupAppData(packageName = "group", activityName = "", appDataList = listOf(AppInfoDataImpl(appInfo, label = "OneUI Sample")))
+        val results = strategy.convert(listOf(group), null)
+        results.filterNot { it is AppInfoViewData }.shouldNotBeEmpty()
+        results.filterIsInstance<AppInfoViewData>().first().searchable shouldBe listOf("OneUI Sample", "de.lemke.oneuisample")
     }
 }

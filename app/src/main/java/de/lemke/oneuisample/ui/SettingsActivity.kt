@@ -17,7 +17,6 @@ package de.lemke.oneuisample.ui
 
 import android.app.ActivityManager
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Build.VERSION.SDK_INT
@@ -27,8 +26,6 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -45,7 +42,6 @@ import androidx.preference.PreferenceScreen
 import androidx.preference.SeslSwitchPreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
-import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.databinding.ActivitySettingsBinding
@@ -84,7 +80,6 @@ class SettingsActivity : AppCompatActivity() {
     class SettingsFragment : PreferenceFragmentCompat() {
         @Inject
         lateinit var userSettings: UserSettings
-        private lateinit var settingsActivity: SettingsActivity
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
         private lateinit var devOptionsPref: PreferenceCategory
@@ -93,12 +88,6 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var suggestionInsetPref: InsetPreferenceCategory
         private val viewModel: SettingsViewModel by viewModels()
         private var widgetResetJob: Job? = null
-
-        @NoCoverage
-        override fun onAttach(context: Context) {
-            super.onAttach(context)
-            if (activity is SettingsActivity) settingsActivity = activity as SettingsActivity
-        }
 
         override fun onCreatePreferences(
             bundle: Bundle?,
@@ -118,9 +107,9 @@ class SettingsActivity : AppCompatActivity() {
             savedInstanceState: Bundle?,
         ) {
             super.onViewCreated(view, savedInstanceState)
-            requireView().setBackgroundColor(resources.getColor(designR.color.oui_des_background_color, settingsActivity.theme))
+            requireView().setBackgroundColor(resources.getColor(designR.color.oui_des_background_color, requireContext().theme))
             addRelativeLinksCard(
-                RelativeLink(getString(R.string.about_custom)) { startActivity(Intent(settingsActivity, CustomAboutActivity::class.java)) },
+                RelativeLink(getString(R.string.about_custom)) { startActivity(Intent(requireContext(), CustomAboutActivity::class.java)) },
             )
             collectState(viewModel.state) { render(it) }
         }
@@ -199,11 +188,10 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
-        @NoCoverage
         @RequiresApi(TIRAMISU)
         private fun openAppLocaleSettings() {
             try {
-                startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${settingsActivity.packageName}".toUri()))
+                startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, "package:${requireContext().packageName}".toUri()))
             } catch (e: ActivityNotFoundException) {
                 Log.e("SettingsActivity", "ACTION_APP_LOCALE_SETTINGS not supported", e)
                 suggestiveSnackBar(getString(R.string.change_language_not_supported_by_device))
@@ -224,7 +212,7 @@ class SettingsActivity : AppCompatActivity() {
         private fun initDeleteAppDataPref() {
             requirePreference<PreferenceScreen>("deleteAppData").onClick {
                 AlertDialog
-                    .Builder(settingsActivity)
+                    .Builder(requireContext())
                     .setTitle(R.string.delete_appdata_and_exit)
                     .setMessage(R.string.delete_appdata_and_exit_warning)
                     .setNegativeButton(designR.string.oui_des_common_cancel, null)
@@ -234,9 +222,8 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
-        @NoCoverage
         private fun clearApplicationUserData() {
-            settingsActivity.withSystemService(ActivityManager::class.java) { it.clearApplicationUserData() }
+            requireContext().withSystemService(ActivityManager::class.java) { it.clearApplicationUserData() }
         }
 
         private fun initSuggestionCard() {
@@ -247,8 +234,7 @@ class SettingsActivity : AppCompatActivity() {
             suggestionCardPref.setActionButtonOnClickListener { onSuggestionCardActionButtonClicked() }
         }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onSuggestionCardActionButtonClicked() {
+        private fun onSuggestionCardActionButtonClicked() {
             suggestionCardPref.startTurnOnAnimation(getString(R.string.turned_on))
             viewLifecycleOwner.lifecycleScope.launch {
                 delay(SUGGESTION_DISMISS_DELAY_MS.milliseconds)

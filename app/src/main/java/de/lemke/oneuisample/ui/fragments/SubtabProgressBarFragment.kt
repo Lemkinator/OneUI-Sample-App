@@ -19,14 +19,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.widget.SeslProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.FragmentTabDesignSubtabProgressBarBinding
 import de.lemke.oneuisample.ui.util.autoCleared
@@ -64,7 +61,6 @@ class SubtabProgressBarFragment : Fragment() {
         binding.buttonShowProgressDialog.setOnClickListener { showProgressDialogDemo() }
     }
 
-    @NoCoverage
     private fun startProgressUpdater() {
         launchAndRepeatWithViewLifecycle(RESUMED) {
             while (true) {
@@ -75,8 +71,7 @@ class SubtabProgressBarFragment : Fragment() {
         }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun showProgressDialogDemo() {
+    private fun showProgressDialogDemo() {
         val dialog =
             ProgressDialog(requireContext()).apply {
                 setMessage(getString(R.string.loading))

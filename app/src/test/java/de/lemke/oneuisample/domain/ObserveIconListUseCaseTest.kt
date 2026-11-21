@@ -16,7 +16,9 @@
 package de.lemke.oneuisample.domain
 
 import android.app.Application
+import android.content.ContextWrapper
 import android.content.SharedPreferences
+import android.content.res.Resources
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.freshTestPreferences
@@ -114,4 +116,26 @@ class ObserveIconListUseCaseTest {
             val (_, search) = useCase().first()
             search shouldBe null
         }
+
+    @Test
+    fun `icons whose resource name cannot be resolved are skipped and the others are listed`() {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val failingId = useCase.iconsId.first().resId
+
+        @Suppress("DEPRECATION")
+        val resources =
+            object : Resources(context.assets, context.resources.displayMetrics, context.resources.configuration) {
+                override fun getResourceEntryName(resid: Int): String =
+                    if (resid == failingId) throw NotFoundException() else context.resources.getResourceEntryName(resid)
+            }
+        val contextWithFailingResources =
+            object : ContextWrapper(context) {
+                override fun getResources(): Resources = resources
+            }
+
+        val listed = ObserveIconListUseCase(contextWithFailingResources, repo).iconsId
+
+        listed shouldBe useCase.iconsId.filter { it.resId != failingId }
+        listed.size shouldBe 882
+    }
 }

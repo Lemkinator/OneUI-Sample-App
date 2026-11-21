@@ -18,29 +18,31 @@ package de.lemke.oneuisample.ui
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
-import android.content.res.Configuration.ORIENTATION_LANDSCAPE
-import android.content.res.Configuration.ORIENTATION_PORTRAIT
+import android.graphics.Insets
 import android.os.Looper
 import android.view.View
-import android.view.View.MeasureSpec.EXACTLY
-import android.view.View.MeasureSpec.makeMeasureSpec
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup
+import android.view.WindowInsets
 import androidx.activity.BackEventCompat
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.isVisible
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
+import io.kotest.matchers.floats.plusOrMinus
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.fakes.RoboMenuItem
@@ -64,19 +66,45 @@ class CustomAboutActivityTest {
         }
     }
 
-    private fun Activity.appBarLayoutAt(
-        y: Float,
-        top: Int,
-    ): AppBarLayout =
-        AppBarLayout(this).apply {
-            // SESL onMeasure casts its own layout params to CoordinatorLayout.LayoutParams and dereferences them.
-            layoutParams = CoordinatorLayout.LayoutParams(MATCH_PARENT, 400)
-            addView(View(context), AppBarLayout.LayoutParams(MATCH_PARENT, 200).apply { scrollFlags = SCROLL_FLAG_SCROLL })
-            measure(makeMeasureSpec(1000, EXACTLY), makeMeasureSpec(400, EXACTLY))
-            layout(0, top, 1000, top + 400)
-            this.y = y
-            totalScrollRange shouldBe 200
+    private fun withController(block: (ActivityController<CustomAboutActivity>) -> Unit) {
+        val controller = Robolectric.buildActivity(CustomAboutActivity::class.java).setup()
+        shadowOf(Looper.getMainLooper()).idle()
+        try {
+            block(controller)
+        } finally {
+            controller.pause().stop().destroy()
         }
+    }
+
+    private fun ActivityController<CustomAboutActivity>.changeConfiguration() {
+        configurationChange(Configuration(get().resources.configuration).apply { screenWidthDp += 1 })
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun CustomAboutActivity.appBar() = findViewById<AppBarLayout>(R.id.aboutAppBar)
+
+    private fun CustomAboutActivity.collapseAppBar() {
+        appBar().setExpanded(false, false)
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun CustomAboutActivity.expandAppBar() {
+        appBar().setExpanded(true, false)
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun CustomAboutActivity.scrollAppBarBy(dy: Int) {
+        val bar = appBar()
+        val behavior = (bar.layoutParams as CoordinatorLayout.LayoutParams).behavior as AppBarLayout.Behavior
+        behavior.onNestedPreScroll(bar.parent as CoordinatorLayout, bar, bar, 0, dy, IntArray(2), ViewCompat.TYPE_TOUCH)
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private val CustomAboutActivity.backCallbackActive get() = onBackPressedDispatcher.hasEnabledCallbacks()
+
+    private val CustomAboutActivity.swipeUpAlpha get() = findViewById<View>(R.id.aboutSwipeUpContainer).alpha
+
+    private val CustomAboutActivity.bottomAlpha get() = findViewById<View>(R.id.aboutBottomContainer).alpha
 
     @Test
     fun onOptionsItemSelected_appInfo_returnsTrue() {
@@ -95,124 +123,142 @@ class CustomAboutActivityTest {
     }
 
     @Test
-    fun onConfigurationChanged_portrait_refreshesAppBar() {
+    fun appBar_expandedAtStart_leavesBackCallbackInactive() {
         launch {
-            val config = Configuration(resources.configuration).apply { orientation = ORIENTATION_PORTRAIT }
-            onConfigurationChanged(config)
+            appBar().seslIsCollapsed() shouldBe false
+            backCallbackActive shouldBe false
+            swipeUpAlpha shouldBe 1f
+            bottomAlpha shouldBe 0f
         }
     }
 
     @Test
-    fun onConfigurationChanged_landscape_refreshesAppBar() {
+    fun appBar_collapsed_activatesBackCallbackAndShowsBottomContent() {
         launch {
-            val config = Configuration(resources.configuration).apply { orientation = ORIENTATION_LANDSCAPE }
-            onConfigurationChanged(config)
+            collapseAppBar()
+            backCallbackActive shouldBe true
+            swipeUpAlpha shouldBe 0f
+            bottomAlpha shouldBe 1f
         }
     }
 
     @Test
-    fun appBarOffsetChanged_collapsed_setsCallbackActive() {
+    fun appBar_expandedAgain_deactivatesBackCallback() {
         launch {
-            val appBarLayout = appBarLayoutAt(y = -200f, top = 0)
-            appBarListener.onOffsetChanged(appBarLayout, -200)
-            callbackIsActive.value shouldBe true
+            collapseAppBar()
+            expandAppBar()
+            backCallbackActive shouldBe false
+            swipeUpAlpha shouldBe 1f
+            bottomAlpha shouldBe 0f
         }
     }
 
     @Test
-    fun appBarOffsetChanged_expanded_setsCallbackInactive() {
+    fun appBar_scrolledPartway_fadesTheSwipeUpHint() {
         launch {
-            val appBarLayout = appBarLayoutAt(y = 0f, top = 0)
-            callbackIsActive.value = true
-            appBarListener.onOffsetChanged(appBarLayout, 0)
-            callbackIsActive.value shouldBe false
+            scrollAppBarBy(100)
+            swipeUpAlpha shouldBe (0.7064579f plusOrMinus ALPHA_TOLERANCE)
+            bottomAlpha shouldBe 0f
+            backCallbackActive shouldBe false
         }
     }
 
     @Test
-    fun appBarOffsetChanged_partial_setsOffsetAlpha() {
+    fun appBar_scrolledPastHalf_hidesTheSwipeUpHintAndFadesInTheBottomContent() {
         launch {
-            val appBarLayout = appBarLayoutAt(y = -20f, top = -20)
-            appBarListener.onOffsetChanged(appBarLayout, -20)
-            callbackIsActive.value shouldBe false
+            scrollAppBarBy(600)
+            swipeUpAlpha shouldBe 0f
+            bottomAlpha shouldBe (0.59834754f plusOrMinus ALPHA_TOLERANCE)
+            backCallbackActive shouldBe false
         }
     }
 
     @Test
-    fun computeBottomAlpha_withPositiveCtlHeight_computesAlpha() {
-        launch { computeBottomAlpha(700, 350f) shouldBe (150f / (700 * 0.143f) * (350f - 700 * 0.35f)).coerceIn(0f, 255f) }
-    }
-
-    @Test
-    fun computeBottomAlpha_withZeroCtlHeight_returnsZero() {
-        launch { computeBottomAlpha(0, 350f) shouldBe 0f }
-    }
-
-    @Test
-    fun updateCallbackState_whenBackProgressing_returnsEarly() {
-        ActivityScenario.launch<CustomAboutActivity>(Intent(context, CustomAboutActivity::class.java)).use { scenario ->
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { it.callbackIsActive.value = true }
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                activity.onBackPressedDispatcher.dispatchOnBackStarted(BackEventCompat(0f, 0f, 0f, BackEventCompat.EDGE_LEFT))
-                val appBarLayout = activity.appBarLayoutAt(y = -20f, top = -20)
-                activity.appBarListener.onOffsetChanged(appBarLayout, -100)
-            }
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                activity.callbackIsActive.value shouldBe true
-            }
-        }
-    }
-
-    @Test
-    fun appBarOffsetChanged_withZeroCtlHeight_usesZeroBottomAlpha() {
+    fun appBar_scrolledWhileTheCollapsingLayoutHasNoHeight_keepsTheBottomContentHidden() {
         launch {
-            window.decorView.findViewById<android.view.View>(R.id.aboutCTL)?.layout(0, 0, 1000, 0)
-            val appBarLayout = appBarLayoutAt(y = -200f, top = -200)
-            appBarListener.onOffsetChanged(appBarLayout, -200)
-            window.decorView.findViewById<android.view.View>(R.id.aboutBottomContainer)?.alpha shouldBe 0f
+            findViewById<View>(R.id.aboutCTL).layout(0, 0, 1000, 0)
+            scrollAppBarBy(600)
+            bottomAlpha shouldBe 0f
         }
+    }
+
+    @Test
+    fun configurationChanged_portraitWithCollapsedBar_expandsTheBar() {
+        withController { controller ->
+            val activity = controller.get()
+            activity.collapseAppBar()
+            controller.changeConfiguration()
+            activity.appBar().seslIsCollapsed() shouldBe false
+            activity.backCallbackActive shouldBe false
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "land")
+    fun landscape_collapsesTheBarAndKeepsBackCallbackInactive() {
+        launch {
+            appBar().seslIsCollapsed() shouldBe true
+            backCallbackActive shouldBe false
+            bottomAlpha shouldBe 1f
+            findViewById<View>(R.id.aboutSwipeUpContainer).isVisible shouldBe false
+        }
+    }
+
+    @Test
+    fun multiWindow_collapsedBar_deactivatesBackCallback() {
+        withController { controller ->
+            val activity = controller.get()
+            activity.collapseAppBar()
+            activity.backCallbackActive shouldBe true
+            (shadowOf(activity as Activity) as ShadowActivity).setInMultiWindowMode(true)
+            controller.changeConfiguration()
+            activity.backCallbackActive shouldBe false
+        }
+    }
+
+    @Test
+    fun systemBarInsets_becomeRootPadding() {
+        launch {
+            val root = findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
+            root.dispatchApplyWindowInsets(
+                WindowInsets.Builder().setInsets(WindowInsets.Type.systemBars(), Insets.of(1, 2, 3, 4)).build(),
+            )
+            listOf(root.paddingLeft, root.paddingTop, root.paddingRight, root.paddingBottom) shouldBe listOf(1, 2, 3, 4)
+        }
+    }
+
+    @Test
+    fun systemBarInsets_withFitsSystemWindowsDecor_leaveTheRootPaddingUntouched() {
+        val controller = Robolectric.buildActivity(CustomAboutActivity::class.java)
+        controller
+            .get()
+            .window.decorView.fitsSystemWindows = true
+        controller.setup()
+        shadowOf(Looper.getMainLooper()).idle()
+        val root = controller.get().findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
+        root.dispatchApplyWindowInsets(
+            WindowInsets.Builder().setInsets(WindowInsets.Type.systemBars(), Insets.of(1, 2, 3, 4)).build(),
+        )
+        listOf(root.paddingLeft, root.paddingTop, root.paddingRight, root.paddingBottom) shouldBe listOf(0, 0, 0, 0)
+        controller.pause().stop().destroy()
     }
 
     @Test
     @Config(sdk = [28])
     fun onCreate_belowApi30_noInsetListener() {
-        launch { shadowOf(Looper.getMainLooper()).idle() }
-    }
-
-    @Test
-    fun refreshAppBar_inMultiWindowMode_usesCollapsedLayout() {
         launch {
-            (shadowOf(this as Activity) as ShadowActivity).setInMultiWindowMode(true)
-            val config = Configuration(resources.configuration).apply { orientation = ORIENTATION_PORTRAIT }
-            onConfigurationChanged(config)
+            val root = findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
+            root.requestApplyInsets()
+            shadowOf(Looper.getMainLooper()).idle()
+            listOf(root.paddingLeft, root.paddingTop, root.paddingRight, root.paddingBottom) shouldBe listOf(0, 0, 0, 0)
         }
     }
 
     @Test
-    fun updateCallbackState_inMultiWindowMode_derivesDisabled() {
+    fun backGesture_progressWhileCollapsed_expandsAndCollapsesTheBarAndCancelRestoresIt() {
         ActivityScenario.launch<CustomAboutActivity>(Intent(context, CustomAboutActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                (shadowOf(activity as Activity) as ShadowActivity).setInMultiWindowMode(true)
-                activity.callbackIsActive.value = true
-                activity.onConfigurationChanged(Configuration(activity.resources.configuration))
-            }
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                activity.callbackIsActive.value shouldBe false
-            }
-        }
-    }
-
-    @Test
-    fun backGesture_cancelled_collapsesAppBar() {
-        ActivityScenario.launch<CustomAboutActivity>(Intent(context, CustomAboutActivity::class.java)).use { scenario ->
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { it.callbackIsActive.value = true }
-            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { it.collapseAppBar() }
             scenario.onActivity { activity ->
                 val high = BackEventCompat(0f, 0f, 0.6f, BackEventCompat.EDGE_LEFT)
                 val low = BackEventCompat(0f, 0f, 0.0f, BackEventCompat.EDGE_LEFT)
@@ -225,14 +271,27 @@ class CustomAboutActivityTest {
             }
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
-                activity.findViewById<AppBarLayout>(R.id.aboutAppBar).seslIsCollapsed() shouldBe false
+                activity.appBar().seslIsCollapsed() shouldBe false
                 activity.onBackPressedDispatcher.dispatchOnBackCancelled()
             }
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
-                activity.findViewById<AppBarLayout>(R.id.aboutAppBar).seslIsCollapsed() shouldBe true
-                activity.callbackIsActive.value shouldBe true
+                activity.appBar().seslIsCollapsed() shouldBe true
+                activity.backCallbackActive shouldBe true
             }
+        }
+    }
+
+    @Test
+    fun backGesture_started_freezesTheCallbackStateWhileTheBarMoves() {
+        ActivityScenario.launch<CustomAboutActivity>(Intent(context, CustomAboutActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { it.collapseAppBar() }
+            scenario.onActivity { activity ->
+                activity.onBackPressedDispatcher.dispatchOnBackStarted(BackEventCompat(0f, 0f, 0f, BackEventCompat.EDGE_LEFT))
+                activity.expandAppBar()
+            }
+            scenario.onActivity { activity -> activity.backCallbackActive shouldBe true }
         }
     }
 
@@ -240,8 +299,7 @@ class CustomAboutActivityTest {
     fun backGesture_pressed_expandsAppBarAndDisablesCallback() {
         ActivityScenario.launch<CustomAboutActivity>(Intent(context, CustomAboutActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { it.callbackIsActive.value = true }
-            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { it.collapseAppBar() }
             scenario.onActivity { activity ->
                 val high = BackEventCompat(0f, 0f, 0.6f, BackEventCompat.EDGE_LEFT)
                 activity.onBackPressedDispatcher.dispatchOnBackStarted(high)
@@ -249,9 +307,13 @@ class CustomAboutActivityTest {
             }
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { activity ->
-                activity.findViewById<AppBarLayout>(R.id.aboutAppBar).seslIsCollapsed() shouldBe false
-                activity.callbackIsActive.value shouldBe false
+                activity.appBar().seslIsCollapsed() shouldBe false
+                activity.backCallbackActive shouldBe false
             }
         }
+    }
+
+    companion object {
+        private const val ALPHA_TOLERANCE = 0.001f
     }
 }

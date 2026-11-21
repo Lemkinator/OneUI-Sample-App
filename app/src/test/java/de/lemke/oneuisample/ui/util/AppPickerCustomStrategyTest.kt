@@ -21,8 +21,10 @@ import androidx.picker.features.observable.UpdateMutableState
 import androidx.picker.loader.AppIconFlow
 import androidx.picker.model.AppData.Companion.TYPE_ITEM_ACTION_BUTTON
 import androidx.picker.model.AppData.Companion.TYPE_ITEM_CHECKBOX
+import androidx.picker.model.AppData.Companion.TYPE_ITEM_CHECKBOX_REMOVE
 import androidx.picker.model.AppData.Companion.TYPE_ITEM_RADIOBUTTON
 import androidx.picker.model.AppData.Companion.TYPE_ITEM_SWITCH
+import androidx.picker.model.AppData.Companion.TYPE_ITEM_TEXT
 import androidx.picker.model.AppInfo
 import androidx.picker.model.AppInfoData
 import androidx.picker.model.AppInfoDataImpl
@@ -70,6 +72,14 @@ class AppPickerCustomStrategyTest : ShouldSpec(
         should("selectComposableType returns Switch for TYPE_ITEM_SWITCH") {
             val viewData = appInfoViewData(TYPE_ITEM_SWITCH)
             strategy.selectComposableType(viewData) shouldBe ComposableTypeSet.Switch
+        }
+
+        should("selectComposableType returns TextOnly for TYPE_ITEM_TEXT") {
+            strategy.selectComposableType(appInfoViewData(TYPE_ITEM_TEXT)) shouldBe ComposableTypeSet.TextOnly
+        }
+
+        should("selectComposableType returns TextOnly for TYPE_ITEM_CHECKBOX_REMOVE") {
+            strategy.selectComposableType(appInfoViewData(TYPE_ITEM_CHECKBOX_REMOVE)) shouldBe ComposableTypeSet.TextOnly
         }
 
         should("selectComposableType returns TextOnly for unknown item type") {

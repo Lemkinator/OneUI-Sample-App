@@ -15,11 +15,9 @@
  */
 package de.lemke.oneuisample.ui.util
 
-import android.os.Bundle
 import android.os.SystemClock
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.material.navigation.NavigationView
-import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.ui.AboutActivity
 import dev.oneuiproject.oneui.layout.NavDrawerLayout
 import dev.oneuiproject.oneui.navigation.widget.DrawerNavigationView
@@ -47,48 +45,5 @@ fun DrawerNavigationView.onNavigationSingleClick(
         if (currentTime - lastClick < interval) return@setNavigationItemSelectedListener false
         lastClick = currentTime
         listener.onNavigationItemSelected(item)
-    }
-}
-
-/** Bundle key for persisting search mode state. */
-const val KEY_IS_SEARCH_MODE = "isSearchMode"
-
-/** Bundle key for persisting action mode state. */
-const val KEY_IS_ACTION_MODE = "isActionMode"
-
-/** Bundle key for persisting the set of selected item IDs during action mode. */
-const val KEY_SELECTED_IDS = "selectedIds"
-
-/** Saves search and action mode state into this bundle for later restoration via [restoreSearchAndActionMode]. */
-fun Bundle.saveSearchAndActionMode(
-    isSearchMode: Boolean = false,
-    isActionMode: Boolean = false,
-    selectedIds: Set<Long> = emptySet(),
-) {
-    if (isSearchMode) {
-        putBoolean(KEY_IS_SEARCH_MODE, true)
-    }
-    if (isActionMode) {
-        putBoolean(KEY_IS_ACTION_MODE, true)
-        putLongArray(KEY_SELECTED_IDS, selectedIds.toLongArray())
-    }
-}
-
-/** Restores search and action mode state from this bundle, invoking the provided callbacks as needed. */
-@NoCoverage
-inline fun Bundle?.restoreSearchAndActionMode(
-    crossinline onSearchMode: () -> Unit = {},
-    crossinline onActionMode: (selectedIds: Set<Long>) -> Unit = {},
-    crossinline bundleIsNull: () -> Unit = {},
-) {
-    if (this == null) {
-        bundleIsNull()
-    } else {
-        if (getBoolean(KEY_IS_SEARCH_MODE)) {
-            onSearchMode()
-        }
-        if (getBoolean(KEY_IS_ACTION_MODE)) {
-            onActionMode(getLongArray(KEY_SELECTED_IDS)?.toSet().orEmpty())
-        }
     }
 }

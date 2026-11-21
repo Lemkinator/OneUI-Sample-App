@@ -18,11 +18,14 @@ package de.lemke.oneuisample.ui
 import android.app.Application
 import android.app.Dialog
 import android.os.Looper
+import android.view.View
+import androidx.appcompat.widget.SeslProgressBar
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
+import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.fragments.SubtabProgressBarFragment
@@ -65,7 +68,7 @@ class SubtabProgressBarFragmentTest {
     @Test
     fun showProgressDialogDemo_showsAndDismissesDialog() {
         withFragment {
-            showProgressDialogDemo()
+            requireView().findViewById<View>(R.id.buttonShowProgressDialog).performClick()
             val dialog = ShadowDialog.getLatestDialog()
             dialog shouldNotBe null
             shadowOf(Looper.getMainLooper()).idleFor(5, TimeUnit.SECONDS)
@@ -80,7 +83,7 @@ class SubtabProgressBarFragmentTest {
             context,
             PROGRESS_BAR_SUBTAB_INDEX,
             block = {
-                showProgressDialogDemo()
+                requireView().findViewById<View>(R.id.buttonShowProgressDialog).performClick()
                 dialog = ShadowDialog.getLatestDialog()
                 dialog shouldNotBe null
             },
@@ -90,6 +93,15 @@ class SubtabProgressBarFragmentTest {
                 dialog?.isShowing shouldBe false
             },
         )
+    }
+
+    @Test
+    fun progressBars_advanceWhileResumed() {
+        withFragment {
+            val bar = requireView().findViewById<SeslProgressBar>(R.id.progressbar1)
+            shadowOf(Looper.getMainLooper()).idleFor(160, TimeUnit.MILLISECONDS)
+            bar.progress shouldBe 12
+        }
     }
 
     companion object {

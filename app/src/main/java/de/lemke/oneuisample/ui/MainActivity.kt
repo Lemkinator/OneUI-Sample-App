@@ -28,7 +28,6 @@ import com.google.android.material.appbar.model.ButtonModel
 import com.google.android.material.appbar.model.SuggestAppBarModel
 import com.google.android.material.appbar.model.view.SuggestAppBarView
 import dagger.hilt.android.AndroidEntryPoint
-import de.lemke.oneuisample.BuildConfig
 import de.lemke.oneuisample.BuildConfig.FIRST_RUN_SKIPPABLE
 import de.lemke.oneuisample.BuildConfig.VERSION_CODE
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
@@ -42,7 +41,6 @@ import de.lemke.oneuisample.ui.util.finishWithFade
 import de.lemke.oneuisample.ui.util.onNavigationSingleClick
 import de.lemke.oneuisample.ui.util.onboardIfNeeded
 import de.lemke.oneuisample.ui.util.popOverOrStartActivity
-import de.lemke.oneuisample.ui.util.requireMenuItem
 import de.lemke.oneuisample.ui.util.setupHeaderAndNavRail
 import de.lemke.oneuisample.ui.util.suggestiveSnackBar
 import dev.oneuiproject.oneui.navigation.setupNavigation
@@ -64,7 +62,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         configureSplashScreen(splashScreen, binding.root) { !isUIReady }
         initDrawer()
-        initPopupMenu()
         isUIReady = true
     }
 
@@ -84,7 +81,6 @@ class MainActivity : AppCompatActivity() {
             setAppBarSuggestView(createSuggestAppBarModel())
             setupNavigation(binding.bottomTab, binding.navigationHost.getFragment())
         }
-        binding.navigationView.requireMenuItem(R.id.leaks_dest).isVisible = BuildConfig.DEBUG
         binding.navigationView.onNavigationSingleClick { item -> onNavigationItemSelected(item) }
     }
 
@@ -97,30 +93,21 @@ class MainActivity : AppCompatActivity() {
             R.id.settings_dest -> popOverOrStartActivity(SettingsActivity::class.java)
             R.id.bottom_sheet_dest -> BottomSheetFragment().show(supportFragmentManager, null)
             R.id.leaks_dest -> openLeakCanary()
+            R.id.popup_menu -> openDrawerOrPopupMenu()
             else -> return false
         }
         return true
     }
 
-    private fun initPopupMenu() {
-        binding.navigationView.requireMenuItem(R.id.popup_menu).setOnMenuItemClickListener { onPopupMenuItemClick() }
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onPopupMenuItemClick(): Boolean {
+    private fun openDrawerOrPopupMenu() {
         if (binding.drawerLayout.drawerOffset == 0f) {
             binding.drawerLayout.setDrawerOpen(true)
         } else {
             openPopupMenu()
         }
-        return true
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun openDrawer() = binding.drawerLayout.setDrawerOpen(true)
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun openPopupMenu() {
+    private fun openPopupMenu() {
         PopupMenu(this, binding.navigationView.findViewById(R.id.popup_menu)).apply {
             seslSetOverlapAnchor(false)
             setForceShowIcon(true)
@@ -131,8 +118,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onPopupMenuItemClicked(menuItem: MenuItem): Boolean {
+    private fun onPopupMenuItemClicked(menuItem: MenuItem): Boolean {
         title = menuItem.title
         suggestiveSnackBar("${menuItem.title} clicked")
         return true
@@ -154,8 +140,7 @@ class MainActivity : AppCompatActivity() {
                 )
             }.build()
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onSuggestActionButtonClicked() {
+    private fun onSuggestActionButtonClicked() {
         suggestiveSnackBar(getString(R.string.action_button_clicked))
     }
 

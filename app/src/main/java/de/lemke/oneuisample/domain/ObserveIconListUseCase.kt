@@ -18,7 +18,6 @@ package de.lemke.oneuisample.domain
 import android.content.Context
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
-import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.search
 import de.lemke.oneuisample.data.searchActive
@@ -34,13 +33,11 @@ class ObserveIconListUseCase @Inject constructor(
 ) {
     val iconsId = loadIcons()
 
-    @NoCoverage
     private fun loadIcons(): List<Icon> =
-        dev.oneuiproject.oneui.R.drawable::class.java.declaredFields
+        dev.oneuiproject.oneui.R.drawable::class.java.fields
             .filter { it.type == Int::class.java }
             .mapNotNull { field ->
                 runCatching {
-                    field.isAccessible = true
                     field.getInt(null).let { Icon(it, context.resources.getResourceEntryName(it)) }
                 }.onFailure { Log.w(TAG, "Could not load icon for field ${field.name}", it) }
                     .getOrNull()

@@ -17,6 +17,7 @@ package de.lemke.oneuisample.ui
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Looper
 import android.text.style.ClickableSpan
 import android.view.View
@@ -30,9 +31,13 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
+import java.io.File
 import java.time.Duration
+import java.util.Locale
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -104,15 +109,34 @@ class OOBEActivityTest {
     }
 
     @Test
-    fun buildTosSpannable_returnsNull_whenTosAbsent() {
-        buildTosSpannable("By continuing, you agree to our terms.", "Terms of Service") {} shouldBe null
+    fun tosText_everyLocale_containsTheTermsLinkText() {
+        val locales = localesWithOwnResources()
+        locales.shouldContain(Locale.GERMAN)
+        locales.forEach { locale ->
+            val localized = context.createConfigurationContext(Configuration().apply { setLocale(locale) })
+            val tos = localized.getString(R.string.tos)
+            localized.getString(R.string.oobe_tos_text, tos) shouldContain tos
+        }
     }
+
+    private fun localesWithOwnResources(): List<Locale> =
+        listOf(Locale.ENGLISH) +
+            File("src/main/res")
+                .listFiles()
+                .orEmpty()
+                .filter { it.name.startsWith("values-") && File(it, "strings.xml").declaresTosText() }
+                .map { it.name.removePrefix("values-").toLanguageTag() }
+                .map { Locale.forLanguageTag(it) }
+
+    private fun File.declaresTosText(): Boolean = isFile && readText().contains("name=\"oobe_tos_text\"")
+
+    private fun String.toLanguageTag(): String = if (startsWith("b+")) removePrefix("b+").replace('+', '-') else replace("-r", "-")
 
     @Test
     fun buildTosSpannable_wrapsLastOccurrence_inClickableSpan() {
         val tos = context.getString(R.string.tos)
         val tosText = context.getString(R.string.oobe_tos_text, tos)
-        val spanned = checkNotNull(buildTosSpannable(tosText, tos) {})
+        val spanned = buildTosSpannable(tosText, tos) {}
         val spans = spanned.getSpans(0, spanned.length, ClickableSpan::class.java)
         spans.size shouldBe 1
         val expectedStart = tosText.lastIndexOf(tos)

@@ -17,6 +17,7 @@ package de.lemke.oneuisample.ui
 
 import android.content.Intent
 import android.os.Looper
+import android.view.View
 import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -25,11 +26,14 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.data.UserSettings
 import dev.oneuiproject.oneui.layout.AppInfoLayout
 import dev.oneuiproject.oneui.layout.AppInfoLayout.Status.Loading
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import javax.inject.Inject
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,6 +42,9 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import dev.oneuiproject.oneui.design.R as designR
+
+private const val MULTI_CLICK_COUNT = 7
+private const val STATUS_COUNT = 9
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -49,6 +56,16 @@ class AboutActivityTest {
 
     private val context get() = ApplicationProvider.getApplicationContext<android.app.Application>()
 
+    @Inject
+    lateinit var userSettings: UserSettings
+
+    @Before
+    fun setup() {
+        hiltRule.inject()
+    }
+
+    private fun AboutActivity.versionText(): String = findViewById<TextView>(designR.id.app_info_version).text.toString()
+
     private fun launch(block: AboutActivity.() -> Unit = {}) {
         ActivityScenario.launch<AboutActivity>(Intent(context, AboutActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
@@ -58,39 +75,37 @@ class AboutActivityTest {
     }
 
     @Test
-    fun render_devModeDisabled_showsVersionOnly() {
+    fun versionText_devModeDisabled_showsVersionOnly() {
         launch {
-            render(AboutUiState(devModeEnabled = false))
-            window.decorView
-                .findViewById<TextView>(designR.id.app_info_version)!!
-                .text
-                .toString()
-                .let { text ->
-                    text shouldContain VERSION_NAME
-                    text shouldNotContain " (dev)"
-                }
+            versionText().let { text ->
+                text shouldContain VERSION_NAME
+                text shouldNotContain " (dev)"
+            }
         }
     }
 
     @Test
-    fun render_devModeEnabled_showsDevSuffix() {
-        launch {
-            render(AboutUiState(devModeEnabled = true))
-            window.decorView
-                .findViewById<TextView>(designR.id.app_info_version)!!
-                .text
-                .toString() shouldContain " (dev)"
-        }
+    fun versionText_devModeEnabled_showsDevSuffix() {
+        userSettings.devModeEnabled = true
+        launch { versionText() shouldContain " (dev)" }
     }
 
     @Test
-    fun changeStatus_cyclesThroughAllStatuses() {
+    fun versionText_sevenClicks_enablesDevMode() {
         launch {
-            repeat(9) { changeStatus() }
+            repeat(MULTI_CLICK_COUNT) { findViewById<View>(designR.id.app_info_version).performClick() }
             shadowOf(Looper.getMainLooper()).idle()
-            window.decorView
-                .findViewById<AppInfoLayout>(R.id.appInfoLayout)!!
-                .updateStatus shouldBe Loading
+            versionText() shouldContain " (dev)"
+            userSettings.devModeEnabled shouldBe true
+        }
+    }
+
+    @Test
+    fun statusButton_clicks_cycleThroughAllStatuses() {
+        launch {
+            repeat(STATUS_COUNT) { findViewById<View>(R.id.aboutButtonStatus).performClick() }
+            shadowOf(Looper.getMainLooper()).idle()
+            findViewById<AppInfoLayout>(R.id.appInfoLayout).updateStatus shouldBe Loading
         }
     }
 }

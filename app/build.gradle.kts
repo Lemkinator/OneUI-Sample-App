@@ -126,15 +126,12 @@ android {
     }
     lint {
         warningsAsErrors = true
-        // checkDependencies = false: private AAR deps surface
-        // hundreds of unactionable warnings; flip to true once in-project surface is clean
-        checkDependencies = false
+        checkDependencies = true
         // Explicit: pins intent against future AGP default changes.
         checkReleaseBuilds = true
         abortOnError = true
-        baseline = file("lint-baseline.xml")
-        // Avatar PNGs in drawable/ are intentionally densityless (photos, not icons)
-        disable += setOf("IconLocation", "IconMissingDensityFolder")
+        // lint reports the res folder, so only a folder-wide disable can exempt the xxhdpi-only display_help_*.webp
+        disable += "IconMissingDensityFolder"
     }
     testOptions {
         unitTests {
@@ -321,7 +318,6 @@ kover {
                 classes(
                     "*.databinding.*",
                     "*.BuildConfig",
-                    "*.di.*",
                     "*Hilt_*",
                     "*_HiltModules*",
                     "*_Factory",

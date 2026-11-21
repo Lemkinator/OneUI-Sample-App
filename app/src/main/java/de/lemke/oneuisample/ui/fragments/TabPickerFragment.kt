@@ -25,8 +25,6 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.EditorInfo.IME_ACTION_NEXT
 import android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN
-import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.view.isVisible
@@ -37,7 +35,6 @@ import androidx.picker.widget.SeslTimePicker
 import androidx.picker3.app.SeslColorPickerDialog
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.databinding.FragmentTabPickerBinding
@@ -59,11 +56,9 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     @Inject
     lateinit var userSettings: UserSettings
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal var colorPickerDialog: SeslColorPickerDialog? = null
+    private var colorPickerDialog: SeslColorPickerDialog? = null
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal val pickerDialogHandler = PickerDialogHandler()
+    private val pickerDialogHandler = PickerDialogHandler()
 
     override fun onViewCreated(
         view: View,
@@ -125,8 +120,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         binding.numberPicker3.editText.setOnEditorActionListener { _, actionId, _ -> onNumberPicker3EditorAction(actionId) }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onNumberPicker1EditorAction(actionId: Int): Boolean {
+    private fun onNumberPicker1EditorAction(actionId: Int): Boolean {
         if (actionId == IME_ACTION_NEXT) {
             binding.numberPicker1.isEditTextMode = false
             binding.numberPicker2.isEditTextMode = true
@@ -135,8 +129,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         return false
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onNumberPicker2EditorAction(actionId: Int): Boolean {
+    private fun onNumberPicker2EditorAction(actionId: Int): Boolean {
         if (actionId == IME_ACTION_NEXT) {
             binding.numberPicker2.isEditTextMode = false
             binding.numberPicker3.isEditTextMode = true
@@ -145,8 +138,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         return false
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onNumberPicker3EditorAction(actionId: Int): Boolean {
+    private fun onNumberPicker3EditorAction(actionId: Int): Boolean {
         if (actionId == EditorInfo.IME_ACTION_DONE) binding.numberPicker3.isEditTextMode = false
         return false
     }
@@ -158,8 +150,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
         binding.spinningDatePicker.showMarginRight(true)
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onSpinnerItemSelected(position: Int?) {
+    private fun onSpinnerItemSelected(position: Int?) {
         if (position != null) {
             binding.numberPicker.isVisible = position == SPINNER_NUMBER_PICKER
             binding.timePicker.isVisible = position == SPINNER_TIME_PICKER
@@ -196,9 +187,8 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
     }
 
     /** Date, time, and color picker dialogs for the picker tab. */
-    internal inner class PickerDialogHandler {
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun openDatePickerDialog() {
+    private inner class PickerDialogHandler {
+        fun openDatePickerDialog() {
             val calendar = Calendar.getInstance()
             SeslDatePickerDialog(
                 requireContext(),
@@ -209,15 +199,13 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
             ).show()
         }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onDatePicked(
+        private fun onDatePicked(
             year: Int,
             monthOfYear: Int,
             dayOfMonth: Int,
         ): Snackbar = suggestiveSnackBar(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth))
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun openTimePickerDialog() {
+        fun openTimePickerDialog() {
             val calendar = Calendar.getInstance()
             SeslTimePickerDialog(
                 requireContext(),
@@ -228,14 +216,12 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
             ).show()
         }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onTimePicked(
+        private fun onTimePicked(
             hourOfDay: Int,
             minute: Int,
         ): Snackbar = suggestiveSnackBar("$hourOfDay:$minute")
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun openStartEndTimePickerDialog() {
+        fun openStartEndTimePickerDialog() {
             StartEndTimePickerDialog(
                 requireContext(),
                 DEFAULT_START_TIME_MINUTES,
@@ -246,8 +232,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
             }.show()
         }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onStartEndTimePicked(
+        private fun onStartEndTimePicked(
             startTime: Int,
             endTime: Int,
         ): Snackbar {
@@ -256,8 +241,7 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
             return suggestiveSnackBar(getString(R.string.start_end_time_result, startFormatted, endFormatted))
         }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun openColorPickerDialog() {
+        fun openColorPickerDialog() {
             colorPickerDialog =
                 SeslColorPickerDialog(
                     requireContext(),
@@ -274,14 +258,12 @@ class TabPickerFragment : AbsBaseFragment(R.layout.fragment_tab_picker) {
                 }
         }
 
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun onColorPicked(color: Int) {
+        private fun onColorPicked(color: Int) {
             userSettings.currentColor = color
             userSettings.recentColors = listOf(color) + userSettings.recentColors
         }
 
-        @NoCoverage
-        internal fun captureScreenBitmap(): Bitmap {
+        private fun captureScreenBitmap(): Bitmap {
             val act = activity ?: return createBitmap(1, 1)
             val rootView = act.window.decorView.rootView
             val bitmap = createBitmap(rootView.width.coerceAtLeast(1), rootView.height.coerceAtLeast(1))

@@ -29,8 +29,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.WindowInsets.Type.systemBars
-import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.animation.PathInterpolatorCompat
@@ -41,7 +39,6 @@ import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.BuildConfig.APPLICATION_ID
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
-import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityCustomAboutBinding
 import de.lemke.oneuisample.ui.util.openURL
@@ -59,12 +56,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class CustomAboutActivity : AppCompatActivity() {
     private val binding by lazy { ActivityCustomAboutBinding.inflate(layoutInflater) }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal val appBarListener: OnOffsetChangedListener = AboutAppBarListener()
+    private val appBarListener: OnOffsetChangedListener = AboutAppBarListener()
     private val progressInterpolator = PathInterpolatorCompat.create(0f, 0f, 0f, 1f)
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal val callbackIsActive = MutableStateFlow(false)
+    private val callbackIsActive = MutableStateFlow(false)
     private var isBackProgressing = false
     private var isExpanding = false
 
@@ -107,7 +102,6 @@ class CustomAboutActivity : AppCompatActivity() {
         return false
     }
 
-    @NoCoverage
     private fun applyInsetIfNeeded() {
         if (SDK_INT >= VERSION_CODES.R && !window.decorView.fitsSystemWindows) {
             binding.root.setOnApplyWindowInsetsListener { _, insets ->
@@ -237,8 +231,7 @@ class CustomAboutActivity : AppCompatActivity() {
         }
     }
 
-    @VisibleForTesting
-    internal fun computeBottomAlpha(
+    private fun computeBottomAlpha(
         ctlHeight: Int,
         layoutPosition: Float,
     ): Float {
@@ -251,7 +244,6 @@ class CustomAboutActivity : AppCompatActivity() {
         }
     }
 
-    @NoCoverage
     private fun isCallbackEnabled(): Boolean =
         binding.aboutAppBar.seslIsCollapsed() && isPortrait(resources.configuration) && !isInMultiWindowModeCompat
 

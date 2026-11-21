@@ -20,8 +20,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
@@ -30,13 +28,10 @@ import androidx.picker.di.AppPickerContext
 import androidx.picker.helper.SeslAppInfoDataHelper
 import androidx.picker.model.AppInfo
 import androidx.picker.model.AppInfoData
-import androidx.picker.model.viewdata.AllAppsViewData
-import androidx.picker.widget.AppPickerState.OnStateChangeListener
 import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
 import androidx.picker.widget.SeslAppPickerView.Companion.ORDER_ASCENDING
 import dagger.hilt.android.AndroidEntryPoint
-import de.lemke.oneuisample.NoCoverage
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.databinding.ActivityAppPickerBinding
 import de.lemke.oneuisample.di.IoDispatcher
@@ -70,8 +65,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
 
     private var currentListType = ListTypes.entries.first()
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal val currentPicker: SeslAppPickerView
+    private val currentPicker: SeslAppPickerView
         get() =
             when (currentListType) {
                 ListTypes.TYPE_GRID, ListTypes.TYPE_GRID_CHECKBOX -> binding.appPickerGrid
@@ -147,23 +141,21 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             setEntries(ListTypes.entries.map { getString(it.description) }) { pos, _ ->
                 pos?.let { viewModel.onPickerTypeChanged(it) }
             }
-            setSelection(viewModel.state.value.pickerType)
+            setSelection(viewModel.state.value.listType.ordinal)
         }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun render(state: AppPickerUiState) {
+    private fun render(state: AppPickerUiState) {
         val previous = renderedState
         renderedState = state
         val modeChanged = previous == null || previous.isSelectLayoutMode != state.isSelectLayoutMode
         if (modeChanged) showAppPickerMode(state.isSelectLayoutMode)
         if (state.isSelectLayoutMode) return
-        if (!modeChanged && previous.pickerType == state.pickerType) return
-        setAppPickerType(ListTypes.entries.getOrElse(state.pickerType) { ListTypes.entries.first() })
+        if (!modeChanged && previous.listType == state.listType) return
+        setAppPickerType(state.listType)
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun showAppPickerMode(isSelectLayoutMode: Boolean) {
+    private fun showAppPickerMode(isSelectLayoutMode: Boolean) {
         binding.appPickerSpinner.isVisible = !isSelectLayoutMode
         binding.appPickerSelectLayout.isVisible = isSelectLayoutMode
         if (isSelectLayoutMode) {
@@ -174,8 +166,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun configureSelectLayout() {
+    private fun configureSelectLayout() {
         binding.appPickerProgress.isVisible = true
         binding.appPickerSelectLayout.appPickerStateView.appListOrder = ORDER_ASCENDING
         binding.appPickerSelectLayout.enableSelectedAppPickerView(true)
@@ -186,8 +177,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onAppItemClick(
+    private fun onAppItemClick(
         appPicker: SeslAppPickerView,
         appInfo: AppInfo,
     ): Boolean {
@@ -200,14 +190,12 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun onAppItemActionClick(appInfo: AppInfo): Boolean {
+    private fun onAppItemActionClick(appInfo: AppInfo): Boolean {
         suggestiveSnackBar("${packageManagerHelper.getAppLabel(appInfo)} action clicked!")
         return true
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun applyFilter(query: String = "") {
+    private fun applyFilter(query: String = "") {
         if (viewModel.state.value.isSelectLayoutMode) {
             binding.appPickerSelectLayout.setSearchFilter(query)
         } else {
@@ -223,26 +211,10 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             seslSetFastScrollerAdditionalPadding(10.dpToPx(resources))
             setOnItemClickEventListener { _, appInfo -> onAppItemClick(this, appInfo) }
             setOnItemActionClickEventListener { _, appInfo -> onAppItemActionClick(appInfo) }
-            setOnStateChangeListener(
-                object : OnStateChangeListener {
-                    @NoCoverage
-                    override fun onStateAllChanged(isAllSelected: Boolean) = setStateAll(isAllSelected)
-
-                    @NoCoverage
-                    override fun onStateChanged(
-                        appInfo: AppInfo,
-                        isSelected: Boolean,
-                    ) {
-                        val allItemsSelected = appPicker.appDataList.filterIsInstance<AppInfoData>().none { !it.selected }
-                        (headerFooterAdapter.getItem(0) as? AllAppsViewData)?.selectableItem?.setValueSilence(allItemsSelected)
-                    }
-                },
-            )
         }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun setAppPickerType(listType: ListTypes) {
+    private fun setAppPickerType(listType: ListTypes) {
         binding.appPickerProgress.isVisible = true
         currentListType = listType
         val picker = currentPicker
@@ -255,7 +227,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         binding.appPickerProgress.isVisible = false
     }
 
-    fun getAppList(
+    private fun getAppList(
         context: Context,
         listType: ListTypes,
     ): List<AppInfoData> =
@@ -271,8 +243,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             }
         }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun updateAppPickerVisibility(visible: Boolean) {
+    private fun updateAppPickerVisibility(visible: Boolean) {
         if (visible) {
             binding.noEntryScrollView.isVisible = false
             currentPicker.isVisible = true
@@ -283,3 +254,6 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         }
     }
 }
+
+private val AppPickerUiState.listType: ListTypes
+    get() = ListTypes.entries.getOrElse(pickerType) { ListTypes.entries.first() }
