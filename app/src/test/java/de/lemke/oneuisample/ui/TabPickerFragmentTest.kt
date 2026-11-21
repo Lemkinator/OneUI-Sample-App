@@ -25,7 +25,6 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
-import androidx.fragment.app.commitNow
 import androidx.navigation.fragment.NavHostFragment
 import androidx.picker.app.SeslDatePickerDialog
 import androidx.picker.app.SeslTimePickerDialog
@@ -52,6 +51,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
@@ -112,12 +112,8 @@ class TabPickerFragmentTest {
     }
 
     private fun ActivityController<MainActivity>.changeConfiguration() {
-        configurationChange(
-            Configuration(get().resources.configuration).apply {
-                orientation = Configuration.ORIENTATION_LANDSCAPE
-                screenWidthDp = screenHeightDp.also { screenHeightDp = screenWidthDp }
-            },
-        )
+        RuntimeEnvironment.setQualifiers("+land")
+        configurationChange(Configuration(RuntimeEnvironment.getApplication().resources.configuration))
         shadowOf(Looper.getMainLooper()).idle()
     }
 
@@ -189,26 +185,18 @@ class TabPickerFragmentTest {
     }
 
     @Test
-    fun colorDialog_fragmentRemovedBeforeThePostedBitmapListenerRuns_doesNotCrashAndShowsNoDialog() {
-        ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)).use { scenario ->
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
-                    .navController
-                    .navigate(R.id.picker_dest)
-            }
-            shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { activity ->
-                val fragment =
-                    (activity.supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment)
-                        .childFragmentManager
-                        .primaryNavigationFragment as TabPickerFragment
-                fragment.requireView().findViewById<View>(R.id.colorButton).performClick()
-                fragment.parentFragmentManager.commitNow { remove(fragment) }
-            }
-            shadowOf(Looper.getMainLooper()).idle()
-            latestDialog().isShowing shouldBe false
-        }
+    fun colorDialog_activityDestroyedBeforeThePostedBitmapListenerRuns_doesNotCrashAndShowsNoDialog() {
+        val controller = Robolectric.buildActivity(MainActivity::class.java, Intent(context, MainActivity::class.java)).setup()
+        shadowOf(Looper.getMainLooper()).idle()
+        val host = controller.get().supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment
+        host.navController.navigate(R.id.picker_dest)
+        shadowOf(Looper.getMainLooper()).idle()
+        val fragment = host.childFragmentManager.primaryNavigationFragment as TabPickerFragment
+        fragment.requireView().findViewById<View>(R.id.colorButton).performClick()
+        controller.pause().stop().destroy()
+        fragment.activity shouldBe null
+        shadowOf(Looper.getMainLooper()).idle()
+        latestDialog().isShowing shouldBe false
     }
 
     @Test
