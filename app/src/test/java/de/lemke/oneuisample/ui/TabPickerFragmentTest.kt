@@ -112,7 +112,12 @@ class TabPickerFragmentTest {
     }
 
     private fun ActivityController<MainActivity>.changeConfiguration() {
-        configurationChange(Configuration(get().resources.configuration).apply { screenWidthDp += 1 })
+        configurationChange(
+            Configuration(get().resources.configuration).apply {
+                orientation = Configuration.ORIENTATION_LANDSCAPE
+                screenWidthDp = screenHeightDp.also { screenHeightDp = screenWidthDp }
+            },
+        )
         shadowOf(Looper.getMainLooper()).idle()
     }
 
