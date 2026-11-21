@@ -153,6 +153,20 @@ class TabIconsFragmentTest {
 
     private fun TabIconsFragment.adapter() = iconList().adapter as IconAdapter
 
+    /**
+     * `ListAdapter.submitList` diffs on a real background thread and posts the result to the main looper, so the
+     * virtual-time looper cannot advance it. Drain the looper until the adapter has committed the new list.
+     */
+    private fun TabIconsFragment.awaitListCommit(isCommitted: (IconAdapter) -> Boolean) {
+        val deadline = System.nanoTime() + LIST_COMMIT_TIMEOUT_NANOS
+        shadowOf(Looper.getMainLooper()).idle()
+        while (!isCommitted(adapter())) {
+            check(System.nanoTime() < deadline) { "The icon list was not committed within the timeout" }
+            Thread.sleep(LIST_COMMIT_POLL_MS)
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
     private fun TabIconsFragment.drawer() = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
 
     private fun TabIconsFragment.menu(itemId: Int): Boolean =
@@ -284,7 +298,7 @@ class TabIconsFragmentTest {
         withFragment {
             userSettings.searchActive = true
             userSettings.search = "settings"
-            shadowOf(Looper.getMainLooper()).idle()
+            awaitListCommit { it.itemCount == 3 }
             adapter().itemCount shouldBe 3
             adapter().getItemByPosition(0).name shouldBe "page_settings"
         }
@@ -545,7 +559,7 @@ class TabIconsFragmentTest {
         withFragment {
             userSettings.searchActive = true
             userSettings.search = FEW_MATCHES_QUERY
-            shadowOf(Looper.getMainLooper()).idle()
+            awaitListCommit { it.itemCount < ALL_ICON_COUNT }
             shadowOf(Looper.getMainLooper()).idleFor(2, TimeUnit.SECONDS)
             shadowOf(RuntimeEnvironment.getApplication()).latestPopupWindow shouldBe null
         }
@@ -564,6 +578,8 @@ class TabIconsFragmentTest {
         private const val UNKNOWN_ITEM_ID = 12345
         private const val SWIPE_SETTLE_STEPS = 30
         private const val SWIPE_SETTLE_STEP_MS = 100L
+        private const val LIST_COMMIT_TIMEOUT_NANOS = 10_000_000_000L
+        private const val LIST_COMMIT_POLL_MS = 1L
         private const val ALL_ICON_COUNT = 883
         private const val NO_MATCH_QUERY = "zzzzzz-no-icon-matches"
         private const val FEW_MATCHES_QUERY = "page_settings"
