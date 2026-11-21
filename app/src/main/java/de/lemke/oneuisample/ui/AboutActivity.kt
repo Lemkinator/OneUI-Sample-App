@@ -19,8 +19,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
@@ -63,13 +61,12 @@ class AboutActivity : AppCompatActivity() {
         collectState(viewModel.state) { render(it) }
     }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun render(state: AboutUiState) {
+    private fun render(state: AboutUiState) {
         versionTextView.text =
             getString(designR.string.oui_des_version_info, VERSION_NAME + if (state.devModeEnabled) " (dev)" else "")
     }
 
-    fun changeStatus() {
+    private fun changeStatus() {
         binding.appInfoLayout.updateStatus =
             when (binding.appInfoLayout.updateStatus) {
                 Loading -> UpdateAvailable

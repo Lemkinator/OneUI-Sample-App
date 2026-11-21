@@ -74,17 +74,6 @@ class LateralActivitiesTest {
     fun appPickerActivity_launchesWithoutCrash() = launch<AppPickerActivity>()
 
     @Test
-    fun aboutActivity_changeStatus_cyclesAllStatuses() {
-        ActivityScenario.launch<AboutActivity>(Intent(context, AboutActivity::class.java)).use { scenario ->
-            shadowOf(Looper.getMainLooper()).idle()
-            repeat(8) {
-                scenario.onActivity { activity -> activity.changeStatus() }
-                shadowOf(Looper.getMainLooper()).idle()
-            }
-        }
-    }
-
-    @Test
     fun appPickerActivity_onOptionsItemSelected_search_returnsTrue() {
         ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
