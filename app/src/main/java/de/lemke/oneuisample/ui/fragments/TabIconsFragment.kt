@@ -262,7 +262,7 @@ class TabIconsFragment : AbsBaseFragment(R.layout.fragment_tab_icons), ViewYTran
 
     /** Swipe-to-reveal actions for the icon list: shows a directional snackbar per swipe. */
     private inner class SwipeHandler {
-        private val isSwipeEnabled: (RecyclerView.ViewHolder) -> Boolean = { !drawerLayout.isActionMode }
+        private val isSwipeEnabled: (RecyclerView.ViewHolder) -> Boolean = { !iconAdapter.isActionMode }
 
         private val onIconSwipeCallback: (Int, Int, Int) -> Boolean = { position, direction, _ -> onIconSwiped(position, direction) }
 
