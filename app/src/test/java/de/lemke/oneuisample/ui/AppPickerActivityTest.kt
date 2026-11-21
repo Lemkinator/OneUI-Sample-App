@@ -20,9 +20,10 @@ import android.os.Looper
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Spinner
+import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
-import androidx.picker.model.AppInfo
 import androidx.picker.model.AppInfoData
 import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
@@ -32,13 +33,15 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.di.PausableTestDispatcher
 import de.lemke.oneuisample.ui.util.ListTypes
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
+import javax.inject.Inject
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,12 +51,14 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.fakes.RoboMenu
 import org.robolectric.fakes.RoboMenuItem
+import com.google.android.material.R as MaterialR
 
 private fun View.findSearchView(): SearchView? =
     this as? SearchView ?: (this as? ViewGroup)?.let { vg ->
         (0 until vg.childCount).firstNotNullOfOrNull { vg.getChildAt(it).findSearchView() }
     }
 
+private const val OUT_OF_RANGE_TYPE = 999
 private const val NO_MATCH_QUERY = "zzzzzz-no-app-matches"
 
 @HiltAndroidTest
@@ -66,6 +71,14 @@ class AppPickerActivityTest {
 
     private val context get() = ApplicationProvider.getApplicationContext<HiltTestApplication>()
 
+    @Inject
+    lateinit var userSettings: UserSettings
+
+    @Before
+    fun setup() {
+        hiltRule.inject()
+    }
+
     private fun launch(block: AppPickerActivity.() -> Unit = {}) {
         ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
@@ -74,189 +87,251 @@ class AppPickerActivityTest {
         }
     }
 
+    private fun AppPickerActivity.list() = findViewById<SeslAppPickerView>(R.id.appPickerList)
+
+    private fun AppPickerActivity.grid() = findViewById<SeslAppPickerGridView>(R.id.appPickerGrid)
+
+    private fun AppPickerActivity.noEntry() = findViewById<View>(R.id.noEntryScrollView)
+
+    private fun AppPickerActivity.selectType(type: ListTypes) {
+        findViewById<Spinner>(R.id.appPickerSpinner).setSelection(type.ordinal)
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun AppPickerActivity.itemView(
+        picker: SeslAppPickerView,
+        position: Int,
+    ): View = picker.findViewHolderForAdapterPosition(position).shouldNotBeNull().itemView
+
+    private fun AppPickerActivity.snackbarText(): String? = findViewById<TextView>(MaterialR.id.snackbar_text)?.text?.toString()
+
+    private fun AppPickerActivity.searchView(): SearchView =
+        findViewById<ToolbarLayout>(R.id.toolbar_layout).findSearchView().shouldNotBeNull()
+
+    private fun AppPickerActivity.search(query: String) {
+        onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_search)) shouldBe true
+        shadowOf(Looper.getMainLooper()).idle()
+        searchView().setQuery(query, false)
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+    }
+
+    private fun AppPickerActivity.toggleLayoutMode() {
+        onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode)) shouldBe true
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun AppPickerActivity.listIsShown() {
+        list().isVisible shouldBe true
+        grid().isVisible shouldBe false
+    }
+
+    private fun AppPickerActivity.gridIsShown() {
+        list().isVisible shouldBe false
+        grid().isVisible shouldBe true
+    }
+
     @Test
-    fun setAppPickerType_list_configuresList() {
+    fun defaultType_showsTheListPicker() {
         launch {
-            setAppPickerType(ListTypes.LIST_TYPE)
-            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
-            findViewById<View>(R.id.appPickerList).isVisible shouldBe true
-            findViewById<View>(R.id.appPickerGrid).isVisible shouldBe false
+            listIsShown()
+            noEntry().isVisible shouldBe false
         }
     }
 
     @Test
-    fun setAppPickerType_grid_configuresGrid() {
+    fun spinner_grid_showsTheGrid() {
         launch {
-            setAppPickerType(ListTypes.TYPE_GRID)
-            currentPicker shouldBe findViewById<View>(R.id.appPickerGrid)
-            findViewById<View>(R.id.appPickerList).isVisible shouldBe false
-            findViewById<View>(R.id.appPickerGrid).isVisible shouldBe true
+            selectType(ListTypes.TYPE_GRID)
+            gridIsShown()
         }
     }
 
     @Test
-    fun setAppPickerType_gridCheckbox_configuresGrid() {
+    fun spinner_gridCheckbox_showsTheGrid() {
         launch {
-            setAppPickerType(ListTypes.TYPE_GRID_CHECKBOX)
-            currentPicker shouldBe findViewById<View>(R.id.appPickerGrid)
-            findViewById<View>(R.id.appPickerList).isVisible shouldBe false
-            findViewById<View>(R.id.appPickerGrid).isVisible shouldBe true
+            selectType(ListTypes.TYPE_GRID_CHECKBOX)
+            gridIsShown()
         }
     }
 
     @Test
-    fun setAppPickerType_listCheckbox_configuresList() {
+    fun spinner_listCheckbox_showsTheList() {
         launch {
-            setAppPickerType(ListTypes.TYPE_LIST_CHECKBOX)
-            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
-            findViewById<View>(R.id.appPickerList).isVisible shouldBe true
-            findViewById<View>(R.id.appPickerGrid).isVisible shouldBe false
+            selectType(ListTypes.TYPE_GRID)
+            selectType(ListTypes.TYPE_LIST_CHECKBOX)
+            listIsShown()
         }
     }
 
     @Test
-    fun setAppPickerType_listRadioButton_configuresList() {
+    fun spinner_listRadioButton_showsTheList() {
         launch {
-            setAppPickerType(ListTypes.TYPE_LIST_RADIOBUTTON)
-            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
-            findViewById<View>(R.id.appPickerList).isVisible shouldBe true
-            findViewById<View>(R.id.appPickerGrid).isVisible shouldBe false
+            selectType(ListTypes.TYPE_GRID)
+            selectType(ListTypes.TYPE_LIST_RADIOBUTTON)
+            listIsShown()
         }
     }
 
     @Test
-    fun setAppPickerType_listSwitch_configuresList() {
+    fun spinner_listSwitch_showsTheList() {
         launch {
-            setAppPickerType(ListTypes.TYPE_LIST_SWITCH)
-            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
-            findViewById<View>(R.id.appPickerList).isVisible shouldBe true
-            findViewById<View>(R.id.appPickerGrid).isVisible shouldBe false
+            selectType(ListTypes.TYPE_GRID)
+            selectType(ListTypes.TYPE_LIST_SWITCH)
+            listIsShown()
         }
     }
 
     @Test
-    fun setAppPickerType_actionButton_setsActionIconOnItems() {
+    fun spinner_actionButton_setsActionIconOnItems() {
         launch {
-            setAppPickerType(ListTypes.TYPE_LIST_ACTION_BUTTON)
-            val items = currentPicker.appDataList.filterIsInstance<AppInfoData>()
+            selectType(ListTypes.TYPE_LIST_ACTION_BUTTON)
+            val items = list().appDataList.filterIsInstance<AppInfoData>()
             items.shouldNotBeEmpty()
             items.forEach { it.actionIcon.shouldNotBeNull() }
         }
     }
 
     @Test
-    fun updateAppPickerVisibility_visible_showsPicker() {
+    fun spinner_sameTypeTwice_keepsThePicker() {
         launch {
-            setAppPickerType(ListTypes.LIST_TYPE)
-            updateAppPickerVisibility(true)
-            window.decorView.findViewById<View>(R.id.noEntryScrollView)?.isVisible shouldBe false
-            currentPicker.isVisible shouldBe true
+            selectType(ListTypes.TYPE_GRID)
+            selectType(ListTypes.TYPE_GRID)
+            gridIsShown()
         }
     }
 
     @Test
-    fun updateAppPickerVisibility_invisible_showsNoEntry() {
+    fun spinner_selection_isStoredInTheSettings() {
         launch {
-            setAppPickerType(ListTypes.LIST_TYPE)
+            selectType(ListTypes.TYPE_GRID_CHECKBOX)
+            userSettings.appPickerType shouldBe ListTypes.TYPE_GRID_CHECKBOX.ordinal
+        }
+    }
+
+    @Test
+    fun storedType_pickerIsShownOnLaunch() {
+        userSettings.appPickerType = ListTypes.TYPE_GRID.ordinal
+        launch { gridIsShown() }
+    }
+
+    @Test
+    fun storedTypeBeyondTheEntries_fallsBackToTheList() {
+        userSettings.appPickerType = OUT_OF_RANGE_TYPE
+        launch { listIsShown() }
+    }
+
+    @Test
+    fun storedNegativeType_fallsBackToTheList() {
+        userSettings.appPickerType = -1
+        launch { listIsShown() }
+    }
+
+    @Test
+    fun search_withoutMatch_showsNoEntry() {
+        launch {
+            search(NO_MATCH_QUERY)
+            noEntry().isVisible shouldBe true
+            list().isVisible shouldBe false
+        }
+    }
+
+    @Test
+    fun search_withMatch_keepsTheList() {
+        launch {
+            search("OneUI")
+            noEntry().isVisible shouldBe false
+            list().isVisible shouldBe true
+        }
+    }
+
+    @Test
+    fun search_ended_showsTheListAgain() {
+        launch {
+            search(NO_MATCH_QUERY)
+            findViewById<ToolbarLayout>(R.id.toolbar_layout).endSearchMode()
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
-            updateAppPickerVisibility(false)
-            window.decorView.findViewById<View>(R.id.noEntryScrollView)?.isVisible shouldBe true
-            currentPicker.isVisible shouldBe false
+            noEntry().isVisible shouldBe false
+            list().isVisible shouldBe true
+            findViewById<Spinner>(R.id.appPickerSpinner).isEnabled shouldBe true
         }
     }
 
     @Test
-    fun onAppItemClick_listPicker_returnsFalse() {
+    fun search_started_disablesTheSpinner() {
         launch {
-            val listPicker = findViewById<SeslAppPickerView>(R.id.appPickerList)
-            val appInfo = AppInfo(packageName = "de.lemke.oneuisample", activityName = "")
-            onAppItemClick(listPicker, appInfo) shouldBe false
+            search("OneUI")
+            findViewById<Spinner>(R.id.appPickerSpinner).isEnabled shouldBe false
         }
     }
 
     @Test
-    fun onAppItemClick_gridPicker_returnsTrue() {
+    fun listItem_click_showsSnackBar() {
         launch {
-            val gridPicker = findViewById<SeslAppPickerGridView>(R.id.appPickerGrid)
-            val appInfo = AppInfo(packageName = "de.lemke.oneuisample", activityName = "")
-            onAppItemClick(gridPicker, appInfo) shouldBe true
+            itemView(list(), 0).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            snackbarText() shouldBe "OneUI Sample App (Debug) clicked!"
         }
     }
 
     @Test
-    fun onAppItemActionClick_showsSnackBar() {
+    fun gridItem_click_togglesTheSelectionAndShowsSnackBar() {
         launch {
-            val appInfo = AppInfo(packageName = "de.lemke.oneuisample", activityName = "")
-            onAppItemActionClick(appInfo) shouldBe true
+            selectType(ListTypes.TYPE_GRID)
+            val item = grid().appDataList.filterIsInstance<AppInfoData>().first()
+            item.selected shouldBe false
+            itemView(grid(), 0).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            grid()
+                .appDataList
+                .filterIsInstance<AppInfoData>()
+                .first()
+                .selected shouldBe true
+            snackbarText() shouldBe "OneUI Sample App (Debug) clicked!"
         }
     }
 
     @Test
-    fun applyFilter_withQuery_noError() {
+    fun actionButton_click_showsSnackBar() {
         launch {
-            setAppPickerType(ListTypes.LIST_TYPE)
-            applyFilter("test")
-            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+            selectType(ListTypes.TYPE_LIST_ACTION_BUTTON)
+            itemView(list(), 0).findViewById<View>(androidx.picker.R.id.image_button).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            snackbarText() shouldBe "OneUI Sample App (Debug) action clicked!"
         }
     }
 
     @Test
-    fun applyFilter_noMatchOnCurrentPicker_showsNoEntry() {
+    fun checkboxList_appClick_selectsTheApp() {
         launch {
-            setAppPickerType(ListTypes.LIST_TYPE)
-            applyFilter(NO_MATCH_QUERY)
-            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
-            findViewById<View>(R.id.noEntryScrollView).isVisible shouldBe true
-            findViewById<View>(R.id.appPickerList).isVisible shouldBe false
+            selectType(ListTypes.TYPE_LIST_CHECKBOX)
+            list().appDataList.filterIsInstance<AppInfoData>().map { it.selected } shouldBe listOf(false)
+            itemView(list(), 0).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            list().appDataList.filterIsInstance<AppInfoData>().map { it.selected } shouldBe listOf(true)
         }
     }
 
     @Test
-    fun applyFilter_emptyQuery_noError() {
+    fun layoutMode_toggle_showsTheSelectLayoutAndRestoresThePicker() {
         launch {
-            setAppPickerType(ListTypes.LIST_TYPE)
-            applyFilter()
-            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+            toggleLayoutMode()
+            findViewById<View>(R.id.appPickerSelectLayout).isVisible shouldBe true
+            findViewById<View>(R.id.appPickerSpinner).isVisible shouldBe false
+            list().isVisible shouldBe false
+            noEntry().isVisible shouldBe false
+            toggleLayoutMode()
+            findViewById<View>(R.id.appPickerSelectLayout).isVisible shouldBe false
+            findViewById<View>(R.id.appPickerSpinner).isVisible shouldBe true
+            listIsShown()
         }
     }
 
     @Test
-    fun render_samePickerType_earlyReturn() {
+    fun layoutMode_search_filtersTheSelectLayout() {
         launch {
-            render(AppPickerUiState(pickerType = 0))
-            val firstPicker = currentPicker
-            render(AppPickerUiState(pickerType = 0))
-            currentPicker shouldBe firstPicker
-        }
-    }
-
-    @Test
-    fun render_differentPickerType_updatesType() {
-        launch {
-            render(AppPickerUiState(pickerType = 0))
-            val firstPicker = currentPicker
-            render(AppPickerUiState(pickerType = 5))
-            currentPicker shouldNotBe firstPicker
-        }
-    }
-
-    @Test
-    fun render_outOfBoundsPickerType_usesFirstEntry() {
-        launch {
-            render(AppPickerUiState(pickerType = 5))
-            currentPicker shouldBe findViewById<View>(R.id.appPickerGrid)
-            render(AppPickerUiState(pickerType = 999))
-            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
-        }
-    }
-
-    @Test
-    fun render_negativePickerType_usesFirstEntry() {
-        launch {
-            render(AppPickerUiState(pickerType = 5))
-            currentPicker shouldBe findViewById<View>(R.id.appPickerGrid)
-            render(AppPickerUiState(pickerType = -1))
-            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
+            toggleLayoutMode()
+            search("OneUI")
+            findViewById<View>(R.id.appPickerSelectLayout).isVisible shouldBe true
         }
     }
 
@@ -265,20 +340,6 @@ class AppPickerActivityTest {
         launch {
             val item = RoboMenuItem(R.id.menu_app_picker_search)
             onOptionsItemSelected(item) shouldBe true
-        }
-    }
-
-    @Test
-    fun onOptionsItemSelected_search_triggersQueryAndEnd() {
-        launch {
-            val item = RoboMenuItem(R.id.menu_app_picker_search)
-            onOptionsItemSelected(item)
-            shadowOf(Looper.getMainLooper()).idle()
-            val toolbarLayout = this.findViewById<ToolbarLayout>(R.id.toolbar_layout)
-            toolbarLayout?.findSearchView()?.setQuery("test", false)
-            shadowOf(Looper.getMainLooper()).idle()
-            toolbarLayout?.endSearchMode()
-            shadowOf(Looper.getMainLooper()).idle()
         }
     }
 
@@ -322,56 +383,6 @@ class AppPickerActivityTest {
             val menu = RoboMenu(this)
             onPrepareOptionsMenu(menu) shouldBe true
             menu.size() shouldBe 0
-        }
-    }
-
-    @Test
-    fun showAppPickerMode_selectLayout_configuresSelectLayout() {
-        launch {
-            showAppPickerMode(true)
-            window.decorView.findViewById<View>(R.id.appPickerSelectLayout)?.isVisible shouldBe true
-            window.decorView.findViewById<View>(R.id.appPickerSpinner)?.isVisible shouldBe false
-        }
-    }
-
-    @Test
-    fun showAppPickerMode_simple_hidesSelectLayout() {
-        launch {
-            showAppPickerMode(true)
-            showAppPickerMode(false)
-            window.decorView.findViewById<View>(R.id.appPickerSelectLayout)?.isVisible shouldBe false
-            window.decorView.findViewById<View>(R.id.appPickerSpinner)?.isVisible shouldBe true
-        }
-    }
-
-    @Test
-    fun render_selectLayoutMode_showsSelectLayout() {
-        launch {
-            render(AppPickerUiState(isSelectLayoutMode = true))
-            window.decorView.findViewById<View>(R.id.appPickerSelectLayout)?.isVisible shouldBe true
-        }
-    }
-
-    @Test
-    fun render_backToSimpleMode_restoresPickerType() {
-        launch {
-            render(AppPickerUiState(pickerType = 0, isSelectLayoutMode = false))
-            render(AppPickerUiState(isSelectLayoutMode = true))
-            render(AppPickerUiState(pickerType = 0, isSelectLayoutMode = false))
-            currentPicker shouldBe findViewById<View>(R.id.appPickerList)
-            findViewById<View>(R.id.appPickerList).isVisible shouldBe true
-            window.decorView.findViewById<View>(R.id.appPickerSelectLayout)?.isVisible shouldBe false
-        }
-    }
-
-    @Test
-    fun applyFilter_selectLayoutMode_noError() {
-        launch {
-            val toggleItem = RoboMenuItem(R.id.menu_app_picker_layout_mode)
-            onOptionsItemSelected(toggleItem)
-            shadowOf(Looper.getMainLooper()).idle()
-            applyFilter("test")
-            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
         }
     }
 
