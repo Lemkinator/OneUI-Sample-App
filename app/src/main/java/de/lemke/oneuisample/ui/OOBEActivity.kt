@@ -109,10 +109,6 @@ class OOBEActivity : AppCompatActivity() {
                     .setPositiveButton(R.string.ok) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
                     .show()
             }
-        if (spanned == null) {
-            binding.oobeIntroFooterTosText.text = tosText
-            return
-        }
         binding.oobeIntroFooterTosText.text = spanned
         binding.oobeIntroFooterTosText.movementMethod = LinkMovementMethod.getInstance()
         binding.oobeIntroFooterTosText.highlightColor = Color.TRANSPARENT
@@ -132,15 +128,14 @@ class OOBEActivity : AppCompatActivity() {
 
 /**
  * Builds a [SpannableString] from [tosText] where the last occurrence of [tos] is a clickable span
- * that invokes [onClick]. Returns `null` if [tos] does not appear in [tosText].
+ * that invokes [onClick]. [tos] must appear in [tosText]; every locale's terms string holds it.
  */
 internal fun buildTosSpannable(
     tosText: String,
     tos: String,
     onClick: () -> Unit,
-): SpannableString? {
+): SpannableString {
     val tosIndex = tosText.lastIndexOf(tos)
-    if (tosIndex < 0) return null
     return SpannableString(tosText).apply {
         setSpan(
             object : ClickableSpan() {

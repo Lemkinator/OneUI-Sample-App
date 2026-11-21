@@ -31,9 +31,11 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
+import java.io.File
 import java.time.Duration
 import java.util.Locale
 import org.junit.Rule
@@ -44,6 +46,8 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowDialog
+
+private val LOCALE_FOLDER = Regex("values-[a-z]{2,3}(-r[A-Z]{2})?")
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -108,23 +112,29 @@ class OOBEActivityTest {
 
     @Test
     fun tosText_everyLocale_containsTheTermsLinkText() {
-        listOf(Locale.ENGLISH, Locale.GERMAN).forEach { locale ->
+        val locales = localesWithOwnResources()
+        locales.shouldContain(Locale.GERMAN)
+        locales.forEach { locale ->
             val localized = context.createConfigurationContext(Configuration().apply { setLocale(locale) })
             val tos = localized.getString(R.string.tos)
             localized.getString(R.string.oobe_tos_text, tos) shouldContain tos
         }
     }
 
-    @Test
-    fun buildTosSpannable_returnsNull_whenTosAbsent() {
-        buildTosSpannable("By continuing, you agree to our terms.", "Terms of Service") {} shouldBe null
-    }
+    private fun localesWithOwnResources(): List<Locale> =
+        listOf(Locale.ENGLISH) +
+            File("src/main/res")
+                .listFiles()
+                .orEmpty()
+                .map { it.name }
+                .filter { LOCALE_FOLDER.matches(it) }
+                .map { Locale.forLanguageTag(it.removePrefix("values-").replace("-r", "-")) }
 
     @Test
     fun buildTosSpannable_wrapsLastOccurrence_inClickableSpan() {
         val tos = context.getString(R.string.tos)
         val tosText = context.getString(R.string.oobe_tos_text, tos)
-        val spanned = checkNotNull(buildTosSpannable(tosText, tos) {})
+        val spanned = buildTosSpannable(tosText, tos) {}
         val spans = spanned.getSpans(0, spanned.length, ClickableSpan::class.java)
         spans.size shouldBe 1
         val expectedStart = tosText.lastIndexOf(tos)
