@@ -130,8 +130,8 @@ android {
         // Explicit: pins intent against future AGP default changes.
         checkReleaseBuilds = true
         abortOnError = true
-        // Avatar PNGs in drawable/ are intentionally densityless (photos, not icons)
-        disable += setOf("IconLocation", "IconMissingDensityFolder")
+        // lint reports the res folder, so only a folder-wide disable can exempt the xxhdpi-only display_help_*.webp
+        disable += "IconMissingDensityFolder"
     }
     testOptions {
         unitTests {
