@@ -16,14 +16,19 @@
 package de.lemke.oneuisample.ui.util
 
 import android.app.Application
+import android.os.Looper
+import android.text.Spanned
 import android.view.ContextThemeWrapper
 import android.widget.FrameLayout
 import androidx.test.core.app.ApplicationProvider
 import de.lemke.oneuisample.R
+import de.lemke.oneuisample.domain.Icon
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -60,5 +65,24 @@ class IconAdapterTest {
         holder.itemView.performLongClick() shouldBe true
 
         longClicks[0] shouldBe 0
+    }
+
+    @Test
+    fun highlightPayload_rebindsTheTitleWithTheHighlight() {
+        val (adapter, _, _) = adapterWithCounters()
+        adapter.submitList(listOf(Icon(R.drawable.ic_launcher, "ic_oui_page_settings")))
+        repeat(100) {
+            if (adapter.itemCount == 1) return@repeat
+            Thread.sleep(5)
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+        val holder = adapter.onCreateViewHolder(FrameLayout(themedContext), 0)
+        adapter.highlight = "page"
+
+        adapter.onBindViewHolder(holder, 0, mutableListOf(IconAdapter.Payload.HIGHLIGHT))
+
+        val title = holder.textView.text
+        title.toString() shouldBe "page_settings"
+        (title as Spanned).getSpans(0, title.length, Any::class.java).shouldNotBeEmpty()
     }
 }

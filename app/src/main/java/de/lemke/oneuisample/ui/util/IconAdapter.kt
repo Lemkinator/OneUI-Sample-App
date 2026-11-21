@@ -97,7 +97,7 @@ class IconAdapter(
             onBindViewHolder(holder, position)
         } else {
             for (payload in payloads.toSet()) {
-                when (payload) {
+                when (payload as Payload) {
                     Payload.SELECTION_MODE -> {
                         holder.bindActionModeAnimate(getItemId(position))
                     }
