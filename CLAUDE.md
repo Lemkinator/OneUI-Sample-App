@@ -136,6 +136,7 @@ Four tools run as part of `./gradlew build`:
   Kover XML (`.github/scripts/strip-zero-instruction-lines.py`) before the Codecov upload.
 - **Konsist** - architecture rules in `app/src/test/java/de/lemke/oneuisample/ArchitectureTest.kt`. Enforces `data/domain/ui` layering. Runs
   as part of `./gradlew test`.
+- **Lint** - `app/lint.xml` lists the approved Overdraw files, one `<ignore path>` per layout. Never use `tools:ignore="Overdraw"`.
 
 **Dependency analysis** - `./gradlew buildHealth` runs in the `check-formatting` CI job. It fails on unused
 dependencies, incorrect configurations and unused annotation processors; other advice warns, except "used transitive
