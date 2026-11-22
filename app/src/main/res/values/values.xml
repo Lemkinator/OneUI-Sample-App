@@ -20,4 +20,5 @@
     <drawable name="oobe2_icon">@drawable/ic_oui_credit_card_outline</drawable>
     <drawable name="oobe3_icon">@drawable/ic_oui_decline</drawable>
 
+    <bool name="leaks_menu_visible">false</bool>
 </resources>
