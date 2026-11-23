@@ -18,4 +18,5 @@
     <bool name="leak_canary_add_launcher_icon"
         tools:ignore="UnusedResources">false
     </bool>
+    <bool name="leaks_menu_visible">true</bool>
 </resources>
