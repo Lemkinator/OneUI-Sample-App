@@ -19,7 +19,8 @@ import kotlinx.coroutines.CoroutineScope
 
 /**
  * Real [UserSettings] over a [FakeSharedPreferences], for pure-JVM specs with no Context
- * (Hilt/Robolectric structurally unavailable). The spec owns [scope] and cancels it after each test; its dispatcher
- * must be unconfined so SharingStarted.Eagerly propagates synchronously.
+ * (Hilt/Robolectric structurally unavailable). The spec owns [scope] and cancels it after each test.
+ *
+ * @param scope its dispatcher must be unconfined so SharingStarted.Eagerly propagates synchronously.
  */
 fun fakeUserSettings(scope: CoroutineScope): UserSettings = UserSettings(FakeSharedPreferences(), scope)
