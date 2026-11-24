@@ -130,8 +130,6 @@ android {
         // Explicit: pins intent against future AGP default changes.
         checkReleaseBuilds = true
         abortOnError = true
-        // lint reports the res folder, so only a folder-wide disable can exempt the xxhdpi-only display_help_*.webp
-        disable += "IconMissingDensityFolder"
     }
     testOptions {
         unitTests {
