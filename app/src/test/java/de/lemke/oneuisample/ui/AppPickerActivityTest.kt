@@ -16,6 +16,9 @@
 package de.lemke.oneuisample.ui
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.os.Looper
 import android.view.Menu
 import android.view.View
@@ -35,6 +38,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
+import de.lemke.oneuisample.di.IoDispatcher
 import de.lemke.oneuisample.di.PausableTestDispatcher
 import de.lemke.oneuisample.ui.util.ListTypes
 import dev.oneuiproject.oneui.layout.ToolbarLayout
@@ -42,11 +46,13 @@ import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
@@ -61,6 +67,11 @@ private fun View.findSearchView(): SearchView? =
 
 private const val OUT_OF_RANGE_TYPE = 999
 private const val NO_MATCH_QUERY = "zzzzzz-no-app-matches"
+private const val ICON_SIZE_PX = 24
+private const val ALPHA_SHIFT = 24
+private const val OPAQUE_ALPHA = 0xFF
+private val LIGHT_ICON_COLOR = 0xFF010101.toInt()
+private val NIGHT_ICON_COLOR = 0xFFFAFAFA.toInt()
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -74,6 +85,10 @@ class AppPickerActivityTest {
 
     @Inject
     lateinit var userSettings: UserSettings
+
+    @Inject
+    @IoDispatcher
+    lateinit var ioDispatcher: CoroutineDispatcher
 
     @Before
     fun setup() {
@@ -411,7 +426,9 @@ class AppPickerActivityTest {
         }
     }
 
-    private fun AppPickerActivity.pausedIo() = (ioDispatcher as PausableTestDispatcher).also { it.paused = true }
+    private val io get() = ioDispatcher as PausableTestDispatcher
+
+    private fun pausedIo() = io.also { it.paused = true }
 
     private fun AppPickerActivity.progressVisible() = findViewById<View>(R.id.app_picker_progress).isVisible
 
@@ -450,19 +467,79 @@ class AppPickerActivityTest {
     }
 
     @Test
-    fun selectLayout_recreate_loadsAgain() {
+    fun recreate_keepsTheListAndTheSelectionsWithoutLoadingAgain() {
         ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
-            var io: PausableTestDispatcher? = null
             scenario.onActivity {
-                io = it.ioDispatcher as PausableTestDispatcher
-                it.onOptionsItemSelected(RoboMenuItem(R.id.menu_app_picker_layout_mode))
+                it.selectType(ListTypes.TYPE_LIST_CHECKBOX)
+                it.itemView(it.list(), 0).performClick()
             }
             shadowOf(Looper.getMainLooper()).idle()
-            io?.dispatchCount shouldBe 1
+            val loads = io.dispatchCount
             scenario.recreate()
             shadowOf(Looper.getMainLooper()).idle()
-            io?.dispatchCount shouldBe 2
+            scenario.onActivity { it.list().selectedStates() shouldBe listOf(true) }
+            io.dispatchCount shouldBe loads
         }
+    }
+
+    @Test
+    fun selectLayout_recreate_keepsTheListWithoutLoadingAgain() {
+        ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { it.toggleLayoutMode() }
+            val loads = io.dispatchCount
+            scenario.recreate()
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity {
+                it.findViewById<View>(R.id.appPickerSelectLayout).isVisible shouldBe true
+                it.progressVisible() shouldBe false
+            }
+            io.dispatchCount shouldBe loads
+        }
+    }
+
+    @Test
+    fun layoutMode_toggleOff_reloadsTheSimpleListWithResetSelections() {
+        launch {
+            selectType(ListTypes.TYPE_LIST_CHECKBOX)
+            itemView(list(), 0).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            list().selectedStates() shouldBe listOf(true)
+            toggleLayoutMode()
+            toggleLayoutMode()
+            listIsShown()
+            list().selectedStates() shouldBe listOf(false)
+        }
+    }
+
+    @Test
+    fun actionIcon_followsTheNightModeOfARecreate() {
+        userSettings.appPickerType = ListTypes.TYPE_LIST_ACTION_BUTTON.ordinal
+        ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { it.list().actionIconColor() shouldBe LIGHT_ICON_COLOR }
+            RuntimeEnvironment.setQualifiers("+night")
+            scenario.recreate()
+            shadowOf(Looper.getMainLooper()).idle()
+            scenario.onActivity { it.list().actionIconColor() shouldBe NIGHT_ICON_COLOR }
+        }
+    }
+
+    private fun SeslAppPickerView.selectedStates() = appDataList.filterIsInstance<AppInfoData>().map { it.selected }
+
+    private fun SeslAppPickerView.actionIconColor(): Int {
+        val icon: Drawable =
+            appDataList
+                .filterIsInstance<AppInfoData>()
+                .first()
+                .actionIcon
+                .shouldNotBeNull()
+        val bitmap = Bitmap.createBitmap(ICON_SIZE_PX, ICON_SIZE_PX, Bitmap.Config.ARGB_8888)
+        icon.setBounds(0, 0, ICON_SIZE_PX, ICON_SIZE_PX)
+        icon.draw(Canvas(bitmap))
+        return (0 until ICON_SIZE_PX * ICON_SIZE_PX)
+            .map { bitmap.getPixel(it % ICON_SIZE_PX, it / ICON_SIZE_PX) }
+            .first { it ushr ALPHA_SHIFT == OPAQUE_ALPHA }
     }
 }
