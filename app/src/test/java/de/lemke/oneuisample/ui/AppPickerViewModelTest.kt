@@ -21,6 +21,7 @@ import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.fakeUserSettings
 import de.lemke.oneuisample.ui.util.ListTypes
 import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
@@ -31,6 +32,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 private const val OUT_OF_RANGE_TYPE = 999
+private const val BACKGROUND_MILLIS = 60_000L
 
 private suspend fun ReceiveTurbine<AppPickerUiState>.awaitLoaded(): AppPickerUiState {
     while (true) {
@@ -64,8 +66,9 @@ class AppPickerViewModelTest : ShouldSpec(
 
         afterEach { settingsScope.cancel() }
 
-        should("initial state is the list type of the settings while loading") {
-            viewModel.state.value shouldBe AppPickerUiState(listType = ListTypes.LIST_TYPE)
+        should("nothing loads before the first collection") {
+            viewModel.state.value.apps shouldBe AppListState.Loading
+            source.loads.shouldBeEmpty()
         }
 
         should("initial state reflects settings appPickerType = 1") {
@@ -170,6 +173,24 @@ class AppPickerViewModelTest : ShouldSpec(
                 val second = awaitLoaded().loaded
                 second shouldBeSameInstanceAs first
                 second.firstApp().selected shouldBe true
+            }
+            source.loads shouldContainExactly listOf(ListTypes.LIST_TYPE)
+        }
+
+        should("keeps the list and its selections when the last collector left for longer than 5 s") {
+            val scheduler = UnconfinedTestDispatcher().scheduler
+            lateinit var first: AppListState.Loaded
+            viewModel.state.test {
+                first = awaitLoaded().loaded
+                first.firstApp().selected = true
+            }
+            scheduler.advanceTimeBy(BACKGROUND_MILLIS)
+            scheduler.runCurrent()
+            viewModel.state.test {
+                val second = awaitLoaded().loaded
+                second shouldBeSameInstanceAs first
+                second.firstApp().selected shouldBe true
+                viewModel.state.value.loaded shouldBeSameInstanceAs first
             }
             source.loads shouldContainExactly listOf(ListTypes.LIST_TYPE)
         }
