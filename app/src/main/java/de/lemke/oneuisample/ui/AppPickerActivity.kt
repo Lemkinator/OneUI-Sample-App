@@ -15,6 +15,7 @@
  */
 package de.lemke.oneuisample.ui
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -227,14 +228,19 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         binding.appPickerGrid.isVisible = picker === binding.appPickerGrid
         binding.appPickerList.isVisible = picker === binding.appPickerList
         configureAppPicker(picker)
-        if (listType == ListTypes.TYPE_LIST_ACTION_BUTTON) {
-            packages.forEach {
-                it.actionIcon =
-                    ResourcesCompat.getDrawable(resources, dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline, theme)
+        val items =
+            if (listType == ListTypes.TYPE_LIST_ACTION_BUTTON) {
+                packages.map {
+                    ThemedActionIconApp(
+                        it,
+                        ResourcesCompat.getDrawable(resources, dev.oneuiproject.oneui.R.drawable.ic_oui_settings_outline, theme),
+                    )
+                }
+            } else {
+                packages
             }
-        }
-        picker.submitList(packages)
-        updateAppPickerVisibility(packages.isNotEmpty())
+        picker.submitList(items)
+        updateAppPickerVisibility(items.isNotEmpty())
     }
 
     private fun updateAppPickerVisibility(visible: Boolean) {
@@ -248,3 +254,8 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         }
     }
 }
+
+private class ThemedActionIconApp(
+    app: AppInfoData,
+    override var actionIcon: Drawable?,
+) : AppInfoData by app
