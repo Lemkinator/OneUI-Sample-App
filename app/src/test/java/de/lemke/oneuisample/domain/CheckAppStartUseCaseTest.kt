@@ -21,6 +21,11 @@ import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,16 +33,24 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLog
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class, sdk = [36])
 class CheckAppStartUseCaseTest {
+    private lateinit var settingsScope: CoroutineScope
     private lateinit var settings: UserSettings
     private lateinit var checkAppStart: CheckAppStartUseCase
 
     @Before
     fun setUp() {
-        settings = fakeUserSettings()
+        settingsScope = CoroutineScope(UnconfinedTestDispatcher())
+        settings = fakeUserSettings(settingsScope)
         checkAppStart = CheckAppStartUseCase(settings, tosVersion = 3)
+    }
+
+    @After
+    fun tearDown() {
+        settingsScope.cancel()
     }
 
     @Test

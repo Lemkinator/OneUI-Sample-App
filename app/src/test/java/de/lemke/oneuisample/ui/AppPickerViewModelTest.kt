@@ -25,7 +25,9 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 private const val OUT_OF_RANGE_TYPE = 999
@@ -46,6 +48,7 @@ private fun AppListState.Loaded.packages() = apps.map { it.appInfo.packageName }
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppPickerViewModelTest : ShouldSpec(
     {
+        lateinit var settingsScope: CoroutineScope
         lateinit var settings: UserSettings
         lateinit var source: FakeAppListSource
         lateinit var viewModel: AppPickerViewModel
@@ -53,10 +56,13 @@ class AppPickerViewModelTest : ShouldSpec(
         fun newViewModel() = AppPickerViewModel(settings, source, UnconfinedTestDispatcher())
 
         beforeEach {
-            settings = fakeUserSettings()
+            settingsScope = CoroutineScope(UnconfinedTestDispatcher())
+            settings = fakeUserSettings(settingsScope)
             source = FakeAppListSource()
             viewModel = newViewModel()
         }
+
+        afterEach { settingsScope.cancel() }
 
         should("initial state is the list type of the settings while loading") {
             viewModel.state.value shouldBe AppPickerUiState(listType = ListTypes.LIST_TYPE)

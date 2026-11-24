@@ -25,9 +25,9 @@ import android.view.Window
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.test.core.app.ApplicationProvider
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
+import de.lemke.oneuisample.HiltTestRule
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
@@ -54,7 +54,7 @@ import com.google.android.material.R as MaterialR
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class SubtabQrFragmentTest {
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val hiltRule = HiltTestRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
 

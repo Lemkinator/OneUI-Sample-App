@@ -39,9 +39,9 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
+import de.lemke.oneuisample.HiltTestRule
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
@@ -79,7 +79,7 @@ private const val UNKNOWN_ITEM_ID = -54321
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MainActivityTest {
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val hiltRule = HiltTestRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<Application>()
 

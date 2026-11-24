@@ -20,9 +20,9 @@ import android.content.Intent
 import android.os.Looper
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
+import de.lemke.oneuisample.HiltTestRule
 import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.MainActivity
@@ -40,7 +40,7 @@ import org.robolectric.annotation.Config
 @Config(application = HiltTestApplication::class, sdk = [36])
 class TransitionUtilsKtTest {
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val hiltRule = HiltTestRule(this)
 
     @Inject
     lateinit var userSettings: UserSettings

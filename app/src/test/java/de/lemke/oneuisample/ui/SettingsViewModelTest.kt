@@ -20,16 +20,25 @@ import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest : ShouldSpec(
     {
+        lateinit var settingsScope: CoroutineScope
         lateinit var settings: UserSettings
         lateinit var viewModel: SettingsViewModel
 
         beforeEach {
-            settings = fakeUserSettings()
+            settingsScope = CoroutineScope(UnconfinedTestDispatcher())
+            settings = fakeUserSettings(settingsScope)
             viewModel = SettingsViewModel(settings)
         }
+
+        afterEach { settingsScope.cancel() }
 
         should("initial state matches settings defaults") {
             viewModel.state.value shouldBe SettingsUiState(devModeEnabled = false, sampleSwitchBar = false)

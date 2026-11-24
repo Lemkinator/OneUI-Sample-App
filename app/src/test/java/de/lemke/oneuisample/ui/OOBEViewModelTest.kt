@@ -26,7 +26,9 @@ import de.lemke.oneuisample.ui.util.EXTRA_VERSION_NAME
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
@@ -36,6 +38,7 @@ private const val TOS_VERSION = 3
 class OOBEViewModelTest : ShouldSpec(
     {
         lateinit var mainScheduler: TestCoroutineScheduler
+        lateinit var settingsScope: CoroutineScope
         lateinit var settings: UserSettings
         lateinit var completeOnboarding: CompleteOnboardingUseCase
 
@@ -48,7 +51,8 @@ class OOBEViewModelTest : ShouldSpec(
 
         beforeEach {
             mainScheduler = UnconfinedTestDispatcher().scheduler
-            settings = fakeUserSettings()
+            settingsScope = CoroutineScope(UnconfinedTestDispatcher())
+            settings = fakeUserSettings(settingsScope)
             completeOnboarding =
                 CompleteOnboardingUseCase(
                     TOS_VERSION,
@@ -58,6 +62,8 @@ class OOBEViewModelTest : ShouldSpec(
                 )
             viewModel = OOBEViewModel(SavedStateHandle(mapOf(EXTRA_VERSION_CODE to 5, EXTRA_VERSION_NAME to "2.0")), completeOnboarding)
         }
+
+        afterEach { settingsScope.cancel() }
 
         should("tosAcceptance starts Idle") {
             viewModel.tosAcceptance.value shouldBe TosAcceptance.Idle

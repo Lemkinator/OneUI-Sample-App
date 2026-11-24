@@ -33,9 +33,9 @@ import androidx.picker.widget.SeslAppPickerGridView
 import androidx.picker.widget.SeslAppPickerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
+import de.lemke.oneuisample.HiltTestRule
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.di.IoDispatcher
@@ -79,7 +79,7 @@ private val NIGHT_ICON_COLOR = 0xFFFAFAFA.toInt()
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class AppPickerActivityTest {
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val hiltRule = HiltTestRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<HiltTestApplication>()
 

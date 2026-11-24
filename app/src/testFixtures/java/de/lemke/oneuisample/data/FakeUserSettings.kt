@@ -16,13 +16,10 @@
 package de.lemke.oneuisample.data
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 /**
  * Real [UserSettings] over a [FakeSharedPreferences], for pure-JVM specs with no Context
- * (Hilt/Robolectric structurally unavailable). The dispatcher must be unconfined so
- * SharingStarted.Eagerly propagates synchronously.
+ * (Hilt/Robolectric structurally unavailable). The spec owns [scope] and cancels it after each test; its dispatcher
+ * must be unconfined so SharingStarted.Eagerly propagates synchronously.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
-fun fakeUserSettings(): UserSettings = UserSettings(FakeSharedPreferences(), CoroutineScope(UnconfinedTestDispatcher()))
+fun fakeUserSettings(scope: CoroutineScope): UserSettings = UserSettings(FakeSharedPreferences(), scope)

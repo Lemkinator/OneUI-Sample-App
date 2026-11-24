@@ -27,9 +27,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
+import de.lemke.oneuisample.HiltTestRule
 import de.lemke.oneuisample.R
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
@@ -53,7 +53,7 @@ import org.robolectric.shadows.ShadowDialog
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class OOBEActivityTest {
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val hiltRule = HiltTestRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<android.app.Application>()
 

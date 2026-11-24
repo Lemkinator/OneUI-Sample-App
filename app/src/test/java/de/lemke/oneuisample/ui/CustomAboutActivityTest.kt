@@ -30,9 +30,9 @@ import androidx.core.view.isVisible
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.google.android.material.appbar.AppBarLayout
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
+import de.lemke.oneuisample.HiltTestRule
 import de.lemke.oneuisample.R
 import io.kotest.matchers.floats.plusOrMinus
 import io.kotest.matchers.shouldBe
@@ -54,7 +54,7 @@ import org.robolectric.shadows.ShadowActivity
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class CustomAboutActivityTest {
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val hiltRule = HiltTestRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<android.app.Application>()
 

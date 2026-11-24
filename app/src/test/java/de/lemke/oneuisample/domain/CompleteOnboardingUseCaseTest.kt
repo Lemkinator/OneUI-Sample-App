@@ -19,17 +19,21 @@ import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CompleteOnboardingUseCaseTest : ShouldSpec(
     {
+        lateinit var settingsScope: CoroutineScope
         lateinit var settings: UserSettings
         lateinit var useCase: CompleteOnboardingUseCase
 
         beforeEach {
-            settings = fakeUserSettings()
+            settingsScope = CoroutineScope(UnconfinedTestDispatcher())
+            settings = fakeUserSettings(settingsScope)
             useCase =
                 CompleteOnboardingUseCase(
                     tosVersion = 2,
@@ -38,6 +42,8 @@ class CompleteOnboardingUseCaseTest : ShouldSpec(
                     UnconfinedTestDispatcher(),
                 )
         }
+
+        afterEach { settingsScope.cancel() }
 
         should("update acceptedTosVersion to the injected TOS version") {
             useCase(versionCode = 10, versionName = "1.0")

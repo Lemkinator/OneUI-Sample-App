@@ -21,10 +21,10 @@ import android.view.View
 import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.BuildConfig.VERSION_NAME
+import de.lemke.oneuisample.HiltTestRule
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
 import dev.oneuiproject.oneui.layout.AppInfoLayout
@@ -52,7 +52,7 @@ private const val STATUS_COUNT = 9
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class AboutActivityTest {
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val hiltRule = HiltTestRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<android.app.Application>()
 
