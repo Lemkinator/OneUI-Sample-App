@@ -41,7 +41,6 @@ import kotlinx.coroutines.withContext
 sealed interface AppListState {
     data object Loading : AppListState
 
-    /** Compares by identity: a reload with equal content must still reach the collector and replace the objects. */
     class Loaded(
         val apps: List<AppInfoData>,
     ) : AppListState
@@ -53,7 +52,6 @@ data class AppPickerUiState(
     val apps: AppListState = AppListState.Loading,
 )
 
-/** What the held list was loaded for. A change of kind reloads the list and resets its selections. */
 private sealed interface AppListKind {
     val listType: ListTypes
 
