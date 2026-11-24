@@ -16,6 +16,8 @@
 package de.lemke.oneuisample.ui
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -25,11 +27,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.picker.model.AppInfoData
 import androidx.picker.widget.SeslAppPickerGridView
+import androidx.picker.widget.SeslAppPickerSelectLayout
 import androidx.picker.widget.SeslAppPickerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -45,14 +50,15 @@ import dev.oneuiproject.oneui.layout.ToolbarLayout
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
@@ -67,6 +73,7 @@ private fun View.findSearchView(): SearchView? =
 
 private const val OUT_OF_RANGE_TYPE = 999
 private const val NO_MATCH_QUERY = "zzzzzz-no-app-matches"
+private const val INSTALLED_PACKAGE = "com.example.installed"
 private const val ICON_SIZE_PX = 24
 private const val ALPHA_SHIFT = 24
 private const val OPAQUE_ALPHA = 0xFF
@@ -93,6 +100,11 @@ class AppPickerActivityTest {
     @Before
     fun setup() {
         hiltRule.inject()
+    }
+
+    @After
+    fun resetNightMode() {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     }
 
     private fun launch(block: AppPickerActivity.() -> Unit = {}) {
@@ -487,14 +499,56 @@ class AppPickerActivityTest {
     fun selectLayout_recreate_keepsTheListWithoutLoadingAgain() {
         ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { it.toggleLayoutMode() }
+            scenario.onActivity {
+                it.toggleLayoutMode()
+                it.itemView(it.selectLayoutList(), 0).performClick()
+            }
+            shadowOf(Looper.getMainLooper()).idle()
             val loads = io.dispatchCount
             scenario.recreate()
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity {
                 it.findViewById<View>(R.id.appPickerSelectLayout).isVisible shouldBe true
                 it.progressVisible() shouldBe false
+                it.selectLayoutList().selectedStates() shouldBe listOf(true)
             }
+            io.dispatchCount shouldBe loads
+        }
+    }
+
+    @Test
+    fun simpleMode_typeChange_showsTheProgressUntilTheNewListIsLoaded() {
+        launch {
+            val io = pausedIo()
+            selectType(ListTypes.TYPE_GRID)
+            io.heldCount shouldBe 1
+            progressVisible() shouldBe true
+            io.resume()
+            shadowOf(Looper.getMainLooper()).idle()
+            progressVisible() shouldBe false
+            gridIsShown()
+            grid().appDataList.filterIsInstance<AppInfoData>().map { it.packageName } shouldBe listOf("de.lemke.oneuisample.debug")
+        }
+    }
+
+    @Test
+    fun appInstalledOrRemovedWhileOpen_keepsTheListWithoutLoadingAgain() {
+        launch {
+            val loaded = loadedApps()
+            val loads = io.dispatchCount
+            val packageManager = shadowOf(context.packageManager)
+            packageManager.installPackage(
+                PackageInfo().apply {
+                    packageName = INSTALLED_PACKAGE
+                    applicationInfo = ApplicationInfo().apply { packageName = INSTALLED_PACKAGE }
+                },
+            )
+            shadowOf(Looper.getMainLooper()).idle()
+            loadedApps() shouldBeSameInstanceAs loaded
+            io.dispatchCount shouldBe loads
+            packageManager.removePackage(INSTALLED_PACKAGE)
+            shadowOf(Looper.getMainLooper()).idle()
+            loadedApps() shouldBeSameInstanceAs loaded
             io.dispatchCount shouldBe loads
         }
     }
@@ -519,12 +573,20 @@ class AppPickerActivityTest {
         ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity { it.list().actionIconColor() shouldBe LIGHT_ICON_COLOR }
-            RuntimeEnvironment.setQualifiers("+night")
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             scenario.recreate()
             shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { it.list().actionIconColor() shouldBe NIGHT_ICON_COLOR }
+            scenario.onActivity {
+                it.resources.configuration.isNightModeActive shouldBe true
+                it.list().actionIconColor() shouldBe NIGHT_ICON_COLOR
+            }
         }
     }
+
+    private fun AppPickerActivity.loadedApps() = ViewModelProvider(this)[AppPickerViewModel::class.java].state.value.apps
+
+    private fun AppPickerActivity.selectLayoutList() =
+        findViewById<SeslAppPickerSelectLayout>(R.id.appPickerSelectLayout).appPickerStateView
 
     private fun SeslAppPickerView.selectedStates() = appDataList.filterIsInstance<AppInfoData>().map { it.selected }
 
