@@ -16,16 +16,19 @@
 package de.lemke.oneuisample.ui
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.picker.model.AppInfoData
 import androidx.picker.widget.SeslAppPickerView
-import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleCallback
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import dagger.hilt.android.testing.HiltAndroidTest
 import de.lemke.oneuisample.HiltTestRule
 import de.lemke.oneuisample.R
@@ -33,6 +36,9 @@ import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.util.ListTypes
 import io.kotest.matchers.shouldBe
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import org.junit.After
 import org.junit.Before
@@ -73,17 +79,53 @@ class AppPickerNightModeTest {
 
     @Test
     fun actionIcon_followsTheNightModeOfTheActivityWhileTheApplicationStaysLight() {
-        ActivityScenario.launch(AppPickerActivity::class.java).use { scenario ->
-            instrumentation.runOnMainSync { AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES) }
-            scenario.recreate()
+        val resumed = CountDownLatch(1)
+        val destroyed = CountDownLatch(1)
+        val current = AtomicReference<AppPickerActivity?>()
+        val callback =
+            ActivityLifecycleCallback { activity, stage ->
+                if (activity !is AppPickerActivity) return@ActivityLifecycleCallback
+                when (stage) {
+                    Stage.RESUMED -> {
+                        current.set(activity)
+                        resumed.countDown()
+                    }
+
+                    Stage.DESTROYED -> {
+                        current.compareAndSet(activity, null)
+                        destroyed.countDown()
+                    }
+
+                    else -> {}
+                }
+            }
+        ActivityLifecycleMonitorRegistry.getInstance().addLifecycleCallback(callback)
+        try {
+            instrumentation.targetContext.startActivity(
+                Intent(instrumentation.targetContext, AppPickerActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            )
+            resumed.await(LOAD_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS) shouldBe true
+            instrumentation.runOnMainSync {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                current.get()?.recreate()
+            }
             instrumentation.targetContext.isNight() shouldBe false
             var iconColor: Int? = null
             val deadline = System.currentTimeMillis() + LOAD_TIMEOUT_MILLIS
             while (iconColor == null && System.currentTimeMillis() < deadline) {
-                scenario.onActivity { iconColor = it.findViewById<SeslAppPickerView>(R.id.appPickerList).actionIconColorOrNull() }
+                instrumentation.runOnMainSync {
+                    val activity = current.get()
+                    if (activity != null && activity.isNight()) {
+                        iconColor = activity.findViewById<SeslAppPickerView>(R.id.appPickerList).actionIconColorOrNull()
+                    }
+                }
                 if (iconColor == null) Thread.sleep(POLL_MILLIS)
             }
             iconColor shouldBe NIGHT_ICON_COLOR
+        } finally {
+            ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(callback)
+            instrumentation.runOnMainSync { current.get()?.finish() }
+            destroyed.await(LOAD_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
         }
     }
 
