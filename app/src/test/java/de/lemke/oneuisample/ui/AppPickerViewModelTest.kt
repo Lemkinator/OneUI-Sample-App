@@ -26,10 +26,15 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.setMain
 
 private const val OUT_OF_RANGE_TYPE = 999
 private const val BACKGROUND_MILLIS = 60_000L
@@ -53,11 +58,15 @@ class AppPickerViewModelTest : ShouldSpec(
         lateinit var settingsScope: CoroutineScope
         lateinit var settings: UserSettings
         lateinit var source: FakeAppListSource
+        lateinit var mainScheduler: TestCoroutineScheduler
         lateinit var viewModel: AppPickerViewModel
 
-        fun newViewModel() = AppPickerViewModel(settings, source, UnconfinedTestDispatcher())
+        fun newViewModel(ioDispatcher: CoroutineDispatcher = UnconfinedTestDispatcher(mainScheduler)) =
+            AppPickerViewModel(settings, source, ioDispatcher)
 
         beforeEach {
+            mainScheduler = TestCoroutineScheduler()
+            Dispatchers.setMain(UnconfinedTestDispatcher(mainScheduler))
             settingsScope = CoroutineScope(UnconfinedTestDispatcher())
             settings = fakeUserSettings(settingsScope)
             source = FakeAppListSource()
@@ -178,14 +187,13 @@ class AppPickerViewModelTest : ShouldSpec(
         }
 
         should("keeps the list and its selections when the last collector left for longer than 5 s") {
-            val scheduler = UnconfinedTestDispatcher().scheduler
             lateinit var first: AppListState.Loaded
             viewModel.state.test {
                 first = awaitLoaded().loaded
                 first.firstApp().selected = true
             }
-            scheduler.advanceTimeBy(BACKGROUND_MILLIS)
-            scheduler.runCurrent()
+            mainScheduler.advanceTimeBy(BACKGROUND_MILLIS)
+            mainScheduler.runCurrent()
             viewModel.state.test {
                 val second = awaitLoaded().loaded
                 second shouldBeSameInstanceAs first
