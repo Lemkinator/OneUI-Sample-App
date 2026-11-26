@@ -41,6 +41,7 @@ import de.lemke.oneuisample.ui.util.ListTypes
 import io.kotest.matchers.shouldBe
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicReference
@@ -75,7 +76,7 @@ class AppPickerNightModeTest {
     private val destroyed = CountDownLatch(1)
     private val current = AtomicReference<AppPickerActivity?>()
     private val finishing = AtomicReference<AppPickerActivity?>()
-    private var systemNightMode = UiModeManager.MODE_NIGHT_AUTO
+    private var systemNightMode: Int? = null
 
     private val lifecycleCallback =
         ActivityLifecycleCallback { activity, stage ->
@@ -108,15 +109,15 @@ class AppPickerNightModeTest {
 
     @After
     fun tearDown() {
-        ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(lifecycleCallback)
         try {
             val last = current.get()
             finishing.set(last)
             instrumentation.runOnMainSync { last?.finish() }
             if (last != null) destroyed.await(LOAD_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS) shouldBe true
         } finally {
+            ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(lifecycleCallback)
             instrumentation.runOnMainSync { AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) }
-            setSystemNightMode(systemNightMode)
+            systemNightMode?.let(::setSystemNightMode)
         }
     }
 
@@ -161,8 +162,17 @@ class AppPickerNightModeTest {
         val poll =
             object : Runnable {
                 override fun run() {
-                    val value = check()
-                    if (value != null) result.complete(value) else handler.postDelayed(this, POLL_MILLIS)
+                    val value =
+                        try {
+                            check()
+                        } catch (e: RuntimeException) {
+                            result.completeExceptionally(e)
+                            return
+                        }
+                    when {
+                        value != null -> result.complete(value)
+                        !result.isDone -> handler.postDelayed(this, POLL_MILLIS)
+                    }
                 }
             }
         handler.post(poll)
@@ -171,7 +181,10 @@ class AppPickerNightModeTest {
                 result.get(LOAD_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
             } catch (_: TimeoutException) {
                 null
+            } catch (e: ExecutionException) {
+                throw e.cause ?: e
             } finally {
+                result.cancel(false)
                 handler.removeCallbacks(poll)
             }
         return checkNotNull(value) { "Timed out after $LOAD_TIMEOUT_MILLIS ms waiting for $description" }
