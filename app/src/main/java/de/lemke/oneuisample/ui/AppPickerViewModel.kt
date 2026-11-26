@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
@@ -76,10 +77,10 @@ class AppPickerViewModel @Inject constructor(
             .map { it.appListKind() }
             .distinctUntilChanged()
             .flatMapLatest { kind ->
-                loadApps(kind).combine(userSettings.flow) { apps, settings ->
+                loadApps(kind).combine(listTypeOf(kind)) { apps, listType ->
                     AppPickerUiState(
-                        listType = listTypeAt(settings.appPickerType),
-                        isSelectLayoutMode = settings.appPickerSelectLayoutMode,
+                        listType = listType,
+                        isSelectLayoutMode = kind is AppListKind.SelectLayout,
                         apps = apps,
                     )
                 }
@@ -101,6 +102,12 @@ class AppPickerViewModel @Inject constructor(
         userSettings.appPickerSelectLayoutMode = newValue
         return newValue
     }
+
+    private fun listTypeOf(kind: AppListKind): Flow<ListTypes> =
+        when (kind) {
+            is AppListKind.Simple -> flowOf(kind.listType)
+            AppListKind.SelectLayout -> userSettings.flow.map { listTypeAt(it.appPickerType) }.distinctUntilChanged()
+        }
 
     private fun loadApps(kind: AppListKind): Flow<AppListState> =
         flow {

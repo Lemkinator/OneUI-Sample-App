@@ -195,6 +195,21 @@ class AppPickerViewModelTest : ShouldSpec(
             source.loads shouldContainExactly listOf(ListTypes.TYPE_LIST_CHECKBOX, ListTypes.TYPE_GRID)
         }
 
+        should("no state pairs the select layout mode with the simple list while the checkbox list loads") {
+            viewModel.state.test {
+                val simple = awaitLoaded().loaded
+                settings.appPickerSelectLayoutMode = true
+                val transition =
+                    buildList {
+                        do {
+                            add(awaitItem())
+                        } while (last().apps !is AppListState.Loaded)
+                    }
+                transition.filter { it.isSelectLayoutMode }.forEach { it.apps shouldNotBeSameInstanceAs simple }
+                transition.last().loaded.packages() shouldContainExactly listOf("app.TYPE_LIST_CHECKBOX")
+            }
+        }
+
         should("keeps the list and its selections for a new collector, as after a recreate or a return from the background") {
             lateinit var first: AppListState.Loaded
             viewModel.state.test {
