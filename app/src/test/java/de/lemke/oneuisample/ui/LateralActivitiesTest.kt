@@ -19,9 +19,9 @@ import android.content.Intent
 import android.os.Looper
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
+import de.lemke.oneuisample.HiltTestRule
 import de.lemke.oneuisample.R
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -39,7 +39,7 @@ import org.robolectric.fakes.RoboMenuItem
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class LateralActivitiesTest {
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val hiltRule = HiltTestRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<HiltTestApplication>()
 

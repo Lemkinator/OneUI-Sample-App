@@ -17,7 +17,6 @@ package de.lemke.oneuisample
 
 import androidx.preference.PreferenceManager
 import androidx.test.core.app.ApplicationProvider
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import de.lemke.oneuisample.data.UserSettings
@@ -41,7 +40,7 @@ import org.robolectric.annotation.Config
 @Config(application = HiltTestApplication::class, sdk = [36])
 class TestFixturesModuleInstallationTest {
     @get:Rule
-    val hiltRule = HiltAndroidRule(this)
+    val hiltRule = HiltTestRule(this)
 
     @Inject
     lateinit var settings: UserSettings

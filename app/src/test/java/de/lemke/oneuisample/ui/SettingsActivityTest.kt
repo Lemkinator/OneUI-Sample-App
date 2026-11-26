@@ -31,9 +31,9 @@ import androidx.preference.PreferenceScreen
 import androidx.preference.SeslSwitchPreferenceScreen
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
+import de.lemke.oneuisample.HiltTestRule
 import de.lemke.oneuisample.R
 import de.lemke.oneuisample.data.UserSettings
 import dev.oneuiproject.oneui.preference.InsetPreferenceCategory
@@ -59,7 +59,7 @@ import dev.oneuiproject.oneui.design.R as designR
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class SettingsActivityTest {
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val hiltRule = HiltTestRule(this)
 
     @Inject
     lateinit var userSettings: UserSettings

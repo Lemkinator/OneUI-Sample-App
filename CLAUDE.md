@@ -96,14 +96,15 @@ Tests never mock settings — every test uses the real `UserSettings` over an is
 - **Hilt tests** (Robolectric `src/test` and instrumented `src/androidTest`) share a single `TestSettingsModule` in
   `app/src/testFixtures`, provided to both via the module's own testFixtures artifact — provides
   `UserSettings(freshTestPreferences(context), CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher()))`, replacing
-  `PersistenceModule`. `TestFixturesModuleInstallationTest` (`app/src/test/java/de/lemke/oneuisample`) is a permanent regression guard: it
+  `PersistenceModule`. A Hilt test declares `HiltTestRule(this)` (`app/src/testFixtures`) instead of a bare `HiltAndroidRule`; the module
+  registers its scope with `HiltTestRule.closeAfterTest`, so the rule cancels it when the test ends. `TestFixturesModuleInstallationTest` (`app/src/test/java/de/lemke/oneuisample`) is a permanent regression guard: it
   asserts an injected settings write never lands in production `SharedPreferences`, so if Hilt's KSP aggregation ever silently drops this
   module for the Robolectric side, this test turns red instead of failing silently.
-- **Pure-JVM specs** (the ViewModelTests, no Context available) use `fakeUserSettings()` (`app/src/testFixtures`) — a real
-  `UserSettings(FakeSharedPreferences(), CoroutineScope(UnconfinedTestDispatcher()))` — `FakeSharedPreferences` fires
-  `OnSharedPreferenceChangeListener` correctly, so `.flow` behaves like the real thing; the dispatcher must be unconfined so
-  `SharingStarted.Eagerly` propagates synchronously (avoids the `StandardTestDispatcher`-queues-without-running flake `.state.value` reads
-  are otherwise exposed to).
+- **Pure-JVM specs** (the ViewModelTests, no Context available) use `fakeUserSettings(scope)` (`app/src/testFixtures`) — a real
+  `UserSettings(FakeSharedPreferences(), scope)` — `FakeSharedPreferences` fires `OnSharedPreferenceChangeListener` correctly, so `.flow`
+  behaves like the real thing. The spec owns the scope: it creates `CoroutineScope(UnconfinedTestDispatcher())` before each test and
+  cancels it after. The dispatcher must be unconfined so `SharingStarted.Eagerly` propagates synchronously (avoids the
+  `StandardTestDispatcher`-queues-without-running flake `.state.value` reads are otherwise exposed to).
 - **`freshTestPreferences()`** (`app/src/testFixtures`) returns a UUID-named `SharedPreferences` file, fresh by construction — never a
   fixed name or `.edit().clear()`.
 - **Widgets persist into the injected store.** `SettingsFragment.onCreatePreferences` sets

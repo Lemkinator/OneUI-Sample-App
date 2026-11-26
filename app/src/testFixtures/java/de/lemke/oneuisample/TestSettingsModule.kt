@@ -27,6 +27,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 @Module
@@ -39,5 +40,9 @@ object TestSettingsModule {
     @Singleton
     fun provideTestUserSettings(
         @ApplicationContext context: Context,
-    ): UserSettings = UserSettings(freshTestPreferences(context), CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher()))
+    ): UserSettings =
+        UserSettings(
+            freshTestPreferences(context),
+            HiltTestRule.closeAfterTest(CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher())) { it.cancel() },
+        )
 }

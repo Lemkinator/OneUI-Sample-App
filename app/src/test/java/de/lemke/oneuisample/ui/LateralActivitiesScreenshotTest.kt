@@ -27,9 +27,9 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import com.airbnb.lottie.LottieAnimationView
 import com.github.takahirom.roborazzi.captureRoboImage
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
+import de.lemke.oneuisample.HiltTestRule
 import de.lemke.oneuisample.R
 import org.junit.Rule
 import org.junit.Test
@@ -46,7 +46,7 @@ import dev.oneuiproject.oneui.design.R as designR
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class LateralActivitiesScreenshotTest {
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val hiltRule = HiltTestRule(this)
 
     private val context get() = ApplicationProvider.getApplicationContext<HiltTestApplication>()
 

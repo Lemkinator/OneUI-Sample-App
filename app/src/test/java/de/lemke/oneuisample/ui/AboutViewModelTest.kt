@@ -20,16 +20,25 @@ import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.data.fakeUserSettings
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AboutViewModelTest : ShouldSpec(
     {
+        lateinit var settingsScope: CoroutineScope
         lateinit var settings: UserSettings
         lateinit var viewModel: AboutViewModel
 
         beforeEach {
-            settings = fakeUserSettings()
+            settingsScope = CoroutineScope(UnconfinedTestDispatcher())
+            settings = fakeUserSettings(settingsScope)
             viewModel = AboutViewModel(settings)
         }
+
+        afterEach { settingsScope.cancel() }
 
         should("initial state has devModeEnabled = false") {
             viewModel.state.value shouldBe AboutUiState(devModeEnabled = false)
