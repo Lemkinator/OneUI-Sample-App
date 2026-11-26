@@ -172,6 +172,29 @@ class AppPickerViewModelTest : ShouldSpec(
             source.loads shouldContainExactly listOf(ListTypes.TYPE_LIST_CHECKBOX, ListTypes.TYPE_GRID)
         }
 
+        should("toggling the select layout mode off shows Loading, then the simple list of the stored type with reset selections") {
+            settings.appPickerSelectLayoutMode = true
+            settings.appPickerType = ListTypes.TYPE_GRID.ordinal
+            newViewModel(StandardTestDispatcher(mainScheduler)).state.test {
+                awaitItem() shouldBe AppPickerUiState(listType = ListTypes.TYPE_GRID, isSelectLayoutMode = true)
+                mainScheduler.runCurrent()
+                val selectLayout = awaitItem().loaded
+                selectLayout.firstApp().selected = true
+                settings.appPickerSelectLayoutMode = false
+                awaitItem() shouldBe AppPickerUiState(listType = ListTypes.TYPE_GRID, isSelectLayoutMode = false)
+                expectNoEvents()
+                source.loads shouldContainExactly listOf(ListTypes.TYPE_LIST_CHECKBOX)
+                mainScheduler.runCurrent()
+                val state = awaitItem()
+                state.isSelectLayoutMode shouldBe false
+                state.listType shouldBe ListTypes.TYPE_GRID
+                state.loaded shouldNotBeSameInstanceAs selectLayout
+                state.loaded.packages() shouldContainExactly listOf("app.TYPE_GRID")
+                state.loaded.firstApp().selected shouldBe false
+            }
+            source.loads shouldContainExactly listOf(ListTypes.TYPE_LIST_CHECKBOX, ListTypes.TYPE_GRID)
+        }
+
         should("keeps the list and its selections for a new collector, as after a recreate or a return from the background") {
             lateinit var first: AppListState.Loaded
             viewModel.state.test {
