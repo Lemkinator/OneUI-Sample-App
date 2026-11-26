@@ -15,11 +15,14 @@
  */
 package de.lemke.oneuisample.ui
 
+import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.picker.model.AppInfoData
 import androidx.picker.widget.SeslAppPickerView
@@ -36,8 +39,10 @@ import de.lemke.oneuisample.bypassOobe
 import de.lemke.oneuisample.data.UserSettings
 import de.lemke.oneuisample.ui.util.ListTypes
 import io.kotest.matchers.shouldBe
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import org.junit.After
@@ -64,69 +69,112 @@ class AppPickerNightModeTest {
     lateinit var userSettings: UserSettings
 
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
+    private val uiModeManager get() = checkNotNull(instrumentation.targetContext.getSystemService(UiModeManager::class.java))
+
+    private val resumed = CountDownLatch(1)
+    private val destroyed = CountDownLatch(1)
+    private val current = AtomicReference<AppPickerActivity?>()
+    private val finishing = AtomicReference<AppPickerActivity?>()
+    private var systemNightMode = UiModeManager.MODE_NIGHT_AUTO
+
+    private val lifecycleCallback =
+        ActivityLifecycleCallback { activity, stage ->
+            if (activity !is AppPickerActivity) return@ActivityLifecycleCallback
+            when (stage) {
+                Stage.RESUMED -> {
+                    current.set(activity)
+                    resumed.countDown()
+                }
+
+                Stage.DESTROYED -> {
+                    current.compareAndSet(activity, null)
+                    if (finishing.get() === activity) destroyed.countDown()
+                }
+
+                else -> {}
+            }
+        }
 
     @Before
     fun setUp() {
         hiltRule.inject()
         userSettings.bypassOobe()
         userSettings.appPickerType = ListTypes.TYPE_LIST_ACTION_BUTTON.ordinal
+        systemNightMode = uiModeManager.nightMode
+        setSystemNightMode(UiModeManager.MODE_NIGHT_NO)
+        awaitOnMain("the application context to turn light") { true.takeUnless { instrumentation.targetContext.isNight() } }
+        ActivityLifecycleMonitorRegistry.getInstance().addLifecycleCallback(lifecycleCallback)
     }
 
     @After
-    fun resetNightMode() {
-        instrumentation.runOnMainSync { AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) }
+    fun tearDown() {
+        ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(lifecycleCallback)
+        try {
+            val last = current.get()
+            finishing.set(last)
+            instrumentation.runOnMainSync { last?.finish() }
+            if (last != null) destroyed.await(LOAD_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS) shouldBe true
+        } finally {
+            instrumentation.runOnMainSync { AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) }
+            setSystemNightMode(systemNightMode)
+        }
     }
 
     @Test
     fun actionIcon_followsTheNightModeOfTheActivityWhileTheApplicationStaysLight() {
-        val resumed = CountDownLatch(1)
-        val destroyed = CountDownLatch(1)
-        val current = AtomicReference<AppPickerActivity?>()
-        val callback =
-            ActivityLifecycleCallback { activity, stage ->
-                if (activity !is AppPickerActivity) return@ActivityLifecycleCallback
-                when (stage) {
-                    Stage.RESUMED -> {
-                        current.set(activity)
-                        resumed.countDown()
-                    }
-
-                    Stage.DESTROYED -> {
-                        current.compareAndSet(activity, null)
-                        destroyed.countDown()
-                    }
-
-                    else -> {}
-                }
-            }
-        ActivityLifecycleMonitorRegistry.getInstance().addLifecycleCallback(callback)
-        try {
-            instrumentation.targetContext.startActivity(
-                Intent(instrumentation.targetContext, AppPickerActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-            )
-            resumed.await(LOAD_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS) shouldBe true
-            instrumentation.runOnMainSync {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                current.get()?.recreate()
-            }
-            instrumentation.targetContext.isNight() shouldBe false
-            var iconColor: Int? = null
-            val deadline = System.currentTimeMillis() + LOAD_TIMEOUT_MILLIS
-            while (iconColor == null && System.currentTimeMillis() < deadline) {
-                instrumentation.runOnMainSync {
-                    val activity = current.get()
-                    if (activity != null && activity.isNight()) {
-                        iconColor = activity.findViewById<SeslAppPickerView>(R.id.appPickerList).actionIconColorOrNull()
-                    }
-                }
-                if (iconColor == null) Thread.sleep(POLL_MILLIS)
-            }
-            iconColor shouldBe NIGHT_ICON_COLOR
-        } finally {
-            ActivityLifecycleMonitorRegistry.getInstance().removeLifecycleCallback(callback)
-            instrumentation.runOnMainSync { current.get()?.finish() }
-            destroyed.await(LOAD_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+        instrumentation.targetContext.startActivity(
+            Intent(instrumentation.targetContext, AppPickerActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+        )
+        resumed.await(LOAD_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS) shouldBe true
+        instrumentation.runOnMainSync {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            current.get()?.recreate()
         }
+        val iconColor =
+            awaitOnMain("the recreated night Activity to show the action icon") {
+                current
+                    .get()
+                    ?.takeIf { it.isNight() }
+                    ?.findViewById<SeslAppPickerView>(R.id.appPickerList)
+                    ?.actionIconColorOrNull()
+            }
+        iconColor shouldBe NIGHT_ICON_COLOR
+        instrumentation.targetContext.isNight() shouldBe false
+    }
+
+    private fun setSystemNightMode(mode: Int) {
+        val uiAutomation = instrumentation.uiAutomation
+        uiAutomation.adoptShellPermissionIdentity()
+        try {
+            uiModeManager.nightMode = mode
+        } finally {
+            uiAutomation.dropShellPermissionIdentity()
+        }
+    }
+
+    private fun <T : Any> awaitOnMain(
+        description: String,
+        check: () -> T?,
+    ): T {
+        val result = CompletableFuture<T>()
+        val handler = Handler(Looper.getMainLooper())
+        val poll =
+            object : Runnable {
+                override fun run() {
+                    val value = check()
+                    if (value != null) result.complete(value) else handler.postDelayed(this, POLL_MILLIS)
+                }
+            }
+        handler.post(poll)
+        val value =
+            try {
+                result.get(LOAD_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+            } catch (_: TimeoutException) {
+                null
+            } finally {
+                handler.removeCallbacks(poll)
+            }
+        return checkNotNull(value) { "Timed out after $LOAD_TIMEOUT_MILLIS ms waiting for $description" }
     }
 
     private fun Context.isNight() = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
