@@ -374,11 +374,36 @@ class AppPickerActivityTest {
     }
 
     @Test
-    fun layoutMode_search_filtersTheSelectLayout() {
+    fun layoutMode_searchWithoutMatch_emptiesTheSelectLayout() {
+        launch {
+            toggleLayoutMode()
+            search(NO_MATCH_QUERY)
+            findViewById<View>(R.id.appPickerSelectLayout).isVisible shouldBe true
+            selectLayoutList().adapter.shouldNotBeNull().itemCount shouldBe 0
+            noEntry().isVisible shouldBe false
+        }
+    }
+
+    @Test
+    fun layoutMode_searchWithMatch_keepsTheMatchingAppInTheSelectLayout() {
         launch {
             toggleLayoutMode()
             search("OneUI")
             findViewById<View>(R.id.appPickerSelectLayout).isVisible shouldBe true
+            selectLayoutList().adapter.shouldNotBeNull().itemCount shouldBe 1
+            selectLayoutList().appDataList.filterIsInstance<AppInfoData>().map { it.packageName } shouldBe
+                listOf("de.lemke.oneuisample.debug")
+        }
+    }
+
+    @Test
+    fun simpleMode_searchWhileTheTypeChangeLoads_filtersTheOldPicker() {
+        launch {
+            pausedIo()
+            selectType(ListTypes.TYPE_GRID)
+            search(NO_MATCH_QUERY)
+            noEntry().isVisible shouldBe true
+            list().adapter.shouldNotBeNull().itemCount shouldBe 0
         }
     }
 
@@ -539,6 +564,7 @@ class AppPickerActivityTest {
             shadowOf(Looper.getMainLooper()).idle()
             noEntry().isVisible shouldBe true
             grid().isVisible shouldBe false
+            grid().adapter.shouldNotBeNull().itemCount shouldBe 0
         }
     }
 
