@@ -529,6 +529,40 @@ class AppPickerActivityTest {
     }
 
     @Test
+    fun simpleMode_searchDuringTypeChangeLoad_filtersTheNewGrid() {
+        launch {
+            val io = pausedIo()
+            selectType(ListTypes.TYPE_GRID)
+            io.heldCount shouldBe 1
+            search(NO_MATCH_QUERY)
+            io.resume()
+            shadowOf(Looper.getMainLooper()).idle()
+            noEntry().isVisible shouldBe true
+            grid().isVisible shouldBe false
+        }
+    }
+
+    @Test
+    fun simpleMode_searchEnded_leavesNoFilterOnTheOtherPicker() {
+        launch {
+            val io = pausedIo()
+            selectType(ListTypes.TYPE_GRID)
+            io.heldCount shouldBe 1
+            search(NO_MATCH_QUERY)
+            io.resume()
+            shadowOf(Looper.getMainLooper()).idle()
+            findViewById<ToolbarLayout>(R.id.toolbar_layout).endSearchMode()
+            shadowOf(Looper.getMainLooper()).idle()
+            selectType(ListTypes.TYPE_LIST_CHECKBOX)
+            shadowOf(Looper.getMainLooper()).idle()
+            listIsShown()
+            noEntry().isVisible shouldBe false
+            list().adapter.shouldNotBeNull().itemCount shouldBe 1
+            list().appDataList.filterIsInstance<AppInfoData>().map { it.packageName } shouldBe listOf("de.lemke.oneuisample.debug")
+        }
+    }
+
+    @Test
     fun layoutMode_toggleOff_reloadsTheSimpleListWithResetSelections() {
         launch {
             selectType(ListTypes.TYPE_LIST_CHECKBOX)

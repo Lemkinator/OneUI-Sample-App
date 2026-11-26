@@ -68,6 +68,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
             }
     private var renderedState: AppPickerUiState? = null
     private var submittedApps: AppListState.Loaded? = null
+    private var searchQuery = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -163,6 +164,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
         } else {
             setAppPickerType(state.listType, apps)
         }
+        applyFilter(searchQuery)
     }
 
     private fun showAppPickerMode(isSelectLayoutMode: Boolean) {
@@ -201,6 +203,7 @@ class AppPickerActivity : AppCompatActivity(), ViewYTranslator by AppBarAwareYTr
     }
 
     private fun applyFilter(query: String = "") {
+        searchQuery = query
         if (viewModel.state.value.isSelectLayoutMode) {
             binding.appPickerSelectLayout.setSearchFilter(query)
         } else {
