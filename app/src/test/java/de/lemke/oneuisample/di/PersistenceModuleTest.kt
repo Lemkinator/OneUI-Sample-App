@@ -25,7 +25,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -48,11 +48,12 @@ class PersistenceModuleTest {
     }
 
     @Test
-    fun provideUserSettings_persistsAcrossInstances() {
-        val context = ApplicationProvider.getApplicationContext<Application>()
+    fun provideUserSettings_persistsAcrossInstances() =
+        runTest {
+            val context = ApplicationProvider.getApplicationContext<Application>()
 
-        PersistenceModule.provideUserSettings(context, TestScope()).devModeEnabled = true
+            PersistenceModule.provideUserSettings(context, backgroundScope).devModeEnabled = true
 
-        PersistenceModule.provideUserSettings(context, TestScope()).devModeEnabled shouldBe true
-    }
+            PersistenceModule.provideUserSettings(context, backgroundScope).devModeEnabled shouldBe true
+        }
 }
