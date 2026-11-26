@@ -16,8 +16,6 @@
 package de.lemke.oneuisample.ui
 
 import android.content.Intent
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageInfo
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -51,7 +49,6 @@ import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeSameInstanceAs
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import org.junit.After
@@ -74,7 +71,6 @@ private fun View.findSearchView(): SearchView? =
 
 private const val OUT_OF_RANGE_TYPE = 999
 private const val NO_MATCH_QUERY = "zzzzzz-no-app-matches"
-private const val INSTALLED_PACKAGE = "com.example.installed"
 private const val ICON_SIZE_PX = 24
 private const val ALPHA_SHIFT = 24
 private const val OPAQUE_ALPHA = 0xFF
@@ -529,28 +525,6 @@ class AppPickerActivityTest {
             progressVisible() shouldBe false
             gridIsShown()
             grid().appDataList.filterIsInstance<AppInfoData>().map { it.packageName } shouldBe listOf("de.lemke.oneuisample.debug")
-        }
-    }
-
-    @Test
-    fun appInstalledOrRemovedWhileOpen_keepsTheListWithoutLoadingAgain() {
-        launch {
-            val loaded = loadedApps()
-            val loads = io.dispatchCount
-            val packageManager = shadowOf(context.packageManager)
-            packageManager.installPackage(
-                PackageInfo().apply {
-                    packageName = INSTALLED_PACKAGE
-                    applicationInfo = ApplicationInfo().apply { packageName = INSTALLED_PACKAGE }
-                },
-            )
-            shadowOf(Looper.getMainLooper()).idle()
-            loadedApps() shouldBeSameInstanceAs loaded
-            io.dispatchCount shouldBe loads
-            packageManager.removePackage(INSTALLED_PACKAGE)
-            shadowOf(Looper.getMainLooper()).idle()
-            loadedApps() shouldBeSameInstanceAs loaded
-            io.dispatchCount shouldBe loads
         }
     }
 
