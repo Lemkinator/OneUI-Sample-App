@@ -48,6 +48,7 @@ import de.lemke.oneuisample.di.PausableTestDispatcher
 import de.lemke.oneuisample.ui.util.ListTypes
 import dev.oneuiproject.oneui.layout.ToolbarLayout
 import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
@@ -572,16 +573,22 @@ class AppPickerActivityTest {
         userSettings.appPickerType = ListTypes.TYPE_LIST_ACTION_BUTTON.ordinal
         ActivityScenario.launch<AppPickerActivity>(Intent(context, AppPickerActivity::class.java)).use { scenario ->
             shadowOf(Looper.getMainLooper()).idle()
-            scenario.onActivity { it.list().actionIconColor() shouldBe LIGHT_ICON_COLOR }
+            scenario.onActivity {
+                it.list().actionIconColor() shouldBe LIGHT_ICON_COLOR
+                it.viewModelApps().shouldNotBeEmpty().forEach { app -> app.actionIcon.shouldBeNull() }
+            }
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             scenario.recreate()
             shadowOf(Looper.getMainLooper()).idle()
             scenario.onActivity {
                 it.resources.configuration.isNightModeActive shouldBe true
                 it.list().actionIconColor() shouldBe NIGHT_ICON_COLOR
+                it.viewModelApps().shouldNotBeEmpty().forEach { app -> app.actionIcon.shouldBeNull() }
             }
         }
     }
+
+    private fun AppPickerActivity.viewModelApps() = (loadedApps() as AppListState.Loaded).apps
 
     private fun AppPickerActivity.loadedApps() = ViewModelProvider(this)[AppPickerViewModel::class.java].state.value.apps
 
